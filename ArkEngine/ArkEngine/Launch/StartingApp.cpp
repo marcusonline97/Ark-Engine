@@ -1,0 +1,12 @@
+#include "StartingApp.hpp"
+
+namespace vk
+{
+	void StartApp::run()
+	{
+		while (!wkWindow.shouldClose())
+		{
+			glfwPollEvents();
+		}
+	}
+}
