@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../Window/vkWindow.hpp" //Fix later / * Feeling lazy *
-
+#include "../Core/Engine/Rendering/Shaders/vkPipeline.hpp" //Stupidly long path but i will have to fix later :D 
 namespace vk
 {
 	class StartApp
@@ -13,7 +13,7 @@ namespace vk
 	
 		void run();
 	private:
-		VkWindow wkWindow{ WIDTH, HEIGHT, "Ark Engine!" };
-
+		VkWindow vkWindow{ WIDTH, HEIGHT, "Ark Engine!" };
+		VKPipeline vkPipeline{ "Shaders/simple_shader.vert.spv", "Shaders/simple_shader.frag.spv" };
 	};
 }

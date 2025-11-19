@@ -4,7 +4,7 @@ namespace vk
 {
 	void StartApp::run()
 	{
-		while (!wkWindow.shouldClose())
+		while (!vkWindow.shouldClose())
 		{
 			glfwPollEvents();
 		}
