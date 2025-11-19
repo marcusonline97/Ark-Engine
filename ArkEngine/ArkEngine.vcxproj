@@ -139,6 +139,13 @@
     <ClInclude Include="ArkEngine\Launch\StartingApp.hpp" />
     <ClInclude Include="ArkEngine\Window\vkWindow.hpp" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="ArkEngine\Core\Engine\Rendering\Shaders\compile.bat" />
+    <None Include="ArkEngine\Core\Engine\Rendering\Shaders\simple_shader.frag" />
+    <None Include="ArkEngine\Core\Engine\Rendering\Shaders\simple_shader.frag.spv" />
+    <None Include="ArkEngine\Core\Engine\Rendering\Shaders\simple_shader.vert" />
+    <None Include="ArkEngine\Core\Engine\Rendering\Shaders\simple_shader.vert.spv" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
