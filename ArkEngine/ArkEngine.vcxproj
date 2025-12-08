@@ -145,6 +145,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ArkEngine\Core\Engine\Rendering\Shaders\vkPipeline.cpp" />
+    <ClCompile Include="ArkEngine\Core\Engine\Rendering\VK_Renderer.cpp" />
     <ClCompile Include="ArkEngine\Launch\main.cpp" />
     <ClCompile Include="ArkEngine\Window\vkWindow.cpp" />
   </ItemGroup>
@@ -155,6 +156,8 @@
     <ClInclude Include="3rdParty\include\GLFW\glfw3.h" />
     <ClInclude Include="3rdParty\include\GLFW\glfw3native.h" />
     <ClInclude Include="ArkEngine\Core\Engine\Rendering\Shaders\vkPipeline.hpp" />
+    <ClInclude Include="ArkEngine\Core\Engine\Rendering\VK_Renderer.h" />
+    <ClInclude Include="ArkEngine\Core\Info\info.h" />
     <ClInclude Include="ArkEngine\Window\vkWindow.hpp" />
   </ItemGroup>
   <ItemGroup>

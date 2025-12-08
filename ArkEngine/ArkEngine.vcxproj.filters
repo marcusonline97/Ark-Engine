@@ -24,6 +24,9 @@
     <ClCompile Include="ArkEngine\Core\Engine\Rendering\Shaders\vkPipeline.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ArkEngine\Core\Engine\Rendering\VK_Renderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Library Include="3rdParty\lib\glfw3.lib" />
@@ -39,6 +42,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ArkEngine\Core\Engine\Rendering\Shaders\vkPipeline.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\Core\Engine\Rendering\VK_Renderer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\Core\Info\info.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
