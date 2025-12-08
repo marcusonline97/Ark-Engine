@@ -1,5 +1,2 @@
-﻿  vkPipeline.cpp
+﻿  main.cpp
   ArkEngine.vcxproj -> C:\ArkEngine\Ark-Engine\ArkEngine\x64\Debug\ArkEngine.exe
-  Det går inte att hitta sökvägen.
-C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\Microsoft.CppCommon.targets(166,5): error MSB3073: The command "copy /Y "C:\ArkEngine\Ark-Engine\ArkEngine\Core\Engine\Rendering\Shaders\*.spv" "C:\ArkEngine\Ark-Engine\ArkEngine\x64\Debug\"
-C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\Microsoft.CppCommon.targets(166,5): error MSB3073: :VCEnd" exited with code 1.

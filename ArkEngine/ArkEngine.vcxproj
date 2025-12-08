@@ -71,10 +71,10 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(ProjectDir)\Window;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Core\Engine\Rendering\Shaders\;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)\Window;$(SolutionDir)\3rdParty\include\glm;C:\ArkEngine\Ark-Engine\ArkTools\ArkTools\;$(SolutionDir)\Core\Engine\Rendering\Shaders\;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(ProjectDir)\Window;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Core\Engine\Rendering\Shaders\;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)\Window;$(SolutionDir)\3rdParty\include\glm;C:\ArkEngine\Ark-Engine\ArkTools\ArkTools\;$(SolutionDir)\Core\Engine\Rendering\Shaders\;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -114,11 +114,12 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>vulkan-1.lib;SPIRVd.lib;SPIRV-Toolsd.lib;SPIRV-Tools-diffd.lib;SPIRV-Tools-optd.lib;glslangd.lib;GenericCodeGend.lib;glslang-default-resource-limitsd.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\ArkEngine\Ark-Engine\ArkEngine\3rdParty\lib;$(ProjectDir)..\3rdParty\lib;$(VULKAN_SDK)\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>user32.lib;gdi32.lib;shell32.lib;advapi32.lib;vulkan-1.lib;glfw3.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)\3rdParty\lib\;C:\VulkanSDK\1.4.328.1\Lib</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>copy /Y "$(ProjectDir)Core\Engine\Rendering\Shaders\*.spv" "$(TargetDir)"</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -134,15 +135,17 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(SolutionDir)\3rdParty\lib\;C:\VulkanSDK\1.4.328.1\Lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>user32.lib;gdi32.lib;shell32.lib;advapi32.lib;vulkan-1.lib;glfw3.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>copy /Y "$(ProjectDir)Core\Engine\Rendering\Shaders\*.spv" "$(TargetDir)"</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ArkEngine\Core\Engine\Rendering\Shaders\vkPipeline.cpp" />
     <ClCompile Include="ArkEngine\Launch\main.cpp" />
-    <ClCompile Include="ArkEngine\Launch\StartingApp.cpp" />
     <ClCompile Include="ArkEngine\Window\vkWindow.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -152,7 +155,6 @@
     <ClInclude Include="3rdParty\include\GLFW\glfw3.h" />
     <ClInclude Include="3rdParty\include\GLFW\glfw3native.h" />
     <ClInclude Include="ArkEngine\Core\Engine\Rendering\Shaders\vkPipeline.hpp" />
-    <ClInclude Include="ArkEngine\Launch\StartingApp.hpp" />
     <ClInclude Include="ArkEngine\Window\vkWindow.hpp" />
   </ItemGroup>
   <ItemGroup>
@@ -161,6 +163,11 @@
     <None Include="ArkEngine\Core\Engine\Rendering\Shaders\simple_shader.frag.spv" />
     <None Include="ArkEngine\Core\Engine\Rendering\Shaders\simple_shader.vert" />
     <None Include="ArkEngine\Core\Engine\Rendering\Shaders\simple_shader.vert.spv" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ArkTools\ArkTools.vcxproj">
+      <Project>{88bb6513-4a1d-4e82-8d17-643a1fbba308}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
