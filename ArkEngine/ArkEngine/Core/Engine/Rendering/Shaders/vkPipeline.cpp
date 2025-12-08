@@ -32,6 +32,7 @@ namespace vk
         return buffer;
     }
 
+
 	void VKPipeline::createGraphicsPipeline(const std::string& vertFilepath, const std::string& fragFilepath) 
 	{
 		auto vertCode = readFile(vertFilepath);

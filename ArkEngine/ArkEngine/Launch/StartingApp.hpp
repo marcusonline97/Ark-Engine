@@ -14,6 +14,6 @@ namespace vk
 		void run();
 	private:
 		VkWindow vkWindow{ WIDTH, HEIGHT, "Ark Engine!" };
-		VKPipeline vkPipeline{ "Shaders/simple_shader.vert.spv", "Shaders/simple_shader.frag.spv" };
+		VKPipeline vkPipeline{ "simple_shader.vert.spv", "simple_shader.frag.spv" };
 	};
 }
