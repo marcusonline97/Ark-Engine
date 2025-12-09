@@ -15,10 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ArkEngine\Launch\main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ArkEngine\Window\vkWindow.cpp">
+    <ClCompile Include="ArkEngine\Core\Launch\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ArkEngine\Core\Engine\Rendering\Shaders\vkPipeline.cpp">
@@ -36,9 +33,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="3rdParty\include\GLFW\glfw3native.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ArkEngine\Window\vkWindow.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ArkEngine\Core\Engine\Rendering\Shaders\vkPipeline.hpp">

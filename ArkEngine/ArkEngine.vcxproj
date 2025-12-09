@@ -71,10 +71,10 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(ProjectDir)\Window;$(SolutionDir)\3rdParty\include\glm;C:\ArkEngine\Ark-Engine\ArkTools\ArkTools\;$(SolutionDir)\Core\Engine\Rendering\Shaders\;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)\Window;$(SolutionDir)\3rdParty\include\glm;C:\ArkEngine\Ark-Engine\ArkTools\ArkTools\;$(ProjectDir)\Core\Engine\Rendering;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(ProjectDir)\Window;$(SolutionDir)\3rdParty\include\glm;C:\ArkEngine\Ark-Engine\ArkTools\ArkTools\;$(SolutionDir)\Core\Engine\Rendering\Shaders\;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)\Window;$(SolutionDir)\3rdParty\include\glm;C:\ArkEngine\Ark-Engine\ArkTools\ArkTools\;$(ProjectDir)\Core\Engine\Rendering;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -108,7 +108,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\ArkEngine\Ark-Engine\ArkEngine\3rdParty\include;$(VULKAN_SDK)\Include;$(ProjectDir)..\3rdParty\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)\Engine\Rendering\;C:\ArkEngine\Ark-Engine\ArkEngine\3rdParty\include;$(VULKAN_SDK)\Include;$(ProjectDir)..\3rdParty\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -131,6 +131,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalIncludeDirectories>$(ProjectDir)\Engine\Rendering\;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -146,8 +147,7 @@
   <ItemGroup>
     <ClCompile Include="ArkEngine\Core\Engine\Rendering\Shaders\vkPipeline.cpp" />
     <ClCompile Include="ArkEngine\Core\Engine\Rendering\VK_Renderer.cpp" />
-    <ClCompile Include="ArkEngine\Launch\main.cpp" />
-    <ClCompile Include="ArkEngine\Window\vkWindow.cpp" />
+    <ClCompile Include="ArkEngine\Core\Launch\main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="3rdParty\lib\glfw3.lib" />
@@ -158,7 +158,6 @@
     <ClInclude Include="ArkEngine\Core\Engine\Rendering\Shaders\vkPipeline.hpp" />
     <ClInclude Include="ArkEngine\Core\Engine\Rendering\VK_Renderer.h" />
     <ClInclude Include="ArkEngine\Core\Info\info.h" />
-    <ClInclude Include="ArkEngine\Window\vkWindow.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ArkEngine\Core\Engine\Rendering\Shaders\compile.bat" />
