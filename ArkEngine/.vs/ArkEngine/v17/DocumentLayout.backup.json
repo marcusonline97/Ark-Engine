@@ -11,20 +11,24 @@
       "RelativeMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|solutionrelative:ArkEngine\\Core\\Engine\\Rendering\\VK_Renderer.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\Window\\vkWindow.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|solutionrelative:ArkEngine\\Window\\vkWindow.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+      "AbsoluteMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\Core\\Engine\\Utilities\\Utilities.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|solutionrelative:ArkEngine\\Core\\Engine\\Utilities\\Utilities.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\Window\\vkWindow.hpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|solutionrelative:ArkEngine\\Window\\vkWindow.hpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+      "AbsoluteMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\Core\\Info\\info.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|solutionrelative:ArkEngine\\Core\\Info\\info.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\Core\\Launch\\main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|solutionrelative:ArkEngine\\Core\\Launch\\main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\Core\\Info\\info.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|solutionrelative:ArkEngine\\Core\\Info\\info.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+      "AbsoluteMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\Window\\vkWindow.hpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|solutionrelative:ArkEngine\\Window\\vkWindow.hpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\Window\\vkWindow.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|solutionrelative:ArkEngine\\Window\\vkWindow.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{88BB6513-4A1D-4E82-8D17-643A1FBBA308}|..\\ArkTools\\ArkTools.vcxproj|C:\\ArkEngine\\Ark-Engine\\ArkTools\\ArkTools\\Logger\\Logger.inl||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
@@ -37,7 +41,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 6,
+          "SelectedChildIndex": 5,
           "Children": [
             {
               "$type": "Bookmark",
@@ -53,42 +57,27 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "vkWindow.hpp",
-              "DocumentMoniker": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\Window\\vkWindow.hpp",
-              "RelativeDocumentMoniker": "ArkEngine\\Window\\vkWindow.hpp",
-              "ToolTip": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\Window\\vkWindow.hpp",
-              "RelativeToolTip": "ArkEngine\\Window\\vkWindow.hpp",
-              "ViewState": "AgIAABIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-12-09T01:35:22.325Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
               "DocumentIndex": 2,
-              "Title": "vkWindow.cpp",
-              "DocumentMoniker": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\Window\\vkWindow.cpp",
-              "RelativeDocumentMoniker": "ArkEngine\\Window\\vkWindow.cpp",
-              "ToolTip": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\Window\\vkWindow.cpp",
-              "RelativeToolTip": "ArkEngine\\Window\\vkWindow.cpp",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2025-12-09T01:35:19.097Z",
-              "EditorCaption": ""
+              "Title": "Utilities.h",
+              "DocumentMoniker": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\Core\\Engine\\Utilities\\Utilities.h",
+              "RelativeDocumentMoniker": "ArkEngine\\Core\\Engine\\Utilities\\Utilities.h",
+              "ToolTip": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\Core\\Engine\\Utilities\\Utilities.h",
+              "RelativeToolTip": "ArkEngine\\Core\\Engine\\Utilities\\Utilities.h",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAhAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2025-12-09T22:18:19.222Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 3,
               "Title": "info.h",
               "DocumentMoniker": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\Core\\Info\\info.h",
               "RelativeDocumentMoniker": "ArkEngine\\Core\\Info\\info.h",
               "ToolTip": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\Core\\Info\\info.h",
               "RelativeToolTip": "ArkEngine\\Core\\Info\\info.h",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAAzAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAUAAAArAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-12-08T21:21:04.654Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-09T19:01:37.899Z"
             },
             {
               "$type": "Document",
@@ -98,9 +87,9 @@
               "RelativeDocumentMoniker": "ArkEngine\\Core\\Engine\\Rendering\\VK_Renderer.cpp",
               "ToolTip": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\Core\\Engine\\Rendering\\VK_Renderer.cpp",
               "RelativeToolTip": "ArkEngine\\Core\\Engine\\Rendering\\VK_Renderer.cpp",
-              "ViewState": "AgIAAEgAAAAAAAAAAAAiwF8AAABVAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAIAAAANAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2025-12-08T20:51:06.453Z",
+              "WhenOpened": "2025-12-09T16:24:35.34Z",
               "EditorCaption": ""
             },
             {
@@ -111,10 +100,9 @@
               "RelativeDocumentMoniker": "ArkEngine\\Core\\Engine\\Rendering\\VK_Renderer.h",
               "ToolTip": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\Core\\Engine\\Rendering\\VK_Renderer.h",
               "RelativeToolTip": "ArkEngine\\Core\\Engine\\Rendering\\VK_Renderer.h",
-              "ViewState": "AgIAAAwAAAAAAAAAAAAAACAAAAAOAAAAAAAAAA==",
+              "ViewState": "AgIAAAYAAAAAAAAAAAAAACMAAAAWAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-12-08T20:45:54.899Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-09T16:24:32.549Z"
             },
             {
               "$type": "Document",
@@ -124,14 +112,37 @@
               "RelativeDocumentMoniker": "ArkEngine\\Core\\Launch\\main.cpp",
               "ToolTip": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\Core\\Launch\\main.cpp",
               "RelativeToolTip": "ArkEngine\\Core\\Launch\\main.cpp",
-              "ViewState": "AgIAAAwAAAAAAAAAAAAAACIAAAAWAAAAAAAAAA==",
+              "ViewState": "AgIAABIAAAAAAAAAAAAAACoAAAAaAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2025-12-08T16:05:15.684Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-09T16:23:43.833Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "vkWindow.hpp",
+              "DocumentMoniker": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\Window\\vkWindow.hpp",
+              "RelativeDocumentMoniker": "ArkEngine\\Window\\vkWindow.hpp",
+              "ToolTip": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\Window\\vkWindow.hpp",
+              "RelativeToolTip": "ArkEngine\\Window\\vkWindow.hpp",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACIAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2025-12-09T01:35:22.325Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 6,
+              "Title": "vkWindow.cpp",
+              "DocumentMoniker": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\Window\\vkWindow.cpp",
+              "RelativeDocumentMoniker": "ArkEngine\\Window\\vkWindow.cpp",
+              "ToolTip": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\Window\\vkWindow.cpp",
+              "RelativeToolTip": "ArkEngine\\Window\\vkWindow.cpp",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2025-12-09T01:35:19.097Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
               "Title": "Logger.inl",
               "DocumentMoniker": "C:\\ArkEngine\\Ark-Engine\\ArkTools\\ArkTools\\Logger\\Logger.inl",
               "RelativeDocumentMoniker": "..\\ArkTools\\ArkTools\\Logger\\Logger.inl",

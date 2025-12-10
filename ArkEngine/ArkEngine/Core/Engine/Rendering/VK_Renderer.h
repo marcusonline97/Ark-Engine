@@ -5,7 +5,7 @@
 
 #include <stdexcept>
 #include <vector>
-
+#include "../ArkEngine/Core/Engine/Utilities/Utilities.h" // <- Man fuck this Pathing
 class VK_Renderer
 {
 public:
@@ -13,6 +13,8 @@ public:
 	VK_Renderer();
 
 	int Init(GLFWwindow * newWindow);
+
+	void CleanUp();
 
 	~VK_Renderer();
 
@@ -24,12 +26,30 @@ private:
 	// Vulkan Components  /-> most things named Vk is usually a Vulkan thing 
 	VkInstance instance;
 
+	struct
+	{
+		VkPhysicalDevice physicalDevice;
+		VkDevice logicalDevice;
+	}
+	mainDevice;
+
+	VkQueue graphicQueue;
 
 	// Vulkan Functions
 	// - Create Functions
 	void createInstance();
+	void createLogicalDevice();
+	// - Get Functions
+	void getPhysicalDevice();
+
 
 	// - Support Functions
+	// 
+	// - Checker Functions
 	bool checkInstanceExtensionSupport(std::vector<const char*>* checkExtensions);
+	bool checkDeviceSuitable(VkPhysicalDevice device);
 
+
+	// - Getter Functions
+	QueueFamilyIndices getQueueFamilies(VkPhysicalDevice device);
 };

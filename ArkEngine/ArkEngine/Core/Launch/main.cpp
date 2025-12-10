@@ -6,8 +6,8 @@
 #include <iostream>
 
 
+#include "../Engine/Rendering/VK_Renderer.h"
 
-#include "../Engine/Rendering/VK_Renderer.h" // Fix this shit later bruh 
 
 GLFWwindow* window;
 VK_Renderer vulkanRenderer;
@@ -40,6 +40,7 @@ int main()
 	{
 		glfwPollEvents();
 	}
+	vulkanRenderer.CleanUp();
 
 	//Destroy glfwWindow and stop GLFW
 	glfwDestroyWindow(window);
