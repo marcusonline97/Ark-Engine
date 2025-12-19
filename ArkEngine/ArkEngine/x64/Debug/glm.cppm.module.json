@@ -12,7 +12,7 @@
             "provides": [
                 {
                     "logical-name": "glm",
-                    "source-path": "c:\\arkengine\\ark-engine\\arkengine\\3rdparty\\include\\glm\\glm.cppm",
+                    "source-path": "c:\\arkengine\\ark-engine\\arkengine\\vendor\\glm\\glm.cppm",
                     "is-interface": true
                 }
             ],
