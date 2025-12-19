@@ -71,10 +71,10 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(ProjectDir)\Window;$(SolutionDir)\3rdParty\include\glm;$(SolutionDir)\src\Common\;C:\ArkEngine\Ark-Engine\ArkTools\ArkTools\;$(SolutionDir)\Core\Engine\;$(ProjectDir)Core\Engine\Rendering\;$(IncludePath)</IncludePath>
+    <IncludePath>C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\FMod\includes;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\GLFW\include;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\GLAD\include\;$(ProjectDir)\Window;$(SolutionDir)\3rdParty\include\glm;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Common;C:\ArkEngine\Ark-Engine\ArkTools\ArkTools\;$(SolutionDir)\Core\Engine\;$(ProjectDir)Core\Engine\Rendering\;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(ProjectDir)\Window;$(SolutionDir)\3rdParty\include\glm;$(SolutionDir)\src\Common\;C:\ArkEngine\Ark-Engine\ArkTools\ArkTools\;$(SolutionDir)\Core\Engine\;$(ProjectDir)Core\Engine\Rendering\;$(IncludePath)</IncludePath>
+    <IncludePath>C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\FMod\includes;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\GLFW\include;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\GLAD\include\;$(ProjectDir)\Window;$(SolutionDir)\3rdParty\include\glm;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Common;C:\ArkEngine\Ark-Engine\ArkTools\ArkTools\;$(SolutionDir)\Core\Engine\;$(ProjectDir)Core\Engine\Rendering\;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -147,14 +147,20 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ArkEngine\src\API\Vulkan\VK_backEnd.cpp" />
+    <ClCompile Include="ArkEngine\src\Audio\Audio.cpp" />
+    <ClCompile Include="ArkEngine\src\BackEnd\Integration\GLFW.cpp" />
     <ClCompile Include="ArkEngine\src\Common\ArkLogging.cpp" />
+    <ClCompile Include="ArkEngine\src\Config\Config.cpp" />
+    <ClCompile Include="ArkEngine\src\Core\Debug.cpp" />
     <ClCompile Include="ArkEngine\src\main.cpp" />
+    <ClCompile Include="ArkEngine\Vendor\VulkanMemoryAllocator\vk_mem_alloc.cpp" />
     <ClCompile Include="Vendor\glm\detail\glm.cpp" />
     <ClCompile Include="Vendor\glm\glm.cppm" />
     <ClCompile Include="ArkEngine\Window\vkWindow.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ArkEngine\src\API\OpenGL\Types\GL_shadow_map.h" />
+    <ClInclude Include="ArkEngine\src\Audio\Audio.h" />
     <ClInclude Include="ArkEngine\src\BackEnd\Integration\GLFW.h" />
     <ClInclude Include="ArkEngine\src\BackEnd\Integration\SDL.h" />
     <ClInclude Include="ArkEngine\src\Common\ArkConstants.h" />
@@ -163,7 +169,16 @@
     <ClInclude Include="ArkEngine\src\Common\ArkGlm.h" />
     <ClInclude Include="ArkEngine\src\Common\ArkLogging.h" />
     <ClInclude Include="ArkEngine\src\Common\ArkTypes.h" />
+    <ClInclude Include="ArkEngine\src\Common\Primitives.hpp" />
+    <ClInclude Include="ArkEngine\src\Common\SlotMap.h" />
+    <ClInclude Include="ArkEngine\src\Common\UniqueID.h" />
+    <ClInclude Include="ArkEngine\src\Config\Config.h" />
+    <ClInclude Include="ArkEngine\src\Core\Debug,h.h" />
     <ClInclude Include="ArkEngine\src\Timer.hpp" />
+    <ClInclude Include="ArkEngine\src\World\World.h" />
+    <ClInclude Include="ArkEngine\Vendor\GLFW\include\GLFW\glfw3.h" />
+    <ClInclude Include="ArkEngine\Vendor\GLFW\include\GLFW\glfw3native.h" />
+    <ClInclude Include="ArkEngine\Vendor\VkBootstrap\VkBootstrapDispatch.h" />
     <ClInclude Include="Vendor\GLFW\include\glfw3.h" />
     <ClInclude Include="Vendor\GLFW\include\glfw3native.h" />
     <ClInclude Include="Vendor\glm\common.hpp" />
