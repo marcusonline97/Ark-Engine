@@ -4,12 +4,14 @@
 
 **Ark-Engine** is a modular C++ game engine built with modern standards and a focus on performance, flexibility, and extensibility. It leverages **C++20** and is compiled using **MSVC**, with rendering powered by **Vulkan 1.4.328.1**.
 
+The Main Files starts by Enabling the logger, then it checks for which graphics API that you wanna use, you can simply edit it in the main if you wanna utilize OpenGL or Vulkan. (Note: Still in development) 
+It's a pisser to plan and structure this mess but surely it will workout fine. 
 ---
 
 ## 🔧 Core Technologies
 - **Language:** C++20  
-- **Graphics API:** Vulkan 1.4  
-- **Build System:** CMake (planned for easy integration and fetching)  
+- **Graphics API:** Vulkan 1.4 & OpenGL 3.4
+- **Build System:** Just a Git Clone. CMake did't feel practical, i am more used to installing a thing and having it be done.  
 - **Compiler:** MSVC  
 
 ---
