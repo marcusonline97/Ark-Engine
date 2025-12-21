@@ -23,6 +23,11 @@ It's a pisser to plan and structure this mess but surely it will workout fine.
 - [stb_image](https://github.com/nothings/stb) — image loading  
 
 ---
+## Engine Resources and Research Notes
+
+Sky Rendering: https://www.youtube.com/watch?v=zZzLlRyOnZ8
+Structure: HellEngine https://www.youtube.com/watch?v=4s2M-e39nBM
+
 
 ## 🚧 Planned Features
 - **Editor** — in-engine editing and visualization tools  
