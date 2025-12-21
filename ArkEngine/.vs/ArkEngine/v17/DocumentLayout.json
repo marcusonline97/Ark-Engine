@@ -3,80 +3,48 @@
   "WorkspaceRootPath": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Common\\UniqueID.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|solutionrelative:ArkEngine\\src\\Common\\UniqueID.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+      "AbsoluteMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Core\\Debug.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|solutionrelative:ArkEngine\\src\\Core\\Debug.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Audio\\Audio.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|solutionrelative:ArkEngine\\src\\Audio\\Audio.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+      "AbsoluteMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Core\\Debug.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|solutionrelative:ArkEngine\\src\\Core\\Debug.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Audio\\Audio.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|solutionrelative:ArkEngine\\src\\Audio\\Audio.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+      "AbsoluteMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Types\\Game\\GameObject.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|solutionrelative:ArkEngine\\src\\Types\\Game\\GameObject.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\BackEnd\\Integration\\GLFW.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|solutionrelative:ArkEngine\\src\\BackEnd\\Integration\\GLFW.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+      "AbsoluteMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Types\\Game\\GameObject.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|solutionrelative:ArkEngine\\src\\Types\\Game\\GameObject.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Config\\Config.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|solutionrelative:ArkEngine\\src\\Config\\Config.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+      "AbsoluteMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Types\\Renderer\\MeshNodes.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|solutionrelative:ArkEngine\\src\\Types\\Renderer\\MeshNodes.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\BackEnd\\Integration\\SDL.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|solutionrelative:ArkEngine\\src\\BackEnd\\Integration\\SDL.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+      "AbsoluteMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Types\\Renderer\\MeshNodes.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|solutionrelative:ArkEngine\\src\\Types\\Renderer\\MeshNodes.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\BackEnd\\Integration\\GLFW.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|solutionrelative:ArkEngine\\src\\BackEnd\\Integration\\GLFW.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+      "AbsoluteMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Types\\Renderer\\SkinnedMesh.hpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|solutionrelative:ArkEngine\\src\\Types\\Renderer\\SkinnedMesh.hpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Common\\Primitives.hpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|solutionrelative:ArkEngine\\src\\Common\\Primitives.hpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
+      "AbsoluteMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\World\\World.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|solutionrelative:ArkEngine\\src\\World\\World.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Common\\SlotMap.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|solutionrelative:ArkEngine\\src\\Common\\SlotMap.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Config\\Config.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|solutionrelative:ArkEngine\\src\\Config\\Config.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Common\\ArkLogging.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|solutionrelative:ArkEngine\\src\\Common\\ArkLogging.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Common\\ArkTypes.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|solutionrelative:ArkEngine\\src\\Common\\ArkTypes.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Common\\ArkGlm.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|solutionrelative:ArkEngine\\src\\Common\\ArkGlm.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Common\\ArkFunctionTypes.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|solutionrelative:ArkEngine\\src\\Common\\ArkFunctionTypes.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Common\\ArkEnums.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|solutionrelative:ArkEngine\\src\\Common\\ArkEnums.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Common\\ArkConstants.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|solutionrelative:ArkEngine\\src\\Common\\ArkConstants.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Core\\Debug.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|solutionrelative:ArkEngine\\src\\Core\\Debug.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Core\\Debug,h.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|solutionrelative:ArkEngine\\src\\Core\\Debug,h.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\World\\World.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|solutionrelative:ArkEngine\\src\\World\\World.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\Core\\Engine\\Utilities\\Utilities.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
@@ -85,6 +53,10 @@
     {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\Core\\Launch\\main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ArkEngine\\Core\\Launch\\main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Core\\Debug,h.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:ArkEngine\\src\\Core\\Debug,h.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     }
   ],
   "DocumentGroupContainers": [
@@ -94,7 +66,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 3,
+          "SelectedChildIndex": 10,
           "Children": [
             {
               "$type": "Bookmark",
@@ -110,80 +82,105 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "UniqueID.h",
-              "DocumentMoniker": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Common\\UniqueID.h",
-              "RelativeDocumentMoniker": "ArkEngine\\src\\Common\\UniqueID.h",
-              "ToolTip": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Common\\UniqueID.h",
-              "RelativeToolTip": "ArkEngine\\src\\Common\\UniqueID.h",
+              "DocumentIndex": 1,
+              "Title": "Debug.h",
+              "DocumentMoniker": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Core\\Debug.h",
+              "RelativeDocumentMoniker": "ArkEngine\\src\\Core\\Debug.h",
+              "ToolTip": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Core\\Debug.h",
+              "RelativeToolTip": "ArkEngine\\src\\Core\\Debug.h",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-12-19T14:20:30.791Z",
+              "WhenOpened": "2025-12-21T02:46:42.088Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 2,
-              "Title": "Audio.h",
-              "DocumentMoniker": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Audio\\Audio.h",
-              "RelativeDocumentMoniker": "ArkEngine\\src\\Audio\\Audio.h",
-              "ToolTip": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Audio\\Audio.h",
-              "RelativeToolTip": "ArkEngine\\src\\Audio\\Audio.h",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAC0AAAACAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-12-19T14:04:48.581Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "Audio.cpp",
-              "DocumentMoniker": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Audio\\Audio.cpp",
-              "RelativeDocumentMoniker": "ArkEngine\\src\\Audio\\Audio.cpp",
-              "ToolTip": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Audio\\Audio.cpp",
-              "RelativeToolTip": "ArkEngine\\src\\Audio\\Audio.cpp",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABMBAAABAAAAAAAAAA==",
+              "Title": "GameObject.cpp",
+              "DocumentMoniker": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Types\\Game\\GameObject.cpp",
+              "RelativeDocumentMoniker": "ArkEngine\\src\\Types\\Game\\GameObject.cpp",
+              "ToolTip": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Types\\Game\\GameObject.cpp",
+              "RelativeToolTip": "ArkEngine\\src\\Types\\Game\\GameObject.cpp",
+              "ViewState": "AgIAACoAAAAAAAAAAAAAAMEAAAACAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2025-12-19T14:04:28.462Z",
+              "WhenOpened": "2025-12-21T02:45:27.391Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 3,
-              "Title": "GLFW.cpp",
-              "DocumentMoniker": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\BackEnd\\Integration\\GLFW.cpp",
-              "RelativeDocumentMoniker": "ArkEngine\\src\\BackEnd\\Integration\\GLFW.cpp",
-              "ToolTip": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\BackEnd\\Integration\\GLFW.cpp",
-              "RelativeToolTip": "ArkEngine\\src\\BackEnd\\Integration\\GLFW.cpp",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAPoAAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2025-12-19T13:54:19.419Z",
+              "Title": "GameObject.h",
+              "DocumentMoniker": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Types\\Game\\GameObject.h",
+              "RelativeDocumentMoniker": "ArkEngine\\src\\Types\\Game\\GameObject.h",
+              "ToolTip": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Types\\Game\\GameObject.h",
+              "RelativeToolTip": "ArkEngine\\src\\Types\\Game\\GameObject.h",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAEAAAANAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2025-12-21T02:45:00.129Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "GLFW.h",
-              "DocumentMoniker": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\BackEnd\\Integration\\GLFW.h",
-              "RelativeDocumentMoniker": "ArkEngine\\src\\BackEnd\\Integration\\GLFW.h",
-              "ToolTip": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\BackEnd\\Integration\\GLFW.h",
-              "RelativeToolTip": "ArkEngine\\src\\BackEnd\\Integration\\GLFW.h",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-12-19T13:53:43.048Z",
+              "DocumentIndex": 4,
+              "Title": "MeshNodes.cpp",
+              "DocumentMoniker": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Types\\Renderer\\MeshNodes.cpp",
+              "RelativeDocumentMoniker": "ArkEngine\\src\\Types\\Renderer\\MeshNodes.cpp",
+              "ToolTip": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Types\\Renderer\\MeshNodes.cpp",
+              "RelativeToolTip": "ArkEngine\\src\\Types\\Renderer\\MeshNodes.cpp",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAYAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2025-12-21T02:43:52.695Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 5,
-              "Title": "SDL.h",
-              "DocumentMoniker": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\BackEnd\\Integration\\SDL.h",
-              "RelativeDocumentMoniker": "ArkEngine\\src\\BackEnd\\Integration\\SDL.h",
-              "ToolTip": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\BackEnd\\Integration\\SDL.h",
-              "RelativeToolTip": "ArkEngine\\src\\BackEnd\\Integration\\SDL.h",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Title": "MeshNodes.h",
+              "DocumentMoniker": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Types\\Renderer\\MeshNodes.h",
+              "RelativeDocumentMoniker": "ArkEngine\\src\\Types\\Renderer\\MeshNodes.h",
+              "ToolTip": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Types\\Renderer\\MeshNodes.h",
+              "RelativeToolTip": "ArkEngine\\src\\Types\\Renderer\\MeshNodes.h",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAIAAAANAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-12-19T13:53:40.988Z",
+              "WhenOpened": "2025-12-21T02:42:39.575Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "SkinnedMesh.hpp",
+              "DocumentMoniker": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Types\\Renderer\\SkinnedMesh.hpp",
+              "RelativeDocumentMoniker": "ArkEngine\\src\\Types\\Renderer\\SkinnedMesh.hpp",
+              "ToolTip": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Types\\Renderer\\SkinnedMesh.hpp",
+              "RelativeToolTip": "ArkEngine\\src\\Types\\Renderer\\SkinnedMesh.hpp",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAACAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2025-12-21T02:42:05.385Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "SlotMap.h",
+              "DocumentMoniker": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Common\\SlotMap.h",
+              "RelativeDocumentMoniker": "ArkEngine\\src\\Common\\SlotMap.h",
+              "ToolTip": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Common\\SlotMap.h",
+              "RelativeToolTip": "ArkEngine\\src\\Common\\SlotMap.h",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAIoAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2025-12-19T13:52:51.39Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Debug.cpp",
+              "DocumentMoniker": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Core\\Debug.cpp",
+              "RelativeDocumentMoniker": "ArkEngine\\src\\Core\\Debug.cpp",
+              "ToolTip": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Core\\Debug.cpp",
+              "RelativeToolTip": "ArkEngine\\src\\Core\\Debug.cpp",
+              "ViewState": "AgIAABsAAAAAAAAAAAAAAA4AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2025-12-19T13:50:14.163Z",
               "EditorCaption": ""
             },
             {
@@ -201,45 +198,6 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
-              "Title": "SlotMap.h",
-              "DocumentMoniker": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Common\\SlotMap.h",
-              "RelativeDocumentMoniker": "ArkEngine\\src\\Common\\SlotMap.h",
-              "ToolTip": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Common\\SlotMap.h",
-              "RelativeToolTip": "ArkEngine\\src\\Common\\SlotMap.h",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAIoAAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-12-19T13:52:51.39Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "Config.cpp",
-              "DocumentMoniker": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Config\\Config.cpp",
-              "RelativeDocumentMoniker": "ArkEngine\\src\\Config\\Config.cpp",
-              "ToolTip": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Config\\Config.cpp",
-              "RelativeToolTip": "ArkEngine\\src\\Config\\Config.cpp",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2025-12-19T13:52:16.432Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 9,
-              "Title": "Config.h",
-              "DocumentMoniker": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Config\\Config.h",
-              "RelativeDocumentMoniker": "ArkEngine\\src\\Config\\Config.h",
-              "ToolTip": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Config\\Config.h",
-              "RelativeToolTip": "ArkEngine\\src\\Config\\Config.h",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAEAAAANAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-12-19T13:51:56.558Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
               "DocumentIndex": 10,
               "Title": "ArkLogging.h",
               "DocumentMoniker": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Common\\ArkLogging.h",
@@ -248,77 +206,11 @@
               "RelativeToolTip": "ArkEngine\\src\\Common\\ArkLogging.h",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-12-19T13:51:14.582Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 11,
-              "Title": "ArkTypes.h",
-              "DocumentMoniker": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Common\\ArkTypes.h",
-              "RelativeDocumentMoniker": "ArkEngine\\src\\Common\\ArkTypes.h",
-              "ToolTip": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Common\\ArkTypes.h",
-              "RelativeToolTip": "ArkEngine\\src\\Common\\ArkTypes.h",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-12-19T13:51:12.419Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 12,
-              "Title": "ArkGlm.h",
-              "DocumentMoniker": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Common\\ArkGlm.h",
-              "RelativeDocumentMoniker": "ArkEngine\\src\\Common\\ArkGlm.h",
-              "ToolTip": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Common\\ArkGlm.h",
-              "RelativeToolTip": "ArkEngine\\src\\Common\\ArkGlm.h",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-12-19T13:51:10.606Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-19T13:51:14.582Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 13,
-              "Title": "ArkFunctionTypes.h",
-              "DocumentMoniker": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Common\\ArkFunctionTypes.h",
-              "RelativeDocumentMoniker": "ArkEngine\\src\\Common\\ArkFunctionTypes.h",
-              "ToolTip": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Common\\ArkFunctionTypes.h",
-              "RelativeToolTip": "ArkEngine\\src\\Common\\ArkFunctionTypes.h",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-12-19T13:51:09.817Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 14,
-              "Title": "ArkEnums.h",
-              "DocumentMoniker": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Common\\ArkEnums.h",
-              "RelativeDocumentMoniker": "ArkEngine\\src\\Common\\ArkEnums.h",
-              "ToolTip": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Common\\ArkEnums.h",
-              "RelativeToolTip": "ArkEngine\\src\\Common\\ArkEnums.h",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-12-19T13:51:08.497Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 15,
-              "Title": "ArkConstants.h",
-              "DocumentMoniker": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Common\\ArkConstants.h",
-              "RelativeDocumentMoniker": "ArkEngine\\src\\Common\\ArkConstants.h",
-              "ToolTip": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Common\\ArkConstants.h",
-              "RelativeToolTip": "ArkEngine\\src\\Common\\ArkConstants.h",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-12-19T13:51:04.815Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 17,
               "Title": "Debug,h.h",
               "DocumentMoniker": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Core\\Debug,h.h",
               "RelativeDocumentMoniker": "ArkEngine\\src\\Core\\Debug,h.h",
@@ -326,25 +218,11 @@
               "RelativeToolTip": "ArkEngine\\src\\Core\\Debug,h.h",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-12-19T13:50:22.273Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-19T13:50:22.273Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 16,
-              "Title": "Debug.cpp",
-              "DocumentMoniker": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Core\\Debug.cpp",
-              "RelativeDocumentMoniker": "ArkEngine\\src\\Core\\Debug.cpp",
-              "ToolTip": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Core\\Debug.cpp",
-              "RelativeToolTip": "ArkEngine\\src\\Core\\Debug.cpp",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAP4AAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2025-12-19T13:50:14.163Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 18,
+              "DocumentIndex": 8,
               "Title": "World.h",
               "DocumentMoniker": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\World\\World.h",
               "RelativeDocumentMoniker": "ArkEngine\\src\\World\\World.h",
@@ -352,12 +230,11 @@
               "RelativeToolTip": "ArkEngine\\src\\World\\World.h",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAACAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-12-19T13:47:56.435Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-19T13:47:56.435Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 19,
+              "DocumentIndex": 11,
               "Title": "Utilities.h",
               "DocumentMoniker": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\Core\\Engine\\Utilities\\Utilities.h",
               "RelativeDocumentMoniker": "ArkEngine\\Core\\Engine\\Utilities\\Utilities.h",
@@ -368,7 +245,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 20,
+              "DocumentIndex": 12,
               "Title": "main.cpp",
               "DocumentMoniker": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\Core\\Launch\\main.cpp",
               "RelativeDocumentMoniker": "ArkEngine\\Core\\Launch\\main.cpp",

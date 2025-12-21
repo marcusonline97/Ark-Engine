@@ -405,28 +405,28 @@ struct WaterState {
 };
 
 struct PlayerControls {
-    unsigned int WALK_FORWARD = HELL_KEY_W;
-    unsigned int WALK_BACKWARD = HELL_KEY_S;
-    unsigned int WALK_LEFT = HELL_KEY_A;
-    unsigned int WALK_RIGHT = HELL_KEY_D;
-    unsigned int INTERACT = HELL_KEY_E;
-    unsigned int RELOAD = HELL_KEY_R;
-    unsigned int FIRE = HELL_MOUSE_LEFT;
-    unsigned int ADS = HELL_MOUSE_RIGHT;
-    unsigned int JUMP = HELL_KEY_SPACE;
-    unsigned int CROUCH = HELL_KEY_WIN_CONTROL; // different mapping to the standard glfw HELL_KEY_LEFT_CONTROL
-    unsigned int NEXT_WEAPON = HELL_KEY_Q;
-    unsigned int ESCAPE = HELL_KEY_WIN_ESCAPE;
-    unsigned int DEBUG_FULLSCREEN = HELL_KEY_G;
-    unsigned int DEBUG_ONE = HELL_KEY_1;
-    unsigned int DEBUG_TWO = HELL_KEY_2;
-    unsigned int DEBUG_THREE = HELL_KEY_3;
-    unsigned int DEBUG_FOUR = HELL_KEY_4;
-    unsigned int MELEE = HELL_KEY_V;
-    unsigned int FLASHLIGHT = HELL_KEY_F;
-    unsigned int MISC_WEAPON_FUNCTION = HELL_KEY_T;
-    unsigned int RUN = HELL_KEY_LEFT_SHIFT;
-    unsigned int TOGGLE_INVENTORY = HELL_KEY_WIN_TAB;
+    unsigned int WALK_FORWARD = KEY_W;
+    unsigned int WALK_BACKWARD = KEY_S;
+    unsigned int WALK_LEFT = KEY_A;
+    unsigned int WALK_RIGHT = KEY_D;
+    unsigned int INTERACT = KEY_E;
+    unsigned int RELOAD = KEY_R;
+    unsigned int FIRE = MOUSE_LEFT;
+    unsigned int ADS = MOUSE_RIGHT;
+    unsigned int JUMP = KEY_SPACE;
+    unsigned int CROUCH = KEY_WIN_CONTROL; // different mapping to the standard glfw HELL_KEY_LEFT_CONTROL
+    unsigned int NEXT_WEAPON = KEY_Q;
+    unsigned int ESCAPE = KEY_WIN_ESCAPE;
+    unsigned int DEBUG_FULLSCREEN = KEY_G;
+    unsigned int DEBUG_ONE = KEY_1;
+    unsigned int DEBUG_TWO = KEY_2;
+    unsigned int DEBUG_THREE = KEY_3;
+    unsigned int DEBUG_FOUR = KEY_4;
+    unsigned int MELEE = KEY_V;
+    unsigned int FLASHLIGHT = KEY_F;
+    unsigned int MISC_WEAPON_FUNCTION = KEY_T;
+    unsigned int RUN = KEY_LEFT_SHIFT;
+    unsigned int TOGGLE_INVENTORY = KEY_WIN_TAB;
 };
 
 /*

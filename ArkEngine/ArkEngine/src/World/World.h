@@ -3,39 +3,10 @@
 #include "SlotMap.h"
 
 #include "Core/Debug.h"
-//#include "Types/Characters/Allies/Mermaid/Mermaid.h"
-//#include "Types/Characters/Enemies/Dobermann/Dobermann.h"
-//#include "Types/Characters/Enemies/Kangaroo/Kangaroo.h"
-//#include "Types/Characters/Enemies/Shark/Shark.h"
-//#include "Types/Christmas/ChristmasLights.h"
-//#include "Types/Christmas/ChristmasPresent.h"
-//#include "Types/Christmas/ChristmasTree.h"
-#include "Types/Core/GenericObject.h"
-#include "Types/Effects/VolumetricBloodSplatter.h"
-#include "Types/Effects/ScreenSpaceBloodDecal.h"
-#include "Types/Exterior/Fence.h"
-#include "Types/Exterior/Road.h"
-#include "Types/Exterior/PowerPoleSet.h"
-#include "Types/Exterior/Tree.h"
-#include "Types/Game/AnimatedGameObject.h"
-#include "Types/Game/Bullet.h"
-#include "Types/Game/BulletCasing.h"
-#include "Types/Game/Decal.h"
 #include "Types/Game/GameObject.h"
 #include "Types/Game/Light.h"
-#include "Types/Game/PickUp.h"
 #include "Types/Generics/GenericBouncable.h"
 #include "Types/Generics/GenericStatic.h"
-#include "Types/Interior/PictureFrame.h"
-#include "Types/Interior/Piano.h"
-#include "Types/House/Door.h"
-#include "Types/House/Fireplace.h"
-#include "Types/House/HouseInstance.h"
-#include "Types/House/HousePlane.h"
-#include "Types/House/TrimSet.h"
-#include "Types/House/Wall.h"
-#include "Types/House/Window.h"
-#include "Types/Map/Map.h"
 #include "Types/Map/MapInstance.h"
 #include "Util/Util.h"
 #include "glm/gtx/intersect.hpp"
@@ -59,8 +30,10 @@ namespace World {
     void NewRun();
 
     void SubmitRenderItems();
+    /*
+    *     void RecreateHouseMesh();
 
-    void RecreateHouseMesh();
+    */
 
     void ResetWorld();
     void ClearAllObjects();
@@ -70,16 +43,16 @@ namespace World {
     void LoadMapInstancesHeightMapData(std::vector<MapInstanceCreateInfo> mapInstanceCreateInfoSet);
     void LoadMapInstanceObjects(const std::string& mapName, SpawnOffset spawnOffset);
     void LoadMapInstanceHouses(const std::string& mapName, SpawnOffset spawnOffset);
-
+    /*
     void LoadSingleHouse(const std::string& houseName);
     void LoadHouseInstance(const std::string& houseName, SpawnOffset spawnOffset);
-
+    */
     bool ChunkExists(int x, int z);
     const uint32_t GetChunkCountX();
     const uint32_t GetChunkCountZ();
     const uint32_t GetChunkCount();
     const HeightMapChunk* GetChunk(int x, int z);
-
+/*
     void AddDecal2(Decal2CreateInfo createInfo);
 
     void AddBullet(BulletCreateInfo createInfo);
@@ -88,6 +61,7 @@ namespace World {
     void AddChristmasLights(ChristmasLightsCreateInfo createInfo, SpawnOffset spawnOffset = SpawnOffset());
     void AddChristmasPresent(ChristmasPresentCreateInfo createInfo, SpawnOffset spawnOffset = SpawnOffset());
     void AddChristmasTree(ChristmasTreeCreateInfo createInfo, SpawnOffset spawnOffset = SpawnOffset());
+    */
     void AddCreateInfoCollection(CreateInfoCollection& createInfoCollection, SpawnOffset spawnOffset);
     void AddDecal(const DecalCreateInfo& createInfo);
     void AddDobermann(DobermannCreateInfo& createInfo);
@@ -165,36 +139,10 @@ namespace World {
     CreateInfoCollection GetCreateInfoCollection();
     MeshNode* GetMeshNodeByObjectIdAndLocalNodeIndex(uint64_t id, int32_t meshNodeLocalIndex);
 
-    Door* GetDoorByObjectId(uint64_t objectId);
-    Fireplace* GetFireplaceById(uint64_t objectId);
-    GenericObject* GetGenericObjectById(uint64_t objectId);
-    HousePlane* GetHousePlaneByObjectId(uint64_t objectId);
 
-    Piano* GetPianoByObjectId(uint64_t objectId);
-    Piano* GetPianoByMeshNodeObjectId(uint64_t objectId);
-    PianoKey* GetPianoKeyByObjectId(uint64_t objectId);
-    PickUp* GetPickUpByObjectId(uint64_t objectID);
-    PictureFrame* GetPictureFrameByObjectId(uint64_t objectId);
-    Tree* GetTreeByObjectId(uint64_t objectId);
-    Wall* GetWallByObjectId(uint64_t objectId);
-    Wall* GetWallByWallSegmentObjectId(uint64_t objectId);
-    Shark* GetSharkByObjectId(uint64_t objectId);
-    Window* GetWindowByObjectId(uint64_t objectId);
-    GameObject* GetGameObjectByIndex(int32_t index);
-    GameObject* GetGameObjectByName(const std::string& name);
-    Light* GetLightByIndex(int32_t index);
-    Tree* GetTreeByIndex(int32_t index);
+
 
     size_t GetLightCount();
-
-    Hell::SlotMap<Door>& GetDoors();
-    Hell::SlotMap<GenericObject>& GetGenericObjects();
-    Hell::SlotMap<Fireplace>& GetFireplaces();
-    Hell::SlotMap<HousePlane>& GetHousePlanes();
-    Hell::SlotMap<PickUp>& GetPickUps();
-    Hell::SlotMap<TrimSet>& GetTrimSets();
-    Hell::SlotMap<Wall>& GetWalls();
-    Hell::SlotMap<Window>& GetWindows();
 
     std::vector<AnimatedGameObject>& GetAnimatedGameObjects();
     std::vector<ScreenSpaceBloodDecal>& GetScreenSpaceBloodDecals();

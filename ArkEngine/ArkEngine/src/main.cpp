@@ -5,7 +5,7 @@
 #include "Renderer/Renderer.h"
 #include "UI/UIBackEnd.h"
 #include <iostream>
-#include "HellLogging.h"
+#include "ArkLogging.h"
 
 #include "API/Vulkan/vk_backend.h"
 
@@ -17,7 +17,7 @@ int main2() {
     return 0;
 }*/
 
-#include "Ragdoll/RagdollManager.h"
+//#include "Ragdoll/RagdollManager.h" <-- for testing ragdolls
 
 int main() {
     std::cout << "We are all alone on life's journey, held captive by the limitations of human consciousness.\n";
