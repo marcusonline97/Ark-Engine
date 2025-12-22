@@ -1,36 +1,34 @@
 #pragma once
-#include "ArkTypes.h"
-#include "Math/AABB.h"
-#include "Math/OBB.h"
-#include "Types/Map/Map.h"
+#include "Texture3D.h"
+#include "../Common.h"
 
 namespace Renderer {
-    void InitMain();
-    void InitWoundMaskArray();
-    void RenderLoadingScreen();
-    void PreGameLogicComputePasses();
-    void RenderGame();
-    void HotloadShaders();
-    void NextRendererOverrideState();
 
-    int32_t GetNextFreeWoundMaskIndexAndMarkItTaken();
-    void MarkWoundMaskIndexAsAvailable(int32_t index);
+	void Init();
+	void RenderFrame();
+	void RenderEditorFrame();
+	void RenderUI();
+	void HotloadShaders();
+	void WipeShadowMaps();
 
-    void RecalculateAllHeightMapData(bool blitWorldMap);
+	void QueueLineForDrawing(Line line);
+	void QueuePointForDrawing(Point point);
+	void QueueTriangleForLineRendering(Triangle& triangle);
+	void QueueTriangleForSolidRendering(Triangle& triangle);
+	void QueueUIForRendering(std::string textureName, int screenX, int screenY, bool centered);
+	void QueueUIForRendering(UIRenderInfo renderInfo);
 
-    void DrawPoint(const glm::vec3& position, const glm::vec4& color, bool obeyDepth = false, int exclusiveViewportIndex = -1);
-    void DrawLine(const glm::vec3& begin, const glm::vec3& end, const glm::vec4& color, bool obeyDepth = false, int exclusiveViewportIndex = -1, int ignoredViewportIndex = -1);
-    void DrawLine2D(const glm::ivec2& begin, const glm::ivec2& end, const glm::vec4& color, int viewportWidth, int viewportHeight);
-    void DrawAABB(const AABB& aabb, const glm::vec4& color);
-    void DrawAABB(const AABB& aabb, const glm::vec4& color, const glm::mat4& worldTransform);
-    void DrawOBB(const OBB& obb, const glm::vec4& color);
-    void DrawSphere(const glm::vec3& position, float radius, const glm::vec4& color);
+	void ToggleDrawingLights();
+	void ToggleDrawingProbes();
+	void ToggleDrawingLines();
 
-    void DrawItemExamineLine(const glm::vec3& begin, const glm::vec3& end, const glm::vec4& color);
-    void DrawItemExamineAABB(const AABB& aabb, const glm::vec4& color);
+	int GetRenderWidth();
+	int GetRenderHeight();
+	float GetPointCloudSpacing();
+	void NextMode();
+	void PreviousMode();
+	void RecreateFrameBuffers();
 
-
-    void ReadBackHeightMapData(Map* map);
-
-    RendererSettings& GetCurrentRendererSettings();
-}
+	inline int _method = 1;
+	inline bool _shadowMapsAreDirty = true;
+}#pragma once
