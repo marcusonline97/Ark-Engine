@@ -31,4 +31,4 @@ namespace Renderer {
 
 	inline int _method = 1;
 	inline bool _shadowMapsAreDirty = true;
-}#pragma once
+}

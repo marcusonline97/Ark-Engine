@@ -3,9 +3,9 @@
 #include "Renderer/Renderer.h"
 #include "GL/GL.h"
 #include "Core/Player.h"
-#include "Core/Input.h"
+#include "Core/Input/Input.h"
 #include "Core/AssetManager.h"
-#include "Core/Audio.hpp"
+#include "Core/Audio/Audio.hpp"
 #include "Core/Editor.h"
 #include "Core/TextBlitter.h"
 #include "Core/Scene.h"
@@ -103,34 +103,34 @@ void Engine::LazyKeyPresses() {
     if (Input::KeyPressed(GLFW_KEY_SPACE)) {
         Audio::PlayAudio("RE_Beep.wav", 0.25f);
     }
-    if (Input::KeyPressed(HELL_KEY_TAB)) {
+    if (Input::KeyPressed(ARK_KEY_TAB)) {
         ToggleEditor();
     }
-    if (Input::KeyPressed(HELL_KEY_L)) {
+    if (Input::KeyPressed(ARK_KEY_L)) {
         Renderer::ToggleDrawingLights();
         Audio::PlayAudio("RE_Beep.wav", 0.25f);
     }
-    if (Input::KeyPressed(HELL_KEY_B)) {
+    if (Input::KeyPressed(ARK_KEY_B)) {
         Renderer::ToggleDrawingLines();
         Audio::PlayAudio("RE_Beep.wav", 0.25f);
     }
-    if (Input::KeyPressed(HELL_KEY_SPACE)) {
+    if (Input::KeyPressed(ARK_KEY_SPACE)) {
         Renderer::ToggleDrawingProbes();
         Audio::PlayAudio("RE_Beep.wav", 0.25f);
     }
-    if (Input::KeyPressed(HELL_KEY_1)) {
+    if (Input::KeyPressed(ARK_KEY_1)) {
         Renderer::WipeShadowMaps();
         Scene::LoadLightSetup(1);
         Scene::CreatePointCloud();
         Audio::PlayAudio("RE_Beep.wav", 0.25f);
     }
-    if (Input::KeyPressed(HELL_KEY_2)) {
+    if (Input::KeyPressed(ARK_KEY_2)) {
         Renderer::WipeShadowMaps();
         Scene::LoadLightSetup(0);
         Scene::CreatePointCloud();
         Audio::PlayAudio("RE_Beep.wav", 0.25f);
     }
-    if (Input::KeyPressed(HELL_KEY_3)) {
+    if (Input::KeyPressed(ARK_KEY_3)) {
         Renderer::WipeShadowMaps();
         Scene::LoadLightSetup(2);
         Scene::CreatePointCloud();
@@ -142,7 +142,7 @@ void Engine::LazyKeyPressesEditor() {
     if (Input::KeyPressed(GLFW_KEY_F)) {
         ToggleFullscreen();
     }
-    if (Input::KeyPressed(HELL_KEY_TAB)) {
+    if (Input::KeyPressed(ARK_KEY_TAB)) {
         ToggleEditor();
     }
 }
