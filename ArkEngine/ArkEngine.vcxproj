@@ -19,7 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <VCProjectVersion>17.0</VCProjectVersion>
+    <VCProjectVersion>18.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
     <ProjectGuid>{e64b13ba-0763-40f2-ac95-38e729dea0f4}</ProjectGuid>
     <RootNamespace>ArkEngine</RootNamespace>
@@ -29,26 +29,26 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -71,7 +71,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\GLFW\lib;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\tinyobjloader\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\DDS;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\stb_image\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\FMod\includes;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\GLFW\include;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\SDL3\Include\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\assimp\include\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\GLAD\include\;$(ProjectDir)\Window;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Common;C:\ArkEngine\Ark-Engine\ArkTools\ArkTools\;$(SolutionDir)\Core\Engine\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\;$(ProjectDir)Core\Engine\Rendering\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\API\OpenGL\Types\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\compressonator\include\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\tracy\public\;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)ArkEngine\Vendor\;$(SolutionDir)ArkEngine\Vendor\GLFW\lib;$(SolutionDir)ArkEngine\Vendor\tinyobjloader\;$(SolutionDir)ArkEngine\Vendor\DDS;$(SolutionDir)ArkEngine\Vendor\stb_image\;$(SolutionDir)ArkEngine\Vendor\FMod\includes;$(SolutionDir)ArkEngine\Vendor\GLFW\include;$(SolutionDir)ArkEngine\Vendor\SDL3\Include\;$(SolutionDir)ArkEngine\Vendor\assimp\include\;$(SolutionDir)ArkEngine\Vendor\GLAD\include\;$(ProjectDir)\Window;$(SolutionDir)ArkEngine\ArkEngine\src\;C:\ArkEngine\Ark-Engine\ArkTools\ArkTools\;$(SolutionDir)\Core\Engine\;$(SolutionDir)ArkEngine\src\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\;$(ProjectDir)Core\Engine\Rendering\;$(SolutionDir)ArkEngine\Vendor\compressonator\include\;$(SolutionDir)ArkEngine\Vendor\tracy\public\;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\GLFW\lib;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\tinyobjloader\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\DDS;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\stb_image\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\FMod\includes;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\GLFW\include;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\SDL3\Include\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\assimp\include\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\GLAD\include\;$(ProjectDir)\Window;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Common;C:\ArkEngine\Ark-Engine\ArkTools\ArkTools\;$(SolutionDir)\Core\Engine\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\;$(ProjectDir)Core\Engine\Rendering\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\API\OpenGL\Types\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\compressonator\include\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\tracy\public\;$(IncludePath)</IncludePath>
@@ -172,6 +172,7 @@
     <ClCompile Include="ArkEngine\src\Renderer\ShadowMap.cpp" />
     <ClCompile Include="ArkEngine\src\Renderer\Texture.cpp" />
     <ClCompile Include="ArkEngine\src\Renderer\Texture3D.cpp" />
+    <ClCompile Include="ArkEngine\src\ThreadPool.cpp" />
     <ClCompile Include="ArkEngine\Vendor\VulkanMemoryAllocator\vk_mem_alloc.cpp" />
     <ClCompile Include="ArkEngine\Window\vkWindow.cpp" />
   </ItemGroup>
@@ -206,6 +207,7 @@
     <ClInclude Include="ArkEngine\src\Renderer\ShadowMap.h" />
     <ClInclude Include="ArkEngine\src\Renderer\Texture.h" />
     <ClInclude Include="ArkEngine\src\Renderer\Texture3D.h" />
+    <ClInclude Include="ArkEngine\src\ThreadPool.h" />
     <ClInclude Include="ArkEngine\src\Timer.hpp" />
     <ClInclude Include="ArkEngine\src\Utility\Util.hpp" />
     <ClInclude Include="ArkEngine\Vendor\GLFW\include\GLFW\glfw3.h" />

@@ -11,8 +11,176 @@
 #include <filesystem>
 #include <assimp/matrix3x3.h>
 #include <assimp/matrix4x4.h>
+#include "Core/Physics.h"
 
 namespace Util {
+
+    inline glm::vec3 PxVec3toGlmVec3(PxVec3 vec) {
+        return { vec.x, vec.y, vec.z };
+    }
+
+    inline PxVec3 GlmVec3toPxVec3(glm::vec3 vec) {
+        return { vec.x, vec.y, vec.z };
+    }
+
+    inline PxQuat GlmQuatToPxQuat(glm::quat quat) {
+        return { quat.x, quat.y, quat.z, quat.w };
+    }
+
+    inline PhysXRayResult CastPhysXRay(glm::vec3 rayOrigin, glm::vec3 rayDirection, float rayLength) {
+
+        PxScene* scene = Physics::GetScene();
+        PxVec3 origin = PxVec3(rayOrigin.x, rayOrigin.y, rayOrigin.z);
+        PxVec3 unitDir = PxVec3(rayDirection.x, rayDirection.y, rayDirection.z);
+        PxReal maxDistance = rayLength;
+        PxRaycastBuffer hit;
+        // [in] Define what parts of PxRaycastHit we're interested in
+        const PxHitFlags outputFlags = PxHitFlag::ePOSITION | PxHitFlag::eNORMAL;
+        // Only ray cast against objects with the GROUP_RAYCAST flag
+        PxQueryFilterData filterData = PxQueryFilterData();
+        filterData.data.word0 = RaycastGroup::RAYCAST_ENABLED;
+
+        // Defaults
+        PhysXRayResult result;
+        result.hitObjectName = "NO_HIT";
+        result.hitPosition = glm::vec3(0, 0, 0);
+        result.surfaceNormal = glm::vec3(0, 0, 0);
+        result.rayDirection = rayDirection;
+        result.hitFound = false;
+        result.hitActor = nullptr;
+        result.parent = nullptr;
+
+        // Cast the ray
+        bool status = scene->raycast(origin, unitDir, maxDistance, hit, outputFlags, filterData);
+
+        if (status) {
+            if (hit.block.actor->getName()) {
+                result.hitObjectName = hit.block.actor->getName();
+            }
+            else
+                result.hitObjectName = "HIT OBJECT HAS NO ACTOR NAME";
+
+            result.hitPosition = glm::vec3(hit.block.position.x, hit.block.position.y, hit.block.position.z);
+            result.surfaceNormal = glm::vec3(hit.block.normal.x, hit.block.normal.y, hit.block.normal.z);
+            result.hitFound = true;
+            result.hitActor = hit.block.actor;
+
+            /*EntityData* hitEntityData = (EntityData*)hit.block.actor->userData;
+             m_parent = hitEntityData->parent;
+             m_physicsObjectType = hitEntityData->type;*/
+
+        }
+        return result;
+    }
+
+
+    /*inline PxMat44 GlmMat4ToPxMat44(glm::mat4 matrix) {
+        PxMat44 pxMatrix;
+        for (int x = 0; x < 4; x++)
+            for (int y = 0; y < 4; y++)
+                pxMatrix[x][y] = matrix[x][y];
+        return pxMatrix;
+    }
+
+    inline physx::PxMat44 TransformToPxMaQt44(Transform transform) {
+        return GlmMat4ToPxMat44(transform.to_mat4());
+    }*/
+
+    inline void DrawFrontFacingPlane(int instanceCount) {
+        static unsigned int frontFacingPlaneVAO = 0;
+        float offset = 0.1f;
+        if (frontFacingPlaneVAO == 0) {
+            Vertex vert0, vert1, vert2, vert3;
+            vert0.position = glm::vec3(-0.5, 0.5, offset);
+            vert1.position = glm::vec3(0.5, 0.5f, offset);
+            vert2.position = glm::vec3(0.5, -0.5, offset);
+            vert3.position = glm::vec3(-0.5, -0.5, offset);
+            vert0.uv = glm::vec2(0, 1);
+            vert1.uv = glm::vec2(1, 1);
+            vert2.uv = glm::vec2(1, 0);
+            vert3.uv = glm::vec2(0, 0);
+            vert0.normal = glm::vec3(0, 0, 1);
+            vert1.normal = glm::vec3(0, 0, 1);
+            vert2.normal = glm::vec3(0, 0, 1);
+            vert3.normal = glm::vec3(0, 0, 1);
+            vert0.bitangent = glm::vec3(0, 1, 0);
+            vert1.bitangent = glm::vec3(0, 1, 0);
+            vert2.bitangent = glm::vec3(0, 1, 0);
+            vert3.bitangent = glm::vec3(0, 1, 0);
+            vert0.tangent = glm::vec3(1, 0, 0);
+            vert1.tangent = glm::vec3(1, 0, 0);
+            vert2.tangent = glm::vec3(1, 0, 0);
+            vert3.tangent = glm::vec3(1, 0, 0);
+            std::vector<Vertex> vertices;
+            std::vector<unsigned int> indices;
+            unsigned int i = (unsigned int)vertices.size();
+            indices.push_back(i + 2);
+            indices.push_back(i + 1);
+            indices.push_back(i + 0);
+            indices.push_back(i + 0);
+            indices.push_back(i + 3);
+            indices.push_back(i + 2);
+            vertices.push_back(vert0);
+            vertices.push_back(vert1);
+            vertices.push_back(vert2);
+            vertices.push_back(vert3);
+            unsigned int VBO;
+            unsigned int EBO;
+            glGenVertexArrays(1, &frontFacingPlaneVAO);
+            glGenBuffers(1, &VBO);
+            glGenBuffers(1, &EBO);
+            glBindVertexArray(frontFacingPlaneVAO);
+            glBindBuffer(GL_ARRAY_BUFFER, VBO);
+            glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), &vertices[0], GL_STATIC_DRAW);
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+            glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
+            glEnableVertexAttribArray(0);
+            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
+            glEnableVertexAttribArray(1);
+            glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normal));
+            glEnableVertexAttribArray(2);
+            glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, uv));
+            glEnableVertexAttribArray(3);
+            glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, tangent));
+            glEnableVertexAttribArray(4);
+            glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, bitangent));
+        }
+        glBindVertexArray(frontFacingPlaneVAO);
+        glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0, instanceCount);
+    }
+
+    inline glm::mat4 PxMat44ToGlmMat4(physx::PxMat44 pxMatrix) {
+        glm::mat4 matrix;
+        for (int x = 0; x < 4; x++)
+            for (int y = 0; y < 4; y++)
+                matrix[x][y] = pxMatrix[x][y];
+        return matrix;
+    }
+
+    inline physx::PxMat44 GlmMat4ToPxMat44(glm::mat4 glmMatrix) {
+        physx::PxMat44 matrix;
+        for (int x = 0; x < 4; x++)
+            for (int y = 0; y < 4; y++)
+                matrix[x][y] = glmMatrix[x][y];
+        return matrix;
+    }
+
+    inline glm::vec3 ClosestPointOnLine(glm::vec3 point, glm::vec3 start, glm::vec3 end) {
+        glm::vec2 p(point.x, point.z);
+        glm::vec2 v(start.x, start.z);
+        glm::vec2 w(end.x, end.z);
+        const float l2 = ((v.x - w.x) * (v.x - w.x)) + ((v.y - w.y) * (v.y - w.y));
+        if (l2 == 0.0)
+            return glm::vec3(0);
+        const float t = std::max(0.0f, std::min(1.0f, dot(p - v, w - v) / l2));
+        const glm::vec2 projection = v + t * (w - v);
+        return glm::vec3(projection.x, 0, projection.y);
+    }
+
+    inline float DistanceSquared(glm::vec3 A, glm::vec3 B) {
+        glm::vec3 C = A - B;
+        return glm::dot(C, C);
+    }
 
     inline glm::vec3 Translate(glm::mat4& translation, glm::vec3 position) {
         return translation * glm::vec4(position, 1.0);
@@ -202,7 +370,7 @@ namespace Util {
     }
 
 
-    inline void EvaluateRaycasts(glm::vec3 rayOrigin, glm::vec3 rayDirection, float maxDistance, std::vector<Triangle>& triangles, RaycastObjectType parentType, glm::mat4 parentMatrix, RayCastResult& out, bool ignoreBackFacing = true) {
+    inline void EvaluateRaycasts(glm::vec3 rayOrigin, glm::vec3 rayDirection, float maxDistance, std::vector<Triangle>& triangles, RaycastObjectType parentType, glm::mat4 parentMatrix, RayCastResult& out, void* parent, bool ignoreBackFacing = true) {
         glm::mat4 inverseTransform = glm::inverse(parentMatrix);
 
         glm::vec3 origin = inverseTransform * glm::vec4(rayOrigin, 1);
@@ -226,6 +394,7 @@ namespace Util {
                     out.triangeleModelMatrix = parentMatrix;
                     out.baryPosition = result.baryPosition;
                     out.found = true;
+                    out.parent = parent;
                 }
             }
             out.rayCount++;
@@ -406,5 +575,91 @@ namespace Util {
         char* b = new char[strlen(text) + 1] {};
         std::copy(text, text + strlen(text), b);
         return b;
+    }
+
+    inline bool LineIntersects(glm::vec2 begin_A, glm::vec2 end_A, glm::vec2 begin_B, glm::vec2 end_B, glm::vec2& result)
+    {
+        static const auto SameSign = [](float a, float b) -> bool {
+            return ((a * b) >= 0);
+            };
+        // a
+        float x1 = begin_A.x;
+        float y1 = begin_A.y;
+        float x2 = end_A.x;
+        float y2 = end_A.y;
+        // b
+        float x3 = begin_B.x;
+        float y3 = begin_B.y;
+        float x4 = end_B.x;
+        float y4 = end_B.y;
+        float a1, a2, b1, b2, c1, c2;
+        float r1, r2, r3, r4;
+        float denom;
+        a1 = y2 - y1;
+        b1 = x1 - x2;
+        c1 = (x2 * y1) - (x1 * y2);
+        r3 = ((a1 * x3) + (b1 * y3) + c1);
+        r4 = ((a1 * x4) + (b1 * y4) + c1);
+        if ((r3 != 0) && (r4 != 0) && SameSign(r3, r4))
+            return false;
+        a2 = y4 - y3; // Compute a2, b2, c2
+        b2 = x3 - x4;
+        c2 = (x4 * y3) - (x3 * y4);
+        r1 = (a2 * x1) + (b2 * y1) + c2; // Compute r1 and r2
+        r2 = (a2 * x2) + (b2 * y2) + c2;
+        if ((r1 != 0) && (r2 != 0) && (SameSign(r1, r2)))
+            return false;
+        denom = (a1 * b2) - (a2 * b1); //Line segments intersect: compute intersection point.
+        if (denom == 0)
+            return false;// COLLINEAR;
+        // FIND THAT INTERSECTION POINT ALREADY
+        {
+            // Line AB represented as a1x + b1y = c1
+            float a = y2 - y1;
+            float b = x1 - x2;
+            float c = a * (x1)+b * (y1);
+            // Line CD represented as a2x + b2y = c2
+            float a1 = y4 - y3;
+            float b1 = x3 - x4;
+            float c1 = a1 * (x3)+b1 * (y3);
+            float det = a * b1 - a1 * b;
+            if (det == 0) {
+
+                return false;
+            }
+            else {
+                float x = (b1 * c - b * c1) / det;
+                float y = (a * c1 - a1 * c) / det;
+                result.x = x;
+                result.y = y;
+                return true;
+            }
+            return false;
+        }
+    }
+
+    inline bool LineIntersects(glm::vec3 begin_A, glm::vec3 end_A, glm::vec3 begin_B, glm::vec3 end_B, glm::vec3& result) {
+        // wow this is ugly
+        glm::vec2 temp;
+        bool i = LineIntersects(glm::vec2(begin_A.x, begin_A.z), glm::vec2(end_A.x, end_A.z), glm::vec2(begin_B.x, begin_B.z), glm::vec2(end_B.x, end_B.z), temp);
+        result.x = temp.x;
+        result.y = begin_A.y;
+        result.z = temp.y;
+        return i;
+    }
+
+    inline float sign(glm::vec2 p1, glm::vec2 p2, glm::vec2 p3) {
+        return (p1.x - p3.x) * (p2.y - p3.y) - (p2.x - p3.x) * (p1.y - p3.y);
+    }
+
+    inline bool PointIn2DTriangle(glm::vec2 pt, glm::vec2 v1, glm::vec2 v2, glm::vec2 v3) {
+        float d1, d2, d3;
+        bool has_neg, has_pos;
+        d1 = sign(pt, v1, v2);
+        d2 = sign(pt, v2, v3);
+        d3 = sign(pt, v3, v1);
+        has_neg = (d1 < 0) || (d2 < 0) || (d3 < 0);
+        has_pos = (d1 > 0) || (d2 > 0) || (d3 > 0);
+        return !(has_neg && has_pos);
     }
 }
