@@ -254,7 +254,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 8,
+          "SelectedChildIndex": 7,
           "Children": [
             {
               "$type": "Bookmark",
@@ -270,19 +270,6 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "SkinnedModel.h",
-              "DocumentMoniker": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Core\\Animation\\SkinnedModel.h",
-              "RelativeDocumentMoniker": "ArkEngine\\src\\Core\\Animation\\SkinnedModel.h",
-              "ToolTip": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Core\\Animation\\SkinnedModel.h",
-              "RelativeToolTip": "ArkEngine\\src\\Core\\Animation\\SkinnedModel.h",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAHgAAAACAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-12-22T06:33:48.701Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
               "DocumentIndex": 1,
               "Title": "AssetManager.h",
               "DocumentMoniker": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Core\\AssetManager.h",
@@ -291,8 +278,7 @@
               "RelativeToolTip": "ArkEngine\\src\\Core\\AssetManager.h",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-12-22T06:06:49.231Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-22T06:06:49.231Z"
             },
             {
               "$type": "Document",
@@ -304,8 +290,7 @@
               "RelativeToolTip": "ArkEngine\\src\\Core\\Animation\\SkinnedModel.cpp",
               "ViewState": "AgIAAEUAAAAAAAAAAAAAAAIAAAAUAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2025-12-22T06:08:13.458Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-22T06:08:13.458Z"
             },
             {
               "$type": "Document",
@@ -317,8 +302,7 @@
               "RelativeToolTip": "ArkEngine\\src\\Engine.h",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-12-22T04:25:09.25Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-22T04:25:09.25Z"
             },
             {
               "$type": "Document",
@@ -330,8 +314,7 @@
               "RelativeToolTip": "ArkEngine\\src\\Engine.cpp",
               "ViewState": "AgIAAG8AAAAAAAAAAAAswJAAAAAdAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2025-12-22T04:25:22.152Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-22T04:25:22.152Z"
             },
             {
               "$type": "Document",
@@ -341,10 +324,22 @@
               "RelativeDocumentMoniker": "ArkEngine\\src\\Core\\AssetManager.cpp",
               "ToolTip": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Core\\AssetManager.cpp",
               "RelativeToolTip": "ArkEngine\\src\\Core\\AssetManager.cpp",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAARAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAUAAAAeAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2025-12-22T06:31:59.406Z",
               "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "SkinnedModel.h",
+              "DocumentMoniker": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Core\\Animation\\SkinnedModel.h",
+              "RelativeDocumentMoniker": "ArkEngine\\src\\Core\\Animation\\SkinnedModel.h",
+              "ToolTip": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Core\\Animation\\SkinnedModel.h",
+              "RelativeToolTip": "ArkEngine\\src\\Core\\Animation\\SkinnedModel.h",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAHgAAAACAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2025-12-22T06:33:48.701Z"
             },
             {
               "$type": "Document",
@@ -356,8 +351,7 @@
               "RelativeToolTip": "ArkEngine\\src\\Core\\Editor.h",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABsAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-12-22T06:11:07.328Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-22T06:11:07.328Z"
             },
             {
               "$type": "Document",
@@ -369,8 +363,7 @@
               "RelativeToolTip": "ArkEngine\\src\\Renderer\\MeshUtil.hpp",
               "ViewState": "AgIAAJgAAAAAAAAAAAAswMIAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-12-22T06:21:39.269Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-22T06:21:39.269Z"
             },
             {
               "$type": "Document",
@@ -382,8 +375,7 @@
               "RelativeToolTip": "ArkEngine\\src\\Renderer\\Model.h",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABoAAAACAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-12-22T06:21:51.912Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-22T06:21:51.912Z"
             },
             {
               "$type": "Document",
@@ -395,8 +387,7 @@
               "RelativeToolTip": "ArkEngine\\src\\Renderer\\Model.cpp",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAEAAAARAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2025-12-22T06:22:15.434Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-22T06:22:15.434Z"
             },
             {
               "$type": "Document",
@@ -408,8 +399,7 @@
               "RelativeToolTip": "ArkEngine\\src\\Renderer\\NumberBlitter.h",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABYAAAACAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-12-22T06:24:19.114Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-22T06:24:19.114Z"
             },
             {
               "$type": "Document",
@@ -421,8 +411,7 @@
               "RelativeToolTip": "ArkEngine\\src\\Renderer\\NumberBlitter.cpp",
               "ViewState": "AgIAABsAAAAAAAAAAAAAAAIAAAAMAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2025-12-22T06:24:40.4Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-22T06:24:40.4Z"
             },
             {
               "$type": "Document",
@@ -434,8 +423,7 @@
               "RelativeToolTip": "ArkEngine\\src\\Renderer\\Renderer.cpp",
               "ViewState": "AgIAAM8BAAAAAAAAAAAwwNcBAAAdAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2025-12-22T06:26:32.235Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-22T06:26:32.235Z"
             },
             {
               "$type": "Document",
@@ -447,8 +435,7 @@
               "RelativeToolTip": "ArkEngine\\src\\Core\\Editor.cpp",
               "ViewState": "AgIAAAsAAAAAAAAAAAAswDUAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2025-12-22T06:11:19.361Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-22T06:11:19.361Z"
             },
             {
               "$type": "Document",
@@ -460,8 +447,7 @@
               "RelativeToolTip": "ArkEngine\\src\\Renderer\\PresentFrameBuffer.h",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAACAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-12-22T06:25:49.47Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-22T06:25:49.47Z"
             },
             {
               "$type": "Document",
@@ -473,8 +459,7 @@
               "RelativeToolTip": "ArkEngine\\src\\Renderer\\PresentFrameBuffer.cpp",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAADkAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2025-12-22T06:26:06.974Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-22T06:26:06.974Z"
             },
             {
               "$type": "Document",
@@ -486,8 +471,7 @@
               "RelativeToolTip": "ArkEngine\\src\\Renderer\\Mesh.cpp",
               "ViewState": "AgIAAAsAAAAAAAAAAAAswDUAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2025-12-22T06:21:22.507Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-22T06:21:22.507Z"
             },
             {
               "$type": "Document",
@@ -499,8 +483,7 @@
               "RelativeToolTip": "ArkEngine\\src\\Renderer\\Mesh.h",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAACAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-12-22T06:21:09.544Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-22T06:21:09.544Z"
             },
             {
               "$type": "Document",
@@ -512,8 +495,7 @@
               "RelativeToolTip": "ArkEngine\\src\\Renderer\\GBuffer.cpp",
               "ViewState": "AgIAACEAAAAAAAAAAAAswEsAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2025-12-22T06:20:51.516Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-22T06:20:51.516Z"
             },
             {
               "$type": "Document",
@@ -525,8 +507,7 @@
               "RelativeToolTip": "ArkEngine\\src\\Renderer\\GBuffer.h",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABUAAAACAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-12-22T06:20:42.786Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-22T06:20:42.786Z"
             },
             {
               "$type": "Document",
@@ -538,8 +519,7 @@
               "RelativeToolTip": "ArkEngine\\src\\Renderer\\DDS_Helpers.cpp",
               "ViewState": "AgIAAAMAAAAAAAAAAAAAABsAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2025-12-22T06:20:10.302Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-22T06:20:10.302Z"
             },
             {
               "$type": "Document",
@@ -551,8 +531,7 @@
               "RelativeToolTip": "ArkEngine\\src\\Renderer\\DDS_Helpers.h",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-12-22T06:19:09.885Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-22T06:19:09.885Z"
             },
             {
               "$type": "Document",
@@ -564,8 +543,7 @@
               "RelativeToolTip": "ArkEngine\\src\\Effects\\MuzzleFlash.cpp",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAFAAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2025-12-22T06:18:45.876Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-22T06:18:45.876Z"
             },
             {
               "$type": "Document",
@@ -577,8 +555,7 @@
               "RelativeToolTip": "ArkEngine\\src\\Effects\\MuzzleFlash.h",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABwAAAACAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-12-22T06:18:23.026Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-22T06:18:23.026Z"
             },
             {
               "$type": "Document",
@@ -590,8 +567,7 @@
               "RelativeToolTip": "ArkEngine\\src\\Core\\Scene.cpp",
               "ViewState": "AgIAABsAAAAAAAAAAAAAACoAAAAdAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2025-12-22T06:16:48.129Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-22T06:16:48.129Z"
             },
             {
               "$type": "Document",
@@ -603,8 +579,7 @@
               "RelativeToolTip": "ArkEngine\\src\\Core\\Scene.h",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAACEBAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-12-22T06:16:28.065Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-22T06:16:28.065Z"
             },
             {
               "$type": "Document",
@@ -616,8 +591,7 @@
               "RelativeToolTip": "ArkEngine\\src\\Core\\Player.cpp",
               "ViewState": "AgIAAJYBAAAAAAAAAAAswLYBAAAbAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2025-12-22T06:14:03.18Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-22T06:14:03.18Z"
             },
             {
               "$type": "Document",
@@ -629,8 +603,7 @@
               "RelativeToolTip": "ArkEngine\\src\\Core\\GameObject.cpp",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAACICAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2025-12-22T06:13:39.149Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-22T06:13:39.149Z"
             },
             {
               "$type": "Document",
@@ -642,8 +615,7 @@
               "RelativeToolTip": "ArkEngine\\src\\Core\\GameObject.h",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABEAAAAZAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-12-22T06:12:36.879Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-22T06:12:36.879Z"
             },
             {
               "$type": "Document",
@@ -655,8 +627,7 @@
               "RelativeToolTip": "ArkEngine\\src\\Core\\FbxImporter.cpp",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAEAAAARAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2025-12-22T06:12:03.619Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-22T06:12:03.619Z"
             },
             {
               "$type": "Document",
@@ -668,8 +639,7 @@
               "RelativeToolTip": "ArkEngine\\src\\Core\\FbxImporter.h",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAACAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-12-22T06:11:37.515Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-22T06:11:37.515Z"
             },
             {
               "$type": "Document",
@@ -681,8 +651,7 @@
               "RelativeToolTip": "ArkEngine\\src\\Core\\Player.h",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAACsAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-12-22T05:39:29.117Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-22T05:39:29.117Z"
             },
             {
               "$type": "Document",
@@ -694,8 +663,7 @@
               "RelativeToolTip": "ArkEngine\\src\\Core\\Audio\\Audio.hpp",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAFMAAAACAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-12-22T04:22:49.957Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-22T04:22:49.957Z"
             },
             {
               "$type": "Document",
@@ -707,8 +675,7 @@
               "RelativeToolTip": "ArkEngine\\src\\Core\\AnimatedGameObject.h",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAADgAAAACAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-12-22T06:09:04.705Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-22T06:09:04.705Z"
             },
             {
               "$type": "Document",
@@ -720,8 +687,7 @@
               "RelativeToolTip": "ArkEngine\\src\\Core\\Animation\\Animation.cpp",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAEAAAAVAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2025-12-22T06:07:24.382Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-22T06:07:24.382Z"
             },
             {
               "$type": "Document",
@@ -733,8 +699,7 @@
               "RelativeToolTip": "ArkEngine\\src\\Core\\Animation\\Animation.h",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAACQAAAACAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-12-22T06:07:12.569Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-22T06:07:12.569Z"
             },
             {
               "$type": "Document",
@@ -746,8 +711,7 @@
               "RelativeToolTip": "ArkEngine\\src\\Core\\TextBlitting.cpp",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAACYBAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2025-12-22T06:06:29.567Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-22T06:06:29.567Z"
             },
             {
               "$type": "Document",
@@ -759,8 +723,7 @@
               "RelativeToolTip": "ArkEngine\\src\\Core\\TextBlitter.h",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABEAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-12-22T06:06:05.973Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-22T06:06:05.973Z"
             },
             {
               "$type": "Document",
@@ -772,8 +735,7 @@
               "RelativeToolTip": "ArkEngine\\src\\Core\\AnimatedGameObject.cpp",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAUAAAARAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2025-12-22T06:01:54.554Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-22T06:01:54.554Z"
             },
             {
               "$type": "Document",
@@ -785,8 +747,7 @@
               "RelativeToolTip": "ArkEngine\\src\\Core\\Input\\Input.cpp",
               "ViewState": "AgIAAH4AAAAAAAAAAAAAAA8AAAAdAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2025-12-22T06:05:20.59Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-22T06:05:20.59Z"
             },
             {
               "$type": "Document",
@@ -798,8 +759,7 @@
               "RelativeToolTip": "ArkEngine\\src\\Core\\Input\\keycodes.h",
               "ViewState": "AgIAAKMAAAAAAAAAAAAswK8AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-12-22T06:03:01.291Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-22T06:03:01.291Z"
             },
             {
               "$type": "Document",
@@ -811,8 +771,7 @@
               "RelativeToolTip": "ArkEngine\\src\\Core\\Input\\Input.h",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABUAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-12-22T06:02:46.584Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-22T06:02:46.584Z"
             },
             {
               "$type": "Document",
@@ -824,8 +783,7 @@
               "RelativeToolTip": "ArkEngine\\src\\Renderer\\Texture3D.cpp",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAAKAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2025-12-22T05:40:31.343Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-22T05:40:31.343Z"
             },
             {
               "$type": "Document",
@@ -837,8 +795,7 @@
               "RelativeToolTip": "ArkEngine\\src\\Renderer\\Texture3D.h",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABUAAAACAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-12-22T05:40:14.476Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-22T05:40:14.476Z"
             },
             {
               "$type": "Document",
@@ -850,8 +807,7 @@
               "RelativeToolTip": "ArkEngine\\src\\Renderer\\Renderer.h",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAACEAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-12-22T04:30:38.453Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-22T04:30:38.453Z"
             },
             {
               "$type": "Document",
@@ -863,8 +819,7 @@
               "RelativeToolTip": "ArkEngine\\src\\GL\\GL.h",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAAWAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-12-22T04:23:42.923Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-22T04:23:42.923Z"
             },
             {
               "$type": "Document",
@@ -876,8 +831,7 @@
               "RelativeToolTip": "ArkEngine\\src\\GL\\GL.cpp",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAABAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2025-12-22T04:23:53.18Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-22T04:23:53.18Z"
             },
             {
               "$type": "Document",
@@ -889,8 +843,7 @@
               "RelativeToolTip": "ArkEngine\\src\\Math\\Math.h",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAADwAAAACAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-12-22T04:31:55.474Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-22T04:31:55.474Z"
             },
             {
               "$type": "Document",
@@ -902,8 +855,7 @@
               "RelativeToolTip": "ArkEngine\\src\\Common.h",
               "ViewState": "AgIAAB4AAAAAAAAAAAAAANwAAAACAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-12-22T04:24:11.647Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-22T04:24:11.647Z"
             },
             {
               "$type": "Document",
@@ -915,8 +867,7 @@
               "RelativeToolTip": "ArkEngine\\src\\Renderer\\Texture.h",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAALAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-12-22T05:41:07.827Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-22T05:41:07.827Z"
             },
             {
               "$type": "Document",
@@ -928,8 +879,7 @@
               "RelativeToolTip": "ArkEngine\\src\\Timer.hpp",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAACIAAAACAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-12-22T04:24:32.384Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-22T04:24:32.384Z"
             },
             {
               "$type": "Document",
@@ -941,8 +891,7 @@
               "RelativeToolTip": "ArkEngine\\src\\Main.cpp",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2025-12-22T04:24:44.371Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-22T04:24:44.371Z"
             },
             {
               "$type": "Document",
@@ -954,8 +903,7 @@
               "RelativeToolTip": "ArkEngine\\src\\Renderer\\Texture.cpp",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAUAAAARAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2025-12-22T05:43:35.737Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-22T05:43:35.737Z"
             },
             {
               "$type": "Document",
@@ -967,8 +915,7 @@
               "RelativeToolTip": "ArkEngine\\src\\Renderer\\ShadowMap.h",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABQAAAACAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-12-22T05:44:42.747Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-22T05:44:42.747Z"
             },
             {
               "$type": "Document",
@@ -980,8 +927,7 @@
               "RelativeToolTip": "ArkEngine\\src\\Renderer\\ShadowMap.cpp",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAACcAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2025-12-22T05:44:54.787Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-22T05:44:54.787Z"
             },
             {
               "$type": "Document",
@@ -993,8 +939,7 @@
               "RelativeToolTip": "ArkEngine\\src\\Renderer\\Shader.h",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAACUAAAACAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-12-22T05:45:18.093Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-22T05:45:18.093Z"
             },
             {
               "$type": "Document",
@@ -1006,8 +951,7 @@
               "RelativeToolTip": "ArkEngine\\src\\Renderer\\Shader.cpp",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAEAAAARAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2025-12-22T05:45:39.351Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-22T05:45:39.351Z"
             },
             {
               "$type": "Document",
@@ -1019,8 +963,7 @@
               "RelativeToolTip": "ArkEngine\\src\\Utility\\Util.hpp",
               "ViewState": "AgIAAC0BAAAAAAAAAAAswJkBAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-12-22T04:23:26.806Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-22T04:23:26.806Z"
             },
             {
               "$type": "Document",

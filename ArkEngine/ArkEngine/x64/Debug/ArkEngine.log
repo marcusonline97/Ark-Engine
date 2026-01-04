@@ -1,1 +1,135 @@
-﻿C:\Program Files\Microsoft Visual Studio\18\Community\VC\Auxiliary\Build\Microsoft.VCToolsVersion.v143.default.props(3,3): error MSB4019: The imported project "C:\Program Files\Microsoft Visual Studio\18\Community\VC\Auxiliary\Build\Microsoft.VCRedistVersion.v143.default.props" was not found. Confirm that the expression in the Import declaration "$([System.IO.Path]::GetFullPath($(MSBuildThisFileDirectory)Microsoft.VCRedistVersion.v143.default.props))", which evaluated to "C:\Program Files\Microsoft Visual Studio\18\Community\VC\Auxiliary\Build\Microsoft.VCRedistVersion.v143.default.props", is correct, and that the file exists on disk.
+﻿  AnimatedGameObject.cpp
+  GLM_GTX_hash requires C++11 standard library support
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Utility\Util.hpp(14,10): error C1083: Cannot open include file: 'Core/Physics.h': No such file or directory
+  (compiling source file 'ArkEngine/src/Core/AnimatedGameObject.cpp')
+  
+  Animation.cpp
+  GLM_GTX_hash requires C++11 standard library support
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Core\Animation\Animation.cpp(2,10): error C1083: Cannot open include file: '../Utility/Util.hpp': No such file or directory
+  SkinnedModel.cpp
+  GLM_GTX_hash requires C++11 standard library support
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Core\Animation\SkinnedModel.cpp(3,10): error C1083: Cannot open include file: '../Utility/Util.hpp': No such file or directory
+  AssetManager.cpp
+  GLM_GTX_hash requires C++11 standard library support
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Utility\Util.hpp(14,10): error C1083: Cannot open include file: 'Core/Physics.h': No such file or directory
+  (compiling source file 'ArkEngine/src/Core/AssetManager.cpp')
+  
+  Editor.cpp
+  GLM_GTX_hash requires C++11 standard library support
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Utility\Util.hpp(14,10): error C1083: Cannot open include file: 'Core/Physics.h': No such file or directory
+  (compiling source file 'ArkEngine/src/Core/Editor.cpp')
+  
+  FbxImporter.cpp
+  GLM_GTX_hash requires C++11 standard library support
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Utility\Util.hpp(14,10): error C1083: Cannot open include file: 'Core/Physics.h': No such file or directory
+  (compiling source file 'ArkEngine/src/Core/FbxImporter.cpp')
+  
+  GameObject.cpp
+  GLM_GTX_hash requires C++11 standard library support
+  Player.cpp
+  GLM_GTX_hash requires C++11 standard library support
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Utility\Util.hpp(14,10): error C1083: Cannot open include file: 'Core/Physics.h': No such file or directory
+  (compiling source file 'ArkEngine/src/Core/Player.cpp')
+  
+  Scene.cpp
+  GLM_GTX_hash requires C++11 standard library support
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Utility\Util.hpp(14,10): error C1083: Cannot open include file: 'Core/Physics.h': No such file or directory
+  (compiling source file 'ArkEngine/src/Core/Scene.cpp')
+  
+  TextBlitting.cpp
+  GLM_GTX_hash requires C++11 standard library support
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Core\TextBlitting.cpp(80,17): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Core\TextBlitting.cpp(81,17): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Core\TextBlitting.cpp(118,16): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Core\TextBlitting.cpp(128,20): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Core\TextBlitting.cpp(129,21): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Core\TextBlitting.cpp(136,35): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Core\TextBlitting.cpp(137,26): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Core\TextBlitting.cpp(146,13): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Core\TextBlitting.cpp(147,13): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Core\TextBlitting.cpp(170,15): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Core\TextBlitting.cpp(179,19): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Core\TextBlitting.cpp(180,20): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Core\TextBlitting.cpp(187,34): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Core\TextBlitting.cpp(188,25): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Core\TextBlitting.cpp(221,23): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Core\TextBlitting.cpp(226,21): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Core\TextBlitting.cpp(229,26): warning C4244: '-=': conversion from 'float' to 'int', possible loss of data
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Core\TextBlitting.cpp(233,20): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Core\TextBlitting.cpp(234,20): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Core\TextBlitting.cpp(259,22): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Core\TextBlitting.cpp(266,20): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Core\TextBlitting.cpp(267,21): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Core\TextBlitting.cpp(274,35): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Core\TextBlitting.cpp(275,26): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+  Engine.cpp
+  GLM_GTX_hash requires C++11 standard library support
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Utility\Util.hpp(14,10): error C1083: Cannot open include file: 'Core/Physics.h': No such file or directory
+  (compiling source file 'ArkEngine/src/Engine.cpp')
+  
+  GL.cpp
+  GLM_GTX_hash requires C++11 standard library support
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\GL\GL.cpp(333,31): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
+  Model.cpp
+  GLM_GTX_hash requires C++11 standard library support
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Utility\Util.hpp(14,10): error C1083: Cannot open include file: 'Core/Physics.h': No such file or directory
+  (compiling source file 'ArkEngine/src/Renderer/Model.cpp')
+  
+  NumberBlitter.cpp
+  GLM_GTX_hash requires C++11 standard library support
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Renderer\NumberBlitter.cpp(42,20): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Renderer\NumberBlitter.cpp(43,21): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
+  Renderer.cpp
+  GLM_GTX_hash requires C++11 standard library support
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Renderer\MeshUtil.hpp(45,17): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+  (compiling source file 'ArkEngine/src/Renderer/Renderer.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Renderer\MeshUtil.hpp(86,17): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+  (compiling source file 'ArkEngine/src/Renderer/Renderer.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Renderer\MeshUtil.hpp(87,17): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+  (compiling source file 'ArkEngine/src/Renderer/Renderer.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Renderer\MeshUtil.hpp(88,17): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+  (compiling source file 'ArkEngine/src/Renderer/Renderer.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Renderer\MeshUtil.hpp(129,17): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+  (compiling source file 'ArkEngine/src/Renderer/Renderer.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Renderer\MeshUtil.hpp(141,17): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+  (compiling source file 'ArkEngine/src/Renderer/Renderer.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Renderer\MeshUtil.hpp(153,17): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+  (compiling source file 'ArkEngine/src/Renderer/Renderer.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Renderer\MeshUtil.hpp(165,17): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+  (compiling source file 'ArkEngine/src/Renderer/Renderer.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Renderer\MeshUtil.hpp(176,17): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+  (compiling source file 'ArkEngine/src/Renderer/Renderer.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Renderer\MeshUtil.hpp(187,17): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+  (compiling source file 'ArkEngine/src/Renderer/Renderer.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Utility\Util.hpp(14,10): error C1083: Cannot open include file: 'Core/Physics.h': No such file or directory
+  (compiling source file 'ArkEngine/src/Renderer/Renderer.cpp')
+  
+  Shader.cpp
+  GLM_GTX_hash requires C++11 standard library support
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Utility\Util.hpp(14,10): error C1083: Cannot open include file: 'Core/Physics.h': No such file or directory
+  (compiling source file 'ArkEngine/src/Renderer/Shader.cpp')
+  
+  ShadowMap.cpp
+  GLM_GTX_hash requires C++11 standard library support
+  Texture.cpp
+  GLM_GTX_hash requires C++11 standard library support
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Utility\Util.hpp(14,10): error C1083: Cannot open include file: 'Core/Physics.h': No such file or directory
+  (compiling source file 'ArkEngine/src/Renderer/Texture.cpp')
+  
+  Texture3D.cpp
+  GLM_GTX_hash requires C++11 standard library support
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Utility\Util.hpp(14,10): error C1083: Cannot open include file: 'Core/Physics.h': No such file or directory
+  (compiling source file 'ArkEngine/src/Renderer/Texture3D.cpp')
+  
+  ThreadPool.cpp
+  Generating Code...

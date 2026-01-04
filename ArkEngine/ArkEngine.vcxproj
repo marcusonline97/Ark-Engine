@@ -29,20 +29,20 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v145</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v145</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v145</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
@@ -174,7 +174,6 @@
     <ClCompile Include="ArkEngine\src\Renderer\Texture3D.cpp" />
     <ClCompile Include="ArkEngine\src\ThreadPool.cpp" />
     <ClCompile Include="ArkEngine\Vendor\VulkanMemoryAllocator\vk_mem_alloc.cpp" />
-    <ClCompile Include="ArkEngine\Window\vkWindow.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ArkEngine\src\Core\AnimatedGameObject.h" />
@@ -506,7 +505,6 @@
     <ClInclude Include="Vendor\glm\vec4.hpp" />
     <ClInclude Include="Vendor\glm\vector_relational.hpp" />
     <ClInclude Include="ArkEngine\Core\Engine\Rendering\Shaders\vkPipeline.hpp" />
-    <ClInclude Include="ArkEngine\Window\vkWindow.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Vendor\glm\detail\func_common.inl" />
