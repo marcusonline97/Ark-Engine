@@ -27,7 +27,7 @@ It's a pisser to plan and structure this mess but surely it will workout fine.
 
 Sky Rendering: https://www.youtube.com/watch?v=zZzLlRyOnZ8
 Structure: HellEngine https://www.youtube.com/watch?v=4s2M-e39nBM
-
+File Compression Optimization: https://www.youtube.com/watch?v=-9VlEtCUN0I
 Assimp: https://www.youtube.com/watch?v=r4MfFTDj0VU&t=30s
 
 ## 🚧 Planned Features

@@ -71,10 +71,10 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(SolutionDir)ArkEngine\Vendor\;$(SolutionDir)ArkEngine\Vendor\GLFW\lib;$(SolutionDir)ArkEngine\Vendor\tinyobjloader\;$(SolutionDir)ArkEngine\Vendor\DDS;$(SolutionDir)ArkEngine\Vendor\stb_image\;$(SolutionDir)ArkEngine\Vendor\FMod\includes;$(SolutionDir)ArkEngine\Vendor\GLFW\include;$(SolutionDir)ArkEngine\Vendor\SDL3\Include\;$(SolutionDir)ArkEngine\Vendor\assimp\include\;$(SolutionDir)ArkEngine\Vendor\GLAD\include\;$(ProjectDir)\Window;$(SolutionDir)ArkEngine\ArkEngine\src\;C:\ArkEngine\Ark-Engine\ArkTools\ArkTools\;$(SolutionDir)\Core\Engine\;$(SolutionDir)ArkEngine\src\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\;$(ProjectDir)Core\Engine\Rendering\;$(SolutionDir)ArkEngine\Vendor\compressonator\include\;$(SolutionDir)ArkEngine\Vendor\tracy\public\;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)\Resources\;$(SolutionDir)ArkEngine\Vendor\;$(SolutionDir)ArkEngine\Vendor\GLFW\lib;$(SolutionDir)ArkEngine\Vendor\tinyobjloader\;$(SolutionDir)ArkEngine\Vendor\DDS;$(SolutionDir)ArkEngine\Vendor\stb_image\;$(SolutionDir)ArkEngine\Vendor\FMod\includes;$(SolutionDir)ArkEngine\Vendor\GLFW\include;$(SolutionDir)ArkEngine\Vendor\SDL3\Include\;$(SolutionDir)ArkEngine\Vendor\assimp\include\;$(SolutionDir)ArkEngine\Vendor\GLAD\include\;$(ProjectDir)\Window;$(SolutionDir)ArkEngine\ArkEngine\src\;C:\ArkEngine\Ark-Engine\ArkTools\ArkTools\;$(SolutionDir)\Core\Engine\;$(SolutionDir)ArkEngine\src\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\;$(ProjectDir)Core\Engine\Rendering\;$(SolutionDir)ArkEngine\Vendor\compressonator\include\;$(SolutionDir)ArkEngine\Vendor\tracy\public\;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\GLFW\lib;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\tinyobjloader\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\DDS;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\stb_image\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\FMod\includes;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\GLFW\include;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\SDL3\Include\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\assimp\include\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\GLAD\include\;$(ProjectDir)\Window;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Common;C:\ArkEngine\Ark-Engine\ArkTools\ArkTools\;$(SolutionDir)\Core\Engine\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\;$(ProjectDir)Core\Engine\Rendering\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\API\OpenGL\Types\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\compressonator\include\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\tracy\public\;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)\Resources\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\GLFW\lib;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\tinyobjloader\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\DDS;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\stb_image\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\FMod\includes;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\GLFW\include;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\SDL3\Include\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\assimp\include\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\GLAD\include\;$(ProjectDir)\Window;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Common;C:\ArkEngine\Ark-Engine\ArkTools\ArkTools\;$(SolutionDir)\Core\Engine\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\;$(ProjectDir)Core\Engine\Rendering\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\API\OpenGL\Types\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\compressonator\include\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\tracy\public\;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -108,7 +108,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\ArkEngine\Ark-Engine\ArkEngine\3rdParty\include;$(VULKAN_SDK)\Include;$(ProjectDir)..\3rdParty\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\src\;$(SolutionDir)\Resources\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\compressonator\include\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\;$(SolutionDir)\Vendor\</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -131,8 +131,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>
-      </AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\src\;$(SolutionDir)\Resources\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\compressonator\include\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\;$(SolutionDir)\Vendor\</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
