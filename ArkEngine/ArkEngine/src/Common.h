@@ -1,6 +1,9 @@
 #pragma once
+
+#pragma warning(push, 0)
 #define GLM_FORCE_SILENT_WARNINGS
 #define GLM_ENABLE_EXPERIMENTAL
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
@@ -9,13 +12,66 @@
 #include <glm/gtc/type_ptr.hpp>
 #include "glm/gtx/hash.hpp"
 #include "Math.h"
+#pragma warning(pop)
+
+enum class API { OPENGL, VULKAN, UNDEFINED };
+enum class WindowedMode { WINDOWED, FULLSCREEN };
+enum class SplitscreenMode { NONE, TWO_PLAYER, FOUR_PLAYER, SPLITSCREEN_MODE_COUNT };
+enum class BulletHoleDecalType { REGULAR, GLASS };
+enum class PickUpType { NONE, AMMO, GLOCK, GLOCK_AMMO, TOKAREV_AMMO, SHOTGUN, SHOTGUN_AMMO, AKS74U, AKS74U_AMMO, AKS74U_SCOPE };
+
+enum EngineMode { GAME = 0, FLOORPLAN, EDITOR };
+enum Weapon { KNIFE = 0, GLOCK, SHOTGUN, AKS74U, MP7, WEAPON_COUNT };
+enum WeaponAction {
+    IDLE = 0,
+    FIRE,
+    RELOAD,
+    RELOAD_FROM_EMPTY,
+    DRAW_BEGIN,
+    DRAWING,
+    SPAWNING,
+    RELOAD_SHOTGUN_BEGIN,
+    RELOAD_SHOTGUN_SINGLE_SHELL,
+    RELOAD_SHOTGUN_DOUBLE_SHELL,
+    RELOAD_SHOTGUN_END,
+    ADS_IN,
+    ADS_OUT,
+    ADS_IDLE,
+    ADS_FIRE,
+    MELEE
+};
+
+#define _propogationGridSpacing 0.375f
+#define _pointCloudSpacing 0.4f
+#define _maxPropogationDistance 2.6f
+
+
+#define PLAYER_COUNT 4
+#define UNDEFINED_STRING "UNDEFINED_STRING"
+
+#define AUDIO_SELECT "SELECT_2.wav"
+#define ENV_MAP_SIZE 2048
+
+#define DOOR_VOLUME 1.0f
+#define INTERACT_DISTANCE 2.5f
 
 #define NEAR_PLANE 0.005f
-#define FAR_PLANE 50.0f
+//#define FAR_PLANE 50.0f
+#define FAR_PLANE 500.0f
 
 #define NOOSE_PI 3.14159265359f
 #define NOOSE_HALF_PI 1.57079632679f
-#define HELL_PI 3.141592653589793f
+#define ARK_PI 3.141592653589793f
+
+#define DOOR_WIDTH 0.8f
+#define DOOR_HEIGHT 2.0f
+#define DOOR_EDITOR_DEPTH 0.05f
+
+#define WINDOW_WIDTH 0.85f
+#define WINDOW_HEIGHT 2.1f
+
+#define PLAYER_CAPSULE_HEIGHT 0.4f
+#define PLAYER_CAPSULE_RADIUS 0.15f
 
 //#define MAP_WIDTH   32
 //#define MAP_HEIGHT  16
@@ -24,9 +80,10 @@
 #define ZERO_MEM(a) memset(a, 0, sizeof(a))
 #define ARRAY_SIZE_IN_ELEMENTS(a) (sizeof(a)/sizeof(a[0]))
 #define SAFE_DELETE(p) if (p) { delete p; p = NULL; }
-#define ToRadian(x) (float)(((x) * HELL_PI / 180.0f))
-#define ToDegree(x) (float)(((x) * 180.0f / HELL_PI)) 
+#define ToRadian(x) (float)(((x) * ARK_PI / 180.0f))
+#define ToDegree(x) (float)(((x) * 180.0f / ARK_PI))
 
+#define ORANGE   glm::vec3(1, 0.647f, 0)
 #define BLACK   glm::vec3(0,0,0)
 #define WHITE   glm::vec3(1,1,1)
 #define RED     glm::vec3(1,0,0)
@@ -36,6 +93,8 @@
 #define PURPLE  glm::vec3(1,0,1)
 #define GREY    glm::vec3(0.25f)
 #define LIGHT_BLUE    glm::vec3(0,1,1)
+#define LIGHT_GREEN   glm::vec3(0.16f, 0.78f, 0.23f)
+#define LIGHT_RED     glm::vec3(0.8f, 0.05f, 0.05f)
 #define GRID_COLOR    glm::vec3(0.509, 0.333, 0.490) * 0.5f
 
 #define SMALL_NUMBER		(float)9.99999993922529e-9
@@ -53,10 +112,31 @@
 #define NORMAL_LOCATION		 1
 #define TEX_COORD_LOCATION   2
 #define TANGENT_LOCATION     3
-#define BITANGENT_LOCATION   4
-#define BONE_ID_LOCATION     5
-#define BONE_WEIGHT_LOCATION 6
-#define SMOOTH_NORMAL_LOCATION 7
+#define BONE_ID_LOCATION     4
+#define BONE_WEIGHT_LOCATION 5
+
+struct ivec2 {
+    int x;
+    int y;
+    ivec2() = default;
+    template <typename T>
+    ivec2(T x_, T y_) : x(static_cast<int>(x_)), y(static_cast<int>(y_)) {}
+    ivec2(const ivec2& other_) : x(other_.x), y(other_.y) {}
+    ivec2(int x_, int y_) : x(x_), y(y_) {}
+    ivec2 operator+(const ivec2& other) const {
+        return ivec2(x + other.x, y + other.y);
+    }
+    ivec2 operator-(const ivec2& other) const {
+        return ivec2(x - other.x, y - other.y);
+    }
+    ivec2& operator=(const ivec2& other) {
+        if (this != &other) {
+            x = other.x;
+            y = other.y;
+        }
+        return *this;
+    }
+};
 
 enum VB_TYPES {
     INDEX_BUFFER,
@@ -82,34 +162,16 @@ struct Transform {
     };
 };
 
-struct Vertex {
-    glm::vec3 position = glm::vec3(0);
-    glm::vec3 normal = glm::vec3(0);
-    glm::vec2 uv = glm::vec2(0);
-    glm::vec3 tangent = glm::vec3(0);
-    glm::vec3 bitangent = glm::vec3(0);
-    glm::vec4 weight = glm::vec4(0);
-    glm::ivec4 boneID = glm::ivec4(0);
-
-    bool operator==(const Vertex& other) const {
-        return position == other.position && normal == other.normal && uv == other.uv;
-    }
-};
-
-namespace std {
-    template<> struct hash<Vertex> {
-        size_t operator()(Vertex const& vertex) const {
-            return ((hash<glm::vec3>()(vertex.position) ^ (hash<glm::vec3>()(vertex.normal) << 1)) >> 1) ^ (hash<glm::vec2>()(vertex.uv) << 1);
-        }
-    };
-}
-
 struct Point {
     glm::vec3 pos = { glm::vec3(0) };
     glm::vec3 color = { glm::vec3(0) };
     Point() {};
     Point(glm::vec3 pos, glm::vec3 color) {
         this->pos = pos;
+        this->color = color;
+    }
+    Point(float x, float y, float z, glm::vec3 color) {
+        this->pos = glm::vec3(x, y, z);
         this->color = color;
     }
 };
@@ -124,50 +186,20 @@ struct Line {
         p1.color = color;
         p2.color = color;
     }
-};
-
-struct VoxelFace {
-
-    int x = 0;
-    int y = 0;
-    int z = 0;
-    glm::vec3 baseColor;
-    glm::vec3 normal;
-    glm::vec3 accumulatedDirectLighting = { glm::vec3(0) };
-    glm::vec3 indirectLighting = { glm::vec3(0) };
-
-    VoxelFace(int x, int y, int z, glm::vec3 baseColor, glm::vec3 normal) {
-        this->x = x;
-        this->y = y;
-        this->z = z;
-        this->baseColor = baseColor;
-        this->normal = normal;
+    glm::vec3 GetCenter() {
+        return (p1.pos + p2.pos) * 0.5f;
     }
 };
 
-
-
-struct Light {
-    glm::vec3 position;
-    float strength = 1.0f;
-    float radius = 6.0f;
-    glm::vec3 color = glm::vec3(1, 0.7799999713897705, 0.5289999842643738);
-};
-
-struct Triangle {
+/*struct Triangle {
     glm::vec3 p1 = glm::vec3(0);
     glm::vec3 p2 = glm::vec3(0);
     glm::vec3 p3 = glm::vec3(0);
     glm::vec3 normal = glm::vec3(0);
     glm::vec3 color = glm::vec3(0);
-};
+};*/
 
-struct IntersectionResult {
-    bool found = false;
-    float distance = 0;
-    float dot = 0;
-    glm::vec2 baryPosition = glm::vec2(0);
-};
+
 
 struct GridProbe {
     glm::vec3 color = BLACK;
@@ -175,34 +207,33 @@ struct GridProbe {
     bool ignore = true; // either blocked by geometry, or out of map range
 };
 
-struct Extent2Di {
-    int width;
-    int height;
+struct RenderItem2DB {
+    std::string textureName;
+    int screenX = 0;
+    int screenY = 0;
+    glm::mat4 modelMatrix = glm::mat4(1);
+    glm::vec3 color = WHITE;
+    bool centered = false;
+    GLuint target = GL_TEXTURE_2D;
+    void* parent = nullptr;
 };
+
+
 
 struct UIRenderInfo {
     std::string textureName;
-    int screenX;
-    int screenY;
-    glm::mat4 modelMatrix;
+    int screenX = 0;
+    int screenY = 0;
+    glm::mat4 modelMatrix = glm::mat4(1);
+    glm::vec3 color = WHITE;
     bool centered = false;
     GLuint target = GL_TEXTURE_2D;
-};
-
-enum class RaycastObjectType { NONE, FLOOR, WALLS, ENEMY };
-
-struct RayCastResult {
-    bool found = false;
-    float distanceToHit = 99999;
     void* parent = nullptr;
-    Triangle triangle;
-    RaycastObjectType raycastObjectType = RaycastObjectType::NONE;
-    glm::mat4 triangeleModelMatrix = glm::mat4(1);
-    glm::vec3 intersectionPoint = glm::vec3(0);
-    glm::vec2 baryPosition = glm::vec2(0);
-    glm::vec3 closestPointOnBoundingBox = glm::vec3(0, 0, 0);
-    unsigned int rayCount = 0;
 };
+
+//enum class RigidStaticType { NONE, FLOOR, WALLS, ENEMY, DOOR };
+
+
 
 struct FileInfo {
     std::string fullpath;
@@ -214,8 +245,134 @@ struct FileInfo {
 
 struct Material {
     Material() {}
-    std::string _name = "undefined";
+    std::string _name = UNDEFINED_STRING;
     int _basecolor = 0;
     int _normal = 0;
     int _rma = 0;
+};
+
+enum RaycastGroup {
+    RAYCAST_DISABLED = 0,
+    RAYCAST_ENABLED = 1,
+    PLAYER_1_RAGDOLL = 2,
+    PLAYER_2_RAGDOLL = 4,
+    PLAYER_3_RAGDOLL = 8,
+    PLAYER_4_RAGDOLL = 16
+};
+
+enum class PhysicsObjectType {
+    UNDEFINED,
+    GAME_OBJECT,
+    GLASS,
+    DOOR,
+    WINDOW,
+    SCENE_MESH,
+    RAGDOLL_RIGID,
+    CSG_OBJECT_ADDITIVE,
+    CSG_OBJECT_SUBTRACTIVE,
+    LIGHT,
+};
+
+struct PhysicsObjectData {
+    PhysicsObjectData(PhysicsObjectType type, void* parent) {
+        this->type = type;
+        this->parent = parent;
+    }
+    PhysicsObjectType type;
+    void* parent;
+};
+
+struct PhysXRayResult {
+    std::string hitObjectName;
+    glm::vec3 hitPosition;
+    glm::vec3 surfaceNormal;
+    glm::vec3 rayDirection;
+    bool hitFound;
+    void* hitActor;
+    void* parent;
+    PhysicsObjectType physicsObjectType;
+};
+
+enum CollisionGroup {
+    NO_COLLISION = 0,
+    BULLET_CASING = 1,
+    PLAYER = 2,
+    ENVIROMENT_OBSTACLE = 4,
+    GENERIC_BOUNCEABLE = 8,
+    ITEM_PICK_UP = 16,
+    RAGDOLL = 32,
+};
+
+/*struct AABB2 {
+    glm::vec3 position = glm::vec3(0);
+    glm::vec3 extents = glm::vec3(0);
+};*/
+
+
+// RAY TRACING SHIT
+
+struct AABB {
+    AABB() {}
+    AABB(glm::vec3 min, glm::vec3 max) {
+        boundsMin = min;
+        boundsMax = max;
+        CalculateCenter();
+    }
+    void Grow(AABB& b) {
+        if (b.boundsMin.x != 1e30f && b.boundsMin.x != -1e30f) {
+            Grow(b.boundsMin); Grow(b.boundsMax);
+        }
+        CalculateCenter();
+    }
+    void Grow(glm::vec3 p) {
+        boundsMin = glm::vec3(std::min(boundsMin.x, p.x), std::min(boundsMin.y, p.y), std::min(boundsMin.z, p.z));
+        boundsMax = glm::vec3(std::max(boundsMax.x, p.x), std::max(boundsMax.y, p.y), std::max(boundsMax.z, p.z));
+        CalculateCenter();
+    }
+    float Area() {
+        glm::vec3 e = boundsMax - boundsMin; // box extent
+        return e.x * e.y + e.y * e.z + e.z * e.x;
+    }
+    const glm::vec3 GetCenter() {
+        return center;
+    }
+    const glm::vec3 GetBoundsMin() {
+        return boundsMin;
+    }
+    const glm::vec3 GetBoundsMax() {
+        return boundsMax;
+    }
+
+public: // make private later
+    glm::vec3 center = glm::vec3(0);
+    glm::vec3 boundsMin = glm::vec3(1e30f);
+    glm::vec3 boundsMax = glm::vec3(-1e30f);
+
+    void CalculateCenter() {
+        center = { (boundsMin.x + boundsMax.x) / 2, (boundsMin.y + boundsMax.y) / 2, (boundsMin.z + boundsMax.z) / 2 };
+    }
+};
+
+struct BLASInstance {
+    glm::mat4 inverseModelMatrix = glm::mat4(1);
+    int blsaRootNodeIndex = 0;
+    int baseTriangleIndex = 0;
+    int baseVertex = 0;
+    int baseIndex = 0;
+};
+
+struct Triangle {
+    glm::vec3 v0 = glm::vec3(0);
+    glm::vec3 v1 = glm::vec3(0);
+    glm::vec3 v2 = glm::vec3(0);
+    glm::vec3 centoid = glm::vec3(0);
+    glm::vec3 aabbMin = glm::vec3(0);
+    glm::vec3 aabbMax = glm::vec3(0);
+};
+
+
+struct BVHNode {
+    glm::vec3 aabbMin; int leftFirst = -1;
+    glm::vec3 aabbMax; int instanceCount = -1;
+    bool IsLeaf() { return instanceCount > 0; }
 };
