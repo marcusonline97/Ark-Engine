@@ -1,7 +1,7 @@
 #include "Editor.h"
 #include "Input/Input.h"
 #include "GL/GL.h"
-#include "Utility/Util.hpp"
+#include "Util/Util.h"
 #include "../Core/Scene.h"
 #include "../Core/TextBlitter.h"
 #include "../Renderer/Renderer.h"

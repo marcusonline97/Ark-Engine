@@ -3,7 +3,7 @@
 #include "../Core/Input/Input.h"
 #include "GL/GL.h"
 #include "../Common.h"
-#include "Utility/Util.hpp"
+#include "Util/Util.h"
 #include "AnimatedGameObject.h"
 
 namespace Player {

@@ -2,7 +2,7 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include "Texture3D.h"
-#include "Utility/Util.hpp"
+#include "Util/Util.h"
 
 Texture3D::Texture3D() {}
 

@@ -1,5 +1,5 @@
 #include "Shader.h" 
-#include "Utility/Util.hpp"
+#include "Util/Util.h"
 #include "../Common.h"
 
 int checkCompileErrors(unsigned int shader, std::string type) {

@@ -1,5 +1,5 @@
 #include "Animation.h"
-#include "./Utility/Util.hpp"
+#include "Util/Util.h"
 
 Animation::Animation(std::string filepath) {
 

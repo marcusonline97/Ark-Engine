@@ -1,8 +1,4 @@
-
-#include "Engine.h"
-#include "common.h"
-
-int main() {
-	Engine::Run();
-	return 0;
-}
+#include "AssetManagement/AssetManager.h"
+#include "Backend/Backend.h"
+#include "Core/Game.h"
+#include "Core/Editor.h"

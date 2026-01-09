@@ -1,5 +1,5 @@
 #include "Model.h"
-#include "Utility/Util.hpp"
+#include "Util/Util.h"
 #define TINYOBJLOADER_IMPLEMENTATION
 #include "tiny_obj_loader.h"
 #include <unordered_map>

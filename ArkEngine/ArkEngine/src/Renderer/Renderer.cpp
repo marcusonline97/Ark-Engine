@@ -8,7 +8,7 @@
 #include "Texture.h"
 #include "Texture3D.h"
 #include "../common.h"
-#include "Utility/Util.hpp"
+#include "Util/Util.h"
 #include "../Core/Audio/Audio.hpp"
 #include "../GL/GL.h"
 #include "../Core/Player.h"

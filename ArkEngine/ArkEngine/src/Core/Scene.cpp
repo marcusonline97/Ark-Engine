@@ -1,5 +1,5 @@
 #include "Scene.h"
-#include "Utility/Util.hpp"
+#include "Util/Util.h"
 #include "AssetManager.h"
 #include "../Renderer/Renderer.h"
 #include "Input/Input.h"

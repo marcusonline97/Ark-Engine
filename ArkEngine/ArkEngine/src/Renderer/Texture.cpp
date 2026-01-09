@@ -2,7 +2,7 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include "Texture.h"
-#include "Utility/Util.hpp"
+#include "Util/Util.h"
 #include "DDS_Helpers.h"
 
 constexpr uint32_t GL_COMPRESSED_RGB_S3TC_DXT1_EXT = 0x83F0;

@@ -2,7 +2,7 @@
 #include <vector>
 #include <iostream>
 #include "../Common.h"
-#include "Utility/Util.hpp"
+#include "Util/Util.h"
 #include "../Renderer/Model.h"
 #include "FbxImporter.h"
 
