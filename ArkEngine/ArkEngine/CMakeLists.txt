@@ -25,6 +25,7 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/Vendor/magic_enum/include
     ${CMAKE_SOURCE_DIR}/Vendor/Vulkan/Include
     ${CMAKE_SOURCE_DIR}/Vendor/VkBootstrap
+    ${CMAKE_SOURCE_DIR}/Vendor/entt
 )
 
 # Source files (add your source files here)

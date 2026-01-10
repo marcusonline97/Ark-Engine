@@ -4,7 +4,7 @@
 
 namespace OpenGLBackEnd {
 
-    void InitMinimum();
+    bool InitMinimum(); // Returns true if successful, false otherwise
     void UploadVertexData(std::vector<Vertex>& vertices, std::vector<unsigned int>& indices);
     void UploadWeightedVertexData(std::vector<WeightedVertex>& vertices, std::vector<uint32_t>& indices);
     void AllocateSkinnedVertexBufferSpace(int vertexCount);

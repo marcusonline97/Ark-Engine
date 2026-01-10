@@ -765,13 +765,13 @@ void Scene::Update(float deltaTime) {
 
     CreateTopLevelAccelerationStructures();
 
-    Game::SetPlayerGroundedStates();
-    ProcessPhysicsCollisions(); // have you ever had a physics crash after you moved this before everything else???
+    // Game::SetPlayerGroundedStates();  // Commented out for simple demo - no Game/Player logic
+    // ProcessPhysicsCollisions();  // Commented out for simple demo - physics not initialized
 
     CheckForDirtyLights();
 
     if (Input::KeyPressed(ARK_KEY_N)) {
-        Physics::ClearCollisionLists();
+        // Physics::ClearCollisionLists();  // Commented out for simple demo - physics not initialized
         for (GameObject& gameObject : g_gameObjects) {
             gameObject.LoadSavedState();
         }
@@ -1396,7 +1396,7 @@ void Scene::Update_OLD(float deltaTime) {
     }
 
     UpdateRTInstanceData();
-    ProcessPhysicsCollisions();
+    // ProcessPhysicsCollisions();  // Commented out for simple demo - physics not initialized
 }
 
 

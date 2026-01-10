@@ -1,6 +1,5 @@
 #include "GL_backEnd.h"
 #include "Types/GL_vertexBuffer.hpp"
-#include "../../Core/AssetManager.h"
 #include "../../Util.hpp"
 #include <iostream>
 #include <string>
@@ -158,10 +157,10 @@ void QuerySizes() {
     std::cout << "Number of invocations in a single local work group that may be dispatched to a compute shader " << max_compute_work_group_invocations << "\n";
 }
 
-void OpenGLBackEnd::InitMinimum() {
+bool OpenGLBackEnd::InitMinimum() {
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-        std::cout << "Failed to initialize GLAD\n";
-        return;
+        std::cout << "Failed to initialize GLAD - OpenGL initialization failed\n";
+        return false;
     }
     GLint major, minor;
     glGetIntegerv(GL_MAJOR_VERSION, &major);
@@ -185,6 +184,8 @@ void OpenGLBackEnd::InitMinimum() {
 
     // Clear screen to black
     glClear(GL_COLOR_BUFFER_BIT);
+    
+    return true; // OpenGL initialized successfully
 }
 
 void OpenGLBackEnd::AllocateSkinnedVertexBufferSpace(int vertexCount) {

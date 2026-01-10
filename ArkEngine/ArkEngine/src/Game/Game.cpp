@@ -38,12 +38,12 @@ namespace Game {
         _isLoaded = true;
         g_firstFrame = true;
 
-        GlobalIllumination::DestroyAllLightVolumes();
-        GlobalIllumination::CreatePointCloud();
-        GlobalIllumination::CreateLightVolume(7.0f, 3.0f, 11.0f, -3.5f, 0.0f, -8.0f);
+        // GlobalIllumination::DestroyAllLightVolumes();  // Commented out for simple demo
+        // GlobalIllumination::CreatePointCloud();  // Commented out for simple demo
+        // GlobalIllumination::CreateLightVolume(7.0f, 3.0f, 11.0f, -3.5f, 0.0f, -8.0f);  // Commented out for simple demo
 
         //CreatePlayers(2);
-        CreatePlayers(1);  // Use 1 player for simple demo scene
+        CreatePlayers(1);  // Use 1 player for simple demo scene (needed for camera)
 
         Scene::Init();
 
@@ -72,47 +72,47 @@ namespace Game {
         _deltaTimeAccumulator += deltaTime;
         g_time += deltaTime;
 
-        // CSG
-        if (Input::KeyPressed(GLFW_KEY_O)) {
-            Physics::ClearCollisionLists();
-            Scene::LoadDefaultScene();
-            Audio::PlayAudio(AUDIO_SELECT, 1.00f);
-        }
-        CSG::Update();
+        // CSG - Commented out for simple demo
+        // if (Input::KeyPressed(GLFW_KEY_O)) {
+        //     Physics::ClearCollisionLists();
+        //     Scene::LoadDefaultScene();
+        //     Audio::PlayAudio(AUDIO_SELECT, 1.00f);
+        // }
+        // CSG::Update();  // Commented out for simple demo
 
-        // Editor
-        if (Input::KeyPressed(ARK_KEY_F1) || Input::KeyPressed(ARK_KEY_F2)) {
-            Audio::PlayAudio(AUDIO_SELECT, 1.00f);
-            Editor::EnterEditor();
-        }
-        if (Input::KeyPressed(ARK_KEY_TAB)) {
-            Audio::PlayAudio(AUDIO_SELECT, 1.00f);
-            if (Editor::IsOpen()) {
-                Editor::LeaveEditor();
-            }
-            else {
-                Editor::EnterEditor();
-            }
-        }
-        if (Editor::IsOpen()) {
-            Editor::Update(deltaTime);
-        }
+        // Editor - Commented out for simple demo
+        // if (Input::KeyPressed(ARK_KEY_F1) || Input::KeyPressed(ARK_KEY_F2)) {
+        //     Audio::PlayAudio(AUDIO_SELECT, 1.00f);
+        //     Editor::EnterEditor();
+        // }
+        // if (Input::KeyPressed(ARK_KEY_TAB)) {
+        //     Audio::PlayAudio(AUDIO_SELECT, 1.00f);
+        //     if (Editor::IsOpen()) {
+        //         Editor::LeaveEditor();
+        //     }
+        //     else {
+        //         Editor::EnterEditor();
+        //     }
+        // }
+        // if (Editor::IsOpen()) {
+        //     Editor::Update(deltaTime);
+        // }
 
-        // Physics
-        while (_deltaTimeAccumulator >= _fixedDeltaTime) {
-            _deltaTimeAccumulator -= _fixedDeltaTime;
-            Physics::StepPhysics(_fixedDeltaTime);
-        }
+        // Physics - Commented out for simple demo
+        // while (_deltaTimeAccumulator >= _fixedDeltaTime) {
+        //     _deltaTimeAccumulator -= _fixedDeltaTime;
+        //     Physics::StepPhysics(_fixedDeltaTime);
+        // }
 
         // Debug key presses
         EvaluateDebugKeyPresses();
 
-        // Player update
-        InputMulti::Update();
+        // Player update (needed for camera)
+        // InputMulti::Update();  // Commented out for simple demo
         for (Player& player : _players) {
-            player.Update(deltaTime);
+            player.Update(deltaTime);  // Keep this for camera movement
         }
-        InputMulti::ResetMouseOffsets();
+        // InputMulti::ResetMouseOffsets();  // Commented out for simple demo
         Scene::Update(deltaTime);
     }
 
@@ -138,63 +138,63 @@ namespace Game {
             SetPlayerKeyboardAndMouseIndex(3, 1, 1);
         }
 
-        // Setup player 0 (required)
+        // Setup player 0 (required) - Simplified for demo without physics/ragdolls
         if (playerCount > 0) {
-            PxU32 p1RagdollCollisionGroupFlags = RaycastGroup::PLAYER_1_RAGDOLL;
+            // PxU32 p1RagdollCollisionGroupFlags = RaycastGroup::PLAYER_1_RAGDOLL;  // Commented out - no physics
             AnimatedGameObject* p1characterModel = Scene::GetAnimatedGameObjectByIndex(Game::_players[0].GetCharacterModelAnimatedGameObjectIndex());
             if (p1characterModel) {
-                p1characterModel->LoadRagdoll("UnisexGuy3.rag", p1RagdollCollisionGroupFlags);
-                for (RigidComponent& rigid : p1characterModel->_ragdoll._rigidComponents) {
-                    PxShape* shape;
-                    rigid.pxRigidBody->getShapes(&shape, 1);
-                    shape->setFlag(PxShapeFlag::eVISUALIZATION, false);
-                }
+                // p1characterModel->LoadRagdoll("UnisexGuy3.rag", p1RagdollCollisionGroupFlags);  // Commented out - no physics
+                // for (RigidComponent& rigid : p1characterModel->_ragdoll._rigidComponents) {  // Commented out - no physics
+                //     PxShape* shape;
+                //     rigid.pxRigidBody->getShapes(&shape, 1);
+                //     shape->setFlag(PxShapeFlag::eVISUALIZATION, false);
+                // }
             }
-            Game::_players[0]._interactFlags = RaycastGroup::RAYCAST_ENABLED;
-            Game::_players[0]._interactFlags &= ~RaycastGroup::PLAYER_1_RAGDOLL;
-            Game::_players[0]._bulletFlags = RaycastGroup::RAYCAST_ENABLED;
-            if (playerCount > 1) Game::_players[0]._bulletFlags |= RaycastGroup::PLAYER_2_RAGDOLL;
-            if (playerCount > 2) Game::_players[0]._bulletFlags |= RaycastGroup::PLAYER_3_RAGDOLL;
-            if (playerCount > 3) Game::_players[0]._bulletFlags |= RaycastGroup::PLAYER_4_RAGDOLL;
+            // Game::_players[0]._interactFlags = RaycastGroup::RAYCAST_ENABLED;  // Commented out - no physics
+            // Game::_players[0]._interactFlags &= ~RaycastGroup::PLAYER_1_RAGDOLL;  // Commented out - no physics
+            // Game::_players[0]._bulletFlags = RaycastGroup::RAYCAST_ENABLED;  // Commented out - no physics
+            // if (playerCount > 1) Game::_players[0]._bulletFlags |= RaycastGroup::PLAYER_2_RAGDOLL;
+            // if (playerCount > 2) Game::_players[0]._bulletFlags |= RaycastGroup::PLAYER_3_RAGDOLL;
+            // if (playerCount > 3) Game::_players[0]._bulletFlags |= RaycastGroup::PLAYER_4_RAGDOLL;
             Game::_players[0]._playerName = "Orion";
         }
 
-        // Setup player 1 (optional)
-        if (playerCount > 1) {
-            PxU32 p2RagdollCollisionGroupFlags = RaycastGroup::PLAYER_2_RAGDOLL;
-            AnimatedGameObject* p2characterModel = Scene::GetAnimatedGameObjectByIndex(Game::_players[1].GetCharacterModelAnimatedGameObjectIndex());
-            if (p2characterModel) {
-                p2characterModel->LoadRagdoll("UnisexGuy3.rag", p2RagdollCollisionGroupFlags);
-            }
-            Game::_players[1]._interactFlags = RaycastGroup::RAYCAST_ENABLED;
-            Game::_players[1]._interactFlags &= ~RaycastGroup::PLAYER_2_RAGDOLL;
-            Game::_players[1]._bulletFlags = RaycastGroup::RAYCAST_ENABLED | RaycastGroup::PLAYER_1_RAGDOLL;
-            if (playerCount > 2) Game::_players[1]._bulletFlags |= RaycastGroup::PLAYER_3_RAGDOLL;
-            if (playerCount > 3) Game::_players[1]._bulletFlags |= RaycastGroup::PLAYER_4_RAGDOLL;
-            Game::_players[1]._playerName = "CrustyAssCracker";
-        }
+        // Setup player 1 (optional) - Commented out for simple demo
+        // if (playerCount > 1) {
+        //     PxU32 p2RagdollCollisionGroupFlags = RaycastGroup::PLAYER_2_RAGDOLL;
+        //     AnimatedGameObject* p2characterModel = Scene::GetAnimatedGameObjectByIndex(Game::_players[1].GetCharacterModelAnimatedGameObjectIndex());
+        //     if (p2characterModel) {
+        //         p2characterModel->LoadRagdoll("UnisexGuy3.rag", p2RagdollCollisionGroupFlags);
+        //     }
+        //     Game::_players[1]._interactFlags = RaycastGroup::RAYCAST_ENABLED;
+        //     Game::_players[1]._interactFlags &= ~RaycastGroup::PLAYER_2_RAGDOLL;
+        //     Game::_players[1]._bulletFlags = RaycastGroup::RAYCAST_ENABLED | RaycastGroup::PLAYER_1_RAGDOLL;
+        //     if (playerCount > 2) Game::_players[1]._bulletFlags |= RaycastGroup::PLAYER_3_RAGDOLL;
+        //     if (playerCount > 3) Game::_players[1]._bulletFlags |= RaycastGroup::PLAYER_4_RAGDOLL;
+        //     Game::_players[1]._playerName = "CrustyAssCracker";
+        // }
 
-        // Setup players 2 and 3 (optional, only if 4 players)
-        if (playerCount >= 4) {
-            PxU32 p3RagdollCollisionGroupFlags = RaycastGroup::PLAYER_3_RAGDOLL;
-            PxU32 p4RagdollCollisionGroupFlags = RaycastGroup::PLAYER_4_RAGDOLL;
-            AnimatedGameObject* p3characterModel = Scene::GetAnimatedGameObjectByIndex(Game::_players[2].GetCharacterModelAnimatedGameObjectIndex());
-            AnimatedGameObject* p4characterModel = Scene::GetAnimatedGameObjectByIndex(Game::_players[3].GetCharacterModelAnimatedGameObjectIndex());
-            if (p3characterModel) {
-                p3characterModel->LoadRagdoll("UnisexGuy3.rag", p3RagdollCollisionGroupFlags);
-            }
-            if (p4characterModel) {
-                p4characterModel->LoadRagdoll("UnisexGuy3.rag", p4RagdollCollisionGroupFlags);
-            }
-            Game::_players[2]._interactFlags = RaycastGroup::RAYCAST_ENABLED;
-            Game::_players[2]._interactFlags &= ~RaycastGroup::PLAYER_3_RAGDOLL;
-            Game::_players[3]._interactFlags = RaycastGroup::RAYCAST_ENABLED;
-            Game::_players[3]._interactFlags &= ~RaycastGroup::PLAYER_4_RAGDOLL;
-            Game::_players[2]._bulletFlags = RaycastGroup::RAYCAST_ENABLED | RaycastGroup::PLAYER_1_RAGDOLL | RaycastGroup::PLAYER_2_RAGDOLL | RaycastGroup::PLAYER_4_RAGDOLL;
-            Game::_players[3]._bulletFlags = RaycastGroup::RAYCAST_ENABLED | RaycastGroup::PLAYER_1_RAGDOLL | RaycastGroup::PLAYER_2_RAGDOLL | RaycastGroup::PLAYER_3_RAGDOLL;
-            Game::_players[2]._playerName = "P3";
-            Game::_players[3]._playerName = "P4";
-        }
+        // Setup players 2 and 3 (optional, only if 4 players) - Commented out for simple demo
+        // if (playerCount >= 4) {
+        //     PxU32 p3RagdollCollisionGroupFlags = RaycastGroup::PLAYER_3_RAGDOLL;
+        //     PxU32 p4RagdollCollisionGroupFlags = RaycastGroup::PLAYER_4_RAGDOLL;
+        //     AnimatedGameObject* p3characterModel = Scene::GetAnimatedGameObjectByIndex(Game::_players[2].GetCharacterModelAnimatedGameObjectIndex());
+        //     AnimatedGameObject* p4characterModel = Scene::GetAnimatedGameObjectByIndex(Game::_players[3].GetCharacterModelAnimatedGameObjectIndex());
+        //     if (p3characterModel) {
+        //         p3characterModel->LoadRagdoll("UnisexGuy3.rag", p3RagdollCollisionGroupFlags);
+        //     }
+        //     if (p4characterModel) {
+        //         p4characterModel->LoadRagdoll("UnisexGuy3.rag", p4RagdollCollisionGroupFlags);
+        //     }
+        //     Game::_players[2]._interactFlags = RaycastGroup::RAYCAST_ENABLED;
+        //     Game::_players[2]._interactFlags &= ~RaycastGroup::PLAYER_3_RAGDOLL;
+        //     Game::_players[3]._interactFlags = RaycastGroup::RAYCAST_ENABLED;
+        //     Game::_players[3]._interactFlags &= ~RaycastGroup::PLAYER_4_RAGDOLL;
+        //     Game::_players[2]._bulletFlags = RaycastGroup::RAYCAST_ENABLED | RaycastGroup::PLAYER_1_RAGDOLL | RaycastGroup::PLAYER_2_RAGDOLL | RaycastGroup::PLAYER_4_RAGDOLL;
+        //     Game::_players[3]._bulletFlags = RaycastGroup::RAYCAST_ENABLED | RaycastGroup::PLAYER_1_RAGDOLL | RaycastGroup::PLAYER_2_RAGDOLL | RaycastGroup::PLAYER_3_RAGDOLL;
+        //     Game::_players[2]._playerName = "P3";
+        //     Game::_players[3]._playerName = "P4";
+        // }
     }
 
     const int GetPlayerCount() {

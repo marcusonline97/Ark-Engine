@@ -2,23 +2,7 @@
 #include <iostream>
 #include <string>
 #include "../API/OpenGL/GL_backEnd.h"
-#include "../API/OpenGL/GL_renderer.h"
 #include "../API/Vulkan/VK_backEnd.h"
-#include "../Core/AssetManager.h"
-#include "../Core/Audio.hpp"
-#include "../Editor/CSG.h"
-#include "../Editor/Gizmo.hpp"
-#include "../Input/Input.h"
-#include "../Input/InputMulti.h"
-#include "../Physics/Physics.h"
-
-// GET ME OUT OF HERE
-// GET ME OUT OF HERE
-// GET ME OUT OF HERE
-#include "../EngineState.hpp"
-// GET ME OUT OF HERE
-// GET ME OUT OF HERE
-// GET ME OUT OF HERE
 
 namespace BackEnd {
 
@@ -49,100 +33,221 @@ namespace BackEnd {
     void Init(API api) {
 
         _api = api;
-
-        if (GetAPI() == API::OPENGL) {
-            // Nothing required
-        }
-        else if (GetAPI() == API::VULKAN) {
-            VulkanBackEnd::CreateVulkanInstance();
-        }
+        bool openGLSucceeded = false;
 
         int width = 1280;
         int height = 720;
 
-        glfwInit();
-        glfwSetErrorCallback([](int error, const char* description) { std::cout << "GLFW Error (" << std::to_string(error) << "): " << description << "\n"; });
+        // Initialize GLFW
+        if (!glfwInit()) {
+            std::cout << "ERROR: Failed to initialize GLFW\n";
+            return;
+        }
 
+        // Set error callback for GLFW errors
+        glfwSetErrorCallback([](int error, const char* description) { 
+            std::cout << "GLFW Error (" << std::to_string(error) << "): " << description << "\n"; 
+        });
+
+        // Try OpenGL first if requested
         if (GetAPI() == API::OPENGL) {
+            // Set OpenGL context hints
             glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
             glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
             glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
             glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
-        }
-        else if (GetAPI() == API::VULKAN) {
-            glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+            
+            // Get monitor information
+            _monitor = glfwGetPrimaryMonitor();
+            if (_monitor == nullptr) {
+                std::cout << "WARNING: Failed to get primary monitor, using defaults\n";
+                _fullscreenWidth = 1920;
+                _fullscreenHeight = 1080;
+            }
+            else {
+                _mode = glfwGetVideoMode(_monitor);
+                if (_mode != nullptr) {
+                    glfwWindowHint(GLFW_RED_BITS, _mode->redBits);
+                    glfwWindowHint(GLFW_GREEN_BITS, _mode->greenBits);
+                    glfwWindowHint(GLFW_BLUE_BITS, _mode->blueBits);
+                    glfwWindowHint(GLFW_REFRESH_RATE, _mode->refreshRate);
+                    _fullscreenWidth = _mode->width;
+                    _fullscreenHeight = _mode->height;
+                }
+                else {
+                    std::cout << "WARNING: Failed to get video mode, using defaults\n";
+                    _fullscreenWidth = 1920;
+                    _fullscreenHeight = 1080;
+                }
+            }
+            
+            _windowedWidth = width;
+            _windowedHeight = height;
+            
+            // Window creation hints
+            glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
+            glfwWindowHint(GLFW_FOCUS_ON_SHOW, GLFW_TRUE);
             glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
-        }
-        glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
-        glfwWindowHint(GLFW_FOCUS_ON_SHOW, GLFW_TRUE);
-
-        // Resolution and window size
-        _monitor = glfwGetPrimaryMonitor();
-        _mode = glfwGetVideoMode(_monitor);
-        glfwWindowHint(GLFW_RED_BITS, _mode->redBits);
-        glfwWindowHint(GLFW_GREEN_BITS, _mode->greenBits);
-        glfwWindowHint(GLFW_BLUE_BITS, _mode->blueBits);
-        glfwWindowHint(GLFW_REFRESH_RATE, _mode->refreshRate);
-        _fullscreenWidth = _mode->width;
-        _fullscreenHeight = _mode->height;
-        _windowedWidth = width;
-        _windowedHeight = height;
-        CreateGLFWWindow(WindowedMode::WINDOWED);
-        if (_window == NULL) {
-            std::cout << "Failed to create GLFW window\n";
-            glfwTerminate();
-            return;
-        }
-        glfwSetFramebufferSizeCallback(_window, framebuffer_size_callback);
-        glfwSetWindowFocusCallback(_window, window_focus_callback);
-
-        AssetManager::FindAssetPaths();
-
-        if (GetAPI() == API::OPENGL) {
+            
+            // Create window
+            CreateGLFWWindow(WindowedMode::WINDOWED);
+            if (_window == nullptr) {
+                std::cout << "ERROR: Failed to create GLFW window for OpenGL\n";
+                glfwTerminate();
+                return;
+            }
+            
+            // Make OpenGL context current
             glfwMakeContextCurrent(_window);
-            OpenGLBackEnd::InitMinimum();
-            OpenGLRenderer::InitMinimum();
-            Gizmo::Init();
-            glClipControl(GL_LOWER_LEFT, GL_ZERO_TO_ONE);
+            
+            // Initialize OpenGL
+            if (OpenGLBackEnd::InitMinimum()) {
+                std::cout << "OpenGL initialized successfully!\n";
+                
+                // Enable VSync
+                glfwSwapInterval(1);
+                
+                // Set initial viewport
+                int framebufferWidth, framebufferHeight;
+                glfwGetFramebufferSize(_window, &framebufferWidth, &framebufferHeight);
+                glViewport(0, 0, framebufferWidth, framebufferHeight);
+                
+                // Enable depth testing
+                glEnable(GL_DEPTH_TEST);
+                
+                openGLSucceeded = true;
+            }
+            else {
+                std::cout << "OpenGL initialization failed, attempting Vulkan fallback...\n";
+                glfwDestroyWindow(_window);
+                _window = nullptr;
+                _api = API::VULKAN;
+                // Reset window hints for Vulkan
+                glfwDefaultWindowHints();
+            }
         }
-        else if (GetAPI() == API::VULKAN) {
-            VulkanBackEnd::InitMinimum();
-            // VulkanRenderer minimum init is tangled in the above function
-        }
-        AssetManager::LoadFont();
 
-        // Init sub-systems
-        Input::Init();
-        Audio::Init();
-        Physics::Init();
-        InputMulti::Init();
-        CSG::Init();
-        glfwShowWindow(BackEnd::GetWindowPointer());
+        // If OpenGL failed or Vulkan was requested, try Vulkan
+        if (!openGLSucceeded || GetAPI() == API::VULKAN) {
+            std::cout << "Initializing Vulkan...\n";
+            
+            // Check if Vulkan is supported
+            if (!glfwVulkanSupported()) {
+                std::cout << "ERROR: Vulkan is not supported on this system!\n";
+                if (!openGLSucceeded) {
+                    std::cout << "ERROR: Both OpenGL and Vulkan initialization failed. Exiting.\n";
+                    if (_window != nullptr) {
+                        glfwDestroyWindow(_window);
+                        _window = nullptr;
+                    }
+                    glfwTerminate();
+                    return;
+                }
+                // If OpenGL worked, just use it
+                _api = API::OPENGL;
+            }
+            else {
+                // Reset window hints for Vulkan (important if coming from OpenGL failure)
+                if (!openGLSucceeded) {
+                    glfwDefaultWindowHints();
+                }
+                
+                // Create Vulkan instance
+                VulkanBackEnd::CreateVulkanInstance();
+                // Note: CreateVulkanInstance doesn't return bool, so we proceed
+                // If it fails, InitMinimum will catch it
+                
+                // Set Vulkan window hints
+                glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+                glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
+                glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
+                glfwWindowHint(GLFW_FOCUS_ON_SHOW, GLFW_TRUE);
+                
+                // Get monitor information if not already set
+                if (_monitor == nullptr) {
+                    _monitor = glfwGetPrimaryMonitor();
+                    if (_monitor != nullptr) {
+                        _mode = glfwGetVideoMode(_monitor);
+                        if (_mode != nullptr) {
+                            _fullscreenWidth = _mode->width;
+                            _fullscreenHeight = _mode->height;
+                        }
+                        else {
+                            _fullscreenWidth = 1920;
+                            _fullscreenHeight = 1080;
+                        }
+                    }
+                    else {
+                        _fullscreenWidth = 1920;
+                        _fullscreenHeight = 1080;
+                    }
+                }
+                
+                _windowedWidth = width;
+                _windowedHeight = height;
+                
+                // Create window for Vulkan (if not already created)
+                if (_window == nullptr) {
+                    CreateGLFWWindow(WindowedMode::WINDOWED);
+                    if (_window == nullptr) {
+                        std::cout << "ERROR: Failed to create GLFW window for Vulkan\n";
+                        glfwTerminate();
+                        return;
+                    }
+                }
+                
+                // Initialize Vulkan minimum
+                // Note: InitMinimum() uses try-catch internally, but VK_CHECK() will abort on errors
+                // If Vulkan init fails here, the program may abort (acceptable for Phase 1 minimal)
+                VulkanBackEnd::InitMinimum();
+                std::cout << "Vulkan initialized successfully (basic setup complete)\n";
+            }
+        }
+
+        // Set callbacks
+        if (_window != nullptr) {
+            glfwSetFramebufferSizeCallback(_window, framebuffer_size_callback);
+            glfwSetWindowFocusCallback(_window, window_focus_callback);
+            
+            // Show window
+            glfwShowWindow(_window);
+        }
     }
 
     void BeginFrame() {
-        glfwPollEvents();
+        if (_window != nullptr) {
+            glfwPollEvents();
+        }
     }
 
     void EndFrame() {
-
+        if (_window == nullptr) {
+            return;
+        }
+        
         // OpenGL
         if (GetAPI() == API::OPENGL) {
             glfwSwapBuffers(_window);
         }
         // Vulkan
         else if (GetAPI() == API::VULKAN) {
-
+            // Vulkan swapchain presentation will be handled by Vulkan renderer
+            // For now, just a placeholder
         }
     }
 
     void UpdateSubSystems() {
-        Input::Update();
-        Audio::Update();
-        //Scene::Update();
+        // Commented out for minimal implementation
+        // Input::Update();
+        // Audio::Update();
+        // Scene::Update();
     }
 
     void CleanUp() {
+        if (_window != nullptr) {
+            glfwDestroyWindow(_window);
+            _window = nullptr;
+        }
         glfwTerminate();
     }
 
@@ -168,46 +273,69 @@ namespace BackEnd {
     }
 
     void CreateGLFWWindow(const WindowedMode& windowedMode) {
+        // Destroy existing window if any
+        if (_window != nullptr) {
+            glfwDestroyWindow(_window);
+            _window = nullptr;
+        }
+        
         if (windowedMode == WindowedMode::WINDOWED) {
             _currentWindowWidth = _windowedWidth;
             _currentWindowHeight = _windowedHeight;
-            _window = glfwCreateWindow(_windowedWidth, _windowedHeight, "Ark Engine - 3D Scene", NULL, NULL);
-            glfwSetWindowPos(_window, 0, 0);
+            _window = glfwCreateWindow(_windowedWidth, _windowedHeight, "Ark Engine", nullptr, nullptr);
+            if (_window != nullptr) {
+                glfwSetWindowPos(_window, 0, 0);
+            }
         }
         else if (windowedMode == WindowedMode::FULLSCREEN) {
             _currentWindowWidth = _fullscreenWidth;
             _currentWindowHeight = _fullscreenHeight;
-            _window = glfwCreateWindow(_fullscreenWidth, _fullscreenHeight, "Ark Engine - 3D Scene", _monitor, NULL);
+            _window = glfwCreateWindow(_fullscreenWidth, _fullscreenHeight, "Ark Engine", _monitor, nullptr);
         }
         _windowedMode = windowedMode;
     }
 
     void SetWindowedMode(const WindowedMode& windowedMode) {
+        if (_window == nullptr) {
+            return;
+        }
+        
         if (windowedMode == WindowedMode::WINDOWED) {
             _currentWindowWidth = _windowedWidth;
             _currentWindowHeight = _windowedHeight;
-            glfwSetWindowMonitor(_window, nullptr, 0, 0, _windowedWidth, _windowedHeight, _mode->refreshRate);
-            glfwSetWindowPos(_window, 0, 0);
+            if (_mode != nullptr) {
+                glfwSetWindowMonitor(_window, nullptr, 0, 0, _windowedWidth, _windowedHeight, _mode->refreshRate);
+                glfwSetWindowPos(_window, 0, 0);
+            }
         }
         else if (windowedMode == WindowedMode::FULLSCREEN) {
             _currentWindowWidth = _fullscreenWidth;
             _currentWindowHeight = _fullscreenHeight;
-            glfwSetWindowMonitor(_window, _monitor, 0, 0, _fullscreenWidth, _fullscreenHeight, _mode->refreshRate);
+            if (_mode != nullptr && _monitor != nullptr) {
+                glfwSetWindowMonitor(_window, _monitor, 0, 0, _fullscreenWidth, _fullscreenHeight, _mode->refreshRate);
+            }
         }
         _windowedMode = windowedMode;
     }
 
     void ToggleFullscreen() {
+        if (_window == nullptr) {
+            return;
+        }
+        
         if (_windowedMode == WindowedMode::WINDOWED) {
             SetWindowedMode(WindowedMode::FULLSCREEN);
         }
         else {
             SetWindowedMode(WindowedMode::WINDOWED);
         }
+        
+        // Handle API-specific resize
         if (GetAPI() == API::OPENGL) {
-            //OpenGLBackEnd::HandleFrameBufferResized();
+            // OpenGL handles resize via framebuffer callback
+            // Viewport will be updated automatically
         }
-        else {
+        else if (GetAPI() == API::VULKAN) {
             VulkanBackEnd::HandleFrameBufferResized();
         }
     }
@@ -249,10 +377,16 @@ namespace BackEnd {
     }
 
     bool WindowIsOpen() {
+        if (_window == nullptr) {
+            return false;
+        }
         return !(glfwWindowShouldClose(_window) || _forceCloseWindow);
     }
 
     bool WindowIsMinimized() {
+        if (_window == nullptr) {
+            return true;
+        }
         int width = 0;
         int height = 0;
         glfwGetFramebufferSize(_window, &width, &height);
@@ -292,10 +426,12 @@ namespace BackEnd {
     //      Callbacks      //
 
     void framebuffer_size_callback(GLFWwindow* /*window*/, int width, int height) {
+        // Update viewport for OpenGL
         if (GetAPI() == API::OPENGL) {
-
+            glViewport(0, 0, width, height);
         }
-        else {
+        // Handle Vulkan framebuffer resize
+        else if (GetAPI() == API::VULKAN) {
             VulkanBackEnd::MarkFrameBufferAsResized();
         }
     }

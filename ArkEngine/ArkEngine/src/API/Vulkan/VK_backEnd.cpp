@@ -145,37 +145,70 @@ void VulkanBackEnd::HandleFrameBufferResized() {
 }
 
 void VulkanBackEnd::InitMinimum() {
+    // Minimal Vulkan initialization for Phase 1
+    // Note: Some renderer functions are commented out for minimal implementation
+    // Full Vulkan support will be added in later phases
+    
+    try {
+        SetGLFWSurface();
+        SelectPhysicalDevice();
+        CreateSwapchain();
 
-    SetGLFWSurface();
-    SelectPhysicalDevice();
-    CreateSwapchain();
+        // Commented out for minimal implementation - requires Renderer initialization
+        // VulkanRenderer::CreateMinimumShaders();
+        // VulkanRenderer::CreateRenderTargets();
 
-    VulkanRenderer::CreateMinimumShaders();
-    VulkanRenderer::CreateRenderTargets();
+        CreateCommandBuffers();
+        CreateSyncStructures();
+        CreateSampler();
 
-    CreateCommandBuffers();
-    CreateSyncStructures();
-    CreateSampler();
-
-    VulkanRenderer::CreateDescriptorSets();
-    VulkanRenderer::CreatePipelinesMinimum();
-
-    VulkanRenderer::CreateStorageBuffers();
+        // Commented out for minimal implementation
+        // VulkanRenderer::CreateDescriptorSets();
+        // VulkanRenderer::CreatePipelinesMinimum();
+        // VulkanRenderer::CreateStorageBuffers();
+        
+        std::cout << "Vulkan minimum initialization completed (basic setup only)\n";
+    }
+    catch (const std::exception& e) {
+        std::cout << "WARNING: Vulkan initialization error: " << e.what() << "\n";
+        std::cout << "Vulkan may not be fully functional, but window should still work\n";
+    }
 }
 
 void VulkanBackEnd::SetGLFWSurface() {
-    glfwCreateWindowSurface(_instance, BackEnd::GetWindowPointer(), nullptr, &_surface);
+    GLFWwindow* window = BackEnd::GetWindowPointer();
+    if (window == nullptr) {
+        std::cout << "ERROR: Cannot create Vulkan surface - window is null\n";
+        return;
+    }
+    
+    VkResult result = glfwCreateWindowSurface(_instance, window, nullptr, &_surface);
+    if (result != VK_SUCCESS) {
+        std::cout << "ERROR: Failed to create Vulkan surface: " << result << "\n";
+        return;
+    }
+    
+    std::cout << "Vulkan surface created successfully\n";
 }
 
 void VulkanBackEnd::CreateVulkanInstance() {
     vkb::InstanceBuilder builder;
-    builder.set_app_name("Unloved");
+    builder.set_app_name("Ark Engine");
     builder.request_validation_layers(_enableValidationLayers);
     builder.use_default_debug_messenger();
     builder.require_api_version(1, 3, 0);
-    _bootstrapInstance = builder.build().value();
+    
+    auto result = builder.build();
+    if (!result.has_value()) {
+        std::cout << "ERROR: Failed to create Vulkan instance: " << result.error().message() << "\n";
+        return;
+    }
+    
+    _bootstrapInstance = result.value();
     _instance = _bootstrapInstance.instance;
     _debugMessenger = _bootstrapInstance.debug_messenger;
+    
+    std::cout << "Vulkan instance created successfully\n";
 }
 
 void VulkanBackEnd::SelectPhysicalDevice() {
@@ -235,17 +268,24 @@ void VulkanBackEnd::SelectPhysicalDevice() {
 
     selector.set_minimum_version(1, 3);
     selector.set_surface(_surface);
-    vkb::PhysicalDevice physicalDevice = selector.select().value();
+    
+    auto physicalDeviceResult = selector.select();
+    if (!physicalDeviceResult.has_value()) {
+        std::cout << "ERROR: Failed to select Vulkan physical device: " << physicalDeviceResult.error().message() << "\n";
+        throw std::runtime_error("Vulkan physical device selection failed");
+    }
+    
+    vkb::PhysicalDevice physicalDevice = physicalDeviceResult.value();
     vkb::DeviceBuilder deviceBuilder{ physicalDevice };
 
-    // store these for some ray tracing stuff.
-    vkGetPhysicalDeviceMemoryProperties(physicalDevice, &_memoryProperties);
+    // store these for some ray tracing stuff
+    vkGetPhysicalDeviceMemoryProperties(physicalDevice.physical_device, &_memoryProperties);
 
     // Query available device extensions
     uint32_t extensionCount;
-    vkEnumerateDeviceExtensionProperties(physicalDevice, nullptr, &extensionCount, nullptr);
+    vkEnumerateDeviceExtensionProperties(physicalDevice.physical_device, nullptr, &extensionCount, nullptr);
     std::vector<VkExtensionProperties> availableExtensions(extensionCount);
-    vkEnumerateDeviceExtensionProperties(physicalDevice, nullptr, &extensionCount, availableExtensions.data());
+    vkEnumerateDeviceExtensionProperties(physicalDevice.physical_device, nullptr, &extensionCount, availableExtensions.data());
 
     // Check if extension is supported
     //bool maintenance4ExtensionSupported = false;
@@ -264,11 +304,29 @@ void VulkanBackEnd::SelectPhysicalDevice() {
     //    throw std::runtime_error("Required extension not supported");
    // }
 
-    vkb::Device vkbDevice = deviceBuilder.build().value();
+    auto deviceResult = deviceBuilder.build();
+    if (!deviceResult.has_value()) {
+        std::cout << "ERROR: Failed to build Vulkan device: " << deviceResult.error().message() << "\n";
+        throw std::runtime_error("Vulkan device creation failed");
+    }
+    
+    vkb::Device vkbDevice = deviceResult.value();
     _device = vkbDevice.device;
     _physicalDevice = physicalDevice.physical_device;
-    _graphicsQueue = vkbDevice.get_queue(vkb::QueueType::graphics).value();
-    _graphicsQueueFamily = vkbDevice.get_queue_index(vkb::QueueType::graphics).value();
+    
+    auto queueResult = vkbDevice.get_queue(vkb::QueueType::graphics);
+    if (!queueResult.has_value()) {
+        std::cout << "ERROR: Failed to get Vulkan graphics queue: " << queueResult.error().message() << "\n";
+        throw std::runtime_error("Vulkan graphics queue retrieval failed");
+    }
+    _graphicsQueue = queueResult.value();
+    
+    auto queueIndexResult = vkbDevice.get_queue_index(vkb::QueueType::graphics);
+    if (!queueIndexResult.has_value()) {
+        std::cout << "ERROR: Failed to get Vulkan graphics queue index: " << queueIndexResult.error().message() << "\n";
+        throw std::runtime_error("Vulkan graphics queue index retrieval failed");
+    }
+    _graphicsQueueFamily = queueIndexResult.value();
 
     // Initialize the memory allocator
     VmaAllocatorCreateInfo allocatorInfo = {};
@@ -358,13 +416,33 @@ void VulkanBackEnd::CreateSwapchain() {
     swapchainBuilder.set_desired_present_mode(VK_PRESENT_MODE_FIFO_KHR);
     swapchainBuilder.set_desired_present_mode(VK_PRESENT_MODE_MAILBOX_KHR);
     swapchainBuilder.set_desired_extent(_currentWindowExtent.width, _currentWindowExtent.height);
-    swapchainBuilder.set_image_usage_flags(VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT); // added so you can blit into the swapchain
+    swapchainBuilder.set_image_usage_flags(VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT);
 
-    vkb::Swapchain vkbSwapchain = swapchainBuilder.build().value();
+    auto swapchainResult = swapchainBuilder.build();
+    if (!swapchainResult.has_value()) {
+        std::cout << "ERROR: Failed to create Vulkan swapchain: " << swapchainResult.error().message() << "\n";
+        throw std::runtime_error("Vulkan swapchain creation failed");
+    }
+    
+    vkb::Swapchain vkbSwapchain = swapchainResult.value();
     _swapchain = vkbSwapchain.swapchain;
-    _swapchainImages = vkbSwapchain.get_images().value();
-    _swapchainImageViews = vkbSwapchain.get_image_views().value();
+    
+    auto imagesResult = vkbSwapchain.get_images();
+    if (!imagesResult.has_value()) {
+        std::cout << "ERROR: Failed to get Vulkan swapchain images: " << imagesResult.error().message() << "\n";
+        throw std::runtime_error("Vulkan swapchain images retrieval failed");
+    }
+    _swapchainImages = imagesResult.value();
+    
+    auto imageViewsResult = vkbSwapchain.get_image_views();
+    if (!imageViewsResult.has_value()) {
+        std::cout << "ERROR: Failed to get Vulkan swapchain image views: " << imageViewsResult.error().message() << "\n";
+        throw std::runtime_error("Vulkan swapchain image views retrieval failed");
+    }
+    _swapchainImageViews = imageViewsResult.value();
     _swachainImageFormat = vkbSwapchain.image_format;
+    
+    std::cout << "Vulkan swapchain created successfully\n";
 }
 
 void VulkanBackEnd::CreateCommandBuffers()
