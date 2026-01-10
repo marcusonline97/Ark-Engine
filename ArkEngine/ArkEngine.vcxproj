@@ -71,7 +71,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(SolutionDir)\Resources\;$(SolutionDir)ArkEngine\Vendor\;$(SolutionDir)ArkEngine\Vendor\GLFW\lib;$(SolutionDir)ArkEngine\Vendor\tinyobjloader\;$(SolutionDir)ArkEngine\Vendor\DDS;$(SolutionDir)ArkEngine\Vendor\stb_image\;$(SolutionDir)ArkEngine\Vendor\FMod\includes;$(SolutionDir)ArkEngine\Vendor\GLFW\include;$(SolutionDir)ArkEngine\Vendor\SDL3\Include\;$(SolutionDir)ArkEngine\Vendor\assimp\include\;$(SolutionDir)ArkEngine\Vendor\GLAD\include\;$(ProjectDir)\Window;$(SolutionDir)ArkEngine\ArkEngine\src\;C:\ArkEngine\Ark-Engine\ArkTools\ArkTools\;$(SolutionDir)\Core\Engine\;$(SolutionDir)ArkEngine\src\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\;$(ProjectDir)Core\Engine\Rendering\;$(SolutionDir)ArkEngine\Vendor\compressonator\include\;$(SolutionDir)ArkEngine\Vendor\tracy\public\;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)\Resources\;$(SolutionDir)ArkEngine\Vendor\;$(SolutionDir)ArkEngine\Vendor\GLFW\lib;$(SolutionDir)ArkEngine\Vendor\tinyobjloader\;$(SolutionDir)ArkEngine\Vendor\DDS;$(SolutionDir)ArkEngine\Vendor\stb_image\;$(SolutionDir)ArkEngine\Vendor\FMod\includes;$(SolutionDir)ArkEngine\Vendor\GLFW\include;$(SolutionDir)ArkEngine\Vendor\SDL3\Include\;$(SolutionDir)ArkEngine\Vendor\assimp\include\;$(SolutionDir)ArkEngine\Vendor\glad\include\;$(ProjectDir)\Window;$(SolutionDir)ArkEngine\ArkEngine\src\;C:\ArkEngine\Ark-Engine\ArkTools\ArkTools\;$(SolutionDir)\Core\Engine\;$(SolutionDir)ArkEngine\src\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\;$(ProjectDir)Core\Engine\Rendering\;$(SolutionDir)ArkEngine\Vendor\compressonator\include\;$(SolutionDir)ArkEngine\Vendor\tracy\public\;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>$(SolutionDir)\Resources\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\GLFW\lib;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\tinyobjloader\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\DDS;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\stb_image\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\FMod\includes;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\GLFW\include;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\SDL3\Include\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\assimp\include\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\GLAD\include\;$(ProjectDir)\Window;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Common;C:\ArkEngine\Ark-Engine\ArkTools\ArkTools\;$(SolutionDir)\Core\Engine\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\;$(ProjectDir)Core\Engine\Rendering\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\API\OpenGL\Types\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\compressonator\include\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\tracy\public\;$(IncludePath)</IncludePath>
@@ -114,8 +114,8 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>user32.lib;gdi32.lib;shell32.lib;advapi32.lib;vulkan-1.lib;glfw3.lib;assimp-vc143-mt.lib;glad.c;fmod_vc.lib;fmodL_vc.lib;CMP_Framework_MD.lib;Compressonator_MD.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\assimp\lib\Release;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\assimp\lib\Debug;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\FMod\lib\x64;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\GLAD\src;$(SolutionDir)\3rdParty\lib\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\GLFW\lib;$(SolutionDir)\Vendor\GLFW\lib;C:\VulkanSDK\1.4.328.1\Lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>user32.lib;gdi32.lib;shell32.lib;advapi32.lib;vulkan-1.lib;glfw3.lib;assimp-vc143-mt.lib;fmod_vc.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\assimp\lib\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\FMod\lib\;$(SolutionDir)\3rdParty\lib\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\GLFW\lib\release\;$(SolutionDir)\Vendor\GLFW\lib;C:\VulkanSDK\1.4.328.1\Lib</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>
@@ -136,126 +136,17 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\assimp\lib\Release;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\assimp\lib\Debug;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\FMod\lib\x64;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\GLAD\src;$(SolutionDir)\3rdParty\lib\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\GLFW\lib;$(SolutionDir)\Vendor\GLFW\lib;C:\VulkanSDK\1.4.328.1\Lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>user32.lib;gdi32.lib;shell32.lib;advapi32.lib;vulkan-1.lib;glfw3.lib;assimp-vc143-mt.lib;glad.c;fmod_vc.lib;fmodL_vc.lib;CMP_Framework_MD.lib;Compressonator_MD.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\assimp\lib\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\assimp\lib\Debug;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\FMod\lib\;$(SolutionDir)\3rdParty\lib\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\GLFW\lib/\release\;$(SolutionDir)\Vendor\GLFW\lib;C:\VulkanSDK\1.4.328.1\Lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>user32.lib;gdi32.lib;shell32.lib;advapi32.lib;vulkan-1.lib;glfw3.lib;assimp-vc143-mt.lib;fmod_vc.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>echo Copying Release DLLs...
-xcopy /Y /I "$(ProjectDir)Vendor\DLLs\*.dll" "$(TargetDir)"
-</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="ArkEngine\src\API\OpenGL\GL_backEnd.cpp" />
-    <ClCompile Include="ArkEngine\src\API\OpenGL\GL_renderer.cpp" />
-    <ClCompile Include="ArkEngine\src\API\OpenGL\GL_util.cpp" />
-    <ClCompile Include="ArkEngine\src\API\OpenGL\Types\GL_cubemapTexture.cpp" />
-    <ClCompile Include="ArkEngine\src\API\OpenGL\Types\GL_gBuffer.cpp" />
-    <ClCompile Include="ArkEngine\src\API\OpenGL\Types\GL_presentBuffer.cpp" />
-    <ClCompile Include="ArkEngine\src\API\OpenGL\Types\GL_shader.cpp" />
-    <ClCompile Include="ArkEngine\src\API\OpenGL\Types\GL_shadowMap.cpp" />
-    <ClCompile Include="ArkEngine\src\API\OpenGL\Types\GL_texture.cpp" />
-    <ClCompile Include="ArkEngine\src\API\OpenGL\Types\GL_texture3D.cpp" />
-    <ClCompile Include="ArkEngine\src\API\Vulkan\Types\VK_texture.cpp" />
-    <ClCompile Include="ArkEngine\src\API\Vulkan\Types\VK_texture3D.cpp" />
-    <ClCompile Include="ArkEngine\src\API\Vulkan\VK_assetManager.cpp" />
-    <ClCompile Include="ArkEngine\src\API\Vulkan\VK_backEnd.cpp" />
-    <ClCompile Include="ArkEngine\src\API\Vulkan\VK_renderer.cpp" />
-    <ClCompile Include="ArkEngine\src\Backend\BackEnd.cpp" />
-    <ClCompile Include="ArkEngine\src\Core\Camera.cpp" />
-    <ClCompile Include="ArkEngine\src\Core\Debug.cpp" />
-    <ClCompile Include="ArkEngine\src\Core\LightManager.cpp" />
-    <ClCompile Include="ArkEngine\src\Core\Material.cpp" />
-    <ClCompile Include="ArkEngine\src\Core\MipmapSettings.cpp" />
-    <ClCompile Include="ArkEngine\src\Core\OBJLoader.cpp" />
-    <ClCompile Include="ArkEngine\src\Core\TextureLoader.cpp" />
-    <ClCompile Include="ArkEngine\src\Core\VolumetricBloodSplatter.cpp" />
-    <ClCompile Include="ArkEngine\src\ECS\ECS.cpp" />
-    <ClCompile Include="ArkEngine\src\ECS\Systems.cpp" />
-    <ClCompile Include="ArkEngine\src\Engine.cpp" />
-    <ClCompile Include="ArkEngine\src\Game\Game.cpp" />
-    <ClCompile Include="ArkEngine\src\Game\Scene.cpp" />
-    <ClCompile Include="ArkEngine\src\Input\Input.cpp" />
-    <ClCompile Include="ArkEngine\src\Input\InputMulti.cpp" />
-    <ClCompile Include="ArkEngine\src\Main.cpp" />
-    <ClCompile Include="ArkEngine\src\Renderer\GlobalIllumination.cpp" />
-    <ClCompile Include="ArkEngine\src\Renderer\NumberBlitter.cpp" />
-    <ClCompile Include="ArkEngine\src\Renderer\Renderer.cpp" />
-    <ClCompile Include="ArkEngine\src\Renderer\Shader.cpp" />
-    <ClCompile Include="ArkEngine\src\Renderer\TextBlitting.cpp" />
-    <ClCompile Include="ArkEngine\src\Types\Animation.cpp" />
-    <ClCompile Include="ArkEngine\Vendor\glad\src\glad.c" />
-    <ClCompile Include="ArkEngine\Vendor\VulkanMemoryAllocator\vk_mem_alloc.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="ArkEngine\src\API\OpenGL\GL_backEnd.h" />
-    <ClInclude Include="ArkEngine\src\API\OpenGL\GL_renderer.h" />
-    <ClInclude Include="ArkEngine\src\API\OpenGL\GL_util.h" />
-    <ClInclude Include="ArkEngine\src\API\OpenGL\Renderer\GL_renderer.h" />
-    <ClInclude Include="ArkEngine\src\API\OpenGL\Renderer\Types\GL_heightmap_mesh.h" />
-    <ClInclude Include="ArkEngine\src\API\OpenGL\Types\GL_cubemapTexture.h" />
-    <ClInclude Include="ArkEngine\src\API\OpenGL\Types\GL_detachedMesh.hpp" />
-    <ClInclude Include="ArkEngine\src\API\OpenGL\Types\GL_frameBuffer.hpp" />
-    <ClInclude Include="ArkEngine\src\API\OpenGL\Types\GL_gBuffer.h" />
-    <ClInclude Include="ArkEngine\src\API\OpenGL\Types\GL_presentBuffer.h" />
-    <ClInclude Include="ArkEngine\src\API\OpenGL\Types\GL_shader.h" />
-    <ClInclude Include="ArkEngine\src\API\OpenGL\Types\GL_shadowMap.h" />
-    <ClInclude Include="ArkEngine\src\API\OpenGL\Types\GL_ShadowMap2.hpp" />
-    <ClInclude Include="ArkEngine\src\API\OpenGL\Types\GL_SSBO.hpp" />
-    <ClInclude Include="ArkEngine\src\API\OpenGL\Types\GL_texture.h" />
-    <ClInclude Include="ArkEngine\src\API\OpenGL\Types\GL_texture3D.h" />
-    <ClInclude Include="ArkEngine\src\API\OpenGL\Types\GL_vertexBuffer.hpp" />
-    <ClInclude Include="ArkEngine\src\API\Vulkan\Types\vk_allocation.hpp" />
-    <ClInclude Include="ArkEngine\src\API\Vulkan\Types\VK_buffer.h" />
-    <ClInclude Include="ArkEngine\src\API\Vulkan\Types\VK_computePipeline.hpp" />
-    <ClInclude Include="ArkEngine\src\API\Vulkan\Types\VK_depthTarget.hpp" />
-    <ClInclude Include="ArkEngine\src\API\Vulkan\Types\VK_descriptorSet.hpp" />
-    <ClInclude Include="ArkEngine\src\API\Vulkan\Types\VK_detachedMesh.hpp" />
-    <ClInclude Include="ArkEngine\src\API\Vulkan\Types\VK_frameData.hpp" />
-    <ClInclude Include="ArkEngine\src\API\Vulkan\Types\VK_pipeline.hpp" />
-    <ClInclude Include="ArkEngine\src\API\Vulkan\Types\VK_raytracing.hpp" />
-    <ClInclude Include="ArkEngine\src\API\Vulkan\Types\VK_renderTarget.hpp" />
-    <ClInclude Include="ArkEngine\src\API\Vulkan\Types\VK_shader.hpp" />
-    <ClInclude Include="ArkEngine\src\API\Vulkan\Types\VK_texture.h" />
-    <ClInclude Include="ArkEngine\src\API\Vulkan\Types\VK_texture3D.h" />
-    <ClInclude Include="ArkEngine\src\API\Vulkan\Types\VK_vertexBuffer.hpp" />
-    <ClInclude Include="ArkEngine\src\API\Vulkan\VK_assetManager.h" />
-    <ClInclude Include="ArkEngine\src\API\Vulkan\VK_backEnd.h" />
-    <ClInclude Include="ArkEngine\src\API\Vulkan\VK_common.h" />
-    <ClInclude Include="ArkEngine\src\API\Vulkan\VK_renderer.h" />
-    <ClInclude Include="ArkEngine\src\API\Vulkan\Vk_util.hpp" />
-    <ClInclude Include="ArkEngine\src\Backend\Backend.h" />
-    <ClInclude Include="ArkEngine\src\Common.h" />
-    <ClInclude Include="ArkEngine\src\Core\Audio\Audio.hpp" />
-    <ClInclude Include="ArkEngine\src\Core\Camera.h" />
-    <ClInclude Include="ArkEngine\src\Core\Debug.h" />
-    <ClInclude Include="ArkEngine\src\Core\Game.h" />
-    <ClInclude Include="ArkEngine\src\Core\Light.h" />
-    <ClInclude Include="ArkEngine\src\Core\LightManager.h" />
-    <ClInclude Include="ArkEngine\src\Core\Material.h" />
-    <ClInclude Include="ArkEngine\src\Core\MipmapSettings.h" />
-    <ClInclude Include="ArkEngine\src\Core\OBJLoader.h" />
-    <ClInclude Include="ArkEngine\src\Core\TextureLoader.h" />
-    <ClInclude Include="ArkEngine\src\Core\VolumetricBloodSplatter.h" />
-    <ClInclude Include="ArkEngine\src\ECS\Components.h" />
-    <ClInclude Include="ArkEngine\src\ECS\ECS.h" />
-    <ClInclude Include="ArkEngine\src\ECS\Systems.h" />
-    <ClInclude Include="ArkEngine\src\Engine.h" />
-    <ClInclude Include="ArkEngine\src\Game\Game.h" />
-    <ClInclude Include="ArkEngine\src\Game\Scene.h" />
-    <ClInclude Include="ArkEngine\src\Input\Input.h" />
-    <ClInclude Include="ArkEngine\src\Input\InputMulti.h" />
-    <ClInclude Include="ArkEngine\src\Input\keycodes.h" />
-    <ClInclude Include="ArkEngine\src\Player\Player.h" />
-    <ClInclude Include="ArkEngine\src\Renderer\GlobalIllumination.h" />
-    <ClInclude Include="ArkEngine\src\Renderer\NumberBlitter.h" />
-    <ClInclude Include="ArkEngine\src\Renderer\Renderer.h" />
-    <ClInclude Include="ArkEngine\src\Renderer\RendererCommon.h" />
-    <ClInclude Include="ArkEngine\src\Renderer\RendererUtil.hpp" />
-    <ClInclude Include="ArkEngine\src\Renderer\Shader.h" />
-    <ClInclude Include="ArkEngine\src\Renderer\TextBlitter.h" />
-    <ClInclude Include="ArkEngine\src\Timer.hpp" />
-    <ClInclude Include="ArkEngine\src\Types\Animation.h" />
+    <ClInclude Include="ArkEngine\Vendor\GLAD\include\glad\glad.h" />
+    <ClInclude Include="ArkEngine\Vendor\GLAD\include\KHR\khrplatform.h" />
     <ClInclude Include="ArkEngine\Vendor\GLFW\include\GLFW\glfw3.h" />
     <ClInclude Include="ArkEngine\Vendor\GLFW\include\GLFW\glfw3native.h" />
     <ClInclude Include="ArkEngine\Vendor\tinycsg\stb_image\stb_image.h" />
@@ -515,7 +406,6 @@ xcopy /Y /I "$(ProjectDir)Vendor\DLLs\*.dll" "$(TargetDir)"
     <ClInclude Include="Vendor\glm\gtx\std_based_type.hpp" />
     <ClInclude Include="Vendor\glm\gtx\string_cast.hpp" />
     <ClInclude Include="Vendor\glm\gtx\structured_bindings.hpp" />
-    <ClInclude Include="Vendor\glm\gtx\texture.hpp" />
     <ClInclude Include="Vendor\glm\gtx\transform.hpp" />
     <ClInclude Include="Vendor\glm\gtx\transform2.hpp" />
     <ClInclude Include="Vendor\glm\gtx\type_aligned.hpp" />
@@ -686,7 +576,6 @@ xcopy /Y /I "$(ProjectDir)Vendor\DLLs\*.dll" "$(TargetDir)"
     <None Include="Vendor\glm\gtx\std_based_type.inl" />
     <None Include="Vendor\glm\gtx\string_cast.inl" />
     <None Include="Vendor\glm\gtx\structured_bindings.inl" />
-    <None Include="Vendor\glm\gtx\texture.inl" />
     <None Include="Vendor\glm\gtx\transform.inl" />
     <None Include="Vendor\glm\gtx\transform2.inl" />
     <None Include="Vendor\glm\gtx\type_aligned.inl" />
@@ -699,6 +588,10 @@ xcopy /Y /I "$(ProjectDir)Vendor\DLLs\*.dll" "$(TargetDir)"
     <ProjectReference Include="..\ArkTools\ArkTools.vcxproj">
       <Project>{88bb6513-4a1d-4e82-8d17-643a1fbba308}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="ArkEngine\src\Core\main.cpp" />
+    <ClCompile Include="ArkEngine\Vendor\GLAD\src\glad.c" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

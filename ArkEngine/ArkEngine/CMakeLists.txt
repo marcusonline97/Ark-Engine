@@ -24,9 +24,15 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/Vendor/nlohmann_json/include
     ${CMAKE_SOURCE_DIR}/Vendor/magic_enum/include
     ${CMAKE_SOURCE_DIR}/Vendor/Vulkan/Include
+    ${CMAKE_SOURCE_DIR}/Vendor/VulkanMemoryAllocator/include
     ${CMAKE_SOURCE_DIR}/Vendor/VkBootstrap
     ${CMAKE_SOURCE_DIR}/Vendor/entt
+    ${CMAKE_SOURCE_DIR}/Vendor/imgui/include
+    ${CMAKE_SOURCE_DIR}/Vendor/compressonator/include
 )
+
+# Create executable first
+add_executable(${PROJECT_NAME})
 
 # Source files (add your source files here)
 file(GLOB_RECURSE SOURCES
@@ -36,10 +42,11 @@ file(GLOB_RECURSE SOURCES
     "Vendor/stb_image/*.c"
     "Vendor/lodepng/include/lodepng/*.cpp"
     "Vendor/tinyexr/*.cpp"
+    "Vendor/imgui/include/imgui/*.cpp"
 )
 
-# Create executable
-add_executable(${PROJECT_NAME} ${SOURCES})
+# Add source files to target
+target_sources(${PROJECT_NAME} PRIVATE ${SOURCES})
 
 # Link libraries
 # OpenGL
@@ -84,7 +91,12 @@ endif()
 
 # Compiler-specific options
 if(MSVC)
-    target_compile_options(${PROJECT_NAME} PRIVATE /W4 /WX-)
+    target_compile_options(${PROJECT_NAME} PRIVATE /W4 /WX- /std:c++17)
+    # Link filesystem library on MSVC (C++17 filesystem support)
+    target_link_libraries(${PROJECT_NAME} PRIVATE filesystem)
 else()
-    target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -Wpedantic)
+    target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -Wpedantic -std=c++17)
+    target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
+    # Link filesystem library on GCC/Clang (if needed)
+    target_link_libraries(${PROJECT_NAME} PRIVATE stdc++fs)
 endif()
