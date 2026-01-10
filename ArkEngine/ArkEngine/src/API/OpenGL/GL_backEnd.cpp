@@ -1,116 +1,210 @@
-#pragma once
-#include "ArkTypes.h"
-#include "GL_backend.h"
-#include "AssetManagement/BakeQueue.h"
-#include "AssetManagement/AssetManager.h"
-#include "BackEnd/Integration/GLFW.h"
-#include <string>
+#include "GL_backEnd.h"
+#include "Types/GL_vertexBuffer.hpp"
+#include "../../Core/AssetManager.h"
+#include "../../Util.hpp"
 #include <iostream>
-#include <vector>
-#include "GL_Util.h"
-#include "Types/GL_pbo.hpp"
-
-// remove me
-#include "Renderer/Renderer.h"
+#include <string>
 
 namespace OpenGLBackEnd {
-    float g_depthClearValue = 1.0f;
 
-    // PBO texture loading
-    const size_t MAX_TEXTURE_WIDTH = 4096;
-    const size_t MAX_TEXTURE_HEIGHT = 4096;
-    const size_t MAX_CHANNEL_COUNT = 4;
-    const size_t MAX_DATA_SIZE = MAX_TEXTURE_WIDTH * MAX_TEXTURE_HEIGHT * MAX_CHANNEL_COUNT;
-    std::vector<PBO> g_textureBakingPBOs;
-    PBO g_heightMapVerticesReadBackPBO;
-    PBO g_heightMapIndicesReadBackPBO;
-    GLuint g_vertexDataVAO = 0;
-    GLuint g_vertexDataVBO = 0;
-    GLuint g_vertexDataEBO = 0;
-    GLuint g_weightedVertexDataVAO = 0;
-    GLuint g_weightedVertexDataVBO = 0;
-    GLuint g_weightedVertexDataEBO = 0;
+    GLuint _vertexDataVAO = 0;
+    GLuint _vertexDataVBO = 0;
+    GLuint _vertexDataEBO = 0;
+
+    GLuint _weightedVertexDataVAO = 0;
+    GLuint _weightedVertexDataVBO = 0;
+    GLuint _weightedVertexDataEBO = 0;
+
     GLuint g_skinnedVertexDataVAO = 0;
     GLuint g_skinnedVertexDataVBO = 0;
     GLuint g_allocatedSkinnedVertexBufferSize = 0;
-    std::vector<GLuint64> g_bindlessTextureIDs;
 
-    OpenGLHeightMapMesh g_heightMapMesh;
+    GLuint g_pointCloudVAO = 0;
+    GLuint g_pointCloudVBO = 0;
 
-    void APIENTRY glDebugOutput(GLenum source, GLenum type, unsigned int id, GLenum severity, GLsizei /*length*/, const char* message, const void* /*userParam*/);
-    void UpdateBindlessTextures();
+    GLuint g_constructiveSolidGeometryVAO = 0;
+    GLuint g_constructiveSolidGeometryVBO = 0;
+    GLuint g_constructiveSolidGeometryEBO = 0;
 
-    void Init() {
+    GLuint g_triangle2DVAO = 0;
+    GLuint g_triangle2DVBO = 0;
 
-        BackEnd::GLFW::MakeContextCurrent();
-
-        // Init glad
-        if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-            std::cout << "Failed to initialize GLAD\n";
-            return;
-        }
-        // Print some shit
-        GLint major, minor;
-        glGetIntegerv(GL_MAJOR_VERSION, &major);
-        glGetIntegerv(GL_MINOR_VERSION, &minor);
-        const GLubyte* vendor = glGetString(GL_VENDOR);
-        const GLubyte* renderer = glGetString(GL_RENDERER);
-        std::cout << "\nGPU: " << renderer << "\n";
-        std::cout << "GL version: " << major << "." << minor << "\n\n";
-
-        int flags;
-        glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
-        if (flags & GL_CONTEXT_FLAG_DEBUG_BIT) {
-            //std::cout << "Debug GL context enabled\n";
-            glEnable(GL_DEBUG_OUTPUT);
-            glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS); // makes sure errors are displayed synchronously
-            glDebugMessageCallback(glDebugOutput, nullptr);
-        }
-        else {
-            std::cout << "Debug GL context not available\n";
-        }
-         
-        // Clear screen to black
-        glClear(GL_COLOR_BUFFER_BIT);
-
-        // Match Vulkan matrix shit
-        glClipControl(GL_LOWER_LEFT, GL_ZERO_TO_ONE);
-
-        // Texture baking PBOs
-        for (int i = 0; i < 64; ++i) {
-            PBO& pbo = g_textureBakingPBOs.emplace_back();
-            pbo.Init(MAX_DATA_SIZE);
-        }
-
-        // Height map init shit (ABSTRACT ME BETTER!!!!!)
-        int vertexBufferSize = HEIGHT_MAP_SIZE * HEIGHT_MAP_SIZE * sizeof(Vertex);
-        int indexBufferSize = (HEIGHT_MAP_SIZE - 1) * (HEIGHT_MAP_SIZE - 1) * 6 * sizeof(uint32_t);
-        g_heightMapVerticesReadBackPBO.Init(vertexBufferSize);
-        g_heightMapIndicesReadBackPBO.Init(indexBufferSize);
+    GLuint GetVertexDataVAO() {
+        return _vertexDataVAO;
     }
 
-    void BeginFrame() {
-        UpdateBindlessTextures();
+    GLuint GetVertexDataVBO() {
+        return _vertexDataVBO;
     }
 
-    void OpenGLBackEnd::UploadVertexData(std::vector<Vertex>& vertices, std::vector<uint32_t>& indices) {
+    GLuint GetVertexDataEBO() {
+        return _vertexDataEBO;
+    }
 
-        if (g_vertexDataVAO != 0) {
-            glDeleteVertexArrays(1, &g_vertexDataVAO);
-            glDeleteBuffers(1, &g_vertexDataVBO);
-            glDeleteBuffers(1, &g_vertexDataEBO);
+    GLuint GetWeightedVertexDataVAO() {
+        return _weightedVertexDataVAO;
+    }
+
+    GLuint GetWeightedVertexDataVBO() {
+        return _weightedVertexDataVBO;
+    }
+
+    GLuint GetWeightedVertexDataEBO() {
+        return _weightedVertexDataEBO;
+    }
+
+    GLuint GetSkinnedVertexDataVAO() {
+        return g_skinnedVertexDataVAO;
+    }
+
+    GLuint GetSkinnedVertexDataVBO() {
+        return g_skinnedVertexDataVBO;
+    }
+
+    GLuint GetPointCloudVAO() {
+        return g_pointCloudVAO;
+    }
+
+    GLuint GetPointCloudVBO() {
+        return g_pointCloudVBO;
+    }
+
+    GLuint GetCSGVAO() {
+        return g_constructiveSolidGeometryVAO;
+    }
+
+    GLuint GetCSGVBO() {
+        return g_constructiveSolidGeometryVBO;
+    }
+
+    GLuint GetCSGEBO() {
+        return g_constructiveSolidGeometryEBO;
+    }
+}
+
+GLenum glCheckError_(const char* file, int line) {
+    GLenum errorCode;
+    while ((errorCode = glGetError()) != GL_NO_ERROR)
+    {
+        std::string error;
+        switch (errorCode)
+        {
+        case GL_INVALID_ENUM:                  error = "INVALID_ENUM"; break;
+        case GL_INVALID_VALUE:                 error = "INVALID_VALUE"; break;
+        case GL_INVALID_OPERATION:             error = "INVALID_OPERATION"; break;
+        case GL_STACK_OVERFLOW:                error = "STACK_OVERFLOW"; break;
+        case GL_STACK_UNDERFLOW:               error = "STACK_UNDERFLOW"; break;
+        case GL_OUT_OF_MEMORY:                 error = "OUT_OF_MEMORY"; break;
+        case GL_INVALID_FRAMEBUFFER_OPERATION: error = "INVALID_FRAMEBUFFER_OPERATION"; break;
+        }
+        std::cout << error << " | " << file << " (" << line << ")\n";
+    }
+    return errorCode;
+}
+#define glCheckError() glCheckError_(__FILE__, __LINE__)
+
+void APIENTRY glDebugOutput(GLenum source, GLenum type, unsigned int id, GLenum severity, GLsizei /*length*/, const char* message, const void* /*userParam*/) {
+    if (id == 131169 || id == 131185 || id == 131218 || id == 131204) return; // ignore these non-significant error codes
+    std::cout << "---------------\n";
+    std::cout << "Debug message (" << id << "): " << message << "\n";
+    switch (source) {
+    case GL_DEBUG_SOURCE_API:             std::cout << "Source: API"; break;
+    case GL_DEBUG_SOURCE_WINDOW_SYSTEM:   std::cout << "Source: Window System"; break;
+    case GL_DEBUG_SOURCE_SHADER_COMPILER: std::cout << "Source: Shader Compiler"; break;
+    case GL_DEBUG_SOURCE_THIRD_PARTY:     std::cout << "Source: Third Party"; break;
+    case GL_DEBUG_SOURCE_APPLICATION:     std::cout << "Source: Application"; break;
+    case GL_DEBUG_SOURCE_OTHER:           std::cout << "Source: Other"; break;
+    }
+    std::cout << "\n";
+    switch (type) {
+    case GL_DEBUG_TYPE_ERROR:               std::cout << "Type: Error"; break;
+    case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR: std::cout << "Type: Deprecated Behaviour"; break;
+    case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:  std::cout << "Type: Undefined Behaviour"; break;
+    case GL_DEBUG_TYPE_PORTABILITY:         std::cout << "Type: Portability"; break;
+    case GL_DEBUG_TYPE_PERFORMANCE:         std::cout << "Type: Performance"; break;
+    case GL_DEBUG_TYPE_MARKER:              std::cout << "Type: Marker"; break;
+    case GL_DEBUG_TYPE_PUSH_GROUP:          std::cout << "Type: Push Group"; break;
+    case GL_DEBUG_TYPE_POP_GROUP:           std::cout << "Type: Pop Group"; break;
+    case GL_DEBUG_TYPE_OTHER:               std::cout << "Type: Other"; break;
+    }
+    std::cout << "\n";
+    switch (severity) {
+    case GL_DEBUG_SEVERITY_HIGH:         std::cout << "Severity: high"; break;
+    case GL_DEBUG_SEVERITY_MEDIUM:       std::cout << "Severity: medium"; break;
+    case GL_DEBUG_SEVERITY_LOW:          std::cout << "Severity: low"; break;
+    case GL_DEBUG_SEVERITY_NOTIFICATION: std::cout << "Severity: notification"; break;
+    }
+    std::cout << "\n\n\n";
+}
+
+void QuerySizes() {
+    GLint max_layers;
+    glGetIntegerv(GL_MAX_ARRAY_TEXTURE_LAYERS, &max_layers);
+    std::cout << "Max texture array size is: " << max_layers << "\n";
+    int max_compute_work_group_count[3];
+    int max_compute_work_group_size[3];
+    int max_compute_work_group_invocations;
+    for (int idx = 0; idx < 3; idx++) {
+        glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, idx, &max_compute_work_group_count[idx]);
+        glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, idx, &max_compute_work_group_size[idx]);
+    }
+    glGetIntegerv(GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS, &max_compute_work_group_invocations);
+    std::cout << "Max number of work groups in X dimension " << max_compute_work_group_count[0] << "\n";
+    std::cout << "Max number of work groups in Y dimension " << max_compute_work_group_count[1] << "\n";
+    std::cout << "Max number of work groups in Z dimension " << max_compute_work_group_count[2] << "\n";
+    std::cout << "Max size of a work group in X dimension " << max_compute_work_group_size[0] << "\n";
+    std::cout << "Max size of a work group in Y dimension " << max_compute_work_group_size[1] << "\n";
+    std::cout << "Max size of a work group in Z dimension " << max_compute_work_group_size[2] << "\n";
+    std::cout << "Number of invocations in a single local work group that may be dispatched to a compute shader " << max_compute_work_group_invocations << "\n";
+}
+
+void OpenGLBackEnd::InitMinimum() {
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+        std::cout << "Failed to initialize GLAD\n";
+        return;
+    }
+    GLint major, minor;
+    glGetIntegerv(GL_MAJOR_VERSION, &major);
+    glGetIntegerv(GL_MINOR_VERSION, &minor);
+    const GLubyte* vendor = glGetString(GL_VENDOR);
+    const GLubyte* renderer = glGetString(GL_RENDERER);
+    std::cout << "\nGPU: " << renderer << "\n";
+    std::cout << "GL version: " << major << "." << minor << "\n\n";
+
+    int flags;
+    glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
+    if (flags & GL_CONTEXT_FLAG_DEBUG_BIT) {
+        //std::cout << "Debug GL context enabled\n";
+        glEnable(GL_DEBUG_OUTPUT);
+        glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS); // makes sure errors are displayed synchronously
+        glDebugMessageCallback(glDebugOutput, nullptr);
+    }
+    else {
+        std::cout << "Debug GL context not available\n";
+    }
+
+    // Clear screen to black
+    glClear(GL_COLOR_BUFFER_BIT);
+}
+
+void OpenGLBackEnd::AllocateSkinnedVertexBufferSpace(int vertexCount) {
+
+    if (g_skinnedVertexDataVAO == 0) {
+        glGenVertexArrays(1, &g_skinnedVertexDataVAO);
+    }
+    // Check if there is enough space
+    if (g_allocatedSkinnedVertexBufferSize < vertexCount * sizeof(Vertex)) {
+
+        // Destroy old VBO
+        if (g_skinnedVertexDataVBO != 0) {
+            glDeleteBuffers(1, &g_skinnedVertexDataVBO);
         }
 
-        glGenVertexArrays(1, &g_vertexDataVAO);
-        glGenBuffers(1, &g_vertexDataVBO);
-        glGenBuffers(1, &g_vertexDataEBO);
-
-        glBindVertexArray(g_vertexDataVAO);
-        glBindBuffer(GL_ARRAY_BUFFER, g_vertexDataVBO);
-        glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), &vertices[0], GL_STATIC_DRAW);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_vertexDataEBO);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(uint32_t), &indices[0], GL_STATIC_DRAW);
-
+        // Create new one
+        glBindVertexArray(g_skinnedVertexDataVAO);
+        glGenBuffers(1, &g_skinnedVertexDataVBO);
+        glBindBuffer(GL_ARRAY_BUFFER, g_skinnedVertexDataVBO);
+        glBufferData(GL_ARRAY_BUFFER, vertexCount * sizeof(Vertex), nullptr, GL_STATIC_DRAW);
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
         glEnableVertexAttribArray(1);
@@ -119,348 +213,194 @@ namespace OpenGLBackEnd {
         glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, uv));
         glEnableVertexAttribArray(3);
         glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, tangent));
-
         glEnableVertexAttribArray(0);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glBindVertexArray(0);
+        g_allocatedSkinnedVertexBufferSize = vertexCount * sizeof(Vertex);
+    }
+}
+
+void OpenGLBackEnd::UploadVertexData(std::vector<Vertex>& vertices, std::vector<uint32_t>& indices) {
+
+    if (_vertexDataVAO != 0) {
+        glDeleteVertexArrays(1, &_vertexDataVAO);
+        glDeleteBuffers(1, &_vertexDataVBO);
+        glDeleteBuffers(1, &_vertexDataEBO);
     }
 
-    void OpenGLBackEnd::UploadWeightedVertexData(std::vector<WeightedVertex>& vertices, std::vector<uint32_t>& indices) {
+    glGenVertexArrays(1, &_vertexDataVAO);
+    glGenBuffers(1, &_vertexDataVBO);
+    glGenBuffers(1, &_vertexDataEBO);
 
-        if (vertices.empty() || indices.empty()) {
-            return;
-        }
+    glBindVertexArray(_vertexDataVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, _vertexDataVBO);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), &vertices[0], GL_STATIC_DRAW);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _vertexDataEBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(uint32_t), &indices[0], GL_STATIC_DRAW);
 
-        if (g_weightedVertexDataVAO != 0) {
-            glDeleteVertexArrays(1, &g_weightedVertexDataVAO);
-            glDeleteBuffers(1, &g_weightedVertexDataVBO);
-            glDeleteBuffers(1, &g_weightedVertexDataEBO);
-        }
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normal));
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, uv));
+    glEnableVertexAttribArray(3);
+    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, tangent));
 
-        glGenVertexArrays(1, &g_weightedVertexDataVAO);
-        glGenBuffers(1, &g_weightedVertexDataVBO);
-        glGenBuffers(1, &g_weightedVertexDataEBO);
+    glEnableVertexAttribArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+}
 
-        glBindVertexArray(g_weightedVertexDataVAO);
-        glBindBuffer(GL_ARRAY_BUFFER, g_weightedVertexDataVBO);
-        glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(WeightedVertex), &vertices[0], GL_STATIC_DRAW);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_weightedVertexDataEBO);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(uint32_t), &indices[0], GL_STATIC_DRAW);
+void OpenGLBackEnd::UploadConstructiveSolidGeometry(std::vector<Vertex>& vertices, std::vector<uint32_t>& indices) {
 
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(WeightedVertex), (void*)0);
-        glEnableVertexAttribArray(1);
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(WeightedVertex), (void*)offsetof(WeightedVertex, normal));
-        glEnableVertexAttribArray(2);
-        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(WeightedVertex), (void*)offsetof(WeightedVertex, uv));
-        glEnableVertexAttribArray(3);
-        glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(WeightedVertex), (void*)offsetof(WeightedVertex, tangent));
-        glEnableVertexAttribArray(4);
-        glVertexAttribPointer(4, 4, GL_FLOAT, GL_INT, sizeof(WeightedVertex), (void*)offsetof(WeightedVertex, boneID));
-        glEnableVertexAttribArray(5);
-        glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(WeightedVertex), (void*)offsetof(WeightedVertex, weight));
-
-        glEnableVertexAttribArray(0);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glBindVertexArray(0);
+    if (vertices.empty()) {
+        return;
     }
 
-    void OpenGLBackEnd::AllocateSkinnedVertexBufferSpace(int vertexCount) {
-        if (g_skinnedVertexDataVAO == 0) {
-            glGenVertexArrays(1, &g_skinnedVertexDataVAO);
-        }
-        if (g_allocatedSkinnedVertexBufferSize < vertexCount * sizeof(Vertex)) {
-            if (g_skinnedVertexDataVBO != 0) {
-                glDeleteBuffers(1, &g_skinnedVertexDataVBO);
-            }
-            glBindVertexArray(g_skinnedVertexDataVAO);
-            glGenBuffers(1, &g_skinnedVertexDataVBO);
-            glBindBuffer(GL_ARRAY_BUFFER, g_skinnedVertexDataVBO);
-            glBufferData(GL_ARRAY_BUFFER, vertexCount * sizeof(Vertex), nullptr, GL_STATIC_DRAW);
-            glEnableVertexAttribArray(0);
-            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
-            glEnableVertexAttribArray(1);
-            glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normal));
-            glEnableVertexAttribArray(2);
-            glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, uv));
-            glEnableVertexAttribArray(3);
-            glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, tangent));
-            glEnableVertexAttribArray(0);
-            glBindBuffer(GL_ARRAY_BUFFER, 0);
-            g_allocatedSkinnedVertexBufferSize = vertexCount * sizeof(Vertex);
-        }
+    if (g_constructiveSolidGeometryVAO != 0) {
+        glDeleteVertexArrays(1, &g_constructiveSolidGeometryVAO);
+        glDeleteBuffers(1, &g_constructiveSolidGeometryVBO);
+        glDeleteBuffers(1, &g_constructiveSolidGeometryEBO);
     }
 
-    void AllocateTextureMemory(Texture& texture) {
-        OpenGLTexture& glTexture = texture.GetGLTexture();
-        GLuint& handle = glTexture.GetHandle();
-        if (handle != 0) {
-            return; // Perhaps handle this better, or be more descriptive in function name!
-        }
-        glGenTextures(1, &handle);
-        glBindTexture(GL_TEXTURE_2D, handle);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, OpenGLUtil::TextureWrapModeToGLEnum(texture.GetTextureWrapMode()));
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, OpenGLUtil::TextureWrapModeToGLEnum(texture.GetTextureWrapMode()));
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, OpenGLUtil::TextureFilterToGLEnum(texture.GetMinFilter()));
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, OpenGLUtil::TextureFilterToGLEnum(texture.GetMagFilter()));
-        int mipmapWidth = texture.GetWidth();
-        int mipmapHeight = texture.GetHeight();
-        int levelCount = texture.MipmapsAreRequested() ? texture.GetMipmapLevelCount() : 1;
-        for (int i = 0; i < levelCount; i++) {
-            if (texture.GetImageDataType() == ImageDataType::UNCOMPRESSED) {
-                glTexImage2D(GL_TEXTURE_2D, i, texture.GetInternalFormat(), mipmapWidth, mipmapHeight, 0, texture.GetFormat(), GL_UNSIGNED_BYTE, nullptr);
-            }
-            if (texture.GetImageDataType() == ImageDataType::COMPRESSED) {
-                glCompressedTexImage2D(GL_TEXTURE_2D, i, texture.GetInternalFormat(), mipmapWidth, mipmapHeight, 0, texture.GetDataSize(i), nullptr);
-            }
-            if (texture.GetImageDataType() == ImageDataType::EXR) {
-                glTexImage2D(GL_TEXTURE_2D, i, GL_RGB16, mipmapWidth, mipmapHeight, 0, GL_RGBA, GL_FLOAT, nullptr);
-            }
-            mipmapWidth = std::max(1, mipmapWidth / 2);
-            mipmapHeight = std::max(1, mipmapHeight / 2);
-        }
-        glTexture.MakeBindlessTextureResident();
-        glBindTexture(GL_TEXTURE_2D, 0);
+    glGenVertexArrays(1, &g_constructiveSolidGeometryVAO);
+    glGenBuffers(1, &g_constructiveSolidGeometryVBO);
+    glGenBuffers(1, &g_constructiveSolidGeometryEBO);
+
+    glBindVertexArray(g_constructiveSolidGeometryVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, g_constructiveSolidGeometryVBO);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), &vertices[0], GL_STATIC_DRAW);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_constructiveSolidGeometryEBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(uint32_t), &indices[0], GL_STATIC_DRAW);
+
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normal));
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, uv));
+    glEnableVertexAttribArray(3);
+    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, tangent));
+
+    glEnableVertexAttribArray(0);
+    // glBindBuffer(GL_ARRAY_BUFFER, 0);
+    // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+
+    std::cout << "Uploaded constructive geometry to gpu\n";
+    std::cout << "-vertices: " << vertices.size() << "\n";
+    std::cout << "-indices: " << indices.size() << "\n";
+    std::cout << "-vao: " << g_constructiveSolidGeometryVAO << "\n";
+    std::cout << "-vbo: " << g_constructiveSolidGeometryVBO << "\n";
+    std::cout << "-ebo: " << g_constructiveSolidGeometryEBO << "\n";
+}
+
+void OpenGLBackEnd::UploadWeightedVertexData(std::vector<WeightedVertex>& vertices, std::vector<uint32_t>& indices) {
+
+    if (vertices.empty() || indices.empty()) {
+        return;
     }
 
-    void ImmediateBake(QueuedTextureBake& queuedTextureBake) {
-        Texture* texture = static_cast<Texture*>(queuedTextureBake.texture);
-        OpenGLTexture& glTexture = texture->GetGLTexture();
-        int width = queuedTextureBake.width;
-        int height = queuedTextureBake.height;
-        int format = queuedTextureBake.format;
-        int internalFormat = queuedTextureBake.internalFormat;
-        int level = queuedTextureBake.mipmapLevel;
-        int dataSize = queuedTextureBake.dataSize;
-        const void* data = queuedTextureBake.data;
-
-        GLuint textureHandle = glTexture.GetHandle();
-
-        // Bake texture data
-        if (texture->GetImageDataType() == ImageDataType::UNCOMPRESSED) {
-            glTextureSubImage2D(textureHandle, level, 0, 0, width, height, format, GL_UNSIGNED_BYTE, data);
-        }
-        else if (texture->GetImageDataType() == ImageDataType::EXR) {
-            //glTextureSubImage2D(textureHandle, 0, 0, 0, glTexture.GetWidth(), glTexture.GetHeight(), GL_RGBA, GL_FLOAT, glTexture.GetData());
-        }
-        else if (texture->GetImageDataType() == ImageDataType::COMPRESSED) {
-            glCompressedTextureSubImage2D(textureHandle, level, 0, 0, width, height, internalFormat, dataSize, data);
-        }
-
-        texture->SetTextureDataLevelBakeState(level, BakeState::BAKE_COMPLETE);
-
-        // Generate Mipmaps if none were supplied
-        if (texture->MipmapsAreRequested()) {
-            if (texture->GetTextureDataCount() == 1) {
-                glGenerateTextureMipmap(textureHandle);
-            }
-        }
-        // Cleanup bake queue
-        BakeQueue::RemoveQueuedTextureBakeByJobID(queuedTextureBake.jobID);
+    if (_weightedVertexDataVAO != 0) {
+        glDeleteVertexArrays(1, &_weightedVertexDataVAO);
+        glDeleteBuffers(1, &_weightedVertexDataVBO);
+        glDeleteBuffers(1, &_weightedVertexDataEBO);
     }
 
+    glGenVertexArrays(1, &_weightedVertexDataVAO);
+    glGenBuffers(1, &_weightedVertexDataVBO);
+    glGenBuffers(1, &_weightedVertexDataEBO);
 
-    void UpdateTextureBaking() {
-        size_t bakeCommandsIssuedPerFrame = g_textureBakingPBOs.size();
+    glBindVertexArray(_weightedVertexDataVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, _weightedVertexDataVBO);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(WeightedVertex), &vertices[0], GL_STATIC_DRAW);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _weightedVertexDataEBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(uint32_t), &indices[0], GL_STATIC_DRAW);
 
-        for (size_t i = 0; i < bakeCommandsIssuedPerFrame; i++) {
-            // Update PBO states
-            for (PBO& pbo : g_textureBakingPBOs) {
-                pbo.UpdateState();
-            }
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(WeightedVertex), (void*)0);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(WeightedVertex), (void*)offsetof(WeightedVertex, normal));
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(WeightedVertex), (void*)offsetof(WeightedVertex, uv));
+    glEnableVertexAttribArray(3);
+    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(WeightedVertex), (void*)offsetof(WeightedVertex, tangent));
+    glEnableVertexAttribArray(4);
+    glVertexAttribPointer(4, 4, GL_FLOAT, GL_INT, sizeof(WeightedVertex), (void*)offsetof(WeightedVertex, boneID));
+    glEnableVertexAttribArray(5);
+    glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(WeightedVertex), (void*)offsetof(WeightedVertex, weight));
 
-            // If any have completed, remove the job ID from the queue
-            for (PBO& pbo : g_textureBakingPBOs) {
-                uint32_t jobID = pbo.GetCustomValue();
-                if (pbo.IsSyncComplete() && jobID != -1) {
-                    QueuedTextureBake* queuedTextureBake = BakeQueue::GetQueuedTextureBakeByJobID(jobID);
-                    Texture* texture = static_cast<Texture*>(queuedTextureBake->texture);
-                    texture->SetTextureDataLevelBakeState(queuedTextureBake->mipmapLevel, BakeState::BAKE_COMPLETE);
+    glEnableVertexAttribArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+}
 
-                    // Generate mipmaps if none were supplied
-                    if (texture->MipmapsAreRequested()) {
-                        if (texture->GetTextureDataCount() == 1) {
-                            glGenerateTextureMipmap(texture->GetGLTexture().GetHandle());
-                        }
-                    }
-                    BakeQueue::RemoveQueuedTextureBakeByJobID(jobID);
-                    pbo.SetCustomValue(-1);
-                }
-            }
+void OpenGLBackEnd::CreatePointCloudVertexBuffer(std::vector<CloudPoint>& pointCloud) {
 
-            // Bake the next queued texture bake (if one exists)
-            if (BakeQueue::GetQueuedTextureBakeJobCount() > 0) {
-                QueuedTextureBake* queuedTextureBake = BakeQueue::GetNextQueuedTextureBake();
-                if (queuedTextureBake) {
-                    AsyncBakeQueuedTextureBake(*queuedTextureBake);
-                }
-            }
-        }
+    if (g_pointCloudVAO != 0) {
+        glDeleteVertexArrays(1, &g_pointCloudVAO);
+        glDeleteBuffers(1, &g_pointCloudVBO);
     }
 
-    void AsyncBakeQueuedTextureBake(QueuedTextureBake& queuedTextureBake) {
-        // Get next free PBO
-        PBO* pbo = nullptr;
-        for (PBO& queryPbo : g_textureBakingPBOs) {
-            if (queryPbo.IsSyncComplete()) {
-                pbo = &queryPbo;
-                break;
-            }
-        }
+    glGenVertexArrays(1, &g_pointCloudVAO);
+    glGenBuffers(1, &g_pointCloudVBO);
 
-        // Return early if no free PBOs
-        if (!pbo) {
-            std::cerr << "Warning: Attempting to use an active PBO!" << std::endl;
-            return;
-        }
-
-        queuedTextureBake.inProgress = true;
-
-        Texture* texture = static_cast<Texture*>(queuedTextureBake.texture);
-        int jobID = queuedTextureBake.jobID;
-        int width = queuedTextureBake.width;
-        int height = queuedTextureBake.height;
-        int format = queuedTextureBake.format;
-        int internalFormat = queuedTextureBake.internalFormat;
-        int level = queuedTextureBake.mipmapLevel;
-        int dataSize = queuedTextureBake.dataSize;
-        const void* data = queuedTextureBake.data;
-
-        texture->SetTextureDataLevelBakeState(level, BakeState::BAKING_IN_PROGRESS);
-
-        // Map PBO and copy data
-        glBindBuffer(GL_PIXEL_UNPACK_BUFFER, pbo->GetHandle());
-        std::memcpy(pbo->GetPersistentBuffer(), data, dataSize);
-
-        // Upload data to the texture using DSA
-        GLuint textureHandle = texture->GetGLTexture().GetHandle();
-        if (texture->GetImageDataType() == ImageDataType::UNCOMPRESSED) {
-            glTextureSubImage2D(textureHandle, level, 0, 0, width, height, format, GL_UNSIGNED_BYTE, 0);
-        }
-        else if (texture->GetImageDataType() == ImageDataType::COMPRESSED) {
-            glCompressedTextureSubImage2D(textureHandle, level, 0, 0, width, height, internalFormat, dataSize, 0);
-        }
-        else if (texture->GetImageDataType() == ImageDataType::EXR) {
-            glTextureSubImage2D(textureHandle, level, 0, 0, width, height, GL_RGBA, GL_FLOAT, 0);
-        }
-
-        // Start PBO sync and assign job ID
-        pbo->SyncStart();
-        pbo->SetCustomValue(jobID);
-
-        // Unbind PBO
-        glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
+    if (!pointCloud.size()) {
+        return;
     }
 
-    void CleanUpBakingPBOs() {
-        for (PBO& pbo : g_textureBakingPBOs) {
-            pbo.CleanUp();
-        }
-        g_textureBakingPBOs.clear();
+    // TODO
+    // write code to only recreate the point cloud if you need more space in the vertex buffer
+    // write code to only recreate the point cloud if you need more space in the vertex buffer
+    // write code to only recreate the point cloud if you need more space in the vertex buffer
+    // write code to only recreate the point cloud if you need more space in the vertex buffer
+
+    glBindVertexArray(g_pointCloudVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, g_pointCloudVBO);
+    glBufferData(GL_ARRAY_BUFFER, pointCloud.size() * sizeof(CloudPoint), &pointCloud[0], GL_STATIC_DRAW);
+
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(CloudPoint), (void*)0);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(CloudPoint), (void*)offsetof(CloudPoint, normal));
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(CloudPoint), (void*)offsetof(CloudPoint, directLighting));
+
+    glEnableVertexAttribArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+}
+
+void OpenGLBackEnd::UploadTriangle2DData(std::vector<glm::vec2>& vertices) {
+
+    if (g_triangle2DVAO != 0) {
+        glDeleteVertexArrays(1, &g_triangle2DVAO);
+        glDeleteBuffers(1, &g_triangle2DVBO);
+    }
+    glGenVertexArrays(1, &g_triangle2DVAO);
+    glGenBuffers(1, &g_triangle2DVBO);
+
+    if (!vertices.size()) {
+        return;
     }
 
-    void UpdateBindlessTextures() {
-        g_bindlessTextureIDs.clear();
-        g_bindlessTextureIDs.reserve(AssetManager::GetTextureCount());
-        for (int i = 0; i < AssetManager::GetTextureCount(); i++) {
-            g_bindlessTextureIDs.push_back(AssetManager::GetTextureByIndex(i)->GetGLTexture().GetBindlessID());
-        }
-    }
+    glBindVertexArray(g_triangle2DVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, g_triangle2DVBO);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec2), &vertices[0], GL_STATIC_DRAW);
 
-    void SetDepthClearValue(float value) {
-        if (g_depthClearValue != value) {
-            g_depthClearValue = value;
-            glClearDepth(g_depthClearValue);
-        }
-    }
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)0);
 
-    void APIENTRY glDebugOutput(GLenum source, GLenum type, unsigned int id, GLenum severity, GLsizei /*length*/, const char* message, const void* /*userParam*/) {
-        // Ignore non-significant error codes
-        if (id == 131169 || // Framebuffer detailed info: The driver allocated storage for renderbuffer [X].
-            id == 131185 || // Buffer detailed info: The driver is using video memory for buffer [X].
-            id == 131218 || // Program/shader state performance warning: Fragment shader in program [X] is being recompiled based on state.
-            id == 131204 || // Texture state usage warning: Texture [X] is base level inconsistent. Level [0] has inconsistent dimensions or formats.
-            id == 131154    // Pixel-path performance warning: Pixel transfer is synchronized with 3D rendering.
-            ) {
-            return;
-        }
-        std::cout << "---------------\n";
-        std::cout << "Debug message (" << id << "): " << message << "\n";
-        switch (source) {
-        case GL_DEBUG_SOURCE_API:             std::cout << "Source: API"; break;
-        case GL_DEBUG_SOURCE_WINDOW_SYSTEM:   std::cout << "Source: Window System"; break;
-        case GL_DEBUG_SOURCE_SHADER_COMPILER: std::cout << "Source: Shader Compiler"; break;
-        case GL_DEBUG_SOURCE_THIRD_PARTY:     std::cout << "Source: Third Party"; break;
-        case GL_DEBUG_SOURCE_APPLICATION:     std::cout << "Source: Application"; break;
-        case GL_DEBUG_SOURCE_OTHER:           std::cout << "Source: Other"; break;
-        }
-        std::cout << "\n";
-        switch (type) {
-        case GL_DEBUG_TYPE_ERROR:               std::cout << "Type: Error"; break;
-        case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR: std::cout << "Type: Deprecated Behaviour"; break;
-        case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:  std::cout << "Type: Undefined Behaviour"; break;
-        case GL_DEBUG_TYPE_PORTABILITY:         std::cout << "Type: Portability"; break;
-        case GL_DEBUG_TYPE_PERFORMANCE:         std::cout << "Type: Performance"; break;
-        case GL_DEBUG_TYPE_MARKER:              std::cout << "Type: Marker"; break;
-        case GL_DEBUG_TYPE_PUSH_GROUP:          std::cout << "Type: Push Group"; break;
-        case GL_DEBUG_TYPE_POP_GROUP:           std::cout << "Type: Pop Group"; break;
-        case GL_DEBUG_TYPE_OTHER:               std::cout << "Type: Other"; break;
-        }
-        std::cout << "\n";
-        switch (severity) {
-        case GL_DEBUG_SEVERITY_HIGH:         std::cout << "Severity: high"; break;
-        case GL_DEBUG_SEVERITY_MEDIUM:       std::cout << "Severity: medium"; break;
-        case GL_DEBUG_SEVERITY_LOW:          std::cout << "Severity: low"; break;
-        case GL_DEBUG_SEVERITY_NOTIFICATION: std::cout << "Severity: notification"; break;
-        }    std::cout << "\n\n\n";
-    }
+    glEnableVertexAttribArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+}
 
-    //void ReadBackHeightmapMeshData() {
-    //    int indexCount = (     - 1) * (HEIGHT_MAP_SIZE - 1) * 6;
-    //    int vertexCount = HEIGHT_MAP_SIZE * HEIGHT_MAP_SIZE;
-    //    int vertexBufferSize = HEIGHT_MAP_SIZE * HEIGHT_MAP_SIZE * sizeof(Vertex);
-    //    int indexBufferSize = (HEIGHT_MAP_SIZE - 1) * (HEIGHT_MAP_SIZE - 1) * 6 * sizeof(uint32_t);
-    //
-    //    g_heightMapVerticesReadBackPBO.UpdateState();
-    //
-    //    if (!g_heightMapVerticesReadBackPBO.IsSyncComplete()) {
-    //        return; // Wait for sync
-    //    }
-    //
-    //    // Bind PBO to store vertex buffer data
-    //    glBindBuffer(GL_PIXEL_PACK_BUFFER, g_heightMapVerticesReadBackPBO.GetHandle());
-    //    glBindBuffer(GL_SHADER_STORAGE_BUFFER, g_heightMapMesh.GetVBO());
-    //
-    //    // Copy the vertex buffer data into the PBO
-    //    glCopyBufferSubData(GL_SHADER_STORAGE_BUFFER, GL_PIXEL_PACK_BUFFER, 0, 0, vertexBufferSize);
-    //
-    //    // Sync and map buffer to access data
-    //    g_heightMapVerticesReadBackPBO.SyncStart();
-    //    const Vertex* mappedBuffer = reinterpret_cast<const Vertex*>(g_heightMapVerticesReadBackPBO.GetPersistentBuffer());
-    //
-    //    if (mappedBuffer) {
-    //        for (int i = 0; i < vertexCount; i++) {
-    //            const Vertex& v = mappedBuffer[i];
-    //            glm::vec3 pos = v.position;
-    //            pos.y *= 10;
-    //            //Renderer::DrawPoint(pos, GREEN);
-    //        }
-    //    }
-    //
-    //    // Unbind
-    //    glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-    //    glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
-    //}
+GLuint OpenGLBackEnd::GetTriangles2DVAO() {
+    return g_triangle2DVAO;
+}
 
-    GLuint GetVertexDataVAO() { return g_vertexDataVAO; }
-    GLuint GetVertexDataVBO() { return g_vertexDataVBO; }
-    GLuint GetVertexDataEBO() { return g_vertexDataEBO; }
-    GLuint GetWeightedVertexDataVAO() { return g_weightedVertexDataVAO; }
-    GLuint GetWeightedVertexDataVBO() { return g_weightedVertexDataVBO; }
-    GLuint GetWeightedVertexDataEBO() { return g_weightedVertexDataEBO; }
-    GLuint GetSkinnedVertexDataVAO() { return g_skinnedVertexDataVAO; }
-    GLuint GetSkinnedVertexDataVBO() { return g_skinnedVertexDataVBO; }
-    OpenGLHeightMapMesh& GetHeightMapMesh() { return g_heightMapMesh; };
-    const std::vector<GLuint64>& GetBindlessTextureIDs() { return g_bindlessTextureIDs; }
+GLuint OpenGLBackEnd::GetTriangles2DVBO() {
+    return g_triangle2DVBO;
 
 }

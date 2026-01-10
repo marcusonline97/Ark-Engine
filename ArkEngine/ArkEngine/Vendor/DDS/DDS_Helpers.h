@@ -23,7 +23,7 @@
 //
 
 #pragma once
-#include "cmp_compressonatorlib/Compressonator.h"
+#include "compressonator/include/Compressonator.h"
 
 CMP_FORMAT GetFormat(CMP_DWORD dwFourCC);
 CMP_DWORD GetFourCC(CMP_FORMAT nFormat);
@@ -33,6 +33,3 @@ const char* GetFormatDesc(CMP_FORMAT nFormat);
 
 bool LoadDDSFile(const char* pszFile, CMP_Texture& texture);
 void SaveDDSFile(const char* pszFile, CMP_Texture& texture);
-
-void SaveDDSFileWithMipmaps(const char* pszFile, CMP_MipSet& mipSet);
-CMP_MipLevel* GetMipLevel(CMP_MipSet* mipSet, CMP_INT faceOrSlice, CMP_INT mipLevel);

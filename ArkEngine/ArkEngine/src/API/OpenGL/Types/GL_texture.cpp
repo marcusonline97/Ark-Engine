@@ -1,170 +1,410 @@
-#include "GL_texture.h"
-#include "ArkLogging.h"
-
-#include "API/OpenGL/GL_util.h"
-#include "BackEnd/BackEnd.h"
-#include "Tools/ImageTools.h"
-#include "Util/Util.h"
-
 #include <iostream>
+#include "GL_texture.h"
+#include "../../../Util.hpp"
+#include "../../vendor/DDS/DDS_Helpers.h"
 #include <stb_image.h>
-#include "tinyexr/tinyexr.h"
 
 GLuint64 OpenGLTexture::GetBindlessID() {
-    return m_bindlessID;
+    return bindlessID;
 }
 
-TextureData LoadEXRData(std::string filepath) {
-    TextureData textureData;
-    const char* err = nullptr;
-    const char** layer_names = nullptr;
-    int num_layers = 0;
-    bool status = EXRLayers(filepath.c_str(), &layer_names, &num_layers, &err);
-    free(layer_names);
-    const char* layername = NULL;
-    float* floatPtr = nullptr;
-    status = LoadEXRWithLayer(&floatPtr, &textureData.m_width, &textureData.m_height, filepath.c_str(), layername, &err);
-    textureData.m_data = floatPtr;
-    return textureData;
+uint32_t cmpToOpenGlFormat(CMP_FORMAT format) {
+    if (format == CMP_FORMAT_DXT1) {
+        return GL_COMPRESSED_RGB_S3TC_DXT1_EXT;
+    }
+    else if (format == CMP_FORMAT_DXT3) {
+        return GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
+    }
+    else if (format == CMP_FORMAT_DXT5) {
+        return GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
+    }
+    else {
+        return 0xFFFFFFFF;
+    }
 }
 
-void OpenGLTexture::Create(int width, int height, int internalFormat, int mipmapLevelCount) {
-    if (m_handle != 0) Reset();
-
-    m_width = width;
-    m_height = height;
-    m_mipmapLevelCount = mipmapLevelCount;
-    m_internalFormat = internalFormat;
-    m_format = OpenGLUtil::GetFormatFromInternalFormat(internalFormat);
-
-    glCreateTextures(GL_TEXTURE_2D, 1, &m_handle);
-    glTextureStorage2D(m_handle, mipmapLevelCount, internalFormat, width, height);
-
-    SetMinFilter(mipmapLevelCount > 1 ? TextureFilter::LINEAR_MIPMAP : TextureFilter::LINEAR);
-    SetMagFilter(TextureFilter::LINEAR);
-    SetWrapMode(TextureWrapMode::CLAMP_TO_EDGE);
+void freeCMPTexture(CMP_Texture* t) {
+    free(t->pData);
 }
 
-void OpenGLTexture::ClearR(float value) {
-    if (!m_handle) return;
+OpenGLTexture::OpenGLTexture(const std::string filepath) {
+    Load(filepath);
+}
 
-    // Allow only non-integer color formats
-    if (!(m_format == GL_RED || m_format == GL_RG || m_format == GL_RGB || m_format == GL_RGBA)) {
-        std::cout << "OpenGLTexture::ClearR() Unsupported format\n";
+#include "tinyexr/tinyexr.h"
+
+bool OpenGLTexture::Load(const std::string filepath) {
+
+    if (!Util::FileExists(filepath)) {
+        std::cout << filepath << " does not exist.\n";
+        return false;
+    }
+
+    _filename = Util::GetFilename(filepath);
+    _filetype = Util::GetFileInfo(filepath).filetype;
+
+    // Is it a VAT texture?
+    if (_filetype == "exr") {
+
+        // Get EXR Layers
+        const char* err = nullptr;
+        const char** layer_names = nullptr;
+        int num_layers = 0;
+        bool status = EXRLayers(filepath.c_str(), &layer_names, &num_layers, &err);
+        if (err) {
+            fprintf(stderr, "EXR error = %s\n", err);
+        }
+        if (status != 0) {
+            fprintf(stderr, "Load EXR err: %s\n", err);
+            std::cout << " GetEXRLayers() FAILED \n";
+        }
+        if (num_layers > 0) {
+            fprintf(stdout, "EXR Contains %i Layers\n", num_layers);
+            for (int i = 0; i < (int)num_layers; ++i) {
+                fprintf(stdout, "Layer %i : %s\n", i + 1, layer_names[i]);
+            }
+        }
+        free(layer_names);
+
+        // Load the RGBA
+        int width, height;
+        const char* layername = NULL;
+        status = LoadEXRWithLayer(&_floatData, &_width, &_height, filepath.c_str(), layername, &err);
+        if (err) {
+            fprintf(stderr, "EXR error = %s\n", err);
+        }
+        if (status != 0) {
+            fprintf(stderr, "Load EXR err: %s\n", err);
+            std::cout << " LoadEXRRGBA() FAILED \n";
+        }
+
+        std::cout << "Loaded EXR: " << filepath << "\n";
+        return true;
+    }
+
+
+
+
+
+
+
+    // Check if compressed version exists. If not, create one.
+    std::string suffix = _filename.substr(_filename.length() - 3);
+    //std::cout << suffix << "\n";
+    std::string compressedPath = "res/assets/" + _filename + ".dds";
+    if (!Util::FileExists(compressedPath)) {
+        stbi_set_flip_vertically_on_load(false);
+        _data = stbi_load(filepath.data(), &_width, &_height, &_NumOfChannels, 0);
+
+        if (suffix == "NRM") {
+            //swizzle
+            if (_NumOfChannels == 3) {
+                uint8_t* image = _data;
+                const uint64_t pitch = static_cast<uint64_t>(_width) * 3UL;
+                for (auto r = 0; r < _height; ++r) {
+                    uint8_t* row = image + r * pitch;
+                    for (auto c = 0UL; c < static_cast<uint64_t>(_width); ++c) {
+                        uint8_t* pixel = row + c * 3UL;
+                        uint8_t  p = pixel[0];
+                        pixel[0] = pixel[2];
+                        pixel[2] = p;
+                    }
+                }
+            }
+            CMP_Texture srcTexture = { 0 };
+            srcTexture.dwSize = sizeof(CMP_Texture);
+            srcTexture.dwWidth = _width;
+            srcTexture.dwHeight = _height;
+            srcTexture.dwPitch = _NumOfChannels == 4 ? _width * 4 : _width * 3;
+            srcTexture.format = _NumOfChannels == 4 ? CMP_FORMAT_RGBA_8888 : CMP_FORMAT_RGB_888;
+            srcTexture.dwDataSize = srcTexture.dwHeight * srcTexture.dwPitch;
+            srcTexture.pData = _data;
+            _CMP_texture = std::make_unique<CMP_Texture>(0);
+            CMP_Texture destTexture = { *_CMP_texture };
+            destTexture.dwSize = sizeof(destTexture);
+            destTexture.dwWidth = _width;
+            destTexture.dwHeight = _height;
+            destTexture.dwPitch = _width;
+            destTexture.format = CMP_FORMAT_DXT3;
+            destTexture.dwDataSize = CMP_CalculateBufferSize(&destTexture);
+            destTexture.pData = (CMP_BYTE*)malloc(destTexture.dwDataSize);
+            CMP_CompressOptions options = { 0 };
+            options.dwSize = sizeof(options);
+            options.fquality = 0.88f;
+            CMP_ERROR   cmp_status;
+            cmp_status = CMP_ConvertTexture(&srcTexture, &destTexture, &options, nullptr);
+            if (cmp_status != CMP_OK) {
+                free(destTexture.pData);
+                _CMP_texture.reset();
+                std::printf("Compression returned an error %d\n", cmp_status);
+                return false;
+            }
+            else {
+                std::cout << "saving compressed texture: " << compressedPath.c_str() << "\n";
+                SaveDDSFile(compressedPath.c_str(), destTexture);
+            }
+        }
+        else if (suffix == "RMA") {
+            //swizzle
+            if (_NumOfChannels == 3) {
+                uint8_t* image = _data;
+                const uint64_t pitch = static_cast<uint64_t>(_width) * 3UL;
+                for (auto r = 0; r < _height; ++r) {
+                    uint8_t* row = image + r * pitch;
+                    for (auto c = 0UL; c < static_cast<uint64_t>(_width); ++c) {
+                        uint8_t* pixel = row + c * 3UL;
+                        uint8_t  p = pixel[0];
+                        pixel[0] = pixel[2];
+                        pixel[2] = p;
+                    }
+                }
+            }
+            CMP_Texture srcTexture = { 0 };
+            srcTexture.dwSize = sizeof(CMP_Texture);
+            srcTexture.dwWidth = _width;
+            srcTexture.dwHeight = _height;
+            srcTexture.dwPitch = _NumOfChannels == 4 ? _width * 4 : _width * 3;
+            srcTexture.format = _NumOfChannels == 4 ? CMP_FORMAT_RGBA_8888 : CMP_FORMAT_BGR_888;
+            srcTexture.dwDataSize = srcTexture.dwHeight * srcTexture.dwPitch;
+            srcTexture.pData = _data;
+            _CMP_texture = std::make_unique<CMP_Texture>(0);
+            CMP_Texture destTexture = { *_CMP_texture };
+            destTexture.dwSize = sizeof(destTexture);
+            destTexture.dwWidth = _width;
+            destTexture.dwHeight = _height;
+            destTexture.dwPitch = _width;
+            destTexture.format = CMP_FORMAT_DXT3;
+            destTexture.dwDataSize = CMP_CalculateBufferSize(&destTexture);
+            destTexture.pData = (CMP_BYTE*)malloc(destTexture.dwDataSize);
+            CMP_CompressOptions options = { 0 };
+            options.dwSize = sizeof(options);
+            options.fquality = 0.88f;
+            CMP_ERROR   cmp_status;
+            cmp_status = CMP_ConvertTexture(&srcTexture, &destTexture, &options, nullptr);
+            if (cmp_status != CMP_OK) {
+                free(destTexture.pData);
+                _CMP_texture.reset();
+                std::printf("Compression returned an error %d\n", cmp_status);
+                return false;
+            }
+            else {
+                SaveDDSFile(compressedPath.c_str(), destTexture);
+            }
+        }
+        else if (suffix == "ALB") {
+            //swizzle
+            if (_NumOfChannels == 3) {
+                uint8_t* image = _data;
+                const uint64_t pitch = static_cast<uint64_t>(_width) * 3UL;
+                for (auto r = 0; r < _height; ++r) {
+                    uint8_t* row = image + r * pitch;
+                    for (auto c = 0UL; c < static_cast<uint64_t>(_width); ++c) {
+                        uint8_t* pixel = row + c * 3UL;
+                        uint8_t  p = pixel[0];
+                        pixel[0] = pixel[2];
+                        pixel[2] = p;
+                    }
+                }
+            }
+            CMP_Texture srcTexture = { 0 };
+            srcTexture.dwSize = sizeof(CMP_Texture);
+            srcTexture.dwWidth = _width;
+            srcTexture.dwHeight = _height;
+            srcTexture.dwPitch = _NumOfChannels == 4 ? _width * 4 : _width * 3;
+            srcTexture.format = _NumOfChannels == 4 ? CMP_FORMAT_RGBA_8888 : CMP_FORMAT_RGB_888;
+            srcTexture.dwDataSize = srcTexture.dwHeight * srcTexture.dwPitch;
+            srcTexture.pData = _data;
+            _CMP_texture = std::make_unique<CMP_Texture>(0);
+            CMP_Texture destTexture = { *_CMP_texture };
+            destTexture.dwSize = sizeof(destTexture);
+            destTexture.dwWidth = _width;
+            destTexture.dwHeight = _height;
+            destTexture.dwPitch = _width;
+            destTexture.format = CMP_FORMAT_DXT3;
+            destTexture.dwDataSize = CMP_CalculateBufferSize(&destTexture);
+            destTexture.pData = (CMP_BYTE*)malloc(destTexture.dwDataSize);
+            CMP_CompressOptions options = { 0 };
+            options.dwSize = sizeof(options);
+            options.fquality = 0.88f;
+            CMP_ERROR   cmp_status;
+            cmp_status = CMP_ConvertTexture(&srcTexture, &destTexture, &options, nullptr);
+            if (cmp_status != CMP_OK) {
+                free(destTexture.pData);
+                _CMP_texture.reset();
+                std::printf("Compression returned an error %d\n", cmp_status);
+                return false;
+            }
+            else {
+                SaveDDSFile(compressedPath.c_str(), destTexture);
+            }
+        }
+    }
+
+    if (_CMP_texture == nullptr) {
+        //For everything else just load the raw texture. Compression fucks up UI elements.
+        stbi_set_flip_vertically_on_load(false);
+        _data = stbi_load(filepath.data(), &_width, &_height, &_NumOfChannels, 0);
+    }
+    return true;
+}
+
+
+void OpenGLTexture::UploadToGPU(void* data, CMP_Texture* cmpTexture, int width, int height, int channelCount) {
+
+    if (_baked || !_data) {
+        return;
+    }
+    _baked = true;
+
+
+    if (_filetype == "exr") {
         return;
     }
 
-    const GLfloat color[4] = { value, 0.0f, 0.0f, 0.0f };
-
-    for (int level = 0; level < m_mipmapLevelCount; ++level) {
-        glClearTexImage(m_handle, level, m_format, GL_FLOAT, color);
+    if (_CMP_texture != nullptr) {
+        glGenerateMipmap(GL_TEXTURE_2D);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        const uint32_t glFormat = cmpToOpenGlFormat(cmpTexture->format);
+        if (glFormat != 0xFFFFFFFF) {
+            uint32_t size2 = cmpTexture->dwDataSize;
+            glCompressedTexImage2D(GL_TEXTURE_2D, 0, glFormat, cmpTexture->dwWidth, cmpTexture->dwHeight, 0, size2, cmpTexture->pData);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 28);
+            glGenerateMipmap(GL_TEXTURE_2D);
+        }
+        freeCMPTexture(cmpTexture);
     }
+    else {
+        glGenTextures(1, &ID);
+        glBindTexture(GL_TEXTURE_2D, ID);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+        GLint format = GL_RGB;
+        if (channelCount == 4)
+            format = GL_RGBA;
+        if (channelCount == 1)
+            format = GL_RED;
+
+        else {
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+            stbi_image_free(data);
+        }
+
+        bindlessID = glGetTextureHandleARB(ID);
+        glMakeTextureHandleResidentARB(bindlessID);
+        //glMakeTextureHandleNonResidentARB(bindlessID); to unbind
+
+    }
+    _width = width;
+    _height = height;
 }
 
-void OpenGLTexture::UploadR16FData(const float* data, int width, int height, int xOffset, int yOffset, int mipLevel) {
-    if (!m_handle || !data) return;
+bool OpenGLTexture::Bake() {
 
-    if (m_internalFormat != GL_R16F) {
-        Logging::Error() << "UploadR16FData(): failed coz m_internalFormat was not GL_R16F, but was " << OpenGLUtil::GLInternalFormatToString(m_internalFormat) << "(" << m_internalFormat << ")";
-        return;
+    if (_baked) {
+        return true;
     }
 
-    // Validate bounds against the mip level size
-    GLint levelWidth = 0;
-    GLint levelHeight = 0;
-    glGetTextureLevelParameteriv(m_handle, mipLevel, GL_TEXTURE_WIDTH, &levelWidth);
-    glGetTextureLevelParameteriv(m_handle, mipLevel, GL_TEXTURE_HEIGHT, &levelHeight);
+    _baked = true;
 
-    if (xOffset < 0 || yOffset < 0 || xOffset + width  > levelWidth || yOffset + height > levelHeight) {
-        Logging::Error()
-            << "UploadR16FData(): out of bounds subimage upload\n"
-            << "-xOffset:     " << xOffset << "\n"
-            << "-yOffset:     " << yOffset << "\n"
-            << "-width:       " << width << "\n"
-            << "-height:      " << height << "\n"
-            << "-mipLevel:    " << mipLevel << "\n"
-            << "-levelWidth:  " << levelWidth << "\n"
-            << "-levelHeight: " << levelHeight;
-        return;
+    if (_CMP_texture != nullptr) {
+        auto& cmpTexture{ *_CMP_texture };
+        glGenTextures(1, &ID);
+        glBindTexture(GL_TEXTURE_2D, ID);
+        glGenerateMipmap(GL_TEXTURE_2D);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        const uint32_t glFormat = cmpToOpenGlFormat(cmpTexture.format);
+        //unsigned int blockSize = (glFormat == GL_COMPRESSED_RGBA_S3TC_DXT1_EXT) ? 8 : 16;
+        if (glFormat != 0xFFFFFFFF) {
+            uint32_t size2 = cmpTexture.dwDataSize;
+            glCompressedTexImage2D(GL_TEXTURE_2D, 0, glFormat, cmpTexture.dwWidth, cmpTexture.dwHeight, 0, size2, cmpTexture.pData);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 28);
+            glGenerateMipmap(GL_TEXTURE_2D);
+            cmpTexture = {};
+        }
+        freeCMPTexture(_CMP_texture.get());
+        _CMP_texture.reset();
+        return true;
     }
 
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-    glTextureSubImage2D(m_handle, mipLevel, xOffset, yOffset, width, height, GL_RED, GL_FLOAT, data);
+    if (_data == nullptr && _floatData == nullptr) {
+        return false;
+    }
+
+    glGenTextures(1, &ID);
+    glBindTexture(GL_TEXTURE_2D, ID);
+
+    GLint format = GL_RGB;
+    if (_NumOfChannels == 4)
+        format = GL_RGBA;
+    if (_NumOfChannels == 1)
+        format = GL_RED;
+
+
+    if (_filetype == "exr") {
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16, _width, _height, 0, GL_RGBA, GL_FLOAT, _floatData);
+        free(_floatData);
+    }
+    else {
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, _width, _height, 0, format, GL_UNSIGNED_BYTE, _data);
+        stbi_image_free(_data);
+        // find out why the line above crashes sometimes. most likely an async mutex thing.
+    }
+
+    // Hack to make Resident Evil font look okay when scaled
+    std::string filename = this->GetFilename();
+    if (filename.substr(0, 4) == "char") {
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    }
+
+    bindlessID = glGetTextureHandleARB(ID);
+    glMakeTextureHandleResidentARB(bindlessID);
+    //glMakeTextureHandleNonResidentARB(bindlessID); to unbind
+
+    _data = nullptr;
+    return true;
 }
 
-void OpenGLTexture::Reset() {
-    if (m_handle) {
-        glDeleteTextures(1, &m_handle);
-        m_handle = 0;
-    }
-    m_width = 0;
-    m_height = 0;
-    m_mipmapLevelCount = 0;
+unsigned int OpenGLTexture::GetID() {
+    return ID;
 }
 
-GLuint& OpenGLTexture::GetHandle() {
-    return m_handle;
+void OpenGLTexture::Bind(unsigned int slot) {
+    glActiveTexture(GL_TEXTURE0 + slot);
+    glBindTexture(GL_TEXTURE_2D, ID);
 }
 
 int OpenGLTexture::GetWidth() {
-    return m_width;
+    return _width;
 }
 
 int OpenGLTexture::GetHeight() {
-    return m_height;
+    return _height;
 }
 
-int OpenGLTexture::GetChannelCount() {
-    return m_channelCount;
+std::string& OpenGLTexture::GetFilename() {
+    return _filename;
 }
 
-int OpenGLTexture::GetDataSize() {
-    return m_dataSize;
+std::string& OpenGLTexture::GetFiletype() {
+    return _filetype;
 }
 
-void* OpenGLTexture::GetData() {
-    return m_data;
-}
-
-GLint OpenGLTexture::GetFormat() {
-    return m_format;
-}
-GLint OpenGLTexture::GetInternalFormat() {
-    return m_internalFormat;
-}
-
-GLint OpenGLTexture::GetMipmapLevelCount() {
-    return m_mipmapLevelCount;
-}
-
-void OpenGLTexture::SetWrapMode(TextureWrapMode wrapMode) {
-    glTextureParameteri(m_handle, GL_TEXTURE_WRAP_S, OpenGLUtil::TextureWrapModeToGLEnum(wrapMode));
-    glTextureParameteri(m_handle, GL_TEXTURE_WRAP_T, OpenGLUtil::TextureWrapModeToGLEnum(wrapMode));
-}
-
-void OpenGLTexture::SetMinFilter(TextureFilter filter) {
-    glTextureParameteri(m_handle, GL_TEXTURE_MIN_FILTER, OpenGLUtil::TextureFilterToGLEnum(filter));
-}
-
-void OpenGLTexture::SetMagFilter(TextureFilter filter) {
-    glTextureParameteri(m_handle, GL_TEXTURE_MAG_FILTER, OpenGLUtil::TextureFilterToGLEnum(filter));
-}
-
-void OpenGLTexture::MakeBindlessTextureResident() {
-    if (BackEnd::RenderDocFound()) return;
-
-    if (m_bindlessID == 0) {
-        m_bindlessID = glGetTextureHandleARB(m_handle);
-    }
-    glMakeTextureHandleResidentARB(m_bindlessID);
-}
-
-void OpenGLTexture::MakeBindlessTextureNonResident() {
-    if (BackEnd::RenderDocFound()) return;
-
-    if (m_bindlessID != 0) {
-        glMakeTextureHandleNonResidentARB(m_bindlessID);
-        m_bindlessID = 0;
-    }
+bool OpenGLTexture::IsBaked() {
+    return _baked;
 }

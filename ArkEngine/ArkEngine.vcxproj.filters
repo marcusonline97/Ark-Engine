@@ -18,40 +18,7 @@
     <ClCompile Include="ArkEngine\Vendor\VulkanMemoryAllocator\vk_mem_alloc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ArkEngine\src\Renderer\Texture3D.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ArkEngine\src\Renderer\Texture.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ArkEngine\src\Renderer\ShadowMap.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ArkEngine\src\Renderer\Shader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ArkEngine\src\Effects\MuzzleFlash.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ArkEngine\src\Renderer\DDS_Helpers.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ArkEngine\src\Renderer\GBuffer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ArkEngine\src\Renderer\Mesh.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ArkEngine\src\Renderer\Model.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ArkEngine\src\Renderer\NumberBlitter.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ArkEngine\src\Renderer\PresentFrameBuffer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ArkEngine\src\Renderer\Renderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ArkEngine\Vendor\glad\src\glad.c">
@@ -60,25 +27,10 @@
     <ClCompile Include="ArkEngine\src\Backend\BackEnd.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ArkEngine\src\Backend\Integration\SDL.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ArkEngine\src\Backend\Integration\GLFW.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ArkEngine\src\API\OpenGL\GL_util.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ArkEngine\src\API\OpenGL\Types\GL_texture.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ArkEngine\src\Common\ArkLogging.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ArkEngine\src\Math\AABB.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ArkEngine\src\Tools\ImageTools.cpp">
+    <ClCompile Include="ArkEngine\src\Math\Raycasting.hpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ArkEngine\src\API\OpenGL\Renderer\Types\GL_heightmap_mesh.cpp">
@@ -87,94 +39,181 @@
     <ClCompile Include="ArkEngine\src\API\Vulkan\Types\VK_texture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ArkEngine\src\Common\UniqueID.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ArkEngine\src\Camera\Camera.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ArkEngine\src\Camera\Frustum.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ArkEngine\src\Core\Debug.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ArkEngine\src\API\OpenGL\Renderer\GL_renderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ArkEngine\src\API\OpenGL\Types\GL_cubemapView.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ArkEngine\src\API\OpenGL\Types\GL_frameBuffer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ArkEngine\src\API\OpenGL\Types\GL_heightmap_mesh.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ArkEngine\src\API\OpenGL\Types\GL_mesh.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ArkEngine\src\API\OpenGL\Types\GL_mesh_buffer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ArkEngine\src\API\OpenGL\Types\GL_mesh_patch.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ArkEngine\src\API\OpenGL\Types\GL_shader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ArkEngine\src\API\OpenGL\Types\GL_shadow_cube_map_array.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ArkEngine\src\API\OpenGL\Types\GL_shadow_map.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ArkEngine\src\API\OpenGL\Types\GL_shadow_map_array.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ArkEngine\src\API\OpenGL\Types\GL_texture_3d.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ArkEngine\src\API\OpenGL\Types\GL_texture_array.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ArkEngine\src\API\OpenGL\Types\GL_texture_readback.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ArkEngine\src\API\OpenGL\Types\GL_timer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ArkEngine\src\API\OpenGL\GL_backEnd.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ArkEngine\src\Config\Config.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ArkEngine\src\AssetManagement\BakeQueue.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ArkEngine\src\File\File.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ArkEngine\src\Player\Player.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ArkEngine\src\Audio\Audio.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ArkEngine\src\Audio\MidiFile.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ArkEngine\src\ImGui\Types\Types.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ArkEngine\src\Callbacks\Callbacks.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ArkEngine\src\Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ArkEngine\src\Engine.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ArkEngine\src\Types\Animation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ArkEngine\src\Renderer\TextBlitting.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ArkEngine\src\API\OpenGL\GL_renderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ArkEngine\src\API\OpenGL\Types\GL_texture3D.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ArkEngine\src\API\OpenGL\Types\GL_texture.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ArkEngine\src\API\OpenGL\Types\GL_shadowMap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ArkEngine\src\Input\Input.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ArkEngine\src\Input\InputMulti.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ArkEngine\src\Renderer\Renderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ArkEngine\src\Physics\Physics.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ArkEngine\src\Renderer\Raytracing\Raytracing.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ArkEngine\src\Renderer\Types\VertexBuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ArkEngine\src\API\OpenGL\Types\GL_shader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ArkEngine\src\Renderer\GlobalIllumination.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ArkEngine\src\Renderer\Types\Texture3D.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ArkEngine\src\Renderer\Types\Texture.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ArkEngine\src\Renderer\NumberBlitter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ArkEngine\src\Renderer\Types\SkinnedModel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ArkEngine\src\Renderer\Types\LightVolume.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ArkEngine\src\Renderer\Types\ExrTexture.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ArkEngine\src\Renderer\Types\CubemapTexture.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ArkEngine\src\Physics\Ragdoll.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ArkEngine\src\API\OpenGL\Types\GL_presentBuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ArkEngine\src\API\OpenGL\Types\GL_gBuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ArkEngine\src\API\OpenGL\Types\GL_cubemapTexture.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ArkEngine\src\Types\Modular\Window.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ArkEngine\src\Game\GameObject.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ArkEngine\src\Core\AssetManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ArkEngine\src\Core\DebugMenu.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ArkEngine\src\Core\File.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ArkEngine\src\Core\Floorplan.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ArkEngine\src\Core\VolumetricBloodSplatter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ArkEngine\src\Editor\Editor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ArkEngine\src\Editor\CSG.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ArkEngine\src\Game\AnimatedGameObject.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ArkEngine\src\Game\Game.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ArkEngine\src\Game\Player.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ArkEngine\src\Game\Player_CharacterModelLogic.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ArkEngine\src\Game\Player_RenderItems.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ArkEngine\src\Game\Player_WeaponLogic.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ArkEngine\src\Game\Light.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ArkEngine\src\Game\Scene.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ArkEngine\src\Game\WeaponManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ArkEngine\src\Types\Modular\Toilet.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ArkEngine\src\Types\Modular\Ceiling.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ArkEngine\src\API\Vulkan\Types\VK_texture3D.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ArkEngine\src\API\Vulkan\VK_assetManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ArkEngine\src\API\Vulkan\VK_backEnd.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ArkEngine\src\API\Vulkan\VK_renderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ArkEngine\src\Types\Modular\Door.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ArkEngine\src\Types\Modular\Floor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ArkEngine\src\Core\FbxImporter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ArkEngine\src\Effects\BulletCasing.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -1070,76 +1109,16 @@
     <ClInclude Include="ArkEngine\src\Core\Audio\Audio.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ArkEngine\src\Renderer\Renderer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ArkEngine\src\Math\AABB.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ArkEngine\src\Renderer\Texture3D.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ArkEngine\src\Renderer\Texture.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ArkEngine\Vendor\stb_image\stb_image.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ArkEngine\src\Renderer\ShadowMap.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ArkEngine\src\Renderer\Shader.h">
+    <ClInclude Include="ArkEngine\Vendor\tinycsg\stb_image\stb_image.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ArkEngine\src\Effects\MuzzleFlash.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ArkEngine\src\Renderer\DDS_Helpers.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ArkEngine\src\Renderer\GBuffer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ArkEngine\src\Renderer\Mesh.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ArkEngine\src\Renderer\MeshUtil.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ArkEngine\src\Renderer\Model.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ArkEngine\src\Renderer\NumberBlitter.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ArkEngine\src\Renderer\PresentFrameBuffer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ArkEngine\src\Common\ArkEnums.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ArkEngine\src\Backend\Backend.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ArkEngine\src\Backend\Integration\SDL.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ArkEngine\src\Backend\Integration\GLFW.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ArkEngine\src\Common\ArkConstants.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ArkEngine\src\Tools\DDS.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ArkEngine\src\API\OpenGL\GL_util.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ArkEngine\src\Common\ArkTypes.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ArkEngine\src\Common\ArkGlm.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ArkEngine\src\Input\keycodes.h">
@@ -1148,37 +1127,13 @@
     <ClInclude Include="ArkEngine\src\API\OpenGL\GL_backEnd.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ArkEngine\src\Common\LoadingState.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ArkEngine\src\API\OpenGL\Types\GL_texture.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ArkEngine\src\Common\ArkLogging.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ArkEngine\src\Tools\ImageTools.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ArkEngine\src\API\OpenGL\Renderer\Types\GL_heightmap_mesh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ArkEngine\src\API\Vulkan\Types\VK_texture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ArkEngine\src\Common\CreateInfo.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ArkEngine\src\Physics\Physics.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ArkEngine\src\Common\UniqueID.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ArkEngine\src\Camera\Camera.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ArkEngine\src\Camera\Frustum.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ArkEngine\src\Core\Debug.h">
@@ -1187,103 +1142,13 @@
     <ClInclude Include="ArkEngine\src\API\OpenGL\Renderer\GL_renderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ArkEngine\src\API\OpenGL\Types\GL_cubemapView.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ArkEngine\src\API\OpenGL\Types\GL_frameBuffer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ArkEngine\src\API\OpenGL\Types\GL_heightmap_mesh.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ArkEngine\src\API\OpenGL\Types\GL_indirectBuffer.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ArkEngine\src\API\OpenGL\Types\GL_mesh.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ArkEngine\src\API\OpenGL\Types\GL_mesh_buffer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ArkEngine\src\API\OpenGL\Types\GL_mesh_patch.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ArkEngine\src\API\OpenGL\Types\GL_mesh2D.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ArkEngine\src\API\OpenGL\Types\GL_pbo.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ArkEngine\src\API\OpenGL\Types\GL_shader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ArkEngine\src\API\OpenGL\Types\GL_shadow_cube_map_array.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ArkEngine\src\API\OpenGL\Types\GL_shadow_map.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ArkEngine\src\API\OpenGL\Types\GL_shadow_map_array.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ArkEngine\src\API\OpenGL\Types\GL_ssbo.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ArkEngine\src\API\OpenGL\Types\GL_texture_3d.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ArkEngine\src\API\OpenGL\Types\GL_texture_array.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ArkEngine\src\API\OpenGL\Types\GL_texture_readback.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ArkEngine\src\API\OpenGL\Types\GL_timer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ArkEngine\src\Config\Config.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ArkEngine\src\AssetManagement\AssetManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ArkEngine\src\AssetManagement\BakeQueue.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ArkEngine\src\File\File.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ArkEngine\src\File\FileFormats.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ArkEngine\src\Core\Game.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ArkEngine\src\Player\Player.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ArkEngine\src\Audio\Audio.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ArkEngine\src\Audio\MidiFile.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ArkEngine\src\ImGui\ImguiBackEnd.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ArkEngine\src\ImGui\Types\Types.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ArkEngine\src\Common\ArkFunctionTypes.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ArkEngine\src\Editor\Editor.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ArkEngine\src\Callbacks\Callbacks.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ArkEngine\src\Managers\MapManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ArkEngine\src\Math.h">
@@ -1305,6 +1170,264 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ArkEngine\src\Common.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\src\Types\Animation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\src\Renderer\TextBlitter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\src\Renderer\RendererCommon.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\src\File\File.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\src\Core\AssetManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\src\API\OpenGL\GL_renderer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\src\API\OpenGL\Types\GL_vertexBuffer.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\src\API\OpenGL\Types\GL_texture3D.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\src\API\OpenGL\Types\GL_texture.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\src\API\OpenGL\Types\GL_shadowMap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\src\Input\Input.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\src\Input\InputMulti.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\src\Core\JSON.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\src\Renderer\Renderer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\src\Editor\CSG.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\src\Physics\RigidStatic.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\src\Renderer\Raytracing\BLAS.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\src\Renderer\Raytracing\Raytracing.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\src\Renderer\Raytracing\TLAS.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\src\Renderer\Types\VertexBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\src\Renderer\Types\Texture3D.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\src\API\OpenGL\Types\GL_shader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\src\Renderer\RenderData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\src\Renderer\GlobalIllumination.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\src\Renderer\RendererUtil.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\src\Renderer\Types\Texture.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\src\Renderer\NumberBlitter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\src\Renderer\Types\SkinnedModel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\src\Renderer\Types\SkinnedMesh.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\src\Renderer\Types\Model.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\src\Renderer\Types\Mesh.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\src\Renderer\Types\LightVolume.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\src\Renderer\Types\ExrTexture.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\src\Renderer\Types\DetachedMesh.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\src\Renderer\Types\CubemapTexture.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\src\Physics\RigidBody.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\src\Physics\Ragdoll.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\src\Game\WeaponManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\src\Game\Scene.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\src\Editor\Gizmo.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\src\Core\Audio.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\src\API\OpenGL\Types\GL_presentBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\src\API\OpenGL\Types\GL_gBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\src\API\OpenGL\Types\GL_frameBuffer.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\src\API\OpenGL\Types\GL_detachedMesh.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\src\API\OpenGL\Types\GL_cubemapTexture.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\src\API\OpenGL\Types\GL_ShadowMap2.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\src\API\OpenGL\Types\GL_SSBO.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\src\Types\Modular\Ceiling.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\src\Types\Modular\Window.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\src\Types\Modular\Toilet.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\src\Game\GameObject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\src\Core\CreateInfo.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\src\Core\DebugMenu.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\src\Core\File.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\src\Core\Floorplan.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\src\Core\VolumetricBloodSplatter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\src\Game\AnimatedGameObject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\src\Game\Game.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\src\Game\Player.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\src\Game\Light.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\src\API\Vulkan\Types\vk_allocation.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\src\API\Vulkan\Types\VK_buffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\src\API\Vulkan\Types\VK_computePipeline.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\src\API\Vulkan\Types\VK_depthTarget.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\src\API\Vulkan\Types\VK_descriptorSet.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\src\API\Vulkan\Types\VK_detachedMesh.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\src\API\Vulkan\Types\VK_frameData.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\src\API\Vulkan\Types\VK_pipeline.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\src\API\Vulkan\Types\VK_raytracing.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\src\API\Vulkan\Types\VK_renderTarget.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\src\API\Vulkan\Types\VK_shader.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\src\API\Vulkan\Types\VK_texture3D.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\src\API\Vulkan\Types\VK_vertexBuffer.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\src\API\Vulkan\VK_assetManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\src\API\Vulkan\VK_backEnd.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\src\API\Vulkan\VK_common.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\src\API\Vulkan\VK_renderer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\src\API\Vulkan\Vk_util.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\src\Types\Modular\Door.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\src\Types\Modular\Floor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\src\Types\Modular\ModularCommon.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\src\Core\FbxImporter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\src\Effects\BloodDecal.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\src\Effects\BulletCasing.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArkEngine\src\Effects\BulletHoleDecal.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

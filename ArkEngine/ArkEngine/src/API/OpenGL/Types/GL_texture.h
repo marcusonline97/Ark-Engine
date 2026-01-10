@@ -1,43 +1,36 @@
 #pragma once
-#include "ArkTypes.h"
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <compressonator/include/cmp_compressonatorlib/compressonator.h>
 #include <string>
 #include <memory>
 
 struct OpenGLTexture {
-public:
+
     OpenGLTexture() = default;
-    GLuint& GetHandle();
+    explicit OpenGLTexture(const std::string filepath);
+    GLuint GetID();
     GLuint64 GetBindlessID();
-    void Create(int width, int height, int internalFormat, int mipmapLevelCount);
-    void ClearR(float value);
-    void UploadR16FData(const float* data, int width, int height, int xOffset, int yOffset, int mipLevel);
-    void Reset();
-    void SetWrapMode(TextureWrapMode wrapMode);
-    void SetMinFilter(TextureFilter filter);
-    void SetMagFilter(TextureFilter filter);
-    void MakeBindlessTextureResident();
-    void MakeBindlessTextureNonResident();
+    void Bind(unsigned int slot);
+    bool Load(const std::string filepath);
+    bool Bake();
+    void UploadToGPU(void* data, CMP_Texture* cmpTexture, int width, int height, int channelCount);
+    bool IsBaked();
     int GetWidth();
     int GetHeight();
-    int GetChannelCount();
-    int GetDataSize();
-    void* GetData();
-    GLint GetFormat();
-    GLint GetInternalFormat();
-    GLint GetMipmapLevelCount();
+    std::string& GetFilename();
+    std::string& GetFiletype();
 
 private:
-    GLuint m_handle = 0;
-    GLuint64 m_bindlessID = 0;
-    int m_width = 0;
-    int m_height = 0;
-    int m_channelCount = 0;
-    GLsizei m_dataSize = 0;
-    void* m_data = nullptr;
-    GLint m_format = 0;
-    GLint m_internalFormat = 0;
-    GLint m_mipmapLevelCount = 0;
-    ImageDataType m_imageDataType = ImageDataType::UNCOMPRESSED;
+    GLuint ID;
+    GLuint64 bindlessID;
+    std::string _filename;
+    std::string _filetype;
+    std::unique_ptr<CMP_Texture> _CMP_texture;
+    unsigned char* _data = nullptr;
+    float* _floatData = nullptr;
+    int _NumOfChannels = 0;
+    int _width = 0;
+    int _height = 0;
+    bool _baked = false;
 };

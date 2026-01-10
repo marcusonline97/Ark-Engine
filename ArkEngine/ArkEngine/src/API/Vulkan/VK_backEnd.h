@@ -1,42 +1,75 @@
 #pragma once
-#include "../../Common/ArkEnums.h"
-#include <vulkan/vulkan.h>
-#include <vector>
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+#include "Types/vk_allocation.hpp"
+#include "Types/vk_frameData.hpp"
+#include "../../Common.h"
+#include "../../Renderer/Types/Mesh.hpp"
+#include "../../Renderer/RendererCommon.h"
 
 namespace VulkanBackEnd {
-    // Core
-    bool Init();
-    void BeginFrame();
-    void EndFrame();
-    void Cleanup();
 
-    // Instance and Device
-    VkInstance GetInstance();
+    void CreateVulkanInstance();
+
+    void InitMinimum();
+    bool StillLoading();
+    void LoadNextItem();
+    void ImmediateSubmit(std::function<void(VkCommandBuffer cmd)>&& function);
+    void MarkFrameBufferAsResized();
+    void HandleFrameBufferResized();
+
+    void SetGLFWSurface();
+    void SelectPhysicalDevice();
+    void CreateSwapchain();
+    void CreateCommandBuffers();
+    void CreateSyncStructures();
+    void CreateSampler();
+
+    void UploadVertexData(std::vector<Vertex>& vertices, std::vector<uint32_t>& indices);
+    void UploadWeightedVertexData(std::vector<WeightedVertex>& vertices, std::vector<uint32_t>& indices);
+
+    void AddDebugName(VkBuffer buffer, const char* name);
+    void AddDebugName(VkDescriptorSetLayout descriptorSetLayout, const char* name);
+
+    void PrepareSwapchainForPresent(VkCommandBuffer commandBuffer, uint32_t swapchainImageIndex);
+    void RecreateDynamicSwapchain();
+    bool FrameBufferWasResized();
+
     VkDevice GetDevice();
-    VkPhysicalDevice GetPhysicalDevice();
-    VkQueue GetGraphicsQueue();
-    uint32_t GetGraphicsQueueFamily();
-
-    // Swapchain
+    VkSurfaceKHR GetSurface();
     VkSwapchainKHR GetSwapchain();
-    std::vector<VkImage> GetSwapchainImages();
-    std::vector<VkImageView> GetSwapchainImageViews();
-    VkFormat GetSwapchainImageFormat();
-    VkExtent2D GetSwapchainExtent();
+    int32_t GetFrameIndex();
+    VkQueue GetGraphicsQueue();
+    FrameData& GetCurrentFrame();
+    FrameData& GetFrameByIndex(int index);
+    VmaAllocator GetAllocator();
+    VkDescriptorPool GetDescriptorPool();
+    VkSampler GetSampler();
+    std::vector<VkImage>& GetSwapchainImages();
+    void AdvanceFrameIndex();
 
-    // Command Pool and Buffers
-    VkCommandPool GetCommandPool();
-    std::vector<VkCommandBuffer> GetCommandBuffers();
+    inline AllocatedBuffer _mainVertexBuffer;
+    inline AllocatedBuffer _mainIndexBuffer;
+    inline AllocatedBuffer _mainWeightedVertexBuffer;
+    inline AllocatedBuffer _mainWeightedIndexBuffer;
+    inline AllocatedBuffer g_mainSkinnedVertexBuffer;
 
-    // Synchronization
-    std::vector<VkSemaphore> GetImageAvailableSemaphores();
-    std::vector<VkSemaphore> GetRenderFinishedSemaphores();
-    std::vector<VkFence> GetInFlightFences();
+    void AllocateSkinnedVertexBufferSpace(int vertexCount);
 
-    // Render Pass and Framebuffers
-    VkRenderPass GetRenderPass();
-    std::vector<VkFramebuffer> GetSwapchainFramebuffers();
+    //void BeginRendering();
+    //void EndRendering();
 
-    // Current frame index
-    uint32_t GetCurrentFrame();
-}
+    // Raytracing
+    void InitRayTracing();
+    void CreateAccelerationStructureBuffer(AccelerationStructure& accelerationStructure, VkAccelerationStructureBuildSizesInfoKHR buildSizeInfo);
+    uint64_t GetBufferDeviceAddress(VkBuffer buffer);
+    AccelerationStructure CreateBottomLevelAccelerationStructure(Mesh& mesh);
+    void CreateTopLevelAccelerationStructure(std::vector<VkAccelerationStructureInstanceKHR> instances, AccelerationStructure& outTLAS);
+    std::vector<VkAccelerationStructureInstanceKHR> CreateTLASInstancesFromRenderItems(std::vector<RenderItem3D>& renderItems);
+
+    // Point Cloud
+    void CreatePointCloudVertexBuffer(std::vector<CloudPoint>& pointCloud);
+    Buffer* GetPointCloudBuffer();
+    void DestroyPointCloudBuffer();
+};
+

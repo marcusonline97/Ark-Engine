@@ -1,35 +1,13 @@
 #pragma once
-#include "ArkEnums.h"
-#include "API/OpenGL/Types/GL_heightmap_mesh.h"
-#include "Types/GL_texture.h"
-#include "Types/Renderer/Texture.h"
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
-#include <string>
-#include <iostream>
+#include "../../Common.h"
+#include "../../Renderer/RendererCommon.h"
 
 namespace OpenGLBackEnd {
-    // Core
-    void Init();
-    void BeginFrame();
 
-    // Textures
-    void UpdateTextureBaking();
-    void AllocateTextureMemory(Texture& texture);
-    void ImmediateBake(QueuedTextureBake& queuedTextureBake);
-    void AsyncBakeQueuedTextureBake(QueuedTextureBake& queuedTextureBake);
-    void CleanUpBakingPBOs();
-    const std::vector<GLuint64>& GetBindlessTextureIDs();
-
-    // Buffers
+    void InitMinimum();
     void UploadVertexData(std::vector<Vertex>& vertices, std::vector<unsigned int>& indices);
     void UploadWeightedVertexData(std::vector<WeightedVertex>& vertices, std::vector<uint32_t>& indices);
     void AllocateSkinnedVertexBufferSpace(int vertexCount);
-
-    void SetDepthClearValue(float value);
-
-    OpenGLHeightMapMesh& GetHeightMapMesh();
-
     GLuint GetVertexDataVAO();
     GLuint GetVertexDataVBO();
     GLuint GetVertexDataEBO();
@@ -38,4 +16,20 @@ namespace OpenGLBackEnd {
     GLuint GetWeightedVertexDataEBO();
     GLuint GetSkinnedVertexDataVAO();
     GLuint GetSkinnedVertexDataVBO();
+
+    // Point cloud
+    void CreatePointCloudVertexBuffer(std::vector<CloudPoint>& pointCloud);
+    GLuint GetPointCloudVAO();
+    GLuint GetPointCloudVBO();
+
+    // CSG
+    void UploadConstructiveSolidGeometry(std::vector<Vertex>& vertices, std::vector<uint32_t>& indices);
+    GLuint GetCSGVAO();
+    GLuint GetCSGVBO();
+    GLuint GetCSGEBO();
+
+    // 2D Triangles
+    void UploadTriangle2DData(std::vector<glm::vec2>& vertices);
+    GLuint GetTriangles2DVAO();
+    GLuint GetTriangles2DVBO();
 }

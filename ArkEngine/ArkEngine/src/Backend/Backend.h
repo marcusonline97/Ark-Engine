@@ -1,26 +1,24 @@
 #pragma once
-#include "ArkEnums.h"
+#include "../Common.h"
 
 namespace BackEnd {
+
     // Core
-    bool Init(API api, WindowedMode windowMode);
+    void Init(API api);
     void BeginFrame();
-    void EndFrame();
-    void UpdateGame();
     void UpdateSubSystems();
+    void EndFrame();
     void CleanUp();
-    void ToggleBindlessTextures();
-    bool RenderDocFound();
 
     // API
     void SetAPI(API api);
     const API GetAPI();
 
-    // Cursor
-    void SetCursor(int cursor);
-
     // Window
-    void* GetWindowPointer();
+    GLFWwindow* GetWindowPointer();
+    const WindowedMode& GetWindowMode();
+    void SetWindowPointer(GLFWwindow* window);
+    void CreateGLFWWindow(const WindowedMode& windowedMode);
     void SetWindowedMode(const WindowedMode& windowedMode);
     void ToggleFullscreen();
     void ForceCloseWindow();
@@ -34,7 +32,6 @@ namespace BackEnd {
     int GetCurrentWindowHeight();
     int GetFullScreenWidth();
     int GetFullScreenHeight();
-    const WindowedMode& GetWindowedMode();
 
     // Render Targets
     void SetPresentTargetSize(int width, int height);

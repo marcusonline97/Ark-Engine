@@ -1,441 +1,311 @@
 #include "BackEnd.h"
-#include "ArkLogging.h"
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
 #include <iostream>
 #include <string>
-#include "API/OpenGL/GL_backEnd.h"
-#include "API/OpenGL/Renderer/GL_renderer.h"
-#include "API/Vulkan/VK_backEnd.h"
-//#include "AssetManagement/AssetManager.h"
-//#include "Config/Config.h"
-//#include "Audio/Audio.h"
-//#include "Audio/MidiFileManager.h"
-//#include "Audio/Synth.h"
-//#include "Bible/Bible.h"
-//#include "Core/Debug.h"
-//#include "Core/Game.h"
-//#include "Editor/Editor.h"
-//#include "Editor/Gizmo.h"
-//#include "Pathfinding/AStarMap.h"
-//#include "ImGui/ImGuiBackend.h"
-//#include "Input/Input.h"
-//#include "Input/InputMulti.h"
-//#include "Managers/OpenableManager.h"
-//#include "Managers/HouseManager.h"
-//#include "Managers/MirrorManager.h"
-//#include "Modelling/Unused/Modelling.h"
-//#include "Physics/Physics.h"
-//#include "Ragdoll/RagdollManager.h"
-//#include "Renderer/GlobalIllumination.h"
-//#include "Renderer/Renderer.h"
-//#include "Renderer/RenderDataManager.h"
-//#include "UI/UIBackEnd.h"
-//#include "Viewport/ViewportManager.h"
-//#include "Weapon/WeaponManager.h"
-//#include "World/World.h"
+#include "../API/OpenGL/GL_backEnd.h"
+#include "../API/OpenGL/GL_renderer.h"
+#include "../API/Vulkan/VK_backEnd.h"
+#include "../Core/AssetManager.h"
+#include "../Core/Audio.hpp"
+#include "../Editor/CSG.h"
+#include "../Editor/Gizmo.hpp"
+#include "../Input/Input.h"
+#include "../Input/InputMulti.h"
+#include "../Physics/Physics.h"
 
-#include "Integration/GLFW.h"
-#include "Integration/SDL.h"
-
-#include "Pathfinding/NavMesh.h"
-
-#define NOMINMAX
-#ifdef _WIN32
-#include <windows.h>
-#include <tlhelp32.h>
-#endif
-
-// Prevent accidentally selecting integrated GPU
-extern "C" {
-    __declspec(dllexport) unsigned __int32 AmdPowerXpressRequestHighPerformance = 0x1;
-    __declspec(dllexport) unsigned __int32 NvOptimusEnablement = 0x1;
-}
+// GET ME OUT OF HERE
+// GET ME OUT OF HERE
+// GET ME OUT OF HERE
+#include "../EngineState.hpp"
+// GET ME OUT OF HERE
+// GET ME OUT OF HERE
+// GET ME OUT OF HERE
 
 namespace BackEnd {
-    API g_api = API::UNDEFINED;
-    int g_presentTargetWidth = 0;
-    int g_presentTargetHeight = 0;
-    bool g_renderDocFound = false;
 
-    void CheckForRenderDoc();
-    void UpdateLazyKeypresses();
+    API _api = API::UNDEFINED;
+    GLFWwindow* _window = NULL;
+    WindowedMode _windowedMode = WindowedMode::WINDOWED;
+    GLFWmonitor* _monitor;
+    const GLFWvidmode* _mode;
+    bool _forceCloseWindow = false;
+    bool _windowHasFocus = true;
+    int _windowedWidth = 0;
+    int _windowedHeight = 0;
+    int _fullscreenWidth = 0;
+    int _fullscreenHeight = 0;
+    int _currentWindowWidth = 0;
+    int _currentWindowHeight = 0;
+    int _presentTargetWidth = 0;
+    int _presentTargetHeight = 0;
 
-    bool Init(API api, WindowedMode windowMode) {
-        g_api = api;
-        CheckForRenderDoc();        // <--- COMMENT OUT THIS
-        //g_renderDocFound = true;  // <--- ADD THIS
+    void framebuffer_size_callback(GLFWwindow* window, int width, int height);
+    void window_focus_callback(GLFWwindow* window, int focused);
 
-        Config::Init();
-        if (!GLFW::Init(api, windowMode)) {
-            return false;
-        }
+
+    ////////////////////
+    //                //
+    //      Core      //
+
+    void Init(API api) {
+
+        _api = api;
+
         if (GetAPI() == API::OPENGL) {
-            OpenGLBackEnd::Init();
-            OpenGLRenderer::Init();
+            // Nothing required
         }
         else if (GetAPI() == API::VULKAN) {
-            if (!VulkanBackEnd::Init()) {
-                return false;
-            }
+            VulkanBackEnd::CreateVulkanInstance();
         }
-        AssetManager::Init();
-        Logging::Init() << "AssetManager::Init()";
 
-        UIBackEnd::Init();
-        Logging::Init() << "UIBackEnd::Init()";
+        int width = 1280;
+        int height = 720;
 
+        glfwInit();
+        glfwSetErrorCallback([](int error, const char* description) { std::cout << "GLFW Error (" << std::to_string(error) << "): " << description << "\n"; });
+
+        if (GetAPI() == API::OPENGL) {
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+            glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+            glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
+        }
+        else if (GetAPI() == API::VULKAN) {
+            glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+            glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
+        }
+        glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
+        glfwWindowHint(GLFW_FOCUS_ON_SHOW, GLFW_TRUE);
+
+        // Resolution and window size
+        _monitor = glfwGetPrimaryMonitor();
+        _mode = glfwGetVideoMode(_monitor);
+        glfwWindowHint(GLFW_RED_BITS, _mode->redBits);
+        glfwWindowHint(GLFW_GREEN_BITS, _mode->greenBits);
+        glfwWindowHint(GLFW_BLUE_BITS, _mode->blueBits);
+        glfwWindowHint(GLFW_REFRESH_RATE, _mode->refreshRate);
+        _fullscreenWidth = _mode->width;
+        _fullscreenHeight = _mode->height;
+        _windowedWidth = width;
+        _windowedHeight = height;
+        CreateGLFWWindow(WindowedMode::WINDOWED);
+        if (_window == NULL) {
+            std::cout << "Failed to create GLFW window\n";
+            glfwTerminate();
+            return;
+        }
+        glfwSetFramebufferSizeCallback(_window, framebuffer_size_callback);
+        glfwSetWindowFocusCallback(_window, window_focus_callback);
+
+        AssetManager::FindAssetPaths();
+
+        if (GetAPI() == API::OPENGL) {
+            glfwMakeContextCurrent(_window);
+            OpenGLBackEnd::InitMinimum();
+            OpenGLRenderer::InitMinimum();
+            Gizmo::Init();
+            glClipControl(GL_LOWER_LEFT, GL_ZERO_TO_ONE);
+        }
+        else if (GetAPI() == API::VULKAN) {
+            VulkanBackEnd::InitMinimum();
+            // VulkanRenderer minimum init is tangled in the above function
+        }
+        AssetManager::LoadFont();
+
+        // Init sub-systems
+        Input::Init();
         Audio::Init();
-        Logging::Init() << "Audio::Init()";
-
-        Bible::Init();
-        Logging::Init() << "Bible::Init()";
-
-
-        Input::Init(BackEnd::GetWindowPointer());
-        Logging::Init() << "Input::Init()";
-
-        InputMulti::Init();
-        Logging::Init() << "InputMulti::Init()";
-
-        Gizmo::Init();
-        Logging::Init() << "Gizmo::Init()";
-
-        ViewportManager::Init();
-        Logging::Init() << "ViewportManager::Init()";
-
-        Editor::Init();
-        Logging::Init() << "Editor::Init()";
-
-        //EditorImGui::Init();
-        Synth::Init();
-        Logging::Init() << "Synth::Init()";
-
-        MidiFileManager::Init();
-        Logging::Init() << "MidiFileManager::Init()";
-
-        //WeaponManager::Init();
-        //Logging::Init() << "WeaponManager::Init()";
-
         Physics::Init();
-        RagdollManager::Init();
-
-        ImGuiBackEnd::Init();
-        Logging::Init() << "ImGuiBackEnd::Init()";
-
-        NavMeshManager::Init();
-
-        //Modelling::Init();
-
-        glfwShowWindow(static_cast<GLFWwindow*>(BackEnd::GetWindowPointer()));
-        return true;
+        InputMulti::Init();
+        CSG::Init();
+        glfwShowWindow(BackEnd::GetWindowPointer());
     }
 
     void BeginFrame() {
-        GLFW::BeginFrame(g_api);
-        RenderDataManager::BeginFrame();
-        if (GetAPI() == API::OPENGL) {
-            OpenGLBackEnd::BeginFrame();
-            OpenGLBackEnd::UpdateTextureBaking();
-        }
-        else if (GetAPI() == API::VULKAN) {
-            //VulkanBackEnd::BeginFrame();
-        }
-        //Physics::ClearCollisionReports();
-
-        if (!GLFW::WindowHasFocus()) {
-            InputMulti::ResetState();
-        }
-        Game::BeginFrame();
-        World::BeginFrame();
-        Physics::BeginFrame();
-    }
-
-    void UpdateGame() {
-        const Resolutions& resolutions = Config::GetResolutions();
-
-        float deltaTime = Game::GetDeltaTime();
-
-        ViewportManager::Update();
-
-        if (Editor::IsOpen()) {
-            Editor::Update(deltaTime);
-        }
-
-        AStarMap::Update();
-        Game::Update();
-        MirrorManager::Update();
-
-        Physics::UpdateAllRigidDynamics(deltaTime);
-        Physics::UpdateActiveRigidDynamicAABBList();
-        Physics::UpdateHeightFields();
-
-        World::SubmitRenderItems();
-
-        Debug::Update();
-        UIBackEnd::Update();
-        RenderDataManager::Update();
-        ImGuiBackEnd::Update();
-
-        //if (Input::KeyPressed(HELL_KEY_SPACE)) {
-        //    for (auto& model : AssetManager::GetModels()) {
-        //        std::cout << model.GetName() << "\n";
-        //        for (auto meshIndex : model.GetMeshIndices()) {
-        //            auto mesh = AssetManager::GetMeshByIndex(meshIndex);
-        //            std::cout << " - " << mesh->GetName() << "\n";
-        //        }
-        //        std::cout << "\n";
-        //    }
-        //}
+        glfwPollEvents();
     }
 
     void EndFrame() {
-        GLFW::EndFrame(g_api);
-        UIBackEnd::EndFrame();
-        Debug::EndFrame();
-        World::EndFrame();
-        InputMulti::ResetMouseOffsets();
+
+        // OpenGL
+        if (GetAPI() == API::OPENGL) {
+            glfwSwapBuffers(_window);
+        }
+        // Vulkan
+        else if (GetAPI() == API::VULKAN) {
+
+        }
     }
 
     void UpdateSubSystems() {
-        float deltaTime = Game::GetDeltaTime();
-        //glfwSwapInterval(0);
-
-        InputMulti::Update(deltaTime);
-        Synth::Update(deltaTime);
-        Audio::Update(deltaTime);
-        MidiFileManager::Update(deltaTime);
         Input::Update();
-        GlobalIllumination::Update();
-
-        UpdateLazyKeypresses();
+        Audio::Update();
+        //Scene::Update();
     }
 
     void CleanUp() {
-        GLFW::Destroy();
+        glfwTerminate();
     }
+
+    ///////////////////
+    //               //
+    //      API      //
 
     void SetAPI(API api) {
-        g_api = api;
-    }
-
-    void SetPresentTargetSize(int width, int height) {
-        g_presentTargetWidth = width;
-        g_presentTargetHeight = height;
+        _api = api;
     }
 
     const API GetAPI() {
-        return g_api;
-    }
-
-    void SetCursor(int cursor) {
-        GLFW::SetCursor(cursor);
+        return _api;
     }
 
     // Window
-    void* GetWindowPointer() {
-        return GLFW::GetWindowPointer();;
+    GLFWwindow* GetWindowPointer() {
+        return _window;
     }
 
-    const WindowedMode& GetWindowedMode() {
-        return GLFW::GetWindowedMode();
+    void SetWindowPointer(GLFWwindow* window) {
+        _window = window;
     }
 
-    void BackEnd::SetWindowedMode(const WindowedMode& windowedMode) {
-        GLFW::SetWindowedMode(windowedMode);
+    void CreateGLFWWindow(const WindowedMode& windowedMode) {
+        if (windowedMode == WindowedMode::WINDOWED) {
+            _currentWindowWidth = _windowedWidth;
+            _currentWindowHeight = _windowedHeight;
+            _window = glfwCreateWindow(_windowedWidth, _windowedHeight, "Ark Engine - 3D Scene", NULL, NULL);
+            glfwSetWindowPos(_window, 0, 0);
+        }
+        else if (windowedMode == WindowedMode::FULLSCREEN) {
+            _currentWindowWidth = _fullscreenWidth;
+            _currentWindowHeight = _fullscreenHeight;
+            _window = glfwCreateWindow(_fullscreenWidth, _fullscreenHeight, "Ark Engine - 3D Scene", _monitor, NULL);
+        }
+        _windowedMode = windowedMode;
     }
 
-    void BackEnd::ToggleFullscreen() {
-        GLFW::ToggleFullscreen();
+    void SetWindowedMode(const WindowedMode& windowedMode) {
+        if (windowedMode == WindowedMode::WINDOWED) {
+            _currentWindowWidth = _windowedWidth;
+            _currentWindowHeight = _windowedHeight;
+            glfwSetWindowMonitor(_window, nullptr, 0, 0, _windowedWidth, _windowedHeight, _mode->refreshRate);
+            glfwSetWindowPos(_window, 0, 0);
+        }
+        else if (windowedMode == WindowedMode::FULLSCREEN) {
+            _currentWindowWidth = _fullscreenWidth;
+            _currentWindowHeight = _fullscreenHeight;
+            glfwSetWindowMonitor(_window, _monitor, 0, 0, _fullscreenWidth, _fullscreenHeight, _mode->refreshRate);
+        }
+        _windowedMode = windowedMode;
     }
 
-    void BackEnd::ForceCloseWindow() {
-        GLFW::ForceCloseWindow();
+    void ToggleFullscreen() {
+        if (_windowedMode == WindowedMode::WINDOWED) {
+            SetWindowedMode(WindowedMode::FULLSCREEN);
+        }
+        else {
+            SetWindowedMode(WindowedMode::WINDOWED);
+        }
+        if (GetAPI() == API::OPENGL) {
+            //OpenGLBackEnd::HandleFrameBufferResized();
+        }
+        else {
+            VulkanBackEnd::HandleFrameBufferResized();
+        }
     }
 
-    bool BackEnd::WindowIsOpen() {
-        return GLFW::WindowIsOpen();
+    void ForceCloseWindow() {
+        _forceCloseWindow = true;
     }
 
-    bool BackEnd::WindowHasFocus() {
-        return GLFW::WindowHasFocus();
+    bool WindowHasFocus() {
+        return _windowHasFocus;
     }
 
-    bool BackEnd::WindowHasNotBeenForceClosed() {
-        return GLFW::WindowHasNotBeenForceClosed();
+    bool WindowHasNotBeenForceClosed() {
+        return !_forceCloseWindow;
     }
 
-    bool BackEnd::WindowIsMinimized() {
-        return GLFW::WindowIsMinimized();
+    int GetWindowedWidth() {
+        return _windowedWidth;
     }
 
-    int BackEnd::GetWindowedWidth() {
-        return GLFW::GetWindowedWidth();
+    int GetWindowedHeight() {
+        return _windowedHeight;
     }
 
-    int BackEnd::GetWindowedHeight() {
-        return GLFW::GetWindowedHeight();
+    int GetFullScreenWidth() {
+        return _fullscreenWidth;
     }
 
-    int BackEnd::GetCurrentWindowWidth() {
-        return GLFW::GetCurrentWindowWidth();
+    int GetFullScreenHeight() {
+        return _fullscreenHeight;
     }
 
-    int BackEnd::GetCurrentWindowHeight() {
-        return GLFW::GetCurrentWindowHeight();
+    int GetCurrentWindowWidth() {
+        return _currentWindowWidth;
     }
 
-    int BackEnd::GetFullScreenWidth() {
-        return GLFW::GetFullScreenWidth();
+    int GetCurrentWindowHeight() {
+        return _currentWindowHeight;
     }
 
-    int BackEnd::GetFullScreenHeight() {
-        return GLFW::GetFullScreenHeight();
+    bool WindowIsOpen() {
+        return !(glfwWindowShouldClose(_window) || _forceCloseWindow);
+    }
+
+    bool WindowIsMinimized() {
+        int width = 0;
+        int height = 0;
+        glfwGetFramebufferSize(_window, &width, &height);
+        return (width == 0 || height == 0);
+    }
+
+    const WindowedMode& GetWindowMode() {
+        return _windowedMode;
+    }
+
+    //////////////////////////////
+    //                          //
+    //      Render Targets      //
+
+    void SetPresentTargetSize(int width, int height) {
+        _presentTargetWidth = width;
+        _presentTargetHeight = height;
+        if (GetAPI() == API::OPENGL) {
+            //OpenGLBackEnd::SetPresentTargetSize(width, height);
+        }
+        else {
+            //VulkanBackEnd::SetPresentTargetSize(width, height);
+        }
     }
 
     int GetPresentTargetWidth() {
-        return g_presentTargetWidth;
+        return _presentTargetWidth;
     }
 
     int GetPresentTargetHeight() {
-        return g_presentTargetHeight;
+        return _presentTargetHeight;
     }
 
-    void CheckForRenderDoc() {
-#ifdef _WIN32
-        HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE, GetCurrentProcessId());
-        if (snapshot == INVALID_HANDLE_VALUE) {
-            g_renderDocFound = false;
+
+    /////////////////////////
+    //                     //
+    //      Callbacks      //
+
+    void framebuffer_size_callback(GLFWwindow* /*window*/, int width, int height) {
+        if (GetAPI() == API::OPENGL) {
+
         }
-
-        MODULEENTRY32 moduleEntry;
-        moduleEntry.dwSize = sizeof(MODULEENTRY32);
-        bool found = false;
-        if (Module32First(snapshot, &moduleEntry)) {
-            do {
-                std::wstring wmodule(moduleEntry.szModule);
-                std::string moduleName(wmodule.begin(), wmodule.end());
-
-                if (moduleName.find("renderdoc.dll") != std::string::npos) {
-                    found = true;
-                    break;
-                }
-            } while (Module32Next(snapshot, &moduleEntry));
+        else {
+            VulkanBackEnd::MarkFrameBufferAsResized();
         }
-        CloseHandle(snapshot);
-
-        g_renderDocFound = found;
-#else
-        g_renderDocActive = false;
-#endif
     }
 
-    void ToggleBindlessTextures() {
-        g_renderDocFound = !g_renderDocFound;
-    }
-
-    bool RenderDocFound() {
-        return g_renderDocFound;
-    }
-
-    void UpdateLazyKeypresses() {
-
-        if (ImGuiBackEnd::HasKeyboardFocus()) {
-            return;
+    void window_focus_callback(GLFWwindow* /*window*/, int focused) {
+        if (focused) {
+            BackEnd::_windowHasFocus = true;
         }
-
-        // Bail early if player 1 is playing piano
-        //Player* player = Game::GetLocalPlayerByIndex(0);
-        //if (player && player->IsPlayingPiano()) {
-        //      return;
-        //}
-
-        if (Input::KeyPressed(HELL_KEY_F1)) {
-            Callbacks::NewRun();
+        else {
+            BackEnd::_windowHasFocus = false;
         }
-        if (Input::KeyPressed(HELL_KEY_F4)) {
-            Callbacks::OpenHouseEditor();
-        }
-        if (Input::KeyPressed(HELL_KEY_F6)) {
-            Callbacks::OpenMapHeightEditor();
-        }
-        if (Input::KeyPressed(HELL_KEY_F5)) {
-            Callbacks::OpenMapObjectEditor();
-        }
-        if (Input::KeyPressed(HELL_KEY_PERIOD)) {
-            Audio::PlayAudio(AUDIO_SELECT, 1.00f);
-            Renderer::GetCurrentRendererSettings().screenspaceReflections = !Renderer::GetCurrentRendererSettings().screenspaceReflections;
-        }
-
-
-        if (Input::KeyPressed(HELL_KEY_K)) {
-            Game::RespawnPlayers();
-        }
-
-        if (Input::KeyPressed(HELL_KEY_H)) {
-            Renderer::HotloadShaders();
-        }
-        //if (Input::KeyPressed(HELL_KEY_F9)) {
-        //    player->SetFootPosition(glm::vec3(14.11f, 0.0f, 18.24f));
-        //    player->GetCamera().SetEulerRotation(glm::vec3(-0.19f, -1.36f, 0.0f));
-        //    BackEnd::ToggleBindlessTextures();
-        //    Renderer::HotloadShaders();
-        //}
-        //if (Input::KeyPressed(HELL_KEY_ESCAPE) && Input::KeyDown(HELL_KEY_1)) {
-        if (Input::KeyPressed(HELL_KEY_ESCAPE)) {
-            BackEnd::ForceCloseWindow();
-        }
-        if (Input::KeyPressed(HELL_KEY_G)) {
-            BackEnd::ToggleFullscreen();
-        }
-        if (Input::KeyPressed(HELL_KEY_BACKSLASH)) {
-            Audio::PlayAudio(AUDIO_SELECT, 1.00f);
-            Renderer::NextRendererOverrideState();
-        }
-        if (Input::KeyPressed(HELL_KEY_GRAVE_ACCENT)) {
-            Audio::PlayAudio(AUDIO_SELECT, 1.00f);
-            Debug::NextDebugTextMode();
-        }
-        if (!Editor::IsOpen()) {
-            if (Input::KeyPressed(HELL_KEY_C)) {
-                Game::NextSplitScreenMode();
-            }
-            if (Input::KeyPressed(HELL_KEY_1) && Game::GetLocalPlayerCount() >= 1) {
-                Game::SetPlayerKeyboardAndMouseIndex(0, 0, 0);
-                Game::SetPlayerKeyboardAndMouseIndex(1, 1, 1);
-                Game::SetPlayerKeyboardAndMouseIndex(2, 1, 1);
-                Game::SetPlayerKeyboardAndMouseIndex(3, 1, 1);
-            }
-            if (Input::KeyPressed(HELL_KEY_2) && Game::GetLocalPlayerCount() >= 2) {
-                Game::SetPlayerKeyboardAndMouseIndex(0, 1, 1);
-                Game::SetPlayerKeyboardAndMouseIndex(1, 0, 0);
-                Game::SetPlayerKeyboardAndMouseIndex(2, 1, 1);
-                Game::SetPlayerKeyboardAndMouseIndex(3, 1, 1);
-            }
-            if (Input::KeyPressed(HELL_KEY_3) && Game::GetLocalPlayerCount() >= 3) {
-                Game::SetPlayerKeyboardAndMouseIndex(0, 1, 1);
-                Game::SetPlayerKeyboardAndMouseIndex(1, 1, 1);
-                Game::SetPlayerKeyboardAndMouseIndex(2, 0, 0);
-                Game::SetPlayerKeyboardAndMouseIndex(3, 1, 1);
-            }
-            if (Input::KeyPressed(HELL_KEY_4) && Game::GetLocalPlayerCount() >= 4) {
-                Game::SetPlayerKeyboardAndMouseIndex(0, 1, 1);
-                Game::SetPlayerKeyboardAndMouseIndex(1, 1, 1);
-                Game::SetPlayerKeyboardAndMouseIndex(2, 1, 1);
-                Game::SetPlayerKeyboardAndMouseIndex(3, 0, 0);
-            }
-            if (Input::KeyPressed(HELL_KEY_B)) {
-                Audio::PlayAudio(AUDIO_SELECT, 1.00f);
-                Debug::NextDebugRenderMode();
-            }
-            if (Input::KeyPressed(HELL_KEY_APOSTROPHE)) {
-                Audio::PlayAudio(AUDIO_SELECT, 1.00f);
-                Debug::SetDebugRenderMode(DebugRenderMode::BVH_CPU_PLAYER_RAYS);
-            }
-        }
-
-        //if (Input::KeyPressed(HELL_KEY_F11)) {
-        //    HouseManager::LoadAllHouseFilesFromDisk();
-        //}
     }
 }
