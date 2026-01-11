@@ -2,6 +2,7 @@
 layout (triangles) in;
 layout (triangle_strip, max_vertices=18) out;
 
+uniform int lightIndex;
 uniform mat4 shadowMatrices[6];
 
 out vec4 FragPos;

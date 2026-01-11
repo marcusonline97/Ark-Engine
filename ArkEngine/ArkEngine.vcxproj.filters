@@ -1,12 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClInclude Include="ArkEngine\Vendor\GLFW\include\GLFW\glfw3.h" />
-    <ClInclude Include="ArkEngine\Vendor\GLFW\include\GLFW\glfw3native.h" />
-    <ClInclude Include="ArkEngine\Vendor\tinycsg\stb_image\stb_image.h" />
-    <ClInclude Include="ArkEngine\Vendor\VkBootstrap\VkBootstrapDispatch.h" />
-    <ClInclude Include="Vendor\GLFW\include\glfw3.h" />
-    <ClInclude Include="Vendor\GLFW\include\glfw3native.h" />
     <ClInclude Include="Vendor\glm\common.hpp" />
     <ClInclude Include="Vendor\glm\detail\compute_common.hpp" />
     <ClInclude Include="Vendor\glm\detail\compute_vector_decl.hpp" />
@@ -295,9 +289,20 @@
     <ClInclude Include="Vendor\glm\vec3.hpp" />
     <ClInclude Include="Vendor\glm\vec4.hpp" />
     <ClInclude Include="Vendor\glm\vector_relational.hpp" />
-    <ClInclude Include="ArkEngine\Core\Engine\Rendering\Shaders\vkPipeline.hpp" />
-    <ClInclude Include="ArkEngine\Vendor\GLAD\include\glad\glad.h" />
-    <ClInclude Include="ArkEngine\Vendor\GLAD\include\KHR\khrplatform.h" />
+    <ClInclude Include="ArkEngine\Vendor\stb_image\stb_image.h" />
+    <ClInclude Include="ArkEngine\src\ArkApp.h" />
+    <ClInclude Include="ArkEngine\src\ArkEngine.h" />
+    <ClInclude Include="ArkEngine\src\ArkWindow.h" />
+    <ClInclude Include="ArkEngine\src\Camera\Camera.h" />
+    <ClInclude Include="ArkEngine\src\Meshes\Cube.h" />
+    <ClInclude Include="ArkEngine\src\Shader.h" />
+    <ClInclude Include="ArkEngine\src\Material.h" />
+    <ClInclude Include="ArkEngine\src\Texture.h" />
+    <ClInclude Include="ArkEngine\src\AssetManager.h" />
+    <ClInclude Include="ArkEngine\src\AssetManager\AssetManager.h" />
+    <ClInclude Include="ArkEngine\src\Input\KeyCodes.h" />
+    <ClInclude Include="ArkEngine\src\ArkLogging.h" />
+    <ClInclude Include="ArkEngine\src\Logger.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Vendor\glm\detail\func_common.inl" />
@@ -439,9 +444,26 @@
     <None Include="Vendor\glm\gtx\vector_angle.inl" />
     <None Include="Vendor\glm\gtx\vector_query.inl" />
     <None Include="Vendor\glm\gtx\wrap.inl" />
+    <None Include="ArkEngine\src\Rendering\shaders\vertex.glsl" />
+    <None Include="ArkEngine\src\Rendering\shaders\fragment.glsl" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ArkEngine\src\Core\main.cpp" />
     <ClCompile Include="ArkEngine\Vendor\GLAD\src\glad.c" />
+    <ClCompile Include="ArkEngine\src\main.cpp" />
+    <ClCompile Include="ArkEngine\Vendor\stb_image\stb_image.cpp" />
+    <ClCompile Include="ArkEngine\src\ArkEngine.cpp" />
+    <ClCompile Include="ArkEngine\src\ArkWindow.cpp" />
+    <ClCompile Include="ArkEngine\src\ArkApp.cpp" />
+    <ClCompile Include="ArkEngine\src\Camera\Camera.cpp" />
+    <ClCompile Include="ArkEngine\src\Meshes\Cube.cpp" />
+    <ClCompile Include="ArkEngine\src\Shader.cpp" />
+    <ClCompile Include="ArkEngine\src\Material.cpp" />
+    <ClCompile Include="ArkEngine\src\Texture.cpp" />
+    <ClCompile Include="ArkEngine\src\AssetManager.cpp" />
+    <ClCompile Include="ArkEngine\src\ArkLogging.cpp" />
+    <ClCompile Include="ArkEngine\src\Logger.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="ArkEngine\Resources\Textures\BathroomFloor_ALB.png" />
   </ItemGroup>
 </Project>

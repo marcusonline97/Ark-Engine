@@ -1,0 +1,67 @@
+﻿#include "BackEnd.h"
+#include <GLFW/glfw3.h>
+#include <iostream>
+
+namespace BackEnd {
+    static GLFWwindow* g_window = nullptr;
+    static API g_api = API::UNDEFINED;
+
+    bool Init(API api, WindowedMode /*windowMode*/) {
+        g_api = api;
+
+        if (!glfwInit()) {
+            std::cout << "GLFW init failed\n";
+            return false;
+        }
+
+        if (api == API::OPENGL) {
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+            glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+            glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
+        } else {
+            glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+        }
+
+        g_window = glfwCreateWindow(1280, 720, "ArkEngine", nullptr, nullptr);
+        if (!g_window) {
+            std::cout << "GLFW create window failed\n";
+            glfwTerminate();
+            return false;
+        }
+
+        if (api == API::OPENGL) {
+            glfwMakeContextCurrent(g_window);
+            // Optional: enable vsync
+            glfwSwapInterval(1);
+        }
+
+        return true;
+    }
+
+    void BeginFrame() {
+        glfwPollEvents();
+    }
+
+    void EndFrame() {
+        if (g_api == API::OPENGL && g_window) {
+            glfwSwapBuffers(g_window);
+        }
+    }
+
+    void* GetWindowPointer() {
+        return g_window;
+    }
+
+    bool WindowIsOpen() {
+        return g_window && !glfwWindowShouldClose(g_window);
+    }
+
+    void CleanUp() {
+        if (g_window) {
+            glfwDestroyWindow(g_window);
+            g_window = nullptr;
+        }
+        glfwTerminate();
+    }
+}

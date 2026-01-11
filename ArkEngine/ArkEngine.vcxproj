@@ -71,10 +71,10 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(SolutionDir)\Resources\;$(SolutionDir)ArkEngine\Vendor\;$(SolutionDir)ArkEngine\Vendor\GLFW\lib;$(SolutionDir)ArkEngine\Vendor\tinyobjloader\;$(SolutionDir)ArkEngine\Vendor\DDS;$(SolutionDir)ArkEngine\Vendor\stb_image\;$(SolutionDir)ArkEngine\Vendor\FMod\includes;$(SolutionDir)ArkEngine\Vendor\GLFW\include;$(SolutionDir)ArkEngine\Vendor\SDL3\Include\;$(SolutionDir)ArkEngine\Vendor\assimp\include\;$(SolutionDir)ArkEngine\Vendor\glad\include\;$(ProjectDir)\Window;$(SolutionDir)ArkEngine\ArkEngine\src\;C:\ArkEngine\Ark-Engine\ArkTools\ArkTools\;$(SolutionDir)\Core\Engine\;$(SolutionDir)ArkEngine\src\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\;$(ProjectDir)Core\Engine\Rendering\;$(SolutionDir)ArkEngine\Vendor\compressonator\include\;$(SolutionDir)ArkEngine\Vendor\tracy\public\;$(IncludePath)</IncludePath>
+    <IncludePath>C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\lodepng\include\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\imgui\include\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\nlohmann_json\include\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\tinyexr\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\SDL3\include\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\GLFW\include\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\physx\include\physx\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\rapidjson\include\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\assimp\include\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\stb_image\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\glfw\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\soloud\include\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\glad\include\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\compressonator\include\cmp_compressonatorlib\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(SolutionDir)\Resources\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\GLFW\lib;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\tinyobjloader\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\DDS;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\stb_image\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\FMod\includes;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\GLFW\include;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\SDL3\Include\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\assimp\include\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\GLAD\include\;$(ProjectDir)\Window;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Common;C:\ArkEngine\Ark-Engine\ArkTools\ArkTools\;$(SolutionDir)\Core\Engine\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\;$(ProjectDir)Core\Engine\Rendering\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\API\OpenGL\Types\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\compressonator\include\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\tracy\public\;$(IncludePath)</IncludePath>
+    <IncludePath>C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\lodepng\include\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\imgui\include\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\nlohmann_json\include\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\tinyexr\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\SDL3\include\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\GLFW\include\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\physx\include\physx\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\rapidjson\include\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\assimp\include\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\stb_image\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\glfw\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\soloud\include\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\glad\include\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\compressonator\include\cmp_compressonatorlib\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -108,7 +108,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)\src\;$(SolutionDir)\Resources\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\compressonator\include\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\;$(SolutionDir)\Vendor\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\assimp\include\;$(SolutionDir)\src\;$(SolutionDir)\Resources\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\compressonator\include\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\;$(SolutionDir)\Vendor\</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -136,7 +136,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\assimp\lib\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\assimp\lib\Debug;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\FMod\lib\;$(SolutionDir)\3rdParty\lib\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\GLFW\lib/\release\;$(SolutionDir)\Vendor\GLFW\lib;C:\VulkanSDK\1.4.328.1\Lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\assimp\lib\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\FMod\lib\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\GLFW\lib/\release\;$(SolutionDir)\Vendor\GLFW\lib;C:\VulkanSDK\1.4.328.1\Lib</AdditionalLibraryDirectories>
       <AdditionalDependencies>user32.lib;gdi32.lib;shell32.lib;advapi32.lib;vulkan-1.lib;glfw3.lib;assimp-vc143-mt.lib;fmod_vc.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
@@ -145,14 +145,20 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="ArkEngine\Vendor\GLAD\include\glad\glad.h" />
-    <ClInclude Include="ArkEngine\Vendor\GLAD\include\KHR\khrplatform.h" />
-    <ClInclude Include="ArkEngine\Vendor\GLFW\include\GLFW\glfw3.h" />
-    <ClInclude Include="ArkEngine\Vendor\GLFW\include\GLFW\glfw3native.h" />
-    <ClInclude Include="ArkEngine\Vendor\tinycsg\stb_image\stb_image.h" />
-    <ClInclude Include="ArkEngine\Vendor\VkBootstrap\VkBootstrapDispatch.h" />
-    <ClInclude Include="Vendor\GLFW\include\glfw3.h" />
-    <ClInclude Include="Vendor\GLFW\include\glfw3native.h" />
+    <ClInclude Include="ArkEngine\src\ArkApp.h" />
+    <ClInclude Include="ArkEngine\src\ArkEngine.h" />
+    <ClInclude Include="ArkEngine\src\ArkWindow.h" />
+    <ClInclude Include="ArkEngine\src\AssetManager.h" />
+    <ClInclude Include="ArkEngine\src\AssetManager\AssetManager.h" />
+    <ClInclude Include="ArkEngine\src\Camera\Camera.h" />
+    <ClInclude Include="ArkEngine\src\ArkLogging.h" />
+    <ClInclude Include="ArkEngine\src\Input\KeyCodes.h" />
+    <ClInclude Include="ArkEngine\src\Logger.h" />
+    <ClInclude Include="ArkEngine\src\Meshes\Cube.h" />
+    <ClInclude Include="ArkEngine\src\Material.h" />
+    <ClInclude Include="ArkEngine\src\Texture.h" />
+    <ClInclude Include="ArkEngine\src\Shader.h" />
+    <ClInclude Include="ArkEngine\Vendor\stb_image\stb_image.h" />
     <ClInclude Include="Vendor\glm\common.hpp" />
     <ClInclude Include="Vendor\glm\detail\compute_common.hpp" />
     <ClInclude Include="Vendor\glm\detail\compute_vector_decl.hpp" />
@@ -441,9 +447,10 @@
     <ClInclude Include="Vendor\glm\vec3.hpp" />
     <ClInclude Include="Vendor\glm\vec4.hpp" />
     <ClInclude Include="Vendor\glm\vector_relational.hpp" />
-    <ClInclude Include="ArkEngine\Core\Engine\Rendering\Shaders\vkPipeline.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="ArkEngine\src\Rendering\shaders\fragment.glsl" />
+    <None Include="ArkEngine\src\Rendering\shaders\vertex.glsl" />
     <None Include="Vendor\glm\detail\func_common.inl" />
     <None Include="Vendor\glm\detail\func_common_simd.inl" />
     <None Include="Vendor\glm\detail\func_exponential.inl" />
@@ -590,8 +597,23 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ArkEngine\src\Core\main.cpp" />
+    <ClCompile Include="ArkEngine\src\ArkApp.cpp" />
+    <ClCompile Include="ArkEngine\src\ArkEngine.cpp" />
+    <ClCompile Include="ArkEngine\src\ArkWindow.cpp" />
+    <ClCompile Include="ArkEngine\src\AssetManager.cpp" />
+    <ClCompile Include="ArkEngine\src\Camera\Camera.cpp" />
+    <ClCompile Include="ArkEngine\src\ArkLogging.cpp" />
+    <ClCompile Include="ArkEngine\src\Logger.cpp" />
+    <ClCompile Include="ArkEngine\src\main.cpp" />
+    <ClCompile Include="ArkEngine\src\Meshes\Cube.cpp" />
+    <ClCompile Include="ArkEngine\src\Material.cpp" />
+    <ClCompile Include="ArkEngine\src\Texture.cpp" />
+    <ClCompile Include="ArkEngine\src\Shader.cpp" />
     <ClCompile Include="ArkEngine\Vendor\GLAD\src\glad.c" />
+    <ClCompile Include="ArkEngine\Vendor\stb_image\stb_image.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="ArkEngine\Resources\Textures\BathroomFloor_ALB.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -21,11 +21,6 @@ namespace glm
 		typedef T value_type;
 		typedef vec<4, T, Q> type;
 		typedef vec<4, bool, Q> bool_type;
-		
-		enum is_aligned
-		{
-			value = detail::is_aligned<Q>::value
-		};
 
 		// -- Data --
 
@@ -95,7 +90,7 @@ namespace glm
 		typedef length_t length_type;
 
 		/// Return the count of components of the vector
-		GLM_FUNC_DECL static constexpr length_type length(){return 4;}
+		GLM_FUNC_DECL static GLM_CONSTEXPR length_type length(){return 4;}
 
 		GLM_FUNC_DECL GLM_CONSTEXPR T & operator[](length_type i);
 		GLM_FUNC_DECL GLM_CONSTEXPR T const& operator[](length_type i) const;
@@ -103,7 +98,7 @@ namespace glm
 		// -- Implicit basic constructors --
 
 		GLM_DEFAULTED_DEFAULT_CTOR_DECL GLM_CONSTEXPR vec() GLM_DEFAULT_CTOR;
-		GLM_CTOR_DECL vec(vec<4, T, Q> const& v) = default;
+		GLM_DEFAULTED_FUNC_DECL GLM_CONSTEXPR vec(vec<4, T, Q> const& v) GLM_DEFAULT;
 		template<qualifier P>
 		GLM_CTOR_DECL vec(vec<4, T, P> const& v);
 
@@ -240,13 +235,13 @@ namespace glm
 			}
 
 			template<int E0, int E1, int E2>
-			GLM_FUNC_DISCARD_DECL vec(detail::_swizzle<3, T, Q, E0, E1, E2, 3> const& v, T const& w)
+			GLM_FUNC_DISCARD_DECL vec(detail::_swizzle<3, T, Q, E0, E1, E2, -1> const& v, T const& w)
 			{
 				*this = vec<4, T, Q>(v(), w);
 			}
 
 			template<int E0, int E1, int E2>
-			GLM_FUNC_DISCARD_DECL vec(T const& x, detail::_swizzle<3, T, Q, E0, E1, E2, 3> const& v)
+			GLM_FUNC_DISCARD_DECL vec(T const& x, detail::_swizzle<3, T, Q, E0, E1, E2, -1> const& v)
 			{
 				*this = vec<4, T, Q>(x, v());
 			}
@@ -254,7 +249,7 @@ namespace glm
 
 		// -- Unary arithmetic operators --
 
-		GLM_FUNC_DISCARD_DECL GLM_CONSTEXPR vec<4, T, Q>& operator=(vec<4, T, Q> const& v) = default;
+		GLM_DEFAULTED_FUNC_DECL GLM_CONSTEXPR vec<4, T, Q>& operator=(vec<4, T, Q> const& v) GLM_DEFAULT;
 
 		template<typename U>
 		GLM_FUNC_DISCARD_DECL GLM_CONSTEXPR vec<4, T, Q>& operator=(vec<4, U, Q> const& v);
@@ -329,7 +324,6 @@ namespace glm
 		template<typename U>
 		GLM_FUNC_DECL GLM_CONSTEXPR vec<4, T, Q> & operator>>=(vec<4, U, Q> const& v);
 	};
-
 
 	// -- Unary operators --
 

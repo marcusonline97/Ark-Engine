@@ -1,1 +1,1 @@
-﻿  ArkEngine.vcxproj -> C:\ArkEngine\Ark-Engine\ArkEngine\x64\Release\ArkEngine.exe
+﻿LINK : fatal error LNK1181: cannot open input file 'assimp-vc143-mt.lib'

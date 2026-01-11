@@ -22,11 +22,6 @@ namespace glm
 		typedef vec<3, T, Q> type;
 		typedef vec<3, bool, Q> bool_type;
 
-		enum is_aligned
-		{
-			value = detail::is_aligned<Q>::value
-		};
-
 		// -- Data --
 
 #		if GLM_SILENT_WARNINGS == GLM_ENABLE
@@ -97,7 +92,7 @@ namespace glm
 
 		/// Return the count of components of the vector
 		typedef length_t length_type;
-		GLM_FUNC_DECL static constexpr length_type length(){return 3;}
+		GLM_FUNC_DECL static GLM_CONSTEXPR length_type length(){return 3;}
 
 		GLM_FUNC_DECL GLM_CONSTEXPR T & operator[](length_type i);
 		GLM_FUNC_DECL GLM_CONSTEXPR T const& operator[](length_type i) const;
@@ -105,7 +100,7 @@ namespace glm
 		// -- Implicit basic constructors --
 
 		GLM_DEFAULTED_DEFAULT_CTOR_DECL GLM_CONSTEXPR vec() GLM_DEFAULT_CTOR;
-		GLM_CTOR_DECL vec(vec<3, T, Q> const& v) = default;
+		GLM_DEFAULTED_FUNC_DECL GLM_CONSTEXPR vec(vec const& v) GLM_DEFAULT;
 		template<qualifier P>
 		GLM_CTOR_DECL vec(vec<3, T, P> const& v);
 
@@ -182,7 +177,7 @@ namespace glm
 
 		// -- Unary arithmetic operators --
 
-		GLM_FUNC_DISCARD_DECL GLM_CONSTEXPR vec<3, T, Q>& operator=(vec<3, T, Q> const& v) = default;
+		GLM_DEFAULTED_FUNC_DECL GLM_CONSTEXPR vec<3, T, Q>& operator=(vec<3, T, Q> const& v) GLM_DEFAULT;
 
 		template<typename U>
 		GLM_FUNC_DISCARD_DECL GLM_CONSTEXPR vec<3, T, Q> & operator=(vec<3, U, Q> const& v);
@@ -257,8 +252,6 @@ namespace glm
 		template<typename U>
 		GLM_FUNC_DISCARD_DECL GLM_CONSTEXPR vec<3, T, Q> & operator>>=(vec<3, U, Q> const& v);
 	};
-
-
 
 	// -- Unary operators --
 
@@ -436,10 +429,6 @@ namespace glm
 
 	template<qualifier Q>
 	GLM_FUNC_DECL GLM_CONSTEXPR vec<3, bool, Q> operator||(vec<3, bool, Q> const& v1, vec<3, bool, Q> const& v2);
-
-
-
-
 }//namespace glm
 
 #ifndef GLM_EXTERNAL_TEMPLATE

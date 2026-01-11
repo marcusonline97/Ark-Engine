@@ -7,68 +7,90 @@ layout (location = 3) in vec3 aTangent;
 layout (location = 4) in vec3 aBitangent;
 layout (location = 5) in ivec4 aBoneID;
 layout (location = 6) in vec4 aBoneWeight;
+layout (location = 7) in int aMaterialID;
 
-uniform mat4 projection;
-uniform mat4 view;
+layout (std140) uniform Matrices {
+    mat4 projection;
+    mat4 view;
+};
+
 uniform mat4 model;
+uniform int u_TEXCOORD_FLAG;
 
 out vec2 TexCoord;
-out vec3 WorldPos;
-out vec3 WorldPosPrevious;
-
+out vec3 worldPos;
+//out vec3 Normal;
 out vec3 attrNormal;
 out vec3 attrTangent;
 out vec3 attrBiTangent;
 
-uniform int tex_flag;
+uniform bool hasAnimation;
+uniform mat4 skinningMats[128];
+uniform bool instanced;
 
-uniform bool isAnimated;
-uniform mat4 skinningMats[85];
+out vec3 RMA_modifier;
+out vec3 test;
+out float MaterialID;	// used exclusively so the windows can use info from 2 different materials
 
-void main() {
+void main()
+{
+	MaterialID = aMaterialID;
+	TexCoord = aTexCoord;	
 
-	TexCoord = aTexCoord;
+	vec4 worldPos;
+	vec4 totalLocalPos = vec4(0.0);
+	vec4 totalNormal = vec4(0.0);
+	vec3 Normal;
+	
+	vec4 vertexPosition =  vec4(aPos, 1.0);
+	vec4 vertexNormal = vec4(aNormal, 0.0);
 
-	if (isAnimated) {
-
-		vec4 totalLocalPos = vec4(0.0);
-		vec4 totalNormal = vec4(0.0);
-		vec4 totalTangent = vec4(0.0);
-			
-		vec4 vertexPosition =  vec4(aPos, 1.0);
-		vec4 vertexNormal = vec4(aNormal, 0.0);
-		vec4 vertexTangent = vec4(aTangent, 0.0);
-
-		for(int i=0;i<4;i++)  {
+	// Animated
+	if (hasAnimation)
+	{
+		for(int i=0;i<4;i++) 
+		{
 			mat4 jointTransform = skinningMats[int(aBoneID[i])];
 			vec4 posePosition =  jointTransform  * vertexPosition * aBoneWeight[i];
-			
 			vec4 worldNormal = jointTransform * vertexNormal * aBoneWeight[i];
-			vec4 worldTangent = jointTransform * vertexTangent * aBoneWeight[i];
 
 			totalLocalPos += posePosition;		
-			totalNormal += worldNormal;	
-			totalTangent += worldTangent;	
+			totalNormal += worldNormal;
 		}
+		worldPos = model * totalLocalPos;
+		Normal = totalNormal.xyz;
+		gl_Position = projection * view * worldPos;
+	}
+	else // Not animated
+	{
+		worldPos = model * vec4(aPos, 1.0);
+		Normal = aNormal;
+		gl_Position = projection * view * worldPos;
+	}
 	
-		WorldPos = (model * vec4(totalLocalPos.xyz, 1)).xyz;
-		
-		attrNormal =  (model * vec4(normalize(totalNormal.xyz), 0)).xyz;
-		attrTangent =  (model * vec4(normalize(totalTangent.xyz), 0)).xyz;
-		attrBiTangent = normalize(cross(attrNormal,attrTangent));
-	}
+    
+	//worldPos = vec4(model * vec4(aPos, 1.0));
+	//gl_Position = projection * view * worldPos;
 
-	// NOT ANIMATED
-	else {	
-		attrNormal = (model * vec4(aNormal, 0)).xyz;
-		attrTangent = (model * vec4(aTangent, 0.0)).xyz;
-		attrBiTangent = normalize(cross(attrNormal,attrTangent));
-		//attrTangent = (model * vec4(aBitangent, 0.0)).xyz;
-		WorldPos = (model * vec4(aPos.x, aPos.y, aPos.z, 1.0)).xyz;	
-		//attrNormal = transpose(inverse(mat3(model))) * aNormal;
-		//attrTangent = transpose(inverse(mat3(model))) * aTangent;
-		//attrBiTangent = normalize(cross(attrNormal,attrTangent));		
+	RMA_modifier = vec3(0, 0, 0);
+
+    // tex coords
+	TexCoord = aTexCoord;
+	if (u_TEXCOORD_FLAG == 1)	{							
+		TexCoord = vec2(worldPos.x, worldPos.z) * 0.4;		// Floor Regular
+		//RMA_modifier = vec3(-0.125, 0.125, 0);
 	}
+	//if (u_TEXCOORD_FLAG == 2)								
+	//	TexCoord = vec2(worldPos.z, worldPos.x) * 0.4;		// Flooor Rotated 90 degrees
 		
-	gl_Position = projection * view * vec4(WorldPos, 1.0);
+	test = vec3(1, 0, 1);
+	test = aBitangent + 0.5;
+	//Normal = aNormal;
+	//Normal = vec3(1, 0, 1);
+	attrNormal = (model * vec4(Normal, 0.0)).xyz;
+	attrTangent = (model * vec4(aTangent, 0.0)).xyz;
+	attrBiTangent = (model * vec4(aBitangent, 0.0)).xyz;
+
+	//TexCoord = aTexCoord;
+	//gl_Position = projection * view * model * vec4(aPos.x, aPos.y, aPos.z, 1.0);
 }

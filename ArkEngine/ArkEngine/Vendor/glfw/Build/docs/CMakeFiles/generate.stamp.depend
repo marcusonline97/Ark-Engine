@@ -1,5 +1,0 @@
-# CMake generation dependency list for this directory.
-C:/APIs/glfw-3.4/docs/CMakeLists.txt
-C:/Program Files/CMake/share/cmake-4.2/Modules/FindDoxygen.cmake
-C:/Program Files/CMake/share/cmake-4.2/Modules/FindPackageHandleStandardArgs.cmake
-C:/Program Files/CMake/share/cmake-4.2/Modules/FindPackageMessage.cmake

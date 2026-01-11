@@ -1,0 +1,15 @@
+﻿#pragma once
+#include <cstdint>
+#include "Common/ArkEnums.h"
+
+namespace BackEnd {
+    // Core (minimal)
+    bool Init(API api, WindowedMode windowMode);
+    void BeginFrame();
+    void EndFrame();
+    void CleanUp();
+
+    // Window
+    void* GetWindowPointer();
+    bool WindowIsOpen();
+}

@@ -4,7 +4,7 @@ layout (location = 5) in ivec4 aBoneID;
 layout (location = 6) in vec4 aBoneWeight;
 
 uniform mat4 model;
-uniform bool isAnimated;
+uniform bool hasAnimation;
 uniform mat4 skinningMats[64];
 
 out vec3 FragPos;
@@ -17,7 +17,7 @@ void main()
 	vec4 vertexPosition =  vec4(aPos, 1.0);
 
 	// Animated
-	if (isAnimated)
+	if (hasAnimation)
 	{
 		for(int i=0;i<4;i++) 
 		{
