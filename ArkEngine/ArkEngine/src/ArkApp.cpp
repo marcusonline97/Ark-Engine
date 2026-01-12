@@ -20,6 +20,77 @@
 
 static constexpr const char* kImGuiGlslVersion = "#version 450";
 
+static void DrawEditorDockspace()
+{
+    // Fullscreen dockspace host window
+    const ImGuiViewport* viewport = ImGui::GetMainViewport();
+    ImGui::SetNextWindowPos(viewport->WorkPos);
+    ImGui::SetNextWindowSize(viewport->WorkSize);
+    ImGui::SetNextWindowViewport(viewport->ID);
+
+    constexpr ImGuiWindowFlags hostFlags =
+        ImGuiWindowFlags_NoDocking |
+        ImGuiWindowFlags_NoTitleBar |
+        ImGuiWindowFlags_NoCollapse |
+        ImGuiWindowFlags_NoResize |
+        ImGuiWindowFlags_NoMove |
+        ImGuiWindowFlags_NoBringToFrontOnFocus |
+        ImGuiWindowFlags_NoNavFocus |
+        ImGuiWindowFlags_MenuBar;
+
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+
+    ImGui::Begin("##ArkEditorDockspace", nullptr, hostFlags);
+
+    ImGui::PopStyleVar(3);
+
+    // Dockspace
+    const ImGuiID dockspaceID = ImGui::GetID("ArkEditorDockspace");
+    ImGui::DockSpace(dockspaceID, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_None);
+
+    // Default layout (only runs once)
+    static bool s_BuiltLayout = false;
+    if (!s_BuiltLayout)
+    {
+        s_BuiltLayout = true;
+
+        ImGui::DockBuilderRemoveNode(dockspaceID);
+        ImGui::DockBuilderAddNode(dockspaceID, ImGuiDockNodeFlags_DockSpace);
+        ImGui::DockBuilderSetNodeSize(dockspaceID, viewport->WorkSize);
+
+        ImGuiID dockMain = dockspaceID;
+        ImGuiID dockLeft = 0;
+        ImGuiID dockRight = 0;
+
+        // Left sidebar (Hierarchy, etc.)
+        dockLeft = ImGui::DockBuilderSplitNode(dockMain, ImGuiDir_Left, 0.22f, nullptr, &dockMain);
+        // Right sidebar (Inspector, etc.)
+        dockRight = ImGui::DockBuilderSplitNode(dockMain, ImGuiDir_Right, 0.28f, nullptr, &dockMain);
+        // dockMain is now the center area (Viewport, scene view, etc.)
+
+        ImGui::DockBuilderDockWindow("Hierarchy", dockLeft);
+        ImGui::DockBuilderDockWindow("Inspector", dockRight);
+        ImGui::DockBuilderDockWindow("Viewport", dockMain);
+
+        ImGui::DockBuilderFinish(dockspaceID);
+    }
+
+    // Optional menu bar
+    if (ImGui::BeginMenuBar())
+    {
+        if (ImGui::BeginMenu("Window"))
+        {
+            ImGui::MenuItem("ImGui Demo", nullptr, nullptr, false); // controlled in Inspector for now
+            ImGui::EndMenu();
+        }
+        ImGui::EndMenuBar();
+    }
+
+    ImGui::End();
+}
+
 App::App()
 {
     m_Window = new ArkWindow(1400, 840, "Ark Engine");
@@ -126,6 +197,9 @@ void App::Run()
         {
             BeginImGuiFrame();
 
+            // Main dockspace that everything docks into
+            DrawEditorDockspace();
+
             // Minimal editor shell (we'll replace with real hierarchy/inspector next)
             if (ImGui::Begin("Hierarchy"))
             {
@@ -139,6 +213,14 @@ void App::Run()
                 ImGui::Checkbox("Show ImGui demo window", &m_ShowImGuiDemo);
                 ImGui::Separator();
                 ImGui::TextUnformatted("Step 3: selected entity component editor goes here.");
+            }
+            ImGui::End();
+
+            if (ImGui::Begin("Viewport"))
+            {
+                ImGui::TextUnformatted("This will become the scene render viewport.");
+                ImGui::Separator();
+                ImGui::Text("Viewport size: %.0f x %.0f", ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y);
             }
             ImGui::End();
 
