@@ -3,11 +3,22 @@
 class Texture;
 class Shader;
 
-struct Material {
-    Texture* albedo = nullptr;
-    Texture* specular = nullptr;
-    glm::vec3 color{ 1.0f,1.0f,1.0f };
-    float shininess = 32.0f;
+class Material
+{
+public:
+	Material() = default;
+	~Material() = default;
 
-    void Bind(Shader& shader) const;
+	void SetShader(Shader* shader) { m_Shader = shader; }
+	void SetTexture(Texture* texture) { m_Texture = texture; }
+	void SetUseTexture(bool useTexture) { m_UseTexture = useTexture; }
+	void SetTint(const glm::vec3& tint) { m_Tint = tint; }
+
+	void Bind() const;
+
+private:
+	Shader* m_Shader = nullptr;
+	Texture* m_Texture = nullptr;
+	bool m_UseTexture = false;
+	glm::vec3 m_Tint{ 1.0f, 1.0f, 1.0f };
 };

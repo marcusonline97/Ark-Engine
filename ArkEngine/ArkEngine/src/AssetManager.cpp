@@ -1,6 +1,8 @@
 #include "AssetManager.h"
 #include <Windows.h>
 #include <iostream>
+
+#include "Logger.h"
 #include "Texture.h" // Ensure Texture declaration is visible or include its header if available.
 
 AssetManager& AssetManager::Instance()
@@ -46,14 +48,18 @@ Texture* AssetManager::LoadTexture2D(const std::string& relativePath, bool flipY
 {
     const std::lock_guard<std::mutex> lock(m_Mutex);
 
-    // Use resolved absolute path as the cache key to avoid duplicates
     const std::string resolved = ResolveAssetPath(relativePath);
     auto it = m_TextureCache.find(resolved);
     if (it != m_TextureCache.end())
         return it->second.get();
 
     // Create and cache
-    auto tex = std::make_unique<Texture>(resolved, flipY);
+    auto tex = std::make_unique<Texture>();
+    if(!tex->Load2D(resolved, true, true)) // srgb and mipmaps
+    {
+        std::cerr << "Failed to load texture: " << resolved << "\n";
+        return nullptr;
+	}
     Texture* raw = tex.get();
     m_TextureCache.emplace(resolved, std::move(tex));
     return raw;

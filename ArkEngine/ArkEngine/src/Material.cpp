@@ -1,11 +1,24 @@
 #include "Material.h"
-#include "Texture.h"
 #include "Shader.h"
+#include "Texture.h"
+#include <glad/glad.h>
 
-void Material::Bind(Shader& shader) const {
-    shader.Bind();
-    if (albedo) { albedo->BindUnit(0); shader.SetInt("uAlbedo", 0); }
-    if (specular) { specular->BindUnit(1); shader.SetInt("uSpecular", 1); }
-    shader.SetVec3("uColor", color);
-    shader.SetFloat("uShininess", shininess);
+void Material::Bind()const
+{
+	if (!m_Shader) return;
+	m_Shader->Bind();
+
+	//Material uniforms
+	if (m_UseTexture && m_Texture)
+	{
+		m_Texture->BindUnit(0);
+		m_Shader->SetInt("u_Texture", 0);
+		m_Shader->SetInt("u_UseTexture", 1);
+	}
+
+	else
+	{
+		m_Shader->SetInt("u_UseTexture", 0);
+	}
+	m_Shader->SetVec3("u_Tint", m_Tint);
 }

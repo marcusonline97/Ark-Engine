@@ -151,6 +151,7 @@
     <ClInclude Include="ArkEngine\src\AssetManager.h" />
     <ClInclude Include="ArkEngine\src\AssetManager\AssetManager.h" />
     <ClInclude Include="ArkEngine\src\Camera\Camera.h" />
+    <ClInclude Include="ArkEngine\src\Initializer.h" />
     <ClInclude Include="ArkEngine\src\Input\KeyCodes.h" />
     <ClInclude Include="ArkEngine\src\Logger.h" />
     <ClInclude Include="ArkEngine\src\Meshes\Cube.h" />
@@ -601,6 +602,7 @@
     <ClCompile Include="ArkEngine\src\ArkWindow.cpp" />
     <ClCompile Include="ArkEngine\src\AssetManager.cpp" />
     <ClCompile Include="ArkEngine\src\Camera\Camera.cpp" />
+    <ClCompile Include="ArkEngine\src\Initializer.cpp" />
     <ClCompile Include="ArkEngine\src\Logger.cpp" />
     <ClCompile Include="ArkEngine\src\main.cpp" />
     <ClCompile Include="ArkEngine\src\Meshes\Cube.cpp" />

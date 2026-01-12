@@ -15,16 +15,16 @@
 
 //Need Input
 //IM GUI
-#include <imgui/imgui.h>
-#include <imgui/imgui_impl_glfw.h>
-#include <imgui/imgui_impl_opengl3.h>
-
+//#include <imgui/imgui.h>
+//#include <imgui/backends/imgui_impl_glfw.h>
+//#include <imgui/backends/imgui_impl_opengl3.h>
+#include "Logger.h"
 #include "AssetManager.h"
 
 
 App::App()
 {
-    m_Window = new ArkWindow(1280, 720, "OpenGL + GLFW App");
+    m_Window = new ArkWindow(1400, 840, "Ark Engine");
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
         throw std::runtime_error("Failed to initialize GLAD");
@@ -47,10 +47,14 @@ App::App()
         100.0f
     );
 
-    m_Shader = new Shader(
+    m_Shader = new Shader();
+    if (!m_Shader->LoadFromFiles(
         "ArkEngine/src/Rendering/shaders/vertex.glsl",
-        "ArkEngine/src/Rendering/shaders/fragment.glsl"
-    );
+        "ArkEngine/src/Rendering/shaders/fragment.glsl"))
+    {
+        throw std::runtime_error("Failed to load shader");
+    }
+
     m_CubeMesh = new CubeMesh();
 
     m_Material = new Material();
@@ -60,31 +64,51 @@ App::App()
 
     // Use AssetManager for consistent path resolution and caching
     Texture* diffuse = AssetManager::Instance().LoadTexture2D("ArkEngine/Resources/Textures/BathroomFloor_ALB.png", true);
-    m_TextureObj = diffuse;
-    m_Material->SetTexture(m_TextureObj);
+
+    if (!diffuse)
+    {
+		Logging::Error() << "Failed to load texture. Falling back to default Texture.\n";
+		m_Material->SetUseTexture(false);
+
+    }
+    else
+    {
+		m_TextureObj = diffuse;
+		m_Material->SetTexture(m_TextureObj);
+    }
 
     m_Shader->Bind();
-    GLint texLoc = glGetUniformLocation(m_Shader->GetProgramId(), "uTexture");
-    if (texLoc != -1) glUniform1i(texLoc, 0);
+	m_Shader->SetInt("uTexture", 0); // Texture unit 0)
 
     std::cout << "OpenGL Version: " << glGetString(GL_VERSION) << std::endl;
 }
 
 App::~App()
 {
-    delete m_Window;
-    delete m_Camera;
-    delete m_CubeMesh;
-    delete m_Material;
-    delete m_TextureObj;
+    delete m_CubeMesh;  m_CubeMesh = nullptr;
+    delete m_Material;  m_Material = nullptr;
 
-	m_TextureObj = nullptr;
+    delete m_Shader;    m_Shader = nullptr;
+    delete m_Camera;    m_Camera = nullptr;
+    delete m_Window;    m_Window = nullptr;
+
+    // Do NOT delete AssetManager-owned textures
+    m_TextureObj = nullptr;
 }
 
 void App::Run()
 {
     while (!m_Window->ShouldClose())
     {
+		int fbw = 0, fbh = 0;
+		glfwGetFramebufferSize(m_Window->GetNativeHandle(), &fbw, &fbh);
+        if(fbw > 0 && fbh > 0)
+        {
+			m_Camera->SetAspect(static_cast<float>(fbw) / static_cast<float>(fbh));
+
+		}
+
+		glViewport(0, 0, fbw, fbh);
         glClearColor(0.1f, 0.1f, 0.15f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 

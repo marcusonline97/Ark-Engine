@@ -1,5 +1,6 @@
 #pragma once
 #include <glm/glm.hpp>
+#include <glm/mat4x4.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
 class ArkCamera
@@ -13,15 +14,18 @@ public:
     void Move(const glm::vec3& delta);
     void Rotate(float pitchDelta, float yawDelta);
 
+    void SetAspect(float aspect) { m_Aspect = aspect; }
+
+
     glm::mat4 GetViewMatrix() const;
     glm::mat4 GetProjectionMatrix() const;
     glm::mat4 GetViewProjection() const;
 
 private:
     glm::vec3 m_Position;
+
     float m_Pitch;
     float m_Yaw;
-
     float m_FOV;
     float m_Aspect;
     float m_Near;

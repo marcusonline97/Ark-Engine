@@ -3,7 +3,7 @@ C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\ArkEngine.cpp;C:\ArkEngine\Ark-E
 C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\ArkWindow.cpp;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\x64\Debug\ArkWindow.obj
 C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\AssetManager.cpp;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\x64\Debug\AssetManager.obj
 C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Camera\Camera.cpp;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\x64\Debug\Camera.obj
-C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\ArkLogging.cpp;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\x64\Debug\ArkLogging.obj
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Initializer.cpp;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\x64\Debug\Initializer.obj
 C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Logger.cpp;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\x64\Debug\Logger.obj
 C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\main.cpp;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\x64\Debug\main.obj
 C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Meshes\Cube.cpp;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\x64\Debug\Cube.obj
