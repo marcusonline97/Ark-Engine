@@ -1,14 +1,16 @@
 #include "glad/glad.h"
 
-
-#define GLFW_EXPOSE_NATIVE_WIN32
 #include <GLFW/glfw3.h>
-#include <GLFW/glfw3native.h>
 
-#define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
-#include <dwmapi.h>
-#pragma comment(lib, "dwmapi.lib")
+#if defined(_WIN32)
+    #define GLFW_EXPOSE_NATIVE_WIN32
+    #include <GLFW/glfw3native.h>
+
+    #define WIN32_LEAN_AND_MEAN
+    #include <Windows.h>
+    #include <dwmapi.h>
+    #pragma comment(lib, "dwmapi.lib")
+#endif
 
 #include "ArkWindow.h"
 #include <stdexcept>
@@ -17,6 +19,7 @@
 
 static void EnableDarkTitleBar(GLFWwindow* window)
 {
+#if defined(_WIN32)
     HWND hwnd = glfwGetWin32Window(window);
 
     BOOL useDark = TRUE;
@@ -26,6 +29,9 @@ static void EnableDarkTitleBar(GLFWwindow* window)
         &useDark,
         sizeof(useDark)
     );
+#else
+    (void)window;
+#endif
 }
 
 

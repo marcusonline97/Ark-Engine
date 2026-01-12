@@ -1,7 +1,10 @@
 #pragma once
 #include <string>
 #include <sstream>
+#include <cstdint>
+#include <functional>
 #include <type_traits>
+#include <string_view>
 
 namespace Logging {
 
@@ -14,6 +17,12 @@ namespace Logging {
         TODO,
         FUNCTION
     };
+
+    // Optional log "sink" API (e.g., for an in-editor console).
+    // Sinks are called with the *raw* message text (may include '\n').
+    using SinkId = uint32_t;
+    SinkId AddSink(std::function<void(Level, std::string_view)> sink);
+    void RemoveSink(SinkId id);
 
     struct MessageStream {
         explicit MessageStream(Level level);

@@ -5,6 +5,9 @@
 #include "Meshes/Cube.h"
 #include "Material.h"
 #include "Texture.h"
+#include "Editor/EditorUI.h"
+
+#include <vector>
 
 class App
 {
@@ -30,5 +33,10 @@ private:
     Texture* m_TextureObj = nullptr;
 
 	bool m_ImGuiInitialized = false;
-	bool m_ShowImGuiDemo = true;
+
+    // Editor
+    EditorUI m_EditorUI;
+    Logging::SinkId m_LogSinkId = 0;
+    std::vector<EditorObject> m_Objects;
+    int m_SelectedObject = -1;
 };

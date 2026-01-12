@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClInclude Include="Vendor\glm\common.hpp" />
@@ -295,6 +295,7 @@
     <ClInclude Include="ArkEngine\src\ArkWindow.h" />
     <ClInclude Include="ArkEngine\src\Camera\Camera.h" />
     <ClInclude Include="ArkEngine\src\Meshes\Cube.h" />
+    <ClInclude Include="ArkEngine\src\Editor\EditorUI.h" />
     <ClInclude Include="ArkEngine\src\Shader.h" />
     <ClInclude Include="ArkEngine\src\Material.h" />
     <ClInclude Include="ArkEngine\src\Texture.h" />
@@ -458,6 +459,7 @@
     <ClCompile Include="ArkEngine\src\ArkApp.cpp" />
     <ClCompile Include="ArkEngine\src\Camera\Camera.cpp" />
     <ClCompile Include="ArkEngine\src\Meshes\Cube.cpp" />
+    <ClCompile Include="ArkEngine\src\Editor\EditorUI.cpp" />
     <ClCompile Include="ArkEngine\src\Shader.cpp" />
     <ClCompile Include="ArkEngine\src\Material.cpp" />
     <ClCompile Include="ArkEngine\src\Texture.cpp" />
