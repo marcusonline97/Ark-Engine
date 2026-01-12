@@ -4,6 +4,9 @@
 #include <cctype>
 #include <cstdio>
 #include <imgui/imgui.h>
+// NOTE: DockBuilder* APIs live in imgui_internal.h (not imgui.h) in many ImGui versions.
+// If you don't want to rely on internal APIs, remove DockBuilder usage and rely on ini layout instead.
+#include <imgui/imgui_internal.h>
 
 static const char* LevelName(Logging::Level level)
 {
