@@ -85,6 +85,8 @@ App::App()
     std::cout << "OpenGL Version: " << glGetString(GL_VERSION) << std::endl;
 
 	m_ImGuiInitialized = InitImGui();
+    Logging::ToDo() << "Initializing ImGui.\n";
+    
 }
 
 App::~App()

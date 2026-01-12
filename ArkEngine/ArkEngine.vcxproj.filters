@@ -462,6 +462,13 @@
     <ClCompile Include="ArkEngine\src\AssetManager.cpp" />
     <ClCompile Include="ArkEngine\src\Logger.cpp" />
     <ClCompile Include="ArkEngine\src\Initializer.cpp" />
+    <ClCompile Include="ArkEngine\Vendor\imgui\include\imgui\imgui.cpp" />
+    <ClCompile Include="ArkEngine\Vendor\imgui\include\imgui\imgui_draw.cpp" />
+    <ClCompile Include="ArkEngine\Vendor\imgui\include\imgui\imgui_tables.cpp" />
+    <ClCompile Include="ArkEngine\Vendor\imgui\include\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="ArkEngine\Vendor\imgui\include\imgui\backends\imgui_impl_glfw.cpp" />
+    <ClCompile Include="ArkEngine\Vendor\imgui\include\imgui\backends\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="ArkEngine\Vendor\imgui\include\imgui\imgui_demo.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="ArkEngine\Resources\Textures\BathroomFloor_ALB.png" />
