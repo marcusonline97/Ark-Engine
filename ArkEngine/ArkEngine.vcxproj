@@ -160,6 +160,7 @@
     <ClInclude Include="ArkEngine\src\Material.h" />
     <ClInclude Include="ArkEngine\src\Texture.h" />
     <ClInclude Include="ArkEngine\src\Shader.h" />
+    <ClInclude Include="ArkEngine\src\Utility.h" />
     <ClInclude Include="ArkEngine\Vendor\stb_image\stb_image.h" />
     <ClInclude Include="Vendor\glm\common.hpp" />
     <ClInclude Include="Vendor\glm\detail\compute_common.hpp" />
@@ -611,6 +612,7 @@
     <ClCompile Include="ArkEngine\src\Material.cpp" />
     <ClCompile Include="ArkEngine\src\Texture.cpp" />
     <ClCompile Include="ArkEngine\src\Shader.cpp" />
+    <ClCompile Include="ArkEngine\src\Utility.cpp" />
     <ClCompile Include="ArkEngine\Vendor\GLAD\src\glad.c" />
     <ClCompile Include="ArkEngine\Vendor\imgui\include\imgui\backends\imgui_impl_glfw.cpp" />
     <ClCompile Include="ArkEngine\Vendor\imgui\include\imgui\backends\imgui_impl_opengl3.cpp" />

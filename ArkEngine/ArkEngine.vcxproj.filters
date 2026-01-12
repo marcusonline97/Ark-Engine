@@ -305,6 +305,7 @@
     <ClInclude Include="ArkEngine\src\Initializer.h" />
     <ClInclude Include="ArkEngine\src\ImguiStyling.h" />
     <ClInclude Include="ArkEngine\src\ArkEnum.h" />
+    <ClInclude Include="ArkEngine\src\Utility.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Vendor\glm\detail\func_common.inl" />
@@ -471,6 +472,7 @@
     <ClCompile Include="ArkEngine\Vendor\imgui\include\imgui\backends\imgui_impl_glfw.cpp" />
     <ClCompile Include="ArkEngine\Vendor\imgui\include\imgui\backends\imgui_impl_opengl3.cpp" />
     <ClCompile Include="ArkEngine\Vendor\imgui\include\imgui\imgui_demo.cpp" />
+    <ClCompile Include="ArkEngine\src\Utility.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="ArkEngine\Resources\Textures\BathroomFloor_ALB.png" />

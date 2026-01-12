@@ -14,6 +14,7 @@ public:
 
     void Run();
 
+    GLFWwindow* GetWindowHandle() const { return m_Window ? m_Window->GetNativeHandle() : nullptr; }
 private:
 
     bool InitImGui();

@@ -1,6 +1,8 @@
 #include "Initializer.h"
 #include "ArkApp.h"
 #include "Logger.h"
+#include "AssetManager.h"
+#include "Utility.h"
 
 namespace Init {
     static App* s_app = nullptr;
@@ -18,6 +20,9 @@ namespace Init {
         try {
             Logging::ToDo() << "Initializer::StartUp";
             s_app = new App();
+
+            const std::string iconAbs = AssetManager::Instance().ResolveAssetPath("ArkEngine/Resources/Icon/Ark.png");
+            Util::SetWindowIcon(s_app->GetWindowHandle(), iconAbs);
         }
         catch (const std::exception& e) {
             Logging::Fatal() << "Initializer has failed: " << e.what();

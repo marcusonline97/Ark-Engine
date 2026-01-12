@@ -10,6 +10,7 @@ C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Meshes\Cube.cpp;C:\ArkEngine\Ark
 C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Material.cpp;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\x64\Debug\Material.obj
 C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Texture.cpp;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\x64\Debug\Texture.obj
 C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Shader.cpp;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\x64\Debug\Shader.obj
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Utility.cpp;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\x64\Debug\Utility.obj
 C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\GLAD\src\glad.c;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\x64\Debug\glad.obj
 C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\imgui\include\imgui\backends\imgui_impl_glfw.cpp;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\x64\Debug\imgui_impl_glfw.obj
 C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\imgui\include\imgui\backends\imgui_impl_opengl3.cpp;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\x64\Debug\imgui_impl_opengl3.obj

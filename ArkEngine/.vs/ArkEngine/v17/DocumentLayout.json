@@ -1,7 +1,28 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\",
-  "Documents": [],
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Initializer.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|solutionrelative:ArkEngine\\src\\Initializer.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\ArkApp.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|solutionrelative:ArkEngine\\src\\ArkApp.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Utility.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|solutionrelative:ArkEngine\\src\\Utility.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Utility.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|solutionrelative:ArkEngine\\src\\Utility.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\AssetManager.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|solutionrelative:ArkEngine\\src\\AssetManager.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    }
+  ],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
@@ -9,7 +30,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": -1,
+          "SelectedChildIndex": 4,
           "Children": [
             {
               "$type": "Bookmark",
@@ -22,6 +43,71 @@
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{cce594b6-0c39-4442-ba28-10c64ac7e89f}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "ArkApp.h",
+              "DocumentMoniker": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\ArkApp.h",
+              "RelativeDocumentMoniker": "ArkEngine\\src\\ArkApp.h",
+              "ToolTip": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\ArkApp.h",
+              "RelativeToolTip": "ArkEngine\\src\\ArkApp.h",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABEAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2026-01-12T20:03:05.065Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Initializer.cpp",
+              "DocumentMoniker": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Initializer.cpp",
+              "RelativeDocumentMoniker": "ArkEngine\\src\\Initializer.cpp",
+              "ToolTip": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Initializer.cpp",
+              "RelativeToolTip": "ArkEngine\\src\\Initializer.cpp",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABcAAABzAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2026-01-12T20:01:13.814Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Utility.cpp",
+              "DocumentMoniker": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Utility.cpp",
+              "RelativeDocumentMoniker": "ArkEngine\\src\\Utility.cpp",
+              "ToolTip": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Utility.cpp",
+              "RelativeToolTip": "ArkEngine\\src\\Utility.cpp",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAARAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2026-01-12T20:00:50.555Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "Utility.h",
+              "DocumentMoniker": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Utility.h",
+              "RelativeDocumentMoniker": "ArkEngine\\src\\Utility.h",
+              "ToolTip": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Utility.h",
+              "RelativeToolTip": "ArkEngine\\src\\Utility.h",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2026-01-12T20:00:26.629Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "AssetManager.h",
+              "DocumentMoniker": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\AssetManager.h",
+              "RelativeDocumentMoniker": "ArkEngine\\src\\AssetManager.h",
+              "ToolTip": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\AssetManager.h",
+              "RelativeToolTip": "ArkEngine\\src\\AssetManager.h",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAABEAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2026-01-12T18:56:27.063Z",
+              "EditorCaption": ""
             }
           ]
         },
