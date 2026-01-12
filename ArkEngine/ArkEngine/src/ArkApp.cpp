@@ -134,44 +134,21 @@ void App::Run()
 {
     while (!m_Window->ShouldClose())
     {
-		int fbw = 0, fbh = 0;
-		glfwGetFramebufferSize(m_Window->GetNativeHandle(), &fbw, &fbh);
-        if(fbw > 0 && fbh > 0)
-        {
-			m_Camera->SetAspect(static_cast<float>(fbw) / static_cast<float>(fbh));
-
-		}
-
-		glViewport(0, 0, fbw, fbh);
-        glClearColor(0.1f, 0.1f, 0.15f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        glm::mat4 model(1.0f);
-        if (!m_Objects.empty())
-        {
-            const EditorObject& cube = m_Objects[0];
-            model = glm::translate(glm::mat4(1.0f), cube.position);
-            model = glm::rotate(model, glm::radians(cube.rotationDeg.x), glm::vec3(1.0f, 0.0f, 0.0f));
-            model = glm::rotate(model, glm::radians(cube.rotationDeg.y), glm::vec3(0.0f, 1.0f, 0.0f));
-            model = glm::rotate(model, glm::radians(cube.rotationDeg.z), glm::vec3(0.0f, 0.0f, 1.0f));
-            model = glm::scale(model, cube.scale);
-        }
-        glm::mat4 mvp = m_Camera->GetViewProjection() * model;
-
-        m_Material->Bind();
-        m_Shader->SetMat4("uMVP", mvp);
-        m_CubeMesh->Draw();
+        // ... rendering ...
 
         if (m_ImGuiInitialized)
         {
-			BeginImGuiFrame();
+            BeginImGuiFrame();
             m_EditorUI.Render(m_Objects, m_SelectedObject);
-			EndImGuiFrame();
+            EndImGuiFrame();
         }
+
         m_Window->SwapBuffers();
         m_Window->PollEvents();
     }
 }
+
+
 bool App::InitImGui()
 {
     IMGUI_CHECKVERSION();
