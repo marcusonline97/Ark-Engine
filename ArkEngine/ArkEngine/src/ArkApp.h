@@ -5,6 +5,9 @@
 #include "Meshes/Cube.h"
 #include "Material.h"
 #include "Texture.h"
+#include "Editor/EditorUI.h"
+
+#include <vector>
 
 class App
 {
@@ -13,6 +16,7 @@ public:
     ~App();
 
     void Run();
+
 
     GLFWwindow* GetWindowHandle() const { return m_Window ? m_Window->GetNativeHandle() : nullptr; }
 private:
@@ -31,5 +35,10 @@ private:
     Texture* m_TextureObj = nullptr;
 
 	bool m_ImGuiInitialized = false;
-	bool m_ShowImGuiDemo = true;
+
+    EditorUI m_EditorUI;
+    Logging::SinkId m_LogSinkId = 0;
+    std::vector<EditorObject> m_Objects;
+    int m_SelectedObject = -1;
+
 };

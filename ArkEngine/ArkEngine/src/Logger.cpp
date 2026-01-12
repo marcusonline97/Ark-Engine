@@ -2,6 +2,7 @@
 #include <iostream>
 #include <atomic>
 #include <mutex>
+#include <vector>
 
 #if defined(_WIN32)
 #include <windows.h>
@@ -15,9 +16,57 @@ namespace Logging {
 
     std::mutex g_outputMutex;
 
+    struct SinkEntry
+    {
+        SinkId id = 0;
+        std::function<void(Level, std::string_view)> fn;
+
+    };
+
+	std::mutex g_sinksMutex;
+	std::vector<SinkEntry> g_sinks;
+	std::atomic<SinkId> g_nextSinkId{ 1 };
+
+
     constexpr uint32_t Bit(Level level) {
         return 1u << static_cast<uint32_t>(level);
     }
+
+    static void DispatchToSinks(Level level, std::string_view msg)
+    {
+        std::vector<SinkEntry> sinksCopy;
+        {
+            std::lock_guard<std::mutex> lock(g_sinksMutex);
+            sinksCopy = g_sinks;
+		}
+
+        for (const auto& sink : sinksCopy)
+        {
+			if (sink.fn) sink.fn(level, msg);
+		}
+    }
+
+    SinkId AddSink(std::function<void(Level, std::string_view)> sink) {
+        if (!sink) return 0;
+        const SinkId id = g_nextSinkId.fetch_add(1, std::memory_order_relaxed);
+        {
+            std::lock_guard<std::mutex> lock(g_sinksMutex);
+            g_sinks.push_back(SinkEntry{ id, std::move(sink) });
+        }
+        return id;
+    }
+
+    void RemoveSink(SinkId id) {
+        if (id == 0) return;
+        std::lock_guard<std::mutex> lock(g_sinksMutex);
+        for (size_t i = 0; i < g_sinks.size(); ++i) {
+            if (g_sinks[i].id == id) {
+                g_sinks.erase(g_sinks.begin() + static_cast<std::ptrdiff_t>(i));
+                return;
+            }
+        }
+    }
+
 
     void EnableLevel(Level level) {
         g_levelMask.fetch_or(Bit(level), std::memory_order_relaxed);
@@ -91,17 +140,18 @@ namespace Logging {
 
         const std::string msg = m_ss.str();
         if (msg.empty()) return;
+        {
+            std::lock_guard<std::mutex> lock(g_outputMutex);
 
-        std::lock_guard<std::mutex> lock(g_outputMutex);
+            std::cout << Color(m_level) << "[" << Name(m_level) << "] "
+                << msg
+				<< "\x1b[0m";
 
-        std::cout
-            << Color(m_level)
-            << "[" << Name(m_level) << "] "
-            << msg
-            << "\x1b[0m";
+            if (msg.back() != '\n')
+				std::cout << '\n';
+        }
 
-        if (msg.back() != '\n')
-            std::cout << '\n';
+		DispatchToSinks(m_level, msg);
     }
 
     MessageStream::MessageStream(MessageStream&& rhs) noexcept

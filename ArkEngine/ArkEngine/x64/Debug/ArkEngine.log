@@ -1,2 +1,7 @@
-﻿  Initializer.cpp
+﻿  ArkApp.cpp
+  AssetManager.cpp
+  Initializer.cpp
+  Logger.cpp
+  Utility.cpp
+  Generating Code...
   ArkEngine.vcxproj -> C:\ArkEngine\Ark-Engine\ArkEngine\x64\Debug\ArkEngine.exe

@@ -1,6 +1,9 @@
-#define WIN32_LEAN_AND_MEAN
+#if defined(_WIN32)
+#define WIN_32_LEAN_AND_MEAN
 #define NOMINMAX
 #include <Windows.h>
+#endif
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
@@ -86,11 +89,34 @@ App::App()
 
 	m_ImGuiInitialized = InitImGui();
     Logging::ToDo() << "Initializing ImGui.\n";
+
+    if (m_ImGuiInitialized)
+    {
+        m_EditorUI.Init();
+        m_LogSinkId = Logging::AddSink([this](Logging::Level lvl, std::string_view msg)
+            {
+                m_EditorUI.PushLog(lvl, msg);
+            });
+    }
+
+    // Minimal scene objects for the editor panels (until ECS/Scene is wired in)
+    m_Objects.push_back(EditorObject{ "Cube" });
+    m_Objects.push_back(EditorObject{ "Camera" });
+    m_Objects.back().position = glm::vec3(0.0f, 0.0f, 3.0f);
+    m_Objects.push_back(EditorObject{ "Directional Light" });
+    m_SelectedObject = 0;
     
 }
 
 App::~App()
 {
+    if (m_LogSinkId != 0)
+    {
+        Logging::RemoveSink(m_LogSinkId);
+        m_LogSinkId = 0;
+    }
+
+    m_EditorUI.Shutdown();
 	ShutDownImGui();
 
     delete m_CubeMesh;  m_CubeMesh = nullptr;
@@ -120,8 +146,16 @@ void App::Run()
         glClearColor(0.1f, 0.1f, 0.15f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        const float t = static_cast<float>(glfwGetTime());
-        glm::mat4 model = glm::rotate(glm::mat4(1.0f), t, glm::vec3(0.5f, 1.0f, 0.0f));
+        glm::mat4 model(1.0f);
+        if (!m_Objects.empty())
+        {
+            const EditorObject& cube = m_Objects[0];
+            model = glm::translate(glm::mat4(1.0f), cube.position);
+            model = glm::rotate(model, glm::radians(cube.rotationDeg.x), glm::vec3(1.0f, 0.0f, 0.0f));
+            model = glm::rotate(model, glm::radians(cube.rotationDeg.y), glm::vec3(0.0f, 1.0f, 0.0f));
+            model = glm::rotate(model, glm::radians(cube.rotationDeg.z), glm::vec3(0.0f, 0.0f, 1.0f));
+            model = glm::scale(model, cube.scale);
+        }
         glm::mat4 mvp = m_Camera->GetViewProjection() * model;
 
         m_Material->Bind();
@@ -131,18 +165,7 @@ void App::Run()
         if (m_ImGuiInitialized)
         {
 			BeginImGuiFrame();
-
-			// Minimal editor shell (we'll replace with real heirarchy/inspector next)
-            if (ImGui::Begin("Hierarchy"))
-            {
-				ImGui::Checkbox("Show ImGui Demo Window", &m_ShowImGuiDemo);
-                ImGui::Separator();
-                ImGui::TextUnformatted("Component Editor");
-            }
-			ImGui::End();
-
-            if(m_ShowImGuiDemo)
-				ImGui::ShowDemoWindow(&m_ShowImGuiDemo);
+            m_EditorUI.Render(m_Objects, m_SelectedObject);
 			EndImGuiFrame();
         }
         m_Window->SwapBuffers();
