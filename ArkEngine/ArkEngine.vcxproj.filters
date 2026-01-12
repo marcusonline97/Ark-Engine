@@ -303,6 +303,8 @@
     <ClInclude Include="ArkEngine\src\Input\KeyCodes.h" />
     <ClInclude Include="ArkEngine\src\Logger.h" />
     <ClInclude Include="ArkEngine\src\Initializer.h" />
+    <ClInclude Include="ArkEngine\src\ImguiStyling.h" />
+    <ClInclude Include="ArkEngine\src\ArkEnum.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Vendor\glm\detail\func_common.inl" />

@@ -147,10 +147,12 @@
   <ItemGroup>
     <ClInclude Include="ArkEngine\src\ArkApp.h" />
     <ClInclude Include="ArkEngine\src\ArkEngine.h" />
+    <ClInclude Include="ArkEngine\src\ArkEnum.h" />
     <ClInclude Include="ArkEngine\src\ArkWindow.h" />
     <ClInclude Include="ArkEngine\src\AssetManager.h" />
     <ClInclude Include="ArkEngine\src\AssetManager\AssetManager.h" />
     <ClInclude Include="ArkEngine\src\Camera\Camera.h" />
+    <ClInclude Include="ArkEngine\src\ImguiStyling.h" />
     <ClInclude Include="ArkEngine\src\Initializer.h" />
     <ClInclude Include="ArkEngine\src\Input\KeyCodes.h" />
     <ClInclude Include="ArkEngine\src\Logger.h" />
