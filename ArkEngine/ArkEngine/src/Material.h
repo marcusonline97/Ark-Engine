@@ -1,30 +1,13 @@
 #pragma once
 #include <glm/vec3.hpp>
-
-class Shader;
 class Texture;
+class Shader;
 
-class Material
-{
-public:
-    Material();
-    ~Material();
+struct Material {
+    Texture* albedo = nullptr;
+    Texture* specular = nullptr;
+    glm::vec3 color{ 1.0f,1.0f,1.0f };
+    float shininess = 32.0f;
 
-    void SetShader(Shader* shader);
-    Shader* GetShader() const;
-
-    // Consistent texture API: accept Texture*, store GL id
-    void SetTexture(const Texture* texture);
-    unsigned int GetTexture() const;
-
-    void SetUseTexture(bool use);
-    void SetTint(const glm::vec3& tint);
-
-    void Bind() const;
-
-private:
-    Shader* m_Shader = nullptr;
-    unsigned int m_Texture = 0;
-    bool m_UseTexture = true;
-    glm::vec3 m_Tint = glm::vec3(1.0f);
+    void Bind(Shader& shader) const;
 };

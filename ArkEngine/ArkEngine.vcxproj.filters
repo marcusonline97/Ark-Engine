@@ -301,7 +301,6 @@
     <ClInclude Include="ArkEngine\src\AssetManager.h" />
     <ClInclude Include="ArkEngine\src\AssetManager\AssetManager.h" />
     <ClInclude Include="ArkEngine\src\Input\KeyCodes.h" />
-    <ClInclude Include="ArkEngine\src\ArkLogging.h" />
     <ClInclude Include="ArkEngine\src\Logger.h" />
   </ItemGroup>
   <ItemGroup>
@@ -460,7 +459,6 @@
     <ClCompile Include="ArkEngine\src\Material.cpp" />
     <ClCompile Include="ArkEngine\src\Texture.cpp" />
     <ClCompile Include="ArkEngine\src\AssetManager.cpp" />
-    <ClCompile Include="ArkEngine\src\ArkLogging.cpp" />
     <ClCompile Include="ArkEngine\src\Logger.cpp" />
   </ItemGroup>
   <ItemGroup>

@@ -1,3 +1,557 @@
-﻿  ArkLogging.cpp
-LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
-  ArkEngine.vcxproj -> C:\ArkEngine\Ark-Engine\ArkEngine\x64\Debug\ArkEngine.exe
+﻿  ArkApp.cpp
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\ArkApp.h(9,1): error C2236: unexpected token 'class'. Did you forget a ';'?
+  (compiling source file 'ArkEngine/src/ArkApp.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\ArkApp.h(10,1): error C2059: syntax error: '{'
+  (compiling source file 'ArkEngine/src/ArkApp.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\ArkApp.h(10,1): error C2143: syntax error: missing ';' before '{'
+  (compiling source file 'ArkEngine/src/ArkApp.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\ArkApp.h(10,1): error C2447: '{': missing function header (old-style formal list?)
+  (compiling source file 'ArkEngine/src/ArkApp.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\ArkApp.cpp(19,10): error C1083: Cannot open include file: 'imgui/imgui_impl_glfw.h': No such file or directory
+  AssetManager.cpp
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\AssetManager.cpp(6,13): error C2143: syntax error: missing ';' before '&'
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\AssetManager.cpp(6,29): error C2761: 'AssetManager &AssetManager::Instance(void)': redeclaration of member is not allowed
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\AssetManager.cpp(7,1): error C2059: syntax error: '{'
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\AssetManager.cpp(7,1): error C2143: syntax error: missing ';' before '{'
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\AssetManager.cpp(7,1): error C2447: '{': missing function header (old-style formal list?)
+  Material.cpp
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.hpp(14,1): error C2059: syntax error: 'namespace'
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.hpp(15,1): error C2143: syntax error: missing ';' before '{'
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.hpp(15,1): error C2447: '{': missing function header (old-style formal list?)
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(150,49): error C2039: '{ctor}': is not a member of 'glm::vec<4,T,Q>'
+  (compiling source file 'ArkEngine/src/Material.cpp')
+      C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\qualifier.hpp(35,66):
+      see declaration of 'glm::vec<4,T,Q>'
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(151,3): error C2059: syntax error: ':'
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(151,5): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(151,7): error C2065: 'v': undeclared identifier
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(151,13): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(151,15): error C2065: 'v': undeclared identifier
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(151,21): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(151,23): error C2065: 'v': undeclared identifier
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(151,29): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(151,31): error C2065: 'v': undeclared identifier
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(152,2): error C2059: syntax error: '{'
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(152,2): error C2143: syntax error: missing ';' before '{'
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(152,2): error C2447: '{': missing function header (old-style formal list?)
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(157,49): error C2039: '{ctor}': is not a member of 'glm::vec<4,T,Q>'
+  (compiling source file 'ArkEngine/src/Material.cpp')
+      C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\qualifier.hpp(35,66):
+      see declaration of 'glm::vec<4,T,Q>'
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(158,3): error C2059: syntax error: ':'
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(158,5): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(158,5): error C2374: 'glm::x': redefinition; multiple initialization
+  (compiling source file 'ArkEngine/src/Material.cpp')
+      C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(151,5):
+      see declaration of 'glm::x'
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(158,7): error C2065: 'scalar': undeclared identifier
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(158,16): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(158,16): error C2374: 'glm::y': redefinition; multiple initialization
+  (compiling source file 'ArkEngine/src/Material.cpp')
+      C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(151,13):
+      see declaration of 'glm::y'
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(158,18): error C2065: 'scalar': undeclared identifier
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(158,27): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(158,27): error C2374: 'glm::z': redefinition; multiple initialization
+  (compiling source file 'ArkEngine/src/Material.cpp')
+      C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(151,21):
+      see declaration of 'glm::z'
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(158,29): error C2065: 'scalar': undeclared identifier
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(158,38): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(158,38): error C2374: 'glm::w': redefinition; multiple initialization
+  (compiling source file 'ArkEngine/src/Material.cpp')
+      C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(151,29):
+      see declaration of 'glm::w'
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(158,40): error C2065: 'scalar': undeclared identifier
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(159,2): error C2059: syntax error: '{'
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(159,2): error C2143: syntax error: missing ';' before '{'
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(159,2): error C2447: '{': missing function header (old-style formal list?)
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(162,49): error C2039: '{ctor}': is not a member of 'glm::vec<4,T,Q>'
+  (compiling source file 'ArkEngine/src/Material.cpp')
+      C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\qualifier.hpp(35,66):
+      see declaration of 'glm::vec<4,T,Q>'
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(163,3): error C2059: syntax error: ':'
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(163,5): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(163,5): error C2374: 'glm::x': redefinition; multiple initialization
+  (compiling source file 'ArkEngine/src/Material.cpp')
+      C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(151,5):
+      see declaration of 'glm::x'
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(163,7): error C2065: '_x': undeclared identifier
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(163,12): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(163,12): error C2374: 'glm::y': redefinition; multiple initialization
+  (compiling source file 'ArkEngine/src/Material.cpp')
+      C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(151,13):
+      see declaration of 'glm::y'
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(163,14): error C2065: '_y': undeclared identifier
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(163,19): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(163,19): error C2374: 'glm::z': redefinition; multiple initialization
+  (compiling source file 'ArkEngine/src/Material.cpp')
+      C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(151,21):
+      see declaration of 'glm::z'
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(163,21): error C2065: '_z': undeclared identifier
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(163,26): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(163,26): error C2374: 'glm::w': redefinition; multiple initialization
+  (compiling source file 'ArkEngine/src/Material.cpp')
+      C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(151,29):
+      see declaration of 'glm::w'
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(163,28): error C2065: '_w': undeclared identifier
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(164,2): error C2059: syntax error: '{'
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(164,2): error C2143: syntax error: missing ';' before '{'
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(164,2): error C2447: '{': missing function header (old-style formal list?)
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(170,49): error C2039: '{ctor}': is not a member of 'glm::vec<4,T,Q>'
+  (compiling source file 'ArkEngine/src/Material.cpp')
+      C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\qualifier.hpp(35,66):
+      see declaration of 'glm::vec<4,T,Q>'
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(171,3): error C2059: syntax error: ':'
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(171,5): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(171,5): error C2374: 'glm::x': redefinition; multiple initialization
+  (compiling source file 'ArkEngine/src/Material.cpp')
+      C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(151,5):
+      see declaration of 'glm::x'
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(171,19): error C2061: syntax error: identifier 'T'
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(175,2): error C2143: syntax error: missing ';' before '{'
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(175,2): error C2447: '{': missing function header (old-style formal list?)
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(179,49): error C2039: '{ctor}': is not a member of 'glm::vec<4,T,Q>'
+  (compiling source file 'ArkEngine/src/Material.cpp')
+      C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\qualifier.hpp(35,66):
+      see declaration of 'glm::vec<4,T,Q>'
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(180,3): error C2059: syntax error: ':'
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(180,5): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(180,5): error C2374: 'glm::x': redefinition; multiple initialization
+  (compiling source file 'ArkEngine/src/Material.cpp')
+      C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(151,5):
+      see declaration of 'glm::x'
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(180,19): error C2061: syntax error: identifier 'T'
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(184,2): error C2143: syntax error: missing ';' before '{'
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(184,2): error C2447: '{': missing function header (old-style formal list?)
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(188,49): error C2039: '{ctor}': is not a member of 'glm::vec<4,T,Q>'
+  (compiling source file 'ArkEngine/src/Material.cpp')
+      C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\qualifier.hpp(35,66):
+      see declaration of 'glm::vec<4,T,Q>'
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(189,3): error C2059: syntax error: ':'
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(189,5): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(189,5): error C2374: 'glm::x': redefinition; multiple initialization
+  (compiling source file 'ArkEngine/src/Material.cpp')
+      C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(151,5):
+      see declaration of 'glm::x'
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(189,19): error C2061: syntax error: identifier 'T'
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(193,2): error C2143: syntax error: missing ';' before '{'
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(193,2): error C2447: '{': missing function header (old-style formal list?)
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(197,49): error C2039: '{ctor}': is not a member of 'glm::vec<4,T,Q>'
+  (compiling source file 'ArkEngine/src/Material.cpp')
+      C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\qualifier.hpp(35,66):
+      see declaration of 'glm::vec<4,T,Q>'
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(198,3): error C2059: syntax error: ':'
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(198,5): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(198,5): error C2374: 'glm::x': redefinition; multiple initialization
+  (compiling source file 'ArkEngine/src/Material.cpp')
+      C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(151,5):
+      see declaration of 'glm::x'
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(198,19): error C2061: syntax error: identifier 'T'
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(202,2): error C2143: syntax error: missing ';' before '{'
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(202,2): error C2447: '{': missing function header (old-style formal list?)
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(206,49): error C2039: '{ctor}': is not a member of 'glm::vec<4,T,Q>'
+  (compiling source file 'ArkEngine/src/Material.cpp')
+      C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\qualifier.hpp(35,66):
+      see declaration of 'glm::vec<4,T,Q>'
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(207,3): error C2059: syntax error: ':'
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(207,5): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(207,5): error C2374: 'glm::x': redefinition; multiple initialization
+  (compiling source file 'ArkEngine/src/Material.cpp')
+      C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(151,5):
+      see declaration of 'glm::x'
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(207,19): error C2061: syntax error: identifier 'T'
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(211,2): error C2143: syntax error: missing ';' before '{'
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(211,2): error C2447: '{': missing function header (old-style formal list?)
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(215,49): error C2039: '{ctor}': is not a member of 'glm::vec<4,T,Q>'
+  (compiling source file 'ArkEngine/src/Material.cpp')
+      C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\qualifier.hpp(35,66):
+      see declaration of 'glm::vec<4,T,Q>'
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(216,3): error C2059: syntax error: ':'
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(216,5): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(216,5): error C2374: 'glm::x': redefinition; multiple initialization
+  (compiling source file 'ArkEngine/src/Material.cpp')
+      C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(151,5):
+      see declaration of 'glm::x'
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(216,19): error C2061: syntax error: identifier 'T'
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(220,2): error C2143: syntax error: missing ';' before '{'
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(220,2): error C2447: '{': missing function header (old-style formal list?)
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(224,49): error C2039: '{ctor}': is not a member of 'glm::vec<4,T,Q>'
+  (compiling source file 'ArkEngine/src/Material.cpp')
+      C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\qualifier.hpp(35,66):
+      see declaration of 'glm::vec<4,T,Q>'
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(225,3): error C2059: syntax error: ':'
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(225,5): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(225,5): error C2374: 'glm::x': redefinition; multiple initialization
+  (compiling source file 'ArkEngine/src/Material.cpp')
+      C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(151,5):
+      see declaration of 'glm::x'
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(225,19): error C2061: syntax error: identifier 'T'
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(229,2): error C2143: syntax error: missing ';' before '{'
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(229,2): error C2447: '{': missing function header (old-style formal list?)
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(233,49): error C2039: '{ctor}': is not a member of 'glm::vec<4,T,Q>'
+  (compiling source file 'ArkEngine/src/Material.cpp')
+      C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\qualifier.hpp(35,66):
+      see declaration of 'glm::vec<4,T,Q>'
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(234,3): error C2059: syntax error: ':'
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(234,5): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(234,5): error C2374: 'glm::x': redefinition; multiple initialization
+  (compiling source file 'ArkEngine/src/Material.cpp')
+      C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(151,5):
+      see declaration of 'glm::x'
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(234,19): error C2061: syntax error: identifier 'T'
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(238,2): error C2143: syntax error: missing ';' before '{'
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(238,2): error C2447: '{': missing function header (old-style formal list?)
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(242,49): error C2039: '{ctor}': is not a member of 'glm::vec<4,T,Q>'
+  (compiling source file 'ArkEngine/src/Material.cpp')
+      C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\qualifier.hpp(35,66):
+      see declaration of 'glm::vec<4,T,Q>'
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(243,3): error C2059: syntax error: ':'
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(243,5): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(243,5): error C2374: 'glm::x': redefinition; multiple initialization
+  (compiling source file 'ArkEngine/src/Material.cpp')
+      C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(151,5):
+      see declaration of 'glm::x'
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(243,19): error C2061: syntax error: identifier 'T'
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(247,2): error C2143: syntax error: missing ';' before '{'
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(247,2): error C2447: '{': missing function header (old-style formal list?)
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(251,49): error C2039: '{ctor}': is not a member of 'glm::vec<4,T,Q>'
+  (compiling source file 'ArkEngine/src/Material.cpp')
+      C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\qualifier.hpp(35,66):
+      see declaration of 'glm::vec<4,T,Q>'
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(252,3): error C2059: syntax error: ':'
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(252,5): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(252,5): error C2374: 'glm::x': redefinition; multiple initialization
+  (compiling source file 'ArkEngine/src/Material.cpp')
+      C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(151,5):
+      see declaration of 'glm::x'
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(252,19): error C2061: syntax error: identifier 'T'
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(256,2): error C2143: syntax error: missing ';' before '{'
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(256,2): error C2447: '{': missing function header (old-style formal list?)
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(260,49): error C2039: '{ctor}': is not a member of 'glm::vec<4,T,Q>'
+  (compiling source file 'ArkEngine/src/Material.cpp')
+      C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\qualifier.hpp(35,66):
+      see declaration of 'glm::vec<4,T,Q>'
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(261,3): error C2059: syntax error: ':'
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(261,5): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(261,5): error C2374: 'glm::x': redefinition; multiple initialization
+  (compiling source file 'ArkEngine/src/Material.cpp')
+      C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(151,5):
+      see declaration of 'glm::x'
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\glm\detail\type_vec4.inl(261,5): error C1003: error count exceeds 100; stopping compilation
+  (compiling source file 'ArkEngine/src/Material.cpp')
+  
+  Cube.cpp
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Meshes\Cube.h(10,21): error C2653: 'glm': is not a class or namespace name
+  (compiling source file 'ArkEngine/src/Meshes/Cube.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Meshes\Cube.h(10,15): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
+  (compiling source file 'ArkEngine/src/Meshes/Cube.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Meshes\Cube.h(10,30): error C2143: syntax error: missing ',' before '&'
+  (compiling source file 'ArkEngine/src/Meshes/Cube.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Meshes\Cube.cpp(77,16): error C2511: 'void CubeMesh::Draw(const glm::mat4 &,const glm::mat4 &,const glm::mat4 &,const glm::vec3 &)': overloaded member function not found in 'CubeMesh'
+      C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Meshes\Cube.h(4,7):
+      see declaration of 'CubeMesh'
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Meshes\Cube.cpp(78,5): error C2065: 'gCubeMat': undeclared identifier
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Meshes\Cube.cpp(78,19): error C2065: 'gLitShader': undeclared identifier
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Meshes\Cube.cpp(79,5): error C2065: 'gLitShader': undeclared identifier
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Meshes\Cube.cpp(80,5): error C2065: 'gLitShader': undeclared identifier
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Meshes\Cube.cpp(81,5): error C2065: 'gLitShader': undeclared identifier
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Meshes\Cube.cpp(82,5): error C2065: 'gLitShader': undeclared identifier
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Meshes\Cube.cpp(84,5): error C2065: 'gLitShader': undeclared identifier
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Meshes\Cube.cpp(85,5): error C2065: 'gLitShader': undeclared identifier
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Meshes\Cube.cpp(86,5): error C2065: 'gLitShader': undeclared identifier
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Meshes\Cube.cpp(88,23): error C2065: 'm_vao': undeclared identifier
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Meshes\Cube.cpp(89,34): error C2065: 'm_indexCount': undeclared identifier
+  Shader.cpp
+  Texture.cpp
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\glad\include\glad\glad.h(665,8): error C2059: syntax error: 'string'
+  (compiling source file 'ArkEngine/src/Texture.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\glad\include\glad\glad.h(665,12): error C2143: syntax error: missing ';' before '{'
+  (compiling source file 'ArkEngine/src/Texture.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\glad\include\glad\glad.h(665,12): error C2447: '{': missing function header (old-style formal list?)
+  (compiling source file 'ArkEngine/src/Texture.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Texture.cpp(8,9): error C3861: 'glad_glDeleteTextures': identifier not found
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Texture.cpp(19,5): error C3861: 'glad_glCreateTextures': identifier not found
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Texture.cpp(22,5): error C2065: 'GLenum': undeclared identifier
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Texture.cpp(22,12): error C2146: syntax error: missing ';' before identifier 'internal'
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Texture.cpp(22,12): error C2065: 'internal': undeclared identifier
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Texture.cpp(25,5): error C2065: 'GLenum': undeclared identifier
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Texture.cpp(25,12): error C2146: syntax error: missing ';' before identifier 'format'
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Texture.cpp(25,12): error C2065: 'format': undeclared identifier
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Texture.cpp(27,49): error C2039: 'floor': is not a member of 'std'
+      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\string(23,1):
+      see declaration of 'std'
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Texture.cpp(27,60): error C2039: 'log2': is not a member of 'std'
+      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\string(23,1):
+      see declaration of 'std'
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Texture.cpp(28,45): error C2065: 'internal': undeclared identifier
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Texture.cpp(28,5): error C3861: 'glad_glTextureStorage2D': identifier not found
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Texture.cpp(29,50): error C2065: 'format': undeclared identifier
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Texture.cpp(29,5): error C3861: 'glad_glTextureSubImage2D': identifier not found
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Texture.cpp(32,5): error C3861: 'glad_glTextureParameteri': identifier not found
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Texture.cpp(33,5): error C3861: 'glad_glTextureParameteri': identifier not found
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Texture.cpp(34,5): error C3861: 'glad_glTextureParameteri': identifier not found
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Texture.cpp(35,5): error C3861: 'glad_glTextureParameteri': identifier not found
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Texture.cpp(38,9): error C3861: 'glad_glGenerateTextureMipmap': identifier not found
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Texture.cpp(48,5): error C3861: 'glad_glCreateTextures': identifier not found
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Texture.cpp(49,49): error C2039: 'floor': is not a member of 'std'
+      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\string(23,1):
+      see declaration of 'std'
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Texture.cpp(49,60): error C2039: 'log2': is not a member of 'std'
+      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.42.34433\include\string(23,1):
+      see declaration of 'std'
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Texture.cpp(50,5): error C3861: 'glad_glTextureStorage2D': identifier not found
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Texture.cpp(52,5): error C3861: 'glad_glTextureParameteri': identifier not found
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Texture.cpp(53,5): error C3861: 'glad_glTextureParameteri': identifier not found
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Texture.cpp(54,5): error C3861: 'glad_glTextureParameteri': identifier not found
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Texture.cpp(55,5): error C3861: 'glad_glTextureParameteri': identifier not found
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Texture.cpp(63,5): error C3861: 'glad_glBindTextureUnit': identifier not found
+  main.cpp
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\ArkApp.h(9,1): error C2236: unexpected token 'class'. Did you forget a ';'?
+  (compiling source file 'ArkEngine/src/main.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\ArkApp.h(10,1): error C2059: syntax error: '{'
+  (compiling source file 'ArkEngine/src/main.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\ArkApp.h(10,1): error C2143: syntax error: missing ';' before '{'
+  (compiling source file 'ArkEngine/src/main.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\ArkApp.h(10,1): error C2447: '{': missing function header (old-style formal list?)
+  (compiling source file 'ArkEngine/src/main.cpp')
+  
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\main.cpp(18,9): error C2065: 'App': undeclared identifier
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\main.cpp(18,13): error C2146: syntax error: missing ';' before identifier 'app'
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\main.cpp(18,13): error C2065: 'app': undeclared identifier
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\main.cpp(19,9): error C2065: 'app': undeclared identifier
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\main.cpp(23,56): warning C4834: discarding return value of function with [[nodiscard]] attribute
+  Generating Code...

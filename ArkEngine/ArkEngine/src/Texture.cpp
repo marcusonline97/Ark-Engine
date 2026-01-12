@@ -1,31 +1,68 @@
-#include "stb_image.h"
-#include <glad/glad.h>
 #include "Texture.h"
-#include <stdexcept>
+#include <glad/glad.h>
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
 
-Texture::Texture(const std::string& path, bool srgb)
-{
-    stbi_set_flip_vertically_on_load(1);
-    unsigned char* data = stbi_load(path.c_str(), &m_Width, &m_Height, &m_Channels, 0);
-    if (!data) throw std::runtime_error("Failed to load texture: " + path);
-
-    GLenum format = (m_Channels == 1) ? GL_RED : (m_Channels == 3) ? GL_RGB : GL_RGBA;
-    GLenum internal = format;
-    if (srgb && (format == GL_RGB)) internal = GL_SRGB8;
-    if (srgb && (format == GL_RGBA)) internal = GL_SRGB8_ALPHA8;
-
-    glGenTextures(1, &m_Id);
-    glBindTexture(GL_TEXTURE_2D, m_Id);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexImage2D(GL_TEXTURE_2D, 0, internal, m_Width, m_Height, 0, format, GL_UNSIGNED_BYTE, data);
-    glGenerateMipmap(GL_TEXTURE_2D);
-    stbi_image_free(data);
+Texture::~Texture() {
+    if (m_handle) {
+        glDeleteTextures(1, &m_handle);
+        m_handle = 0;
+    }
 }
 
-Texture::~Texture()
-{
-    if (m_Id) glDeleteTextures(1, &m_Id);
+bool Texture::Load2D(const std::string& path, bool srgb, bool generateMipmaps) {
+    int w, h, channels;
+    stbi_set_flip_vertically_on_load(true);
+    unsigned char* data = stbi_load(path.c_str(), &w, &h, &channels, 0);
+    if (!data) return false;
+
+    glCreateTextures(GL_TEXTURE_2D, 1, &m_handle);
+
+    // Choose internal format (sRGB for albedo)
+    GLenum internal = (channels == 4)
+        ? (srgb ? GL_SRGB8_ALPHA8 : GL_RGBA8)
+        : (srgb ? GL_SRGB8 : GL_RGB8);
+    GLenum format = (channels == 4) ? GL_RGBA : GL_RGB;
+
+    int mipLevels = generateMipmaps ? (int)std::floor(std::log2(std::max(w, h))) + 1 : 1;
+    glTextureStorage2D(m_handle, mipLevels, internal, w, h);
+    glTextureSubImage2D(m_handle, 0, 0, 0, w, h, format, GL_UNSIGNED_BYTE, data);
+
+    // Sampler state
+    glTextureParameteri(m_handle, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTextureParameteri(m_handle, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTextureParameteri(m_handle, GL_TEXTURE_MIN_FILTER, generateMipmaps ? GL_LINEAR_MIPMAP_LINEAR : GL_LINEAR);
+    glTextureParameteri(m_handle, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    if (generateMipmaps) {
+        glGenerateTextureMipmap(m_handle);
+        m_hasMipmaps = true;
+    }
+
+    stbi_image_free(data);
+    m_width = w; m_height = h;
+    return true;
+}
+
+bool Texture::Create2D(uint32_t width, uint32_t height, int internalFormat, bool generateMipmaps) {
+    glCreateTextures(GL_TEXTURE_2D, 1, &m_handle);
+    int mipLevels = generateMipmaps ? (int)std::floor(std::log2(std::max(width, height))) + 1 : 1;
+    glTextureStorage2D(m_handle, mipLevels, internalFormat, (int)width, (int)height);
+
+    glTextureParameteri(m_handle, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTextureParameteri(m_handle, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTextureParameteri(m_handle, GL_TEXTURE_MIN_FILTER, generateMipmaps ? GL_LINEAR_MIPMAP_LINEAR : GL_LINEAR);
+    glTextureParameteri(m_handle, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    m_width = (int)width; m_height = (int)height;
+    m_hasMipmaps = generateMipmaps;
+    return true;
+}
+
+void Texture::BindUnit(unsigned unit) const {
+    glBindTextureUnit(unit, m_handle);
+}
+
+void Texture::Unbind() const {
+    // not strictly necessary with DSA
 }
