@@ -5,7 +5,7 @@
 #include <cstdio>
 
 #include <imgui/imgui.h>
-
+#include <imgui/imgui_internal.h>
 static const char* LevelName(Logging::Level level)
 {
     switch (level)
@@ -245,7 +245,8 @@ void EditorUI::RenderMenuBar()
     ImGui::EndMenuBar();
 }
 
-void EditorUI::RenderHierarchy(std::vector<EditorObject>& objects, int& selectedObjectIndex) {
+void EditorUI::RenderViewport()
+{
     if (!ImGui::Begin("Viewport"))
     {
         ImGui::End();
