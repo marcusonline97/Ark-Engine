@@ -13,7 +13,7 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 include_directories(
     ${CMAKE_SOURCE_DIR}
     ${CMAKE_SOURCE_DIR}/src
-    ${CMAKE_SOURCE_DIR}/Vendor/glad/include
+    ${CMAKE_SOURCE_DIR}/Vendor/GLAD/include
     ${CMAKE_SOURCE_DIR}/Vendor/GLFW/include
     ${CMAKE_SOURCE_DIR}/Vendor/glm
     ${CMAKE_SOURCE_DIR}/Vendor/assimp/include
@@ -28,6 +28,7 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/Vendor/VkBootstrap
     ${CMAKE_SOURCE_DIR}/Vendor/entt
     ${CMAKE_SOURCE_DIR}/Vendor/imgui/include
+    ${CMAKE_SOURCE_DIR}/Vendor/imgui/include/imgui
     ${CMAKE_SOURCE_DIR}/Vendor/compressonator/include
 )
 
@@ -38,11 +39,24 @@ add_executable(${PROJECT_NAME})
 file(GLOB_RECURSE SOURCES
     "src/*.cpp"
     "src/*.c"
-    "Vendor/glad/src/*.c"
+    "Vendor/GLAD/src/*.c"
     "Vendor/stb_image/*.c"
-    "Vendor/lodepng/include/lodepng/*.cpp"
-    "Vendor/tinyexr/*.cpp"
-    "Vendor/imgui/include/imgui/*.cpp"
+    "Vendor/stb_image/*.cpp"
+)
+
+# Dear ImGui core sources (avoid pulling every backend via GLOB_RECURSE)
+list(APPEND SOURCES
+    "Vendor/imgui/include/imgui/imgui.cpp"
+    "Vendor/imgui/include/imgui/imgui_draw.cpp"
+    "Vendor/imgui/include/imgui/imgui_tables.cpp"
+    "Vendor/imgui/include/imgui/imgui_widgets.cpp"
+    "Vendor/imgui/include/imgui/imgui_demo.cpp"
+)
+
+# Dear ImGui backends for GLFW + OpenGL3 (only compile what we use)
+list(APPEND SOURCES
+    "Vendor/imgui/include/imgui/backends/imgui_impl_glfw.cpp"
+    "Vendor/imgui/include/imgui/backends/imgui_impl_opengl3.cpp"
 )
 
 # Add source files to target
@@ -51,23 +65,23 @@ target_sources(${PROJECT_NAME} PRIVATE ${SOURCES})
 # Link libraries
 # OpenGL
 find_package(OpenGL REQUIRED)
-target_link_libraries(${PROJECT_NAME} OpenGL::GL)
+target_link_libraries(${PROJECT_NAME} PRIVATE OpenGL::GL)
 
 # GLFW
 find_package(glfw3 REQUIRED)
-target_link_libraries(${PROJECT_NAME} glfw)
+target_link_libraries(${PROJECT_NAME} PRIVATE glfw)
 
 # Vulkan (optional - only if building with Vulkan support)
 find_package(Vulkan QUIET)
 if(Vulkan_FOUND)
-    target_link_libraries(${PROJECT_NAME} Vulkan::Vulkan)
+    target_link_libraries(${PROJECT_NAME} PRIVATE Vulkan::Vulkan)
     target_compile_definitions(${PROJECT_NAME} PRIVATE VULKAN_ENABLED)
 endif()
 
 # Assimp
 find_package(assimp QUIET)
 if(assimp_FOUND)
-    target_link_libraries(${PROJECT_NAME} assimp::assimp)
+    target_link_libraries(${PROJECT_NAME} PRIVATE assimp::assimp)
 else()
     message(WARNING "Assimp not found - model loading may not work")
 endif()
@@ -80,13 +94,13 @@ endif()
 
 if(UNIX AND NOT APPLE)
     # Linux-specific settings
-    target_link_libraries(${PROJECT_NAME} pthread dl)
+    target_link_libraries(${PROJECT_NAME} PRIVATE pthread dl)
 endif()
 
 if(APPLE)
     # macOS-specific settings
     find_library(COCOA_LIBRARY Cocoa)
-    target_link_libraries(${PROJECT_NAME} ${COCOA_LIBRARY})
+    target_link_libraries(${PROJECT_NAME} PRIVATE ${COCOA_LIBRARY})
 endif()
 
 # Compiler-specific options

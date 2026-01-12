@@ -1,7 +1,8 @@
 #include "ArkEngine.h"
 #include "ArkWindow.h"
-#define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
+
+#include <chrono>
+#include <thread>
 
 ArkEngine::ArkEngine()
 {
@@ -15,26 +16,17 @@ ArkEngine::~ArkEngine()
 
 void ArkEngine::Run()
 {
-
-	while (m_IsRunning)
+	while (m_IsRunning && m_Window && !m_Window->ShouldClose())
 	{
-		MSG msg = {};
-		if (PeekMessage(&msg, HWND(), NULL, NULL, PM_REMOVE))
-		{
-			if (msg.message == WM_QUIT)
-			{
-				m_IsRunning = false;
-				continue;
-			}
-			else
-			{
-				TranslateMessage(&msg);
-				DispatchMessage(&msg);
-			}
-		}
-		else
-		{
-			Sleep(1);
-		}
+		m_Window->PollEvents();
+		m_Window->SwapBuffers();
+
+		// Basic throttle to avoid spinning at 100% when idle
+		std::this_thread::sleep_for(std::chrono::milliseconds(1));
 	}
+}
+
+void ArkEngine::Quit()
+{
+	m_IsRunning = false;
 }

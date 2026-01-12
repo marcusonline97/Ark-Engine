@@ -1,9 +1,18 @@
 #include "AssetManager.h"
-#include <Windows.h>
 #include <iostream>
 
 #include "Logger.h"
 #include "Texture.h" // Ensure Texture declaration is visible or include its header if available.
+
+#ifdef _WIN32
+    #define WIN32_LEAN_AND_MEAN
+    #include <Windows.h>
+#elif defined(__APPLE__)
+    #include <mach-o/dyld.h>
+#else
+    #include <unistd.h>
+    #include <limits.h>
+#endif
 
 AssetManager& AssetManager::Instance()
 {
@@ -13,10 +22,30 @@ AssetManager& AssetManager::Instance()
 
 std::filesystem::path AssetManager::ResolveAgainstLayouts(const std::filesystem::path& rel) const
 {
-    // Executable directory
-    char exePath[MAX_PATH] = { 0 };
-    DWORD len = GetModuleFileNameA(nullptr, exePath, static_cast<DWORD>(sizeof(exePath)));
-    std::filesystem::path exeDir = std::filesystem::path(std::string(exePath, len)).parent_path();
+    // Executable directory (cross-platform)
+    std::filesystem::path exeDir;
+    {
+#ifdef _WIN32
+        char exePath[MAX_PATH] = { 0 };
+        DWORD len = GetModuleFileNameA(nullptr, exePath, static_cast<DWORD>(sizeof(exePath)));
+        exeDir = std::filesystem::path(std::string(exePath, len)).parent_path();
+#elif defined(__APPLE__)
+        uint32_t size = 0;
+        _NSGetExecutablePath(nullptr, &size);
+        std::string buf(size, '\0');
+        if (_NSGetExecutablePath(buf.data(), &size) == 0)
+            exeDir = std::filesystem::path(buf).parent_path();
+        else
+            exeDir = std::filesystem::current_path();
+#else
+        char buf[PATH_MAX] = { 0 };
+        const ssize_t len = ::readlink("/proc/self/exe", buf, sizeof(buf) - 1);
+        if (len > 0)
+            exeDir = std::filesystem::path(std::string(buf, static_cast<size_t>(len))).parent_path();
+        else
+            exeDir = std::filesystem::current_path();
+#endif
+    }
 
     // Try typical layouts
     std::filesystem::path try1 = exeDir / rel;                                                // next to exe

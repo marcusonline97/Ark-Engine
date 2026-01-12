@@ -1,6 +1,3 @@
-#define WIN32_LEAN_AND_MEAN
-#define NOMINMAX
-#include <Windows.h>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
@@ -14,13 +11,14 @@
 #include <filesystem>
 
 //Need Input
-//IM GUI
-//#include <imgui/imgui.h>
-//#include <imgui/backends/imgui_impl_glfw.h>
-//#include <imgui/backends/imgui_impl_opengl3.h>
+// IMGUI
+#include <imgui/imgui.h>
+#include <imgui/backends/imgui_impl_glfw.h>
+#include <imgui/backends/imgui_impl_opengl3.h>
 #include "Logger.h"
 #include "AssetManager.h"
 
+static constexpr const char* kImGuiGlslVersion = "#version 450";
 
 App::App()
 {
@@ -81,10 +79,14 @@ App::App()
 	m_Shader->SetInt("uTexture", 0); // Texture unit 0)
 
     std::cout << "OpenGL Version: " << glGetString(GL_VERSION) << std::endl;
+
+    m_ImGuiInitialized = InitImGui();
 }
 
 App::~App()
 {
+    ShutdownImGui();
+
     delete m_CubeMesh;  m_CubeMesh = nullptr;
     delete m_Material;  m_Material = nullptr;
 
@@ -120,34 +122,84 @@ void App::Run()
         m_Shader->SetMat4("uMVP", mvp);
         m_CubeMesh->Draw();
 
+        if (m_ImGuiInitialized)
+        {
+            BeginImGuiFrame();
+
+            // Minimal editor shell (we'll replace with real hierarchy/inspector next)
+            if (ImGui::Begin("Hierarchy"))
+            {
+                ImGui::TextUnformatted("Step 1: ImGui is running.");
+                ImGui::TextUnformatted("Step 2: EnTT entities will show up here.");
+            }
+            ImGui::End();
+
+            if (ImGui::Begin("Inspector"))
+            {
+                ImGui::Checkbox("Show ImGui demo window", &m_ShowImGuiDemo);
+                ImGui::Separator();
+                ImGui::TextUnformatted("Step 3: selected entity component editor goes here.");
+            }
+            ImGui::End();
+
+            if (m_ShowImGuiDemo)
+                ImGui::ShowDemoWindow(&m_ShowImGuiDemo);
+
+            EndImGuiFrame();
+        }
+
         m_Window->SwapBuffers();
         m_Window->PollEvents();
     }
 }
-/*
+
 bool App::InitImGui()
 {
-    const char* glsl_Version = "#version 450";
     IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
 
-    if (!ImGui::CreateContext())
+    ImGuiIO& io = ImGui::GetIO();
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+    // Note: Viewports are intentionally off for now to keep integration simple.
+    // io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+
+    ImGui::StyleColorsDark();
+
+    if (!ImGui_ImplGlfw_InitForOpenGL(m_Window->GetNativeHandle(), true))
     {
-        std::cerr << "Failed to create ImGui context" << std::endl;
+        Logging::Error() << "ImGui_ImplGlfw_InitForOpenGL failed\n";
         return false;
     }
 
+    if (!ImGui_ImplOpenGL3_Init(kImGuiGlslVersion))
+    {
+        Logging::Error() << "ImGui_ImplOpenGL3_Init failed\n";
+        return false;
+    }
+
+    return true;
 }
 
-void App::Begin()
+void App::ShutdownImGui()
 {
+    if (!m_ImGuiInitialized)
+        return;
+
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
+    m_ImGuiInitialized = false;
 }
 
-void App::End()
+void App::BeginImGuiFrame()
 {
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplGlfw_NewFrame();
+    ImGui::NewFrame();
 }
 
-void App::RenderImGui()
+void App::EndImGuiFrame()
 {
+    ImGui::Render();
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
-
-*/
