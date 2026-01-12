@@ -1,5 +1,24 @@
 ﻿  ArkApp.cpp
-  Initializer.cpp
-  Generating Code...
 LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
-  ArkEngine.vcxproj -> C:\ArkEngine\Ark-Engine\ArkEngine\x64\Debug\ArkEngine.exe
+ArkApp.obj : error LNK2019: unresolved external symbol "struct ImGuiContext * __cdecl ImGui::CreateContext(struct ImFontAtlas *)" (?CreateContext@ImGui@@YAPEAUImGuiContext@@PEAUImFontAtlas@@@Z) referenced in function "private: bool __cdecl App::InitImGui(void)" (?InitImGui@App@@AEAA_NXZ)
+ArkApp.obj : error LNK2019: unresolved external symbol "void __cdecl ImGui::DestroyContext(struct ImGuiContext *)" (?DestroyContext@ImGui@@YAXPEAUImGuiContext@@@Z) referenced in function "private: void __cdecl App::ShutDownImGui(void)" (?ShutDownImGui@App@@AEAAXXZ)
+ArkApp.obj : error LNK2019: unresolved external symbol "struct ImGuiIO & __cdecl ImGui::GetIO(void)" (?GetIO@ImGui@@YAAEAUImGuiIO@@XZ) referenced in function "private: bool __cdecl App::InitImGui(void)" (?InitImGui@App@@AEAA_NXZ)
+ArkApp.obj : error LNK2019: unresolved external symbol "void __cdecl ImGui::NewFrame(void)" (?NewFrame@ImGui@@YAXXZ) referenced in function "private: void __cdecl App::BeginImGuiFrame(void)" (?BeginImGuiFrame@App@@AEAAXXZ)
+ArkApp.obj : error LNK2019: unresolved external symbol "void __cdecl ImGui::Render(void)" (?Render@ImGui@@YAXXZ) referenced in function "private: void __cdecl App::EndImGuiFrame(void)" (?EndImGuiFrame@App@@AEAAXXZ)
+ArkApp.obj : error LNK2019: unresolved external symbol "struct ImDrawData * __cdecl ImGui::GetDrawData(void)" (?GetDrawData@ImGui@@YAPEAUImDrawData@@XZ) referenced in function "private: void __cdecl App::EndImGuiFrame(void)" (?EndImGuiFrame@App@@AEAAXXZ)
+ArkApp.obj : error LNK2019: unresolved external symbol "void __cdecl ImGui::ShowDemoWindow(bool *)" (?ShowDemoWindow@ImGui@@YAXPEA_N@Z) referenced in function "public: void __cdecl App::Run(void)" (?Run@App@@QEAAXXZ)
+ArkApp.obj : error LNK2019: unresolved external symbol "void __cdecl ImGui::StyleColorsDark(struct ImGuiStyle *)" (?StyleColorsDark@ImGui@@YAXPEAUImGuiStyle@@@Z) referenced in function "private: bool __cdecl App::InitImGui(void)" (?InitImGui@App@@AEAA_NXZ)
+ArkApp.obj : error LNK2019: unresolved external symbol "bool __cdecl ImGui::Begin(char const *,bool *,int)" (?Begin@ImGui@@YA_NPEBDPEA_NH@Z) referenced in function "public: void __cdecl App::Run(void)" (?Run@App@@QEAAXXZ)
+ArkApp.obj : error LNK2019: unresolved external symbol "void __cdecl ImGui::End(void)" (?End@ImGui@@YAXXZ) referenced in function "public: void __cdecl App::Run(void)" (?Run@App@@QEAAXXZ)
+ArkApp.obj : error LNK2019: unresolved external symbol "void __cdecl ImGui::Separator(void)" (?Separator@ImGui@@YAXXZ) referenced in function "public: void __cdecl App::Run(void)" (?Run@App@@QEAAXXZ)
+ArkApp.obj : error LNK2019: unresolved external symbol "void __cdecl ImGui::TextUnformatted(char const *,char const *)" (?TextUnformatted@ImGui@@YAXPEBD0@Z) referenced in function "public: void __cdecl App::Run(void)" (?Run@App@@QEAAXXZ)
+ArkApp.obj : error LNK2019: unresolved external symbol "bool __cdecl ImGui::Checkbox(char const *,bool *)" (?Checkbox@ImGui@@YA_NPEBDPEA_N@Z) referenced in function "public: void __cdecl App::Run(void)" (?Run@App@@QEAAXXZ)
+ArkApp.obj : error LNK2019: unresolved external symbol "bool __cdecl ImGui::DebugCheckVersionAndDataLayout(char const *,unsigned __int64,unsigned __int64,unsigned __int64,unsigned __int64,unsigned __int64,unsigned __int64)" (?DebugCheckVersionAndDataLayout@ImGui@@YA_NPEBD_K11111@Z) referenced in function "private: bool __cdecl App::InitImGui(void)" (?InitImGui@App@@AEAA_NXZ)
+ArkApp.obj : error LNK2019: unresolved external symbol "bool __cdecl ImGui_ImplGlfw_InitForOpenGL(struct GLFWwindow *,bool)" (?ImGui_ImplGlfw_InitForOpenGL@@YA_NPEAUGLFWwindow@@_N@Z) referenced in function "private: bool __cdecl App::InitImGui(void)" (?InitImGui@App@@AEAA_NXZ)
+ArkApp.obj : error LNK2019: unresolved external symbol "void __cdecl ImGui_ImplGlfw_Shutdown(void)" (?ImGui_ImplGlfw_Shutdown@@YAXXZ) referenced in function "private: void __cdecl App::ShutDownImGui(void)" (?ShutDownImGui@App@@AEAAXXZ)
+ArkApp.obj : error LNK2019: unresolved external symbol "void __cdecl ImGui_ImplGlfw_NewFrame(void)" (?ImGui_ImplGlfw_NewFrame@@YAXXZ) referenced in function "private: void __cdecl App::BeginImGuiFrame(void)" (?BeginImGuiFrame@App@@AEAAXXZ)
+ArkApp.obj : error LNK2019: unresolved external symbol "bool __cdecl ImGui_ImplOpenGL3_Init(char const *)" (?ImGui_ImplOpenGL3_Init@@YA_NPEBD@Z) referenced in function "private: bool __cdecl App::InitImGui(void)" (?InitImGui@App@@AEAA_NXZ)
+ArkApp.obj : error LNK2019: unresolved external symbol "void __cdecl ImGui_ImplOpenGL3_Shutdown(void)" (?ImGui_ImplOpenGL3_Shutdown@@YAXXZ) referenced in function "private: void __cdecl App::ShutDownImGui(void)" (?ShutDownImGui@App@@AEAAXXZ)
+ArkApp.obj : error LNK2019: unresolved external symbol "void __cdecl ImGui_ImplOpenGL3_NewFrame(void)" (?ImGui_ImplOpenGL3_NewFrame@@YAXXZ) referenced in function "private: void __cdecl App::BeginImGuiFrame(void)" (?BeginImGuiFrame@App@@AEAAXXZ)
+ArkApp.obj : error LNK2019: unresolved external symbol "void __cdecl ImGui_ImplOpenGL3_RenderDrawData(struct ImDrawData *)" (?ImGui_ImplOpenGL3_RenderDrawData@@YAXPEAUImDrawData@@@Z) referenced in function "private: void __cdecl App::EndImGuiFrame(void)" (?EndImGuiFrame@App@@AEAAXXZ)
+C:\ArkEngine\Ark-Engine\ArkEngine\x64\Debug\ArkEngine.exe : fatal error LNK1120: 21 unresolved externals

@@ -15,12 +15,11 @@ public:
     void Run();
 
 private:
-    /*
-	bool InitImGui();
-    void Begin();
-	void End();
-    void RenderImGui();
-	*/ // Continue later if needed
+
+    bool InitImGui();
+	void ShutDownImGui();
+	void BeginImGuiFrame();
+	void EndImGuiFrame();
 
     ArkWindow* m_Window = nullptr;
     Shader* m_Shader = nullptr;
@@ -29,4 +28,7 @@ private:
 
     Material* m_Material = nullptr;
     Texture* m_TextureObj = nullptr;
+
+	bool m_ImGuiInitialized = false;
+	bool m_ShowImGuiDemo = true;
 };

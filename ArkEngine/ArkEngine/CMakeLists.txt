@@ -13,7 +13,7 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 include_directories(
     ${CMAKE_SOURCE_DIR}
     ${CMAKE_SOURCE_DIR}/src
-    ${CMAKE_SOURCE_DIR}/Vendor/glad/include
+    ${CMAKE_SOURCE_DIR}/Vendor/GLAD/include
     ${CMAKE_SOURCE_DIR}/Vendor/GLFW/include
     ${CMAKE_SOURCE_DIR}/Vendor/glm
     ${CMAKE_SOURCE_DIR}/Vendor/assimp/include
@@ -39,7 +39,7 @@ file(GLOB_RECURSE SOURCES
     "src/*.cpp"
     "src/*.c"
     "Vendor/glad/src/*.c"
-    "Vendor/stb_image/*.c"
+    "Vendor/stb_image/*.cpp"
     "Vendor/lodepng/include/lodepng/*.cpp"
     "Vendor/tinyexr/*.cpp"
     "Vendor/imgui/include/imgui/*.cpp"

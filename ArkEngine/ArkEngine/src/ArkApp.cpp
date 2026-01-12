@@ -13,14 +13,16 @@
 #include <iostream>
 #include <filesystem>
 
-//Need Input
-//IM GUI
-//#include <imgui/imgui.h>
-//#include <imgui/backends/imgui_impl_glfw.h>
-//#include <imgui/backends/imgui_impl_opengl3.h>
+
+//ImGUI
+#include <imgui/imgui.h>
+#include <imgui/backends/imgui_impl_glfw.h>
+#include <imgui/backends/imgui_impl_opengl3.h>
+
 #include "Logger.h"
 #include "AssetManager.h"
 
+static constexpr const char* kImGuiGLSLVersion = "#version 450";
 
 App::App()
 {
@@ -81,10 +83,14 @@ App::App()
 	m_Shader->SetInt("uTexture", 0); // Texture unit 0)
 
     std::cout << "OpenGL Version: " << glGetString(GL_VERSION) << std::endl;
+
+	m_ImGuiInitialized = InitImGui();
 }
 
 App::~App()
 {
+	ShutDownImGui();
+
     delete m_CubeMesh;  m_CubeMesh = nullptr;
     delete m_Material;  m_Material = nullptr;
 
@@ -120,34 +126,69 @@ void App::Run()
         m_Shader->SetMat4("uMVP", mvp);
         m_CubeMesh->Draw();
 
+        if (m_ImGuiInitialized)
+        {
+			BeginImGuiFrame();
+
+			// Minimal editor shell (we'll replace with real heirarchy/inspector next)
+            if (ImGui::Begin("Hierarchy"))
+            {
+				ImGui::Checkbox("Show ImGui Demo Window", &m_ShowImGuiDemo);
+                ImGui::Separator();
+                ImGui::TextUnformatted("Component Editor");
+            }
+			ImGui::End();
+
+            if(m_ShowImGuiDemo)
+				ImGui::ShowDemoWindow(&m_ShowImGuiDemo);
+			EndImGuiFrame();
+        }
         m_Window->SwapBuffers();
         m_Window->PollEvents();
     }
 }
-/*
 bool App::InitImGui()
 {
-    const char* glsl_Version = "#version 450";
     IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO();
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+    ImGui::StyleColorsDark();
 
-    if (!ImGui::CreateContext())
+    if (!ImGui_ImplGlfw_InitForOpenGL(m_Window->GetNativeHandle(), true))
     {
-        std::cerr << "Failed to create ImGui context" << std::endl;
+        Logging::Error() << "ImGui_ImplGlfw_InitForOpenGL.\n";
         return false;
     }
 
+    // Initialize OpenGL3 backend with GLSL version
+    if (!ImGui_ImplOpenGL3_Init(kImGuiGLSLVersion))
+    {
+        Logging::Error() << "ImGui_ImplOpenGL3_Init failed.\n";
+        return false;
+    }
+    return true;
 }
 
-void App::Begin()
+void App::ShutDownImGui()
 {
-}
+    if (!m_ImGuiInitialized)
+        return;
 
-void App::End()
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
+    m_ImGuiInitialized = false;
+}
+void App::BeginImGuiFrame()
 {
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplGlfw_NewFrame();
+	ImGui::NewFrame();
 }
-
-void App::RenderImGui()
+void App::EndImGuiFrame()
 {
+    ImGui::Render();
+	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
-*/
