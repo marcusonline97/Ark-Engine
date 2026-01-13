@@ -4,6 +4,8 @@
 #include <sstream>
 #include <stdexcept>
 
+#include "AssetManager.h"
+
 static std::string ReadFile(const std::string& path) {
     std::ifstream file(path, std::ios::in);
     if (!file) throw std::runtime_error("Failed to open file: " + path);
@@ -13,8 +15,13 @@ static std::string ReadFile(const std::string& path) {
 }
 
 bool Shader::LoadFromFiles(const std::string& vsPath, const std::string& fsPath) {
-    std::string vsSrc = ReadFile(vsPath);
-    std::string fsSrc = ReadFile(fsPath);
+    // Resolve paths against common Visual Studio layouts (x64/Debug, etc.)
+    // so shaders can be loaded regardless of the current working directory.
+    const std::string vsResolved = AssetManager::Instance().ResolveAssetPath(vsPath);
+    const std::string fsResolved = AssetManager::Instance().ResolveAssetPath(fsPath);
+
+    std::string vsSrc = ReadFile(vsResolved);
+    std::string fsSrc = ReadFile(fsResolved);
 
     const char* vsCode = vsSrc.c_str();
     const char* fsCode = fsSrc.c_str();
