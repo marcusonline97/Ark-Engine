@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -454,8 +454,8 @@
     <ClInclude Include="Vendor\glm\vector_relational.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="ArkEngine\src\Rendering\shaders\fragment.glsl" />
-    <None Include="ArkEngine\src\Rendering\shaders\vertex.glsl" />
+    <None Include="ArkEngine\Resources\Shaders\fragment.glsl" />
+    <None Include="ArkEngine\Resources\Shaders\vertex.glsl" />
     <None Include="Vendor\glm\detail\func_common.inl" />
     <None Include="Vendor\glm\detail\func_common_simd.inl" />
     <None Include="Vendor\glm\detail\func_exponential.inl" />

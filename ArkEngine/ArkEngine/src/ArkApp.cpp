@@ -54,8 +54,8 @@ App::App()
 
     m_Shader = new Shader();
     if (!m_Shader->LoadFromFiles(
-        "ArkEngine/src/Rendering/shaders/vertex.glsl",
-        "ArkEngine/src/Rendering/shaders/fragment.glsl"))
+        AssetManager::Instance().ResolveAssetPath("ArkEngine/Resources/Shaders/vertex.glsl"),
+        AssetManager::Instance().ResolveAssetPath("ArkEngine/Resources/Shaders/fragment.glsl")))
     {
         throw std::runtime_error("Failed to load shader");
     }
