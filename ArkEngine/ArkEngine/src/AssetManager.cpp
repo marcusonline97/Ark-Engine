@@ -74,7 +74,7 @@ Texture* AssetManager::LoadTexture2D(const std::string& relativePath, bool flipY
 
     // Create and cache
     auto tex = std::make_unique<Texture>();
-    if(!tex->Load2D(resolved, true, true)) // srgb and mipmaps
+    if(!tex->Load2D(resolved, true, true, flipY)) // srgb and mipmaps
     {
         std::cerr << "Failed to load texture: " << resolved << "\n";
         return nullptr;

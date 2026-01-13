@@ -10,11 +10,17 @@ Texture::~Texture() {
     }
 }
 
-bool Texture::Load2D(const std::string& path, bool srgb, bool generateMipmaps) {
+bool Texture::Load2D(const std::string& path, bool srgb, bool generateMipmaps, bool flipY) {
     int w, h, channels;
-    stbi_set_flip_vertically_on_load(true);
+    stbi_set_flip_vertically_on_load(flipY ? 1 : 0);
     unsigned char* data = stbi_load(path.c_str(), &w, &h, &channels, 0);
     if (!data) return false;
+
+    if (m_handle)
+    {
+        glDeleteTextures(1, &m_handle);
+        m_handle = 0;
+    }
 
     glGenTextures(1, &m_handle);
     glBindTexture(GL_TEXTURE_2D, m_handle);

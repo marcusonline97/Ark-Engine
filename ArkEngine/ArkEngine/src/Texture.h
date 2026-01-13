@@ -7,7 +7,7 @@ public:
     Texture() = default;
     ~Texture();
 
-    bool Load2D(const std::string& path, bool srgb = true, bool generateMipmaps = true);
+    bool Load2D(const std::string& path, bool srgb = true, bool generateMipmaps = true, bool flipY = true);
     bool Create2D(uint32_t width, uint32_t height, int internalFormat = 0x8C43 /*GL_SRGB8_ALPHA8*/, bool generateMipmaps = true);
 
     void BindUnit(unsigned unit) const;
