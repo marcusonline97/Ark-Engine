@@ -25,6 +25,7 @@
 #include "Logger.h"
 #include "AssetManager.h"
 #include "Rendering/Framebuffer/Framebuffer.h"
+#include "ImguiStyling.h"
 
 
 static constexpr const char* kImGuiGLSLVersion = "#version 450";
@@ -150,6 +151,23 @@ void App::Run()
 {
     while (!m_Window->ShouldClose())
     {
+        EditorObject* cubeObj = nullptr;
+        if (!m_Objects.empty())
+        {
+            cubeObj = &m_Objects[0];
+            if (cubeObj->name != "Cube")
+            {
+                for (auto& o : m_Objects)
+                {
+                    if (o.name == "Cube")
+                    {
+                        cubeObj = &o;
+                        break;
+                    }
+                }
+            }
+        }
+
         glm::vec2 vpSize = m_EditorUI.GetViewportSize();
         int vpW = static_cast<int>(vpSize.x);
         int vpH = static_cast<int>(vpSize.y);
@@ -178,13 +196,29 @@ void App::Run()
         {
             m_Camera->SetAspect(static_cast<float>(vpW) / static_cast<float>(vpH));
 
-            const float t = static_cast<float>(glfwGetTime());
-            glm::mat4 model = glm::rotate(glm::mat4(1.0f), t * 0.6f, glm::vec3(0.2f, 1.0f, 0.0f));
-            glm::mat4 mvp = m_Camera->GetViewProjection() * model;
+            if (!cubeObj || !cubeObj->enabled)
+            {
+                // nothing to render for the demo object
+            }
+            else
+            {
+                const glm::mat4 rotX = glm::rotate(glm::mat4(1.0f), glm::radians(cubeObj->rotationDeg.x), glm::vec3(1, 0, 0));
+                const glm::mat4 rotY = glm::rotate(glm::mat4(1.0f), glm::radians(cubeObj->rotationDeg.y), glm::vec3(0, 1, 0));
+                const glm::mat4 rotZ = glm::rotate(glm::mat4(1.0f), glm::radians(cubeObj->rotationDeg.z), glm::vec3(0, 0, 1));
+                const glm::mat4 rot = rotZ * rotY * rotX;
+                const glm::mat4 model =
+                    glm::translate(glm::mat4(1.0f), cubeObj->position) *
+                    rot *
+                    glm::scale(glm::mat4(1.0f), cubeObj->scale);
 
-            m_ViewportShader->Bind();
-            m_ViewportShader->SetMat4("uMVP", mvp);
-            m_CubeMesh->Draw();
+                const glm::mat4 mvp = m_Camera->GetViewProjection() * model;
+
+                m_ViewportShader->Bind();
+                m_ViewportShader->SetMat4("uMVP", mvp);
+                m_ViewportShader->SetVec3("u_Tint", cubeObj->tint);
+                m_CubeMesh->Draw();
+            }
+
         }
 
         Framebuffer::Unbind();
@@ -216,7 +250,7 @@ bool App::InitImGui()
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-    ImGui::StyleColorsDark();
+    Ark::EditorTheme::ApplyDarkTheme();
 
     if (!ImGui_ImplGlfw_InitForOpenGL(m_Window->GetNativeHandle(), true))
     {
