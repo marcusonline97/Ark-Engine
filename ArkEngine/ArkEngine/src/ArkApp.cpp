@@ -26,6 +26,7 @@
 #include "AssetManager.h"
 #include "Rendering/Framebuffer/Framebuffer.h"
 #include "ImguiStyling.h"
+#include "Utility.h"
 
 
 static constexpr const char* kImGuiGLSLVersion = "#version 450";
@@ -222,6 +223,9 @@ void App::Run()
                 m_CubeMesh->Draw();
             }
         }
+
+        // Track FPS based on actual viewport renders (FBO pass).
+        Utilities::TickViewportFPS(glfwGetTime());
 
         Framebuffer::Unbind();
 

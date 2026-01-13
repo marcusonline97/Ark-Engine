@@ -6,6 +6,8 @@
 
 #include <imgui/imgui.h>
 #include <imgui/imgui_internal.h>
+
+#include "Utility.h"
 static const char* LevelName(Logging::Level level)
 {
     switch (level)
@@ -255,6 +257,21 @@ void EditorUI::RenderMenuBar()
     }
 
     ImGui::TextDisabled("Project: %s", m_projectRoot.string().c_str());
+
+    // Right-aligned viewport FPS.
+    {
+        const float fps = Utilities::GetViewportFPS();
+        char buf[64]{};
+        std::snprintf(buf, sizeof(buf), "Viewport FPS: %.1f", fps);
+
+        const float textWidth = ImGui::CalcTextSize(buf).x;
+        const float avail = ImGui::GetContentRegionAvail().x;
+        if (avail > textWidth + ImGui::GetStyle().ItemSpacing.x)
+            ImGui::SameLine(ImGui::GetCursorPosX() + avail - textWidth);
+        else
+            ImGui::SameLine();
+        ImGui::TextDisabled("%s", buf);
+    }
 
     ImGui::EndMenuBar();
 }
