@@ -10,7 +10,7 @@
 #endif
 
 #include "Logger.h"
-#include "Texture.h" // Ensure Texture declaration is visible or include its header if available.
+#include "Texture.h" 
 
 AssetManager& AssetManager::Instance()
 {
@@ -22,7 +22,7 @@ std::filesystem::path AssetManager::ResolveAgainstLayouts(const std::filesystem:
 {
     std::filesystem::path exeDir = std::filesystem::current_path();
 #if defined(_WIN32)
-    // Executable directory
+    // Executable directoryw
     char exePath[MAX_PATH] = { 0 };
     DWORD len = GetModuleFileNameA(nullptr, exePath, static_cast<DWORD>(sizeof(exePath)));
 

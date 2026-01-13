@@ -453,8 +453,8 @@
     <None Include="Vendor\glm\gtx\wrap.inl" />
     <None Include="ArkEngine\src\Rendering\shaders\vertex.glsl" />
     <None Include="ArkEngine\src\Rendering\shaders\fragment.glsl" />
-    <None Include="ArkEngine\Resources\Shaders\viewport_vertex.glsl" />
-    <None Include="ArkEngine\Resources\Shaders\viewport_fragment.glsl" />
+    <None Include="ArkEngine\Resources\Shaders\vertex.glsl" />
+    <None Include="ArkEngine\Resources\Shaders\fragment.glsl" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ArkEngine\Vendor\GLAD\src\glad.c" />

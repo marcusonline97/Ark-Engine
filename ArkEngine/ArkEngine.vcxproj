@@ -456,8 +456,8 @@
     <ClInclude Include="Vendor\glm\vector_relational.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="ArkEngine\Resources\Shaders\viewport_fragment.glsl" />
-    <None Include="ArkEngine\Resources\Shaders\viewport_vertex.glsl" />
+    <None Include="ArkEngine\Resources\Shaders\fragment.glsl" />
+    <None Include="ArkEngine\Resources\Shaders\vertex.glsl" />
     <None Include="ArkEngine\src\Rendering\shaders\fragment.glsl" />
     <None Include="ArkEngine\src\Rendering\shaders\vertex.glsl" />
     <None Include="Vendor\glm\detail\func_common.inl" />
