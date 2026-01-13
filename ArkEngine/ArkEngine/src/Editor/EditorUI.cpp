@@ -276,7 +276,7 @@ void EditorUI::RenderViewport()
             {
                 // OpenGL textures are bottom-left origin; ImGui expects top-left UV origin.
                 ImGui::Image(
-                    reinterpret_cast<ImTextureID>(static_cast<intptr_t>(m_viewportTextureId)),
+                    static_cast<ImTextureID>(m_viewportTextureId),
                     avail,
                     ImVec2(0.0f, 1.0f),
                     ImVec2(1.0f, 0.0f)
