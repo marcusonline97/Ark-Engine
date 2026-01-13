@@ -1,9 +1,3 @@
-#if defined(_WIN32)
-#define WIN_32_LEAN_AND_MEAN
-#define NOMINMAX
-#include <Windows.h>
-#endif
-
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
@@ -15,23 +9,18 @@
 
 #include <iostream>
 #include <filesystem>
+#include <stdexcept>
 
-
-//ImGUI
-#include <imgui/imgui.h>
-#include <imgui/backends/imgui_impl_glfw.h>
-#include <imgui/backends/imgui_impl_opengl3.h>
 
 #include "Logger.h"
 #include "AssetManager.h"
 #include "Rendering/Framebuffer/Framebuffer.h"
-#include "ImguiStyling.h"
 #include "Utility.h"
 static constexpr const char* kImGuiGLSLVersion = "#version 450";
 
 App::App()
 {
-    m_Window = new ArkWindow(1400, 840, "Ark Engine");
+    m_Window = std::make_unique<ArkWindow>(1400, 840, "Ark Engine");
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
         throw std::runtime_error("Failed to initialize GLAD");
@@ -46,7 +35,7 @@ App::App()
         }
     );
 
-    m_Camera = new ArkCamera(
+    m_Camera = std::make_unique<ArkCamera>(
         glm::vec3(0.0f, 0.0f, 3.0f),
         45.0f,
         1280.0f / 720.0f,
@@ -54,7 +43,7 @@ App::App()
         100.0f
     );
 
-    m_Shader = new Shader();
+    m_Shader = std::make_unique<Shader>();
     if (!m_Shader->LoadFromFiles(
         "ArkEngine/Resources/Shaders/vertex.glsl",
         "ArkEngine/Resources/Shaders/fragment.glsl"))
@@ -62,10 +51,10 @@ App::App()
         throw std::runtime_error("Failed to load shader");
     }
 
-    m_CubeMesh = new CubeMesh();
+    m_CubeMesh = std::make_unique<CubeMesh>();
 
-    m_Material = new Material();
-    m_Material->SetShader(m_Shader);
+    m_Material = std::make_unique<Material>();
+    m_Material->SetShader(m_Shader.get());
     m_Material->SetUseTexture(true);
     m_Material->SetTint(glm::vec3(1.0f));
 
@@ -90,10 +79,10 @@ App::App()
 
     std::cout << "OpenGL Version: " << glGetString(GL_VERSION) << std::endl;
 
-	m_ImGuiInitialized = InitImGui();
+	const bool imguiOk = m_ImGui.Init(m_Window->GetNativeHandle(), kImGuiGLSLVersion);
     Logging::ToDo() << "Initializing ImGui.\n";
 
-    m_ViewportShader = new Shader();
+    m_ViewportShader = std::make_unique<Shader>();
     if (!m_ViewportShader->LoadFromFiles(
         "ArkEngine/Resources/Shaders/vertex.glsl",
         "ArkEngine/Resources/Shaders/fragment.glsl"))
@@ -104,7 +93,7 @@ App::App()
     m_ViewportShader->Bind();
     m_ViewportShader->SetVec3("u_Tint", glm::vec3(1.0f));
 
-    if (m_ImGuiInitialized)
+    if (imguiOk)
     {
         m_EditorUI.Init();
         m_LogSinkId = Logging::AddSink([this](Logging::Level lvl, std::string_view msg)
@@ -122,6 +111,7 @@ App::App()
     
 }
 
+
 App::~App()
 {
     if (m_LogSinkId != 0)
@@ -131,16 +121,7 @@ App::~App()
     }
 
     m_EditorUI.Shutdown();
-	ShutDownImGui();
-
-    delete m_ViewportShader; m_ViewportShader = nullptr;
-
-    delete m_CubeMesh;  m_CubeMesh = nullptr;
-    delete m_Material;  m_Material = nullptr;
-
-    delete m_Shader;    m_Shader = nullptr;
-    delete m_Camera;    m_Camera = nullptr;
-    delete m_Window;    m_Window = nullptr;
+	m_ImGui.Shutdown();
 
     // Do NOT delete AssetManager-owned textures
     m_TextureObj = nullptr;
@@ -151,21 +132,14 @@ void App::Run()
     while (!m_Window->ShouldClose())
     {
         EditorObject* cubeObj = nullptr;
-        if (!m_Objects.empty())
-        {
-            cubeObj = &m_Objects[0];
-            if (cubeObj->name != "Cube")
-            {
-                for (auto& o : m_Objects)
-                {
-                    if (o.name == "Cube")
-                    {
-                        cubeObj = &o;
-                        break;
-                    }
-                }
-            }
-        }
+		for (auto& o : m_Objects)
+		{
+			if (o.name == "Cube")
+			{
+				cubeObj = &o;
+				break;
+			}
+		}
 
         glm::vec2 vpSize = m_EditorUI.GetViewportSize();
         int vpW = static_cast<int>(vpSize.x);
@@ -230,62 +204,15 @@ void App::Run()
         glClearColor(0.12f, 0.12f, 0.13f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        if (m_ImGuiInitialized)
+        if (m_ImGui.IsInitialized())
         {
-            BeginImGuiFrame();
+            m_ImGui.BeginFrame();
             m_EditorUI.SetViewportTextureId(m_ViewportFramebuffer.GetColorTextureId());
             m_EditorUI.Render(m_Objects, m_SelectedObject);
-            EndImGuiFrame();
+            m_ImGui.EndFrame();
         }
 
         m_Window->SwapBuffers();
         m_Window->PollEvents();
     }
 }
-
-
-bool App::InitImGui()
-{
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO();
-    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-    Ark::EditorTheme::ApplyDarkTheme();
-
-    if (!ImGui_ImplGlfw_InitForOpenGL(m_Window->GetNativeHandle(), true))
-    {
-        Logging::Error() << "ImGui_ImplGlfw_InitForOpenGL.\n";
-        return false;
-    }
-
-    // Initialize OpenGL3 backend with GLSL version
-    if (!ImGui_ImplOpenGL3_Init(kImGuiGLSLVersion))
-    {
-        Logging::Error() << "ImGui_ImplOpenGL3_Init failed.\n";
-        return false;
-    }
-    return true;
-}
-
-void App::ShutDownImGui()
-{
-    if (!m_ImGuiInitialized)
-        return;
-
-    ImGui_ImplOpenGL3_Shutdown();
-    ImGui_ImplGlfw_Shutdown();
-    ImGui::DestroyContext();
-    m_ImGuiInitialized = false;
-}
-void App::BeginImGuiFrame()
-{
-    ImGui_ImplOpenGL3_NewFrame();
-    ImGui_ImplGlfw_NewFrame();
-	ImGui::NewFrame();
-}
-void App::EndImGuiFrame()
-{
-    ImGui::Render();
-	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-}
-
