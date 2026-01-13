@@ -75,7 +75,7 @@ if(ARK_ENABLE_FMOD)
     if(FMOD_LIBRARY)
         message(STATUS "FMOD library: ${FMOD_LIBRARY}")
         set(ARK_HAS_FMOD 1)
-        target_link_libraries(${PROJECT_NAME} ${FMOD_LIBRARY})
+        target_link_libraries(${PROJECT_NAME} PRIVATE ${FMOD_LIBRARY})
     else()
         message(WARNING "ARK_ENABLE_FMOD is ON but FMOD library not found. Building without FMOD backend.")
     endif()
@@ -104,7 +104,7 @@ if(ARK_ENABLE_SOLOUD)
         message(STATUS "SoLoud library: ${SOLOUD_LIBRARY}")
         include_directories(${SOLOUD_INCLUDE_DIR})
         set(ARK_HAS_SOLOUD 1)
-        target_link_libraries(${PROJECT_NAME} ${SOLOUD_LIBRARY})
+        target_link_libraries(${PROJECT_NAME} PRIVATE ${SOLOUD_LIBRARY})
     else()
         message(WARNING "ARK_ENABLE_SOLOUD is ON but SoLoud was not found. Building without SoLoud backend.")
     endif()
@@ -118,23 +118,23 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
 # Link libraries
 # OpenGL
 find_package(OpenGL REQUIRED)
-target_link_libraries(${PROJECT_NAME} OpenGL::GL)
+target_link_libraries(${PROJECT_NAME} PRIVATE OpenGL::GL)
 
 # GLFW
 find_package(glfw3 REQUIRED)
-target_link_libraries(${PROJECT_NAME} glfw)
+target_link_libraries(${PROJECT_NAME} PRIVATE glfw)
 
 # Vulkan (optional - only if building with Vulkan support)
 find_package(Vulkan QUIET)
 if(Vulkan_FOUND)
-    target_link_libraries(${PROJECT_NAME} Vulkan::Vulkan)
+    target_link_libraries(${PROJECT_NAME} PRIVATE Vulkan::Vulkan)
     target_compile_definitions(${PROJECT_NAME} PRIVATE VULKAN_ENABLED)
 endif()
 
 # Assimp
 find_package(assimp QUIET)
 if(assimp_FOUND)
-    target_link_libraries(${PROJECT_NAME} assimp::assimp)
+    target_link_libraries(${PROJECT_NAME} PRIVATE assimp::assimp)
 else()
     message(WARNING "Assimp not found - model loading may not work")
 endif()
@@ -147,13 +147,13 @@ endif()
 
 if(UNIX AND NOT APPLE)
     # Linux-specific settings
-    target_link_libraries(${PROJECT_NAME} pthread dl)
+    target_link_libraries(${PROJECT_NAME} PRIVATE pthread dl)
 endif()
 
 if(APPLE)
     # macOS-specific settings
     find_library(COCOA_LIBRARY Cocoa)
-    target_link_libraries(${PROJECT_NAME} ${COCOA_LIBRARY})
+    target_link_libraries(${PROJECT_NAME} PRIVATE ${COCOA_LIBRARY})
 endif()
 
 # Compiler-specific options
