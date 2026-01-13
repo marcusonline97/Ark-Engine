@@ -1,8 +1,11 @@
 #pragma once
-/*
-void Frost::EditorTheme::ApplyDarkTheme()
+#include <imgui/imgui.h>
+
+namespace Ark::EditorTheme
 {
-	ImGuiStyle& style = ImGui::GetStyle();
+	inline void ApplyDarkTheme()
+	{
+		ImGuiStyle& style = ImGui::GetStyle();
 
 	style.FontScaleMain = 1.0f;
 
@@ -93,5 +96,5 @@ void Frost::EditorTheme::ApplyDarkTheme()
 	style.Colors[ImGuiCol_NavWindowingHighlight] = ImVec4(0.49803922f, 0.5137255f, 1.0f, 1.0f);
 	style.Colors[ImGuiCol_NavWindowingDimBg] = ImVec4(0.19607843f, 0.1764706f, 0.54509807f, 0.5019608f);
 	style.Colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.25f, 0.25f, 0.25f, 0.5019608f);
+	}
 }
-*/

@@ -18,6 +18,10 @@ struct EditorObject
     glm::vec3 position{ 0.0f, 0.0f, 0.0f };
     glm::vec3 rotationDeg{ 0.0f, 0.0f, 0.0f };
     glm::vec3 scale{ 1.0f, 1.0f, 1.0f };
+
+    // "Material" (currently a simple tint preset for the demo cube)
+    glm::vec3 tint{ 1.0f, 1.0f, 1.0f };
+    int materialPreset = 0;
 };
 
 class EditorUI
@@ -48,6 +52,7 @@ private:
 	void RenderMusicPlayer();
     void RenderHierarchy(std::vector<EditorObject>& objects, int& selectedObjectIndex);
     void RenderInspector(std::vector<EditorObject>& objects, int& selectedObjectIndex);
+    void RenderMaterials(std::vector<EditorObject>& objects, int& selectedObjectIndex);
     void RenderConsole();
     void RenderContentBrowser();
     void RenderFileExplorer();
@@ -65,6 +70,7 @@ private:
 
     bool m_showHierarchy = true;
     bool m_showInspector = true;
+    bool m_showMaterials = true;
     bool m_showConsole = true;
     bool m_showContentBrowser = true;
     bool m_showFileExplorer = true;

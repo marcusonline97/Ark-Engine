@@ -146,6 +146,7 @@ void EditorUI::Render(std::vector<EditorObject>& objects, int& selectedObjectInd
 
     if (m_showHierarchy)      RenderHierarchy(objects, selectedObjectIndex);
     if (m_showInspector)      RenderInspector(objects, selectedObjectIndex);
+    if (m_showMaterials)      RenderMaterials(objects, selectedObjectIndex);
     if (m_showConsole)        RenderConsole();
     if (m_showContentBrowser) RenderContentBrowser();
     if (m_showFileExplorer)   RenderFileExplorer();
@@ -215,6 +216,7 @@ void EditorUI::EnsureDefaultLayout()
     ImGui::DockBuilderDockWindow("File Explorer", dockLeft);
 
     ImGui::DockBuilderDockWindow("Inspector", dockRight);
+    ImGui::DockBuilderDockWindow("Materials", dockRight);
 
     ImGui::DockBuilderDockWindow("Console", dockBottom);
     ImGui::DockBuilderDockWindow("Content Browser", dockBottom);
@@ -243,6 +245,7 @@ void EditorUI::RenderMenuBar()
     {
         ImGui::MenuItem("Hierarchy", nullptr, &m_showHierarchy);
         ImGui::MenuItem("Inspector", nullptr, &m_showInspector);
+        ImGui::MenuItem("Materials", nullptr, &m_showMaterials);
         ImGui::MenuItem("Console", nullptr, &m_showConsole);
         ImGui::MenuItem("Content Browser", nullptr, &m_showContentBrowser);
         ImGui::MenuItem("File Explorer", nullptr, &m_showFileExplorer);
@@ -472,6 +475,66 @@ void EditorUI::RenderInspector(std::vector<EditorObject>& objects, int& selected
     ImGui::DragFloat3("Position", &obj.position.x, 0.05f);
     ImGui::DragFloat3("Rotation (deg)", &obj.rotationDeg.x, 0.25f);
     ImGui::DragFloat3("Scale", &obj.scale.x, 0.05f, 0.001f, 1000.0f);
+
+    ImGui::Separator();
+    ImGui::TextUnformatted("Material");
+    ImGui::ColorEdit3("Tint", &obj.tint.x);
+
+    ImGui::End();
+}
+
+void EditorUI::RenderMaterials(std::vector<EditorObject>& objects, int& selectedObjectIndex)
+{
+    if (!ImGui::Begin("Materials"))
+    {
+        ImGui::End();
+        return;
+    }
+
+    if (selectedObjectIndex < 0 || selectedObjectIndex >= static_cast<int>(objects.size()))
+    {
+        ImGui::TextDisabled("Select an object from the Hierarchy.");
+        ImGui::End();
+        return;
+    }
+
+    EditorObject& obj = objects[selectedObjectIndex];
+
+    ImGui::TextDisabled("Selected: %s", obj.name.c_str());
+    ImGui::Separator();
+
+    // Simple preset list (tint-only "materials" for now).
+    struct Preset { const char* name; glm::vec3 tint; };
+    static constexpr Preset kPresets[] = {
+        {"Default",   {1.0f, 1.0f, 1.0f}},
+        {"Clay",      {0.76f, 0.68f, 0.62f}},
+        {"Gold",      {1.0f, 0.78f, 0.25f}},
+        {"Emerald",   {0.20f, 0.85f, 0.45f}},
+        {"Magenta",   {0.95f, 0.25f, 0.85f}},
+        {"Ice",       {0.45f, 0.80f, 1.00f}},
+    };
+
+    const char* preview = (obj.materialPreset >= 0 && obj.materialPreset < static_cast<int>(IM_ARRAYSIZE(kPresets)))
+        ? kPresets[obj.materialPreset].name
+        : "<custom>";
+
+    if (ImGui::BeginCombo("Preset", preview))
+    {
+        for (int i = 0; i < static_cast<int>(IM_ARRAYSIZE(kPresets)); ++i)
+        {
+            const bool selected = (i == obj.materialPreset);
+            if (ImGui::Selectable(kPresets[i].name, selected))
+            {
+                obj.materialPreset = i;
+                obj.tint = kPresets[i].tint;
+            }
+            if (selected) ImGui::SetItemDefaultFocus();
+        }
+        ImGui::EndCombo();
+    }
+
+    ImGui::ColorEdit3("Tint", &obj.tint.x);
+    ImGui::TextDisabled("Note: This is currently a tint-only demo material.");
 
     ImGui::End();
 }
