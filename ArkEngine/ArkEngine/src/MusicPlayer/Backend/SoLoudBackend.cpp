@@ -1,4 +1,4 @@
-#include "Musicplayer/MusicPlayer.h"
+#include "MusicPlayer/MusicPlayer.h"
 
 #if defined(ARK_HAS_SOLOUD) && ARK_HAS_SOLOUD
 

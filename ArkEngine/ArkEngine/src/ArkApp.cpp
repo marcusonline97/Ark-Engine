@@ -2,6 +2,12 @@
 #include <GLFW/glfw3.h>
 
 #include "ArkApp.h"
+#include "ArkWindow.h"
+#include "Shader.h"
+#include "Camera/Camera.h"
+#include "Meshes/Cube.h"
+#include "Material.h"
+#include "Texture.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -18,6 +24,11 @@
 #include "Rendering/Framebuffer/Framebuffer.h"
 #include "Utility/Utility.h"
 static constexpr const char* kImGuiGLSLVersion = "#version 450";
+
+GLFWwindow* App::GetWindowHandle() const
+{
+    return m_Window ? m_Window->GetNativeHandle() : nullptr;
+}
 
 App::App()
 {

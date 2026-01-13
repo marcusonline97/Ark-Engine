@@ -26,7 +26,7 @@ public:
     void Run();
 
 
-    GLFWwindow* GetWindowHandle() const { return m_Window ? m_Window->GetNativeHandle() : nullptr; }
+    GLFWwindow* GetWindowHandle() const;
 private:
 
     std::unique_ptr<ArkWindow> m_Window;
