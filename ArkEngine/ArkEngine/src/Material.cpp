@@ -12,13 +12,13 @@ void Material::Bind()const
 	if (m_UseTexture && m_Texture)
 	{
 		m_Texture->BindUnit(0);
-		m_Shader->SetInt("u_Texture", 0);
-		m_Shader->SetInt("u_UseTexture", 1);
+		m_Shader->SetInt("uTexture", 0);
+		m_Shader->SetInt("uUseTexture", 1);
 	}
 
 	else
 	{
-		m_Shader->SetInt("u_UseTexture", 0);
+		m_Shader->SetInt("uUseTexture", 0);
 	}
-	m_Shader->SetVec3("u_Tint", m_Tint);
+	m_Shader->SetVec3("uTint", m_Tint);
 }

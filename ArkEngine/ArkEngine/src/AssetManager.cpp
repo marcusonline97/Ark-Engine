@@ -1,6 +1,13 @@
 #include "AssetManager.h"
-#include <Windows.h>
 #include <iostream>
+#include <filesystem>
+
+#if defined(_WIN32)
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#else
+#include <unistd.h>
+#endif
 
 #include "Logger.h"
 #include "Texture.h" // Ensure Texture declaration is visible or include its header if available.
@@ -13,11 +20,23 @@ AssetManager& AssetManager::Instance()
 
 std::filesystem::path AssetManager::ResolveAgainstLayouts(const std::filesystem::path& rel) const
 {
+    std::filesystem::path exeDir = std::filesystem::current_path();
+#if defined(_WIN32)
     // Executable directory
     char exePath[MAX_PATH] = { 0 };
     DWORD len = GetModuleFileNameA(nullptr, exePath, static_cast<DWORD>(sizeof(exePath)));
-    std::filesystem::path exeDir = std::filesystem::path(std::string(exePath, len)).parent_path();
 
+    if (len > 0)
+        exeDir = std::filesystem::path(std::string(exePath, len)).parent_path();
+#else
+    char exePath[4096] = { 0 };
+    const ssize_t len = ::readlink("/proc/self/exe", exePath, sizeof(exePath) - 1);
+    if (len > 0)
+    {
+        exePath[len] = '\0';
+        exeDir = std::filesystem::path(std::string(exePath)).parent_path();
+    }
+#endif
     // Try typical layouts
     std::filesystem::path try1 = exeDir / rel;                                                // next to exe
     std::filesystem::path try2 = exeDir.parent_path().parent_path() / rel;                    // project root

@@ -160,6 +160,8 @@
     <ClInclude Include="ArkEngine\src\Logger.h" />
     <ClInclude Include="ArkEngine\src\Meshes\Cube.h" />
     <ClInclude Include="ArkEngine\src\Material.h" />
+    <ClInclude Include="ArkEngine\src\MusicPlayer\MusicPlayer.h" />
+    <ClInclude Include="ArkEngine\src\Rendering\Framebuffer\Framebuffer.h" />
     <ClInclude Include="ArkEngine\src\Texture.h" />
     <ClInclude Include="ArkEngine\src\Shader.h" />
     <ClInclude Include="ArkEngine\src\Utility.h" />
@@ -454,6 +456,8 @@
     <ClInclude Include="Vendor\glm\vector_relational.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="ArkEngine\Resources\Shaders\viewport_fragment.glsl" />
+    <None Include="ArkEngine\Resources\Shaders\viewport_vertex.glsl" />
     <None Include="ArkEngine\src\Rendering\shaders\fragment.glsl" />
     <None Include="ArkEngine\src\Rendering\shaders\vertex.glsl" />
     <None Include="Vendor\glm\detail\func_common.inl" />
@@ -613,6 +617,10 @@
     <ClCompile Include="ArkEngine\src\main.cpp" />
     <ClCompile Include="ArkEngine\src\Meshes\Cube.cpp" />
     <ClCompile Include="ArkEngine\src\Material.cpp" />
+    <ClCompile Include="ArkEngine\src\MusicPlayer\Backend\FmodMusicBackend.cpp" />
+    <ClCompile Include="ArkEngine\src\MusicPlayer\Backend\SoLoudBackend.cpp" />
+    <ClCompile Include="ArkEngine\src\MusicPlayer\MusicPlayer.cpp" />
+    <ClCompile Include="ArkEngine\src\Rendering\Framebuffer\Framebuffer.cpp" />
     <ClCompile Include="ArkEngine\src\Texture.cpp" />
     <ClCompile Include="ArkEngine\src\Shader.cpp" />
     <ClCompile Include="ArkEngine\src\Utility.cpp" />

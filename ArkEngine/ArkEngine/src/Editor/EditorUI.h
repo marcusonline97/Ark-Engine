@@ -9,6 +9,7 @@
 #include <glm/glm.hpp>
 
 #include "Logger.h"
+#include "MusicPlayer/MusicPlayer.h"
 
 struct EditorObject
 {
@@ -27,7 +28,11 @@ public:
 
     void Render(std::vector<EditorObject>& objects, int& selectedObjectIndex);
 
-    // Thread-safe entry point for the Logging sink callback
+    void SetViewportTextureId(unsigned int textureId) { m_viewportTextureId = textureId; }
+    unsigned int GetViewportTextureId() const { return m_viewportTextureId; }
+    glm::vec2 GetViewportSize() const { return m_viewportSize; }
+
+    // a Thread-safe entry point for my Logging sink callback
     void PushLog(Logging::Level level, std::string_view msg);
 
 private:
@@ -40,6 +45,7 @@ private:
     void RenderMenuBar();
 
     void RenderViewport();
+	void RenderMusicPlayer();
     void RenderHierarchy(std::vector<EditorObject>& objects, int& selectedObjectIndex);
     void RenderInspector(std::vector<EditorObject>& objects, int& selectedObjectIndex);
     void RenderConsole();
@@ -85,4 +91,12 @@ private:
     bool m_consoleShowTodo = true;
     bool m_consoleShowFunction = true;
     char m_consoleFilter[256]{};
+
+	ArkAudio::MusicPlayer m_music;
+	float m_musicVolume = 0.5f;
+
+
+    // Viewport  
+    unsigned int m_viewportTextureId = 0;
+    glm::vec2 m_viewportSize{ 0.0f, 0.0f };
 };

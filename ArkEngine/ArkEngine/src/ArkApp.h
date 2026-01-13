@@ -6,6 +6,7 @@
 #include "Material.h"
 #include "Texture.h"
 #include "Editor/EditorUI.h"
+#include "Rendering/Framebuffer/Framebuffer.h"
 
 #include <vector>
 
@@ -41,4 +42,6 @@ private:
     std::vector<EditorObject> m_Objects;
     int m_SelectedObject = -1;
 
+    Framebuffer m_ViewportFramebuffer;
+    Shader* m_ViewportShader = nullptr;
 };

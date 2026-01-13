@@ -308,6 +308,8 @@
     <ClInclude Include="ArkEngine\src\Utility.h" />
     <ClInclude Include="ArkEngine\src\ECS\Component.h" />
     <ClInclude Include="ArkEngine\src\Editor\EditorUI.h" />
+    <ClInclude Include="ArkEngine\src\MusicPlayer\MusicPlayer.h" />
+    <ClInclude Include="ArkEngine\src\Rendering\Framebuffer\Framebuffer.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Vendor\glm\detail\func_common.inl" />
@@ -451,6 +453,8 @@
     <None Include="Vendor\glm\gtx\wrap.inl" />
     <None Include="ArkEngine\src\Rendering\shaders\vertex.glsl" />
     <None Include="ArkEngine\src\Rendering\shaders\fragment.glsl" />
+    <None Include="ArkEngine\Resources\Shaders\viewport_vertex.glsl" />
+    <None Include="ArkEngine\Resources\Shaders\viewport_fragment.glsl" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ArkEngine\Vendor\GLAD\src\glad.c" />
@@ -476,6 +480,10 @@
     <ClCompile Include="ArkEngine\Vendor\imgui\include\imgui\imgui_demo.cpp" />
     <ClCompile Include="ArkEngine\src\Utility.cpp" />
     <ClCompile Include="ArkEngine\src\Editor\EditorUI.cpp" />
+    <ClCompile Include="ArkEngine\src\MusicPlayer\MusicPlayer.cpp" />
+    <ClCompile Include="ArkEngine\src\MusicPlayer\Backend\FmodMusicBackend.cpp" />
+    <ClCompile Include="ArkEngine\src\MusicPlayer\Backend\SoLoudBackend.cpp" />
+    <ClCompile Include="ArkEngine\src\Rendering\Framebuffer\Framebuffer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="ArkEngine\Resources\Textures\BathroomFloor_ALB.png" />
