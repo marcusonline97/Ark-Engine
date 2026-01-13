@@ -4,12 +4,12 @@
 #include <string>
 #include <string_view>
 #include <vector>
-#include <mutex>
 
 #include <glm/glm.hpp>
 
 #include "Logger.h"
 #include "MusicPlayer/MusicPlayer.h"
+#include "Panels/ConsolePanel.h"
 
 struct EditorObject
 {
@@ -39,11 +39,6 @@ public:
     void PushLog(Logging::Level level, std::string_view msg);
 
 private:
-    struct ConsoleEntry {
-        Logging::Level level{};
-        std::string message;
-    };
-
     void RenderDockspace();
     void RenderMenuBar();
 
@@ -85,19 +80,8 @@ private:
     std::filesystem::path m_selectedAsset;
     std::filesystem::path m_selectedFile;
 
-    // Console
-    std::mutex m_consoleMutex;
-    std::vector<ConsoleEntry> m_console;
-    bool m_consoleAutoScroll = true;
-    bool m_consoleWrap = true;
-    bool m_consoleShowDebug = true;
-    bool m_consoleShowInfo = true;
-    bool m_consoleShowWarning = true;
-    bool m_consoleShowError = true;
-    bool m_consoleShowFatal = true;
-    bool m_consoleShowTodo = true;
-    bool m_consoleShowFunction = true;
-    char m_consoleFilter[256]{};
+	// Panels
+	Ark::Editor::ConsolePanel m_console;
 
 	ArkAudio::MusicPlayer m_music;
 	float m_musicVolume = 0.5f;
