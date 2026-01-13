@@ -291,9 +291,9 @@ void EditorUI::RenderViewport()
             ImGui::EndTabItem();
         }
 
-        if (ImGui::BeginTabBar("Music"))
+        if (ImGui::BeginTabItem("Music"))
         {
-			RenderMusicPlayer();
+            RenderMusicPlayer();
             ImGui::EndTabItem();
         }
 
