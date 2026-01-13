@@ -27,10 +27,10 @@ static void EnableDarkTitleBar(GLFWwindow* window)
         &useDark,
         sizeof(useDark)
     );
-}
 #else
 	(void)window;
 #endif
+}
 
 static void GLFWErrorCallback(int error, const char* description)
 {
