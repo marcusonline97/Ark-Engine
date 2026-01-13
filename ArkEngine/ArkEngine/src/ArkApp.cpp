@@ -178,13 +178,37 @@ void App::Run()
         {
             m_Camera->SetAspect(static_cast<float>(vpW) / static_cast<float>(vpH));
 
-            const float t = static_cast<float>(glfwGetTime());
-            glm::mat4 model = glm::rotate(glm::mat4(1.0f), t * 0.6f, glm::vec3(0.2f, 1.0f, 0.0f));
+            // Drive scene transforms from the Editor UI.
+            // Convention (for now):
+            // - Objects[0] = Cube (model transform)
+            // - Objects[1] = Camera (position + pitch/yaw from rotationDeg.x/y)
+            if (m_Objects.size() >= 2)
+            {
+                const EditorObject& camObj = m_Objects[1];
+                m_Camera->SetPosition(camObj.position);
+                m_Camera->SetRotation(camObj.rotationDeg.x, camObj.rotationDeg.y);
+            }
+
+            glm::mat4 model = glm::mat4(1.0f);
+            bool drawCube = true;
+            if (!m_Objects.empty())
+            {
+                const EditorObject& cubeObj = m_Objects[0];
+                drawCube = cubeObj.enabled;
+                model = glm::translate(model, cubeObj.position);
+                model = glm::rotate(model, glm::radians(cubeObj.rotationDeg.x), glm::vec3(1.0f, 0.0f, 0.0f));
+                model = glm::rotate(model, glm::radians(cubeObj.rotationDeg.y), glm::vec3(0.0f, 1.0f, 0.0f));
+                model = glm::rotate(model, glm::radians(cubeObj.rotationDeg.z), glm::vec3(0.0f, 0.0f, 1.0f));
+                model = glm::scale(model, cubeObj.scale);
+            }
             glm::mat4 mvp = m_Camera->GetViewProjection() * model;
 
-            m_ViewportShader->Bind();
-            m_ViewportShader->SetMat4("uMVP", mvp);
-            m_CubeMesh->Draw();
+            if (drawCube)
+            {
+                m_ViewportShader->Bind();
+                m_ViewportShader->SetMat4("uMVP", mvp);
+                m_CubeMesh->Draw();
+            }
         }
 
         Framebuffer::Unbind();
