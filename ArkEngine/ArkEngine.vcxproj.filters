@@ -305,11 +305,13 @@
     <ClInclude Include="ArkEngine\src\Initializer.h" />
     <ClInclude Include="ArkEngine\src\ImguiStyling.h" />
     <ClInclude Include="ArkEngine\src\ArkEnum.h" />
-    <ClInclude Include="ArkEngine\src\Utility.h" />
+    <ClInclude Include="ArkEngine\src\Utility\Utility.h" />
     <ClInclude Include="ArkEngine\src\ECS\Component.h" />
     <ClInclude Include="ArkEngine\src\Editor\EditorUI.h" />
     <ClInclude Include="ArkEngine\src\MusicPlayer\MusicPlayer.h" />
     <ClInclude Include="ArkEngine\src\Rendering\Framebuffer\Framebuffer.h" />
+    <ClInclude Include="ArkEngine\src\Editor\Panels\ConsolePanel.h" />
+    <ClInclude Include="ArkEngine\src\Editor\ImGuiLayer.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Vendor\glm\detail\func_common.inl" />
@@ -478,7 +480,7 @@
     <ClCompile Include="ArkEngine\Vendor\imgui\include\imgui\backends\imgui_impl_glfw.cpp" />
     <ClCompile Include="ArkEngine\Vendor\imgui\include\imgui\backends\imgui_impl_opengl3.cpp" />
     <ClCompile Include="ArkEngine\Vendor\imgui\include\imgui\imgui_demo.cpp" />
-    <ClCompile Include="ArkEngine\src\Utility.cpp" />
+    <ClCompile Include="ArkEngine\src\Utility\Utility.cpp" />
     <ClCompile Include="ArkEngine\src\Editor\EditorUI.cpp" />
     <ClCompile Include="ArkEngine\src\MusicPlayer\MusicPlayer.cpp" />
     <ClCompile Include="ArkEngine\src\MusicPlayer\Backend\FmodMusicBackend.cpp" />

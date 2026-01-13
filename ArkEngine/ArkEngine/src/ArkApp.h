@@ -1,14 +1,21 @@
 #pragma once
-#include "ArkWindow.h"
-#include "Shader.h"
-#include "Camera/Camera.h"
-#include "Meshes/Cube.h"
-#include "Material.h"
-#include "Texture.h"
+
+#include <memory>
+#include <vector>
+
+#include "Logger.h"
 #include "Editor/EditorUI.h"
+#include "Editor/ImGuiLayer.h"
 #include "Rendering/Framebuffer/Framebuffer.h"
 
-#include <vector>
+struct GLFWwindow;
+
+class ArkWindow;
+class Shader;
+class CubeMesh;
+class ArkCamera;
+class Material;
+class Texture;
 
 class App
 {
@@ -22,20 +29,18 @@ public:
     GLFWwindow* GetWindowHandle() const { return m_Window ? m_Window->GetNativeHandle() : nullptr; }
 private:
 
-    bool InitImGui();
-	void ShutDownImGui();
-	void BeginImGuiFrame();
-	void EndImGuiFrame();
+    std::unique_ptr<ArkWindow> m_Window;
+    std::unique_ptr<Shader> m_Shader;
+    std::unique_ptr<CubeMesh> m_CubeMesh;
+    std::unique_ptr<ArkCamera> m_Camera;
+    std::unique_ptr<Material> m_Material;
+    std::unique_ptr<Shader> m_ViewportShader;
 
-    ArkWindow* m_Window = nullptr;
-    Shader* m_Shader = nullptr;
-    CubeMesh* m_CubeMesh = nullptr;
-    ArkCamera* m_Camera = nullptr;
-
-    Material* m_Material = nullptr;
     Texture* m_TextureObj = nullptr;
 
-	bool m_ImGuiInitialized = false;
+
+    Ark::Editor::ImGuiLayer m_ImGui;
+
 
     EditorUI m_EditorUI;
     Logging::SinkId m_LogSinkId = 0;
@@ -43,5 +48,4 @@ private:
     int m_SelectedObject = -1;
 
     Framebuffer m_ViewportFramebuffer;
-    Shader* m_ViewportShader = nullptr;
 };

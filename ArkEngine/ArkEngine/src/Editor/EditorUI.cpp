@@ -1,81 +1,12 @@
 #include "EditorUI.h"
 
 #include <algorithm>
-#include <cctype>
 #include <cstdio>
 
 #include <imgui/imgui.h>
 #include <imgui/imgui_internal.h>
-#include <Utility.h>
+#include <Utility/Utility.h>
 
-static const char* LevelName(Logging::Level level)
-{
-    switch (level)
-    {
-    case Logging::Level::INIT: return "INIT";
-    case Logging::Level::_ERROR: return "ERROR";
-    case Logging::Level::WARNING: return "WARN";
-    case Logging::Level::DEBUG: return "DEBUG";
-    case Logging::Level::FATAL: return "FATAL";
-    case Logging::Level::TODO: return "TODO";
-    case Logging::Level::FUNCTION: return "FUNC";
-    }
-    return "LOG";
-}
-
-static ImVec4 LevelColor(Logging::Level level)
-{
-    switch (level)
-    {
-    case Logging::Level::_ERROR:   return ImVec4(0.95f, 0.25f, 0.25f, 1.0f);
-    case Logging::Level::WARNING:  return ImVec4(0.95f, 0.75f, 0.20f, 1.0f);
-    case Logging::Level::DEBUG:    return ImVec4(0.35f, 0.80f, 0.95f, 1.0f);
-    case Logging::Level::FATAL:    return ImVec4(1.00f, 0.10f, 0.10f, 1.0f);
-    case Logging::Level::TODO:     return ImVec4(0.35f, 0.95f, 0.35f, 1.0f);
-    case Logging::Level::FUNCTION: return ImVec4(0.45f, 0.55f, 1.00f, 1.0f);
-    case Logging::Level::INIT:     return ImVec4(0.80f, 0.80f, 0.80f, 1.0f);
-    }
-    return ImVec4(0.85f, 0.85f, 0.85f, 1.0f);
-}
-
-static bool PassesLevelFilter(Logging::Level lvl,
-    bool showDebug, bool showInfo, bool showWarn, bool showError, bool showFatal, bool showTodo, bool showFunc)
-{
-    switch (lvl)
-    {
-    case Logging::Level::DEBUG:    return showDebug;
-    case Logging::Level::INIT:     return showInfo;
-    case Logging::Level::WARNING:  return showWarn;
-    case Logging::Level::_ERROR:   return showError;
-    case Logging::Level::FATAL:    return showFatal;
-    case Logging::Level::TODO:     return showTodo;
-    case Logging::Level::FUNCTION: return showFunc;
-    }
-    return true;
-}
-
-static bool CaseInsensitiveFind(std::string_view haystack, std::string_view needle)
-{
-    if (needle.empty()) return true;
-    if (haystack.size() < needle.size()) return false;
-
-    auto lower = [](unsigned char c) { return static_cast<char>(std::tolower(c)); };
-
-    for (size_t i = 0; i + needle.size() <= haystack.size(); ++i)
-    {
-        bool ok = true;
-        for (size_t j = 0; j < needle.size(); ++j)
-        {
-            if (lower(static_cast<unsigned char>(haystack[i + j])) != lower(static_cast<unsigned char>(needle[j])))
-            {
-                ok = false;
-                break;
-            }
-        }
-        if (ok) return true;
-    }
-    return false;
-}
 
 std::filesystem::path EditorUI::FindProjectRoot()
 {
@@ -138,8 +69,8 @@ void EditorUI::Shutdown()
 
 void EditorUI::PushLog(Logging::Level level, std::string_view msg)
 {
-    std::lock_guard<std::mutex> lock(m_consoleMutex);
-    m_console.push_back(ConsoleEntry{ level, std::string(msg) });
+    m_console.PushLog(level, msg);
+
 }
 
 void EditorUI::Render(std::vector<EditorObject>& objects, int& selectedObjectIndex)
@@ -557,74 +488,8 @@ void EditorUI::RenderMaterials(std::vector<EditorObject>& objects, int& selected
 
 void EditorUI::RenderConsole()
 {
-    if (!ImGui::Begin("Console"))
-    {
-        ImGui::End();
-        return;
-    }
+    m_console.Render();
 
-    if (ImGui::Button("Clear"))
-    {
-        std::lock_guard<std::mutex> lock(m_consoleMutex);
-        m_console.clear();
-    }
-    ImGui::SameLine();
-    ImGui::Checkbox("Auto-scroll", &m_consoleAutoScroll);
-    ImGui::SameLine();
-    ImGui::Checkbox("Wrap", &m_consoleWrap);
-
-    ImGui::Separator();
-    ImGui::SetNextItemWidth(280.0f);
-    ImGui::InputTextWithHint("##consoleFilter", "Filter text...", m_consoleFilter, sizeof(m_consoleFilter));
-
-    ImGui::SameLine();
-    ImGui::TextUnformatted("Levels:");
-    ImGui::SameLine(); ImGui::Checkbox("INFO", &m_consoleShowInfo);
-    ImGui::SameLine(); ImGui::Checkbox("DBG", &m_consoleShowDebug);
-    ImGui::SameLine(); ImGui::Checkbox("WRN", &m_consoleShowWarning);
-    ImGui::SameLine(); ImGui::Checkbox("ERR", &m_consoleShowError);
-    ImGui::SameLine(); ImGui::Checkbox("FTL", &m_consoleShowFatal);
-    ImGui::SameLine(); ImGui::Checkbox("TODO", &m_consoleShowTodo);
-    ImGui::SameLine(); ImGui::Checkbox("FUNC", &m_consoleShowFunction);
-
-    ImGui::Separator();
-
-    ImGuiWindowFlags childFlags = ImGuiWindowFlags_HorizontalScrollbar;
-    ImGui::BeginChild("##consoleScroll", ImVec2(0, 0), false, childFlags);
-
-    const std::string_view filter = m_consoleFilter;
-
-    std::vector<ConsoleEntry> snapshot;
-    {
-        std::lock_guard<std::mutex> lock(m_consoleMutex);
-        snapshot = m_console;
-    }
-
-    for (const auto& e : snapshot)
-    {
-        if (!PassesLevelFilter(e.level,
-            m_consoleShowDebug, m_consoleShowInfo, m_consoleShowWarning, m_consoleShowError, m_consoleShowFatal, m_consoleShowTodo, m_consoleShowFunction))
-            continue;
-
-        if (!CaseInsensitiveFind(e.message, filter))
-            continue;
-
-        ImGui::PushStyleColor(ImGuiCol_Text, LevelColor(e.level));
-        ImGui::Text("[%s] ", LevelName(e.level));
-        ImGui::PopStyleColor();
-        ImGui::SameLine();
-
-        if (m_consoleWrap)
-            ImGui::TextWrapped("%s", e.message.c_str());
-        else
-            ImGui::TextUnformatted(e.message.c_str());
-    }
-
-    if (m_consoleAutoScroll && ImGui::GetScrollY() >= ImGui::GetScrollMaxY() - 5.0f)
-        ImGui::SetScrollHereY(1.0f);
-
-    ImGui::EndChild();
-    ImGui::End();
 }
 
 void EditorUI::DrawDirectoryBrowser(const char* id,

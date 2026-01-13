@@ -1,9 +1,3 @@
-#if defined(_WIN32)
-#define WIN_32_LEAN_AND_MEAN
-#define NOMINMAX
-#include <Windows.h>
-#endif
-
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
@@ -15,23 +9,19 @@
 
 #include <iostream>
 #include <filesystem>
+#include <stdexcept>
 
 
-//ImGUI
-#include <imgui/imgui.h>
-#include <imgui/backends/imgui_impl_glfw.h>
-#include <imgui/backends/imgui_impl_opengl3.h>
 
 #include "Logger.h"
 #include "AssetManager.h"
 #include "Rendering/Framebuffer/Framebuffer.h"
-#include "ImguiStyling.h"
-#include "Utility.h"
+#include "Utility/Utility.h"
 static constexpr const char* kImGuiGLSLVersion = "#version 450";
 
 App::App()
 {
-    m_Window = new ArkWindow(1400, 840, "Ark Engine");
+    m_Window = std::make_unique<ArkWindow>(1400, 840, "Ark Engine");
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
         throw std::runtime_error("Failed to initialize GLAD");
@@ -46,7 +36,7 @@ App::App()
         }
     );
 
-    m_Camera = new ArkCamera(
+    m_Camera = std::make_unique<ArkCamera>(
         glm::vec3(0.0f, 0.0f, 3.0f),
         45.0f,
         1280.0f / 720.0f,
@@ -54,7 +44,7 @@ App::App()
         100.0f
     );
 
-    m_Shader = new Shader();
+    m_Shader = std::make_unique<Shader>();
     if (!m_Shader->LoadFromFiles(
         "ArkEngine/Resources/Shaders/vertex.glsl",
         "ArkEngine/Resources/Shaders/fragment.glsl"))
@@ -62,10 +52,10 @@ App::App()
         throw std::runtime_error("Failed to load shader");
     }
 
-    m_CubeMesh = new CubeMesh();
+    m_CubeMesh = std::make_unique<CubeMesh>();
 
-    m_Material = new Material();
-    m_Material->SetShader(m_Shader);
+    m_Material = std::make_unique<Material>();
+    m_Material->SetShader(m_Shader.get());
     m_Material->SetUseTexture(true);
     m_Material->SetTint(glm::vec3(1.0f));
 
@@ -90,7 +80,7 @@ App::App()
 
     std::cout << "OpenGL Version: " << glGetString(GL_VERSION) << std::endl;
 
-	m_ImGuiInitialized = InitImGui();
+    const bool imguiOk = m_ImGui.Init(m_Window->GetNativeHandle(), kImGuiGLSLVersion);
     Logging::ToDo() << "Initializing ImGui.\n";
 
     m_ViewportShader = new Shader();
