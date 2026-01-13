@@ -525,6 +525,7 @@ extern int LoadEXRFromMemory(float **out_rgba, int *width, int *height,
 #if __cplusplus > 199711L
 // C++11
 #include <cstdint>
+#include <climits>
 
 #if TINYEXR_USE_THREAD
 #include <atomic>
