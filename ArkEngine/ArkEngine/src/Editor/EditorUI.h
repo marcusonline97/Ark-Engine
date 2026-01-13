@@ -28,6 +28,11 @@ public:
 
     void Render(std::vector<EditorObject>& objects, int& selectedObjectIndex);
 
+    // Viewport rendering hookup (provided by the engine/app render loop)
+    void SetViewportTextureId(unsigned int textureId) { m_viewportTextureId = textureId; }
+    unsigned int GetViewportTextureId() const { return m_viewportTextureId; }
+    glm::vec2 GetViewportSize() const { return m_viewportSize; }
+
     // Thread-safe entry point for the Logging sink callback
     void PushLog(Logging::Level level, std::string_view msg);
 
@@ -91,4 +96,8 @@ private:
     // Music player (editor-only)
     ArkAudio::MusicPlayer m_music;
     float m_musicVolume = 0.65f;
+
+    // Viewport panel state
+    unsigned int m_viewportTextureId = 0;
+    glm::vec2 m_viewportSize{ 0.0f, 0.0f };
 };

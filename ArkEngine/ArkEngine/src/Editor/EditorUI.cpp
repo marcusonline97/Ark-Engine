@@ -269,10 +269,25 @@ void EditorUI::RenderViewport()
     {
         if (ImGui::BeginTabItem("Viewport"))
         {
-            ImGui::TextUnformatted("Viewport (placeholder)");
-            ImGui::Separator();
-            ImGui::Text("Later: render scene into an FBO and display its color texture here.");
-            ImGui::TextDisabled("Tip: keep this window docked in the center.");
+            const ImVec2 avail = ImGui::GetContentRegionAvail();
+            m_viewportSize = glm::vec2(avail.x, avail.y);
+
+            if (m_viewportTextureId != 0 && avail.x > 1.0f && avail.y > 1.0f)
+            {
+                // OpenGL textures are bottom-left origin; ImGui expects top-left UV origin.
+                ImGui::Image(
+                    reinterpret_cast<ImTextureID>(static_cast<intptr_t>(m_viewportTextureId)),
+                    avail,
+                    ImVec2(0.0f, 1.0f),
+                    ImVec2(1.0f, 0.0f)
+                );
+            }
+            else
+            {
+                ImGui::TextUnformatted("Viewport (waiting for scene render)");
+                ImGui::Separator();
+                ImGui::TextDisabled("Tip: the engine will render into a framebuffer and show it here.");
+            }
             ImGui::EndTabItem();
         }
 

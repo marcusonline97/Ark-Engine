@@ -24,6 +24,7 @@
 
 #include "Logger.h"
 #include "AssetManager.h"
+#include "Rendering/Framebuffer.h"
 
 static constexpr const char* kImGuiGLSLVersion = "#version 450";
 
@@ -90,6 +91,15 @@ App::App()
 	m_ImGuiInitialized = InitImGui();
     Logging::ToDo() << "Initializing ImGui.\n";
 
+    // Viewport shader (matches CubeMesh attributes: pos+color)
+    m_ViewportShader = new Shader();
+    if (!m_ViewportShader->LoadFromFiles(
+        "ArkEngine/src/Rendering/shaders/viewport_vertex.glsl",
+        "ArkEngine/src/Rendering/shaders/viewport_fragment.glsl"))
+    {
+        throw std::runtime_error("Failed to load viewport shader");
+    }
+
     if (m_ImGuiInitialized)
     {
         m_EditorUI.Init();
@@ -119,6 +129,8 @@ App::~App()
     m_EditorUI.Shutdown();
 	ShutDownImGui();
 
+    delete m_ViewportShader; m_ViewportShader = nullptr;
+
     delete m_CubeMesh;  m_CubeMesh = nullptr;
     delete m_Material;  m_Material = nullptr;
 
@@ -134,11 +146,58 @@ void App::Run()
 {
     while (!m_Window->ShouldClose())
     {
-        // ... rendering ...
+        // Render scene into the editor viewport framebuffer (size from previous UI frame).
+        glm::vec2 vpSize = m_EditorUI.GetViewportSize();
+        int vpW = static_cast<int>(vpSize.x);
+        int vpH = static_cast<int>(vpSize.y);
+        if (vpW < 16 || vpH < 16)
+        {
+            // Fallback to window size until the viewport panel is laid out.
+            glfwGetFramebufferSize(m_Window->GetNativeHandle(), &vpW, &vpH);
+        }
+
+        if (vpW < 1) vpW = 1;
+        if (vpH < 1) vpH = 1;
+
+        // (Re)allocate FBO if needed.
+        if (m_ViewportFramebuffer.GetColorTextureId() == 0)
+            m_ViewportFramebuffer.Create(static_cast<uint32_t>(vpW), static_cast<uint32_t>(vpH));
+        else
+            m_ViewportFramebuffer.Resize(static_cast<uint32_t>(vpW), static_cast<uint32_t>(vpH));
+
+        // Render a simple scene (spinning cube) into the FBO.
+        m_ViewportFramebuffer.Bind();
+        glViewport(0, 0, vpW, vpH);
+        glEnable(GL_DEPTH_TEST);
+        glClearColor(0.08f, 0.09f, 0.10f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        if (m_ViewportShader && m_CubeMesh && m_Camera)
+        {
+            m_Camera->SetAspect(static_cast<float>(vpW) / static_cast<float>(vpH));
+
+            const float t = static_cast<float>(glfwGetTime());
+            glm::mat4 model = glm::rotate(glm::mat4(1.0f), t * 0.6f, glm::vec3(0.2f, 1.0f, 0.0f));
+            glm::mat4 mvp = m_Camera->GetViewProjection() * model;
+
+            m_ViewportShader->Bind();
+            m_ViewportShader->SetMat4("uMVP", mvp);
+            m_CubeMesh->Draw();
+        }
+
+        Framebuffer::Unbind();
+
+        // Clear the main framebuffer before drawing UI.
+        int winW = 0, winH = 0;
+        glfwGetFramebufferSize(m_Window->GetNativeHandle(), &winW, &winH);
+        glViewport(0, 0, winW, winH);
+        glClearColor(0.12f, 0.12f, 0.13f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         if (m_ImGuiInitialized)
         {
             BeginImGuiFrame();
+            m_EditorUI.SetViewportTextureId(m_ViewportFramebuffer.GetColorTextureId());
             m_EditorUI.Render(m_Objects, m_SelectedObject);
             EndImGuiFrame();
         }

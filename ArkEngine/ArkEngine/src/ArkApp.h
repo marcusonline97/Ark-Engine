@@ -6,6 +6,7 @@
 #include "Material.h"
 #include "Texture.h"
 #include "Editor/EditorUI.h"
+#include "Rendering/Framebuffer.h"
 
 #include <vector>
 
@@ -40,5 +41,9 @@ private:
     Logging::SinkId m_LogSinkId = 0;
     std::vector<EditorObject> m_Objects;
     int m_SelectedObject = -1;
+
+    // Viewport rendering (scene -> texture -> ImGui)
+    Framebuffer m_ViewportFramebuffer;
+    Shader* m_ViewportShader = nullptr;
 
 };
