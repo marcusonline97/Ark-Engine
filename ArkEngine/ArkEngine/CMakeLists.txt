@@ -49,8 +49,13 @@ file(GLOB_RECURSE SOURCES
     "src/*.c"
     "Vendor/glad/src/*.c"
     "Vendor/stb_image/*.cpp"
-    "Vendor/lodepng/include/lodepng/*.cpp"
     "Vendor/tinyexr/*.cpp"
+)
+
+# LodePNG: only compile the library sources (exclude benchmark/fuzzer/unittest).
+list(APPEND SOURCES
+    "${CMAKE_SOURCE_DIR}/Vendor/lodepng/include/lodepng/lodepng.cpp"
+    "${CMAKE_SOURCE_DIR}/Vendor/lodepng/include/lodepng/lodepng_util.cpp"
 )
 
 # ImGui: only compile core + the GLFW/OpenGL3 backends we actually use.
