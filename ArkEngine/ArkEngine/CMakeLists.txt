@@ -32,6 +32,7 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/Vendor/VkBootstrap
     ${CMAKE_SOURCE_DIR}/Vendor/entt
     ${CMAKE_SOURCE_DIR}/Vendor/imgui/include
+    ${CMAKE_SOURCE_DIR}/Vendor/imgui/include/imgui
     ${CMAKE_SOURCE_DIR}/Vendor/compressonator/include
 )
 
@@ -50,7 +51,17 @@ file(GLOB_RECURSE SOURCES
     "Vendor/stb_image/*.cpp"
     "Vendor/lodepng/include/lodepng/*.cpp"
     "Vendor/tinyexr/*.cpp"
-    "Vendor/imgui/include/imgui/*.cpp"
+)
+
+# ImGui: only compile core + the GLFW/OpenGL3 backends we actually use.
+list(APPEND SOURCES
+    "${CMAKE_SOURCE_DIR}/Vendor/imgui/include/imgui/imgui.cpp"
+    "${CMAKE_SOURCE_DIR}/Vendor/imgui/include/imgui/imgui_demo.cpp"
+    "${CMAKE_SOURCE_DIR}/Vendor/imgui/include/imgui/imgui_draw.cpp"
+    "${CMAKE_SOURCE_DIR}/Vendor/imgui/include/imgui/imgui_tables.cpp"
+    "${CMAKE_SOURCE_DIR}/Vendor/imgui/include/imgui/imgui_widgets.cpp"
+    "${CMAKE_SOURCE_DIR}/Vendor/imgui/include/imgui/backends/imgui_impl_glfw.cpp"
+    "${CMAKE_SOURCE_DIR}/Vendor/imgui/include/imgui/backends/imgui_impl_opengl3.cpp"
 )
 
 # Add source files to target
