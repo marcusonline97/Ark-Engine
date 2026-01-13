@@ -47,7 +47,7 @@ set(ARK_HAS_SOLOUD 0)
 file(GLOB_RECURSE SOURCES
     "src/*.cpp"
     "src/*.c"
-    "Vendor/glad/src/*.c"
+    "Vendor/GLAD/src/*.c"
     "Vendor/stb_image/*.cpp"
     "Vendor/tinyexr/*.cpp"
 )
