@@ -107,6 +107,16 @@ void EditorUI::Init()
     m_contentDir = m_resourcesRoot;
 	m_fileDir = m_projectRoot;
 
+    // Editor music player: expects <Resources>/Music/<Genre>/*.wav|*.mp3|...
+    {
+        ArkAudio::MusicPlayerConfig cfg;
+        cfg.libraryRoot = m_resourcesRoot / "Music";
+        cfg.preferredBackend = ArkAudio::MusicBackendType::Null; // will fall back if other backends are enabled at build-time
+        cfg.shuffle = false;
+        cfg.loopPlaylist = true;
+        cfg.volume = m_musicVolume;
+        m_music.Init(cfg);
+    }
 
     Logging::EnableLevel(Logging::Level::INIT);
     Logging::EnableLevel(Logging::Level::DEBUG);
@@ -120,6 +130,7 @@ void EditorUI::Init()
 void EditorUI::Shutdown()
 {
     // nothing to add here since the panels are in intermediate mode
+    m_music.Shutdown();
 }
 
 
@@ -139,6 +150,7 @@ void EditorUI::Render(std::vector<EditorObject>& objects, int& selectedObjectInd
     if (m_showContentBrowser) RenderContentBrowser();
     if (m_showFileExplorer)   RenderFileExplorer();
 
+    m_music.Update();
     RenderViewport();
 
     if (m_showImGuiDemo)
@@ -253,12 +265,132 @@ void EditorUI::RenderViewport()
         return;
     }
 
-    ImGui::TextUnformatted("Viewport (placeholder)");
-    ImGui::Separator();
-    ImGui::Text("Later: render scene into an FBO and display its color texture here.");
-    ImGui::TextDisabled("Tip: keep this window docked in the center.");
+    if (ImGui::BeginTabBar("##ViewportTabs", ImGuiTabBarFlags_FittingPolicyScroll | ImGuiTabBarFlags_Reorderable))
+    {
+        if (ImGui::BeginTabItem("Viewport"))
+        {
+            ImGui::TextUnformatted("Viewport (placeholder)");
+            ImGui::Separator();
+            ImGui::Text("Later: render scene into an FBO and display its color texture here.");
+            ImGui::TextDisabled("Tip: keep this window docked in the center.");
+            ImGui::EndTabItem();
+        }
+
+        if (ImGui::BeginTabItem("Music"))
+        {
+            RenderMusicPlayer();
+            ImGui::EndTabItem();
+        }
+
+        ImGui::EndTabBar();
+    }
 
     ImGui::End();
+}
+
+void EditorUI::RenderMusicPlayer()
+{
+    // Library controls
+    const std::filesystem::path& root = m_music.GetLibraryRoot();
+    const bool rootExists = std::filesystem::exists(root);
+
+    ImGui::TextDisabled("Library: %s", root.string().c_str());
+
+    if (!rootExists)
+    {
+        ImGui::TextWrapped("Create a folder structure like: Resources/Music/<Genre>/*.mp3");
+        if (ImGui::Button("Create Resources/Music"))
+        {
+            std::error_code ec;
+            std::filesystem::create_directories(root, ec);
+            m_music.RescanLibrary();
+        }
+        ImGui::Separator();
+    }
+
+    if (ImGui::Button("Refresh Library"))
+        m_music.RescanLibrary();
+
+    ImGui::SameLine();
+    bool shuffle = m_music.GetShuffle();
+    if (ImGui::Checkbox("Shuffle", &shuffle))
+        m_music.SetShuffle(shuffle);
+
+    ImGui::SameLine();
+    bool loop = m_music.GetLoopPlaylist();
+    if (ImGui::Checkbox("Loop", &loop))
+        m_music.SetLoopPlaylist(loop);
+
+    ImGui::SameLine();
+    if (ImGui::SliderFloat("Volume", &m_musicVolume, 0.0f, 1.0f, "%.2f"))
+        m_music.SetVolume(m_musicVolume);
+
+    ImGui::Separator();
+
+    // Genre picker
+    const auto& genres = m_music.GetGenres();
+    const int selGenre = m_music.GetSelectedGenreIndex();
+    const char* preview = (selGenre >= 0 && selGenre < static_cast<int>(genres.size()))
+        ? genres[static_cast<size_t>(selGenre)].name.c_str()
+        : "<none>";
+
+    if (ImGui::BeginCombo("Genre", preview))
+    {
+        for (int i = 0; i < static_cast<int>(genres.size()); ++i)
+        {
+            const bool selected = (i == selGenre);
+            if (ImGui::Selectable(genres[static_cast<size_t>(i)].name.c_str(), selected))
+                m_music.SetSelectedGenreIndex(i);
+            if (selected) ImGui::SetItemDefaultFocus();
+        }
+        ImGui::EndCombo();
+    }
+
+    // Track list
+    const int trackCount = (selGenre >= 0 && selGenre < static_cast<int>(genres.size()))
+        ? static_cast<int>(genres[static_cast<size_t>(selGenre)].tracks.size())
+        : 0;
+
+    ImGui::TextDisabled("Tracks: %d", trackCount);
+    ImGui::BeginChild("##MusicTrackList", ImVec2(0, 220), true);
+    if (selGenre >= 0 && selGenre < static_cast<int>(genres.size()))
+    {
+        const auto& tracks = genres[static_cast<size_t>(selGenre)].tracks;
+        const int selTrack = m_music.GetSelectedTrackIndex();
+
+        for (int i = 0; i < static_cast<int>(tracks.size()); ++i)
+        {
+            const bool selected = (i == selTrack);
+            if (ImGui::Selectable(tracks[static_cast<size_t>(i)].name.c_str(), selected))
+                m_music.SetSelectedTrackIndex(i);
+
+            if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
+            {
+                m_music.SetSelectedTrackIndex(i);
+                m_music.PlaySelected();
+            }
+        }
+    }
+    ImGui::EndChild();
+
+    // Transport controls
+    if (ImGui::Button("<<"))
+        m_music.Previous();
+    ImGui::SameLine();
+    if (ImGui::Button("Play"))
+        m_music.PlaySelected();
+    ImGui::SameLine();
+    if (ImGui::Button(m_music.IsPaused() ? "Resume" : "Pause"))
+        m_music.TogglePause();
+    ImGui::SameLine();
+    if (ImGui::Button("Stop"))
+        m_music.Stop();
+    ImGui::SameLine();
+    if (ImGui::Button(">>"))
+        m_music.Next();
+
+    ImGui::Separator();
+    ImGui::TextUnformatted(m_music.GetStatusText().c_str());
 }
 
 void EditorUI::RenderHierarchy(std::vector<EditorObject>& objects, int& selectedObjectIndex)

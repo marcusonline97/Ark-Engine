@@ -4,6 +4,10 @@ project(ArkEngine)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# Optional audio backends for the editor music player.
+option(ARK_ENABLE_FMOD "Enable FMOD music backend (requires FMOD libs present)" OFF)
+option(ARK_ENABLE_SOLOUD "Enable SoLoud music backend (requires SoLoud headers/libs present)" OFF)
+
 # Set output directories
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
@@ -34,6 +38,10 @@ include_directories(
 # Create executable first
 add_executable(${PROJECT_NAME})
 
+# Backend availability (compile-time)
+set(ARK_HAS_FMOD 0)
+set(ARK_HAS_SOLOUD 0)
+
 # Source files (add your source files here)
 file(GLOB_RECURSE SOURCES
     "src/*.cpp"
@@ -47,6 +55,65 @@ file(GLOB_RECURSE SOURCES
 
 # Add source files to target
 target_sources(${PROJECT_NAME} PRIVATE ${SOURCES})
+
+# --- Optional audio backend wiring ---
+if(ARK_ENABLE_FMOD)
+    include_directories(${CMAKE_SOURCE_DIR}/Vendor/fmod/include)
+
+    # Try common FMOD library names + typical install layouts.
+    find_library(FMOD_LIBRARY
+        NAMES fmod fmodL fmod64 fmodstudio fmodstudioL
+        PATHS
+            ${CMAKE_SOURCE_DIR}/Vendor/fmod/lib
+            ${CMAKE_SOURCE_DIR}/Vendor/fmod/lib/x64
+            $ENV{FMOD_DIR}
+            $ENV{FMOD_DIR}/api/core/lib
+            $ENV{FMOD_DIR}/api/core/lib/x86_64
+            $ENV{FMOD_DIR}/api/core/lib/x64
+    )
+
+    if(FMOD_LIBRARY)
+        message(STATUS "FMOD library: ${FMOD_LIBRARY}")
+        set(ARK_HAS_FMOD 1)
+        target_link_libraries(${PROJECT_NAME} ${FMOD_LIBRARY})
+    else()
+        message(WARNING "ARK_ENABLE_FMOD is ON but FMOD library not found. Building without FMOD backend.")
+    endif()
+endif()
+
+if(ARK_ENABLE_SOLOUD)
+    find_path(SOLOUD_INCLUDE_DIR
+        NAMES soloud.h
+        PATHS
+            ${CMAKE_SOURCE_DIR}/Vendor/soloud/include
+            $ENV{SOLOUD_DIR}
+            $ENV{SOLOUD_DIR}/include
+    )
+
+    find_library(SOLOUD_LIBRARY
+        NAMES soloud
+        PATHS
+            ${CMAKE_SOURCE_DIR}/Vendor/soloud/lib
+            ${CMAKE_SOURCE_DIR}/Vendor/soloud/lib/x64
+            $ENV{SOLOUD_DIR}
+            $ENV{SOLOUD_DIR}/lib
+    )
+
+    if(SOLOUD_INCLUDE_DIR AND SOLOUD_LIBRARY)
+        message(STATUS "SoLoud include: ${SOLOUD_INCLUDE_DIR}")
+        message(STATUS "SoLoud library: ${SOLOUD_LIBRARY}")
+        include_directories(${SOLOUD_INCLUDE_DIR})
+        set(ARK_HAS_SOLOUD 1)
+        target_link_libraries(${PROJECT_NAME} ${SOLOUD_LIBRARY})
+    else()
+        message(WARNING "ARK_ENABLE_SOLOUD is ON but SoLoud was not found. Building without SoLoud backend.")
+    endif()
+endif()
+
+target_compile_definitions(${PROJECT_NAME} PRIVATE
+    ARK_HAS_FMOD=${ARK_HAS_FMOD}
+    ARK_HAS_SOLOUD=${ARK_HAS_SOLOUD}
+)
 
 # Link libraries
 # OpenGL

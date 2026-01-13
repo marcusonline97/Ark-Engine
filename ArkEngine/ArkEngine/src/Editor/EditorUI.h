@@ -9,6 +9,7 @@
 #include <glm/glm.hpp>
 
 #include "Logger.h"
+#include "Audio/MusicPlayer.h"
 
 struct EditorObject
 {
@@ -40,6 +41,7 @@ private:
     void RenderMenuBar();
 
     void RenderViewport();
+    void RenderMusicPlayer();
     void RenderHierarchy(std::vector<EditorObject>& objects, int& selectedObjectIndex);
     void RenderInspector(std::vector<EditorObject>& objects, int& selectedObjectIndex);
     void RenderConsole();
@@ -85,4 +87,8 @@ private:
     bool m_consoleShowTodo = true;
     bool m_consoleShowFunction = true;
     char m_consoleFilter[256]{};
+
+    // Music player (editor-only)
+    ArkAudio::MusicPlayer m_music;
+    float m_musicVolume = 0.65f;
 };
