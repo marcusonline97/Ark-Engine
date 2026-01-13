@@ -28,46 +28,62 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/Vendor/VkBootstrap
     ${CMAKE_SOURCE_DIR}/Vendor/entt
     ${CMAKE_SOURCE_DIR}/Vendor/imgui/include
+    ${CMAKE_SOURCE_DIR}/Vendor/imgui/include/imgui
+    ${CMAKE_SOURCE_DIR}/Vendor/imgui/include/imgui/backends
     ${CMAKE_SOURCE_DIR}/Vendor/compressonator/include
 )
 
 # Create executable first
 add_executable(${PROJECT_NAME})
 
-# Source files (add your source files here)
+# Source files
 file(GLOB_RECURSE SOURCES
     "src/*.cpp"
     "src/*.c"
-    "Vendor/glad/src/*.c"
+    "Vendor/GLAD/src/*.c"
     "Vendor/stb_image/*.cpp"
-    "Vendor/lodepng/include/lodepng/*.cpp"
     "Vendor/tinyexr/*.cpp"
-    "Vendor/imgui/include/imgui/*.cpp"
+)
+
+# LodePNG (library only; exclude benchmarks/tests requiring SDL2 etc.)
+list(APPEND SOURCES
+    "${CMAKE_SOURCE_DIR}/Vendor/lodepng/include/lodepng/lodepng.cpp"
+)
+
+# ImGui (core + GLFW/OpenGL3 backend only)
+set(IMGUI_SOURCES
+    "${CMAKE_SOURCE_DIR}/Vendor/imgui/include/imgui/imgui.cpp"
+    "${CMAKE_SOURCE_DIR}/Vendor/imgui/include/imgui/imgui_demo.cpp"
+    "${CMAKE_SOURCE_DIR}/Vendor/imgui/include/imgui/imgui_draw.cpp"
+    "${CMAKE_SOURCE_DIR}/Vendor/imgui/include/imgui/imgui_tables.cpp"
+    "${CMAKE_SOURCE_DIR}/Vendor/imgui/include/imgui/imgui_widgets.cpp"
+    "${CMAKE_SOURCE_DIR}/Vendor/imgui/include/imgui/backends/imgui_impl_glfw.cpp"
+    "${CMAKE_SOURCE_DIR}/Vendor/imgui/include/imgui/backends/imgui_impl_opengl3.cpp"
 )
 
 # Add source files to target
-target_sources(${PROJECT_NAME} PRIVATE ${SOURCES})
+target_sources(${PROJECT_NAME} PRIVATE ${SOURCES} ${IMGUI_SOURCES})
 
 # Link libraries
 # OpenGL
 find_package(OpenGL REQUIRED)
-target_link_libraries(${PROJECT_NAME} OpenGL::GL)
+target_link_libraries(${PROJECT_NAME} PRIVATE OpenGL::GL)
 
 # GLFW
 find_package(glfw3 REQUIRED)
-target_link_libraries(${PROJECT_NAME} glfw)
+target_link_libraries(${PROJECT_NAME} PRIVATE glfw)
 
 # Vulkan (optional - only if building with Vulkan support)
 find_package(Vulkan QUIET)
 if(Vulkan_FOUND)
-    target_link_libraries(${PROJECT_NAME} Vulkan::Vulkan)
+    target_link_libraries(${PROJECT_NAME} PRIVATE Vulkan::Vulkan)
     target_compile_definitions(${PROJECT_NAME} PRIVATE VULKAN_ENABLED)
 endif()
 
 # Assimp
 find_package(assimp QUIET)
 if(assimp_FOUND)
-    target_link_libraries(${PROJECT_NAME} assimp::assimp)
+    target_link_libraries(${PROJECT_NAME} PRIVATE assimp::assimp)
 else()
     message(WARNING "Assimp not found - model loading may not work")
 endif()
@@ -80,23 +96,19 @@ endif()
 
 if(UNIX AND NOT APPLE)
     # Linux-specific settings
-    target_link_libraries(${PROJECT_NAME} pthread dl)
+    target_link_libraries(${PROJECT_NAME} PRIVATE pthread dl)
 endif()
 
 if(APPLE)
     # macOS-specific settings
     find_library(COCOA_LIBRARY Cocoa)
-    target_link_libraries(${PROJECT_NAME} ${COCOA_LIBRARY})
+    target_link_libraries(${PROJECT_NAME} PRIVATE ${COCOA_LIBRARY})
 endif()
 
 # Compiler-specific options
 if(MSVC)
     target_compile_options(${PROJECT_NAME} PRIVATE /W4 /WX- /std:c++17)
-    # Link filesystem library on MSVC (C++17 filesystem support)
-    target_link_libraries(${PROJECT_NAME} PRIVATE filesystem)
 else()
     target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -Wpedantic -std=c++17)
     target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
-    # Link filesystem library on GCC/Clang (if needed)
-    target_link_libraries(${PROJECT_NAME} PRIVATE stdc++fs)
 endif()
