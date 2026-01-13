@@ -2,6 +2,13 @@
 #include <string>
 struct GLFWwindow;
 
+class Utilities
+{
+public:
+    static float TickViewportFPS(double nowSeconds);
+
+    static float GetViewportFPS();
+};
 namespace Util
 {
     // Sets the GLFW window icon from a PNG file.

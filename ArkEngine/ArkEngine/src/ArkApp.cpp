@@ -26,8 +26,7 @@
 #include "AssetManager.h"
 #include "Rendering/Framebuffer/Framebuffer.h"
 #include "ImguiStyling.h"
-
-
+#include "Utility.h"
 static constexpr const char* kImGuiGLSLVersion = "#version 450";
 
 App::App()
@@ -220,6 +219,7 @@ void App::Run()
             }
 
         }
+        Utilities::TickViewportFPS(glfwGetTime());
 
         Framebuffer::Unbind();
 
