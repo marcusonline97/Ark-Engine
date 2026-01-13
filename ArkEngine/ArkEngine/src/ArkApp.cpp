@@ -56,8 +56,8 @@ App::App()
 
     m_Shader = new Shader();
     if (!m_Shader->LoadFromFiles(
-        AssetManager::Instance().ResolveAssetPath("ArkEngine/Resources/Shaders/vertex.glsl"),
-        AssetManager::Instance().ResolveAssetPath("ArkEngine/Resources/Shaders/fragment.glsl")))
+        "ArkEngine/Resources/Shaders/vertex.glsl",
+        "ArkEngine/Resources/Shaders/fragment.glsl"))
     {
         throw std::runtime_error("Failed to load shader");
     }
@@ -85,6 +85,7 @@ App::App()
     }
 
     m_Shader->Bind();
+    m_Shader->SetVec3("u_Tint", glm::vec3(1.0f));
 	m_Shader->SetInt("uTexture", 0); // Texture unit 0)
 
     std::cout << "OpenGL Version: " << glGetString(GL_VERSION) << std::endl;
@@ -94,11 +95,14 @@ App::App()
 
     m_ViewportShader = new Shader();
     if (!m_ViewportShader->LoadFromFiles(
-        "ArkEngine/src/Rendering/shaders/viewport_vertex.glsl",
-        "ArkEngine/src/Rendering/shaders/viewport_fragment.glsl"))
+        "ArkEngine/Resources/Shaders/vertex.glsl",
+        "ArkEngine/Resources/Shaders/fragment.glsl"))
     {
         throw std::runtime_error("Failed to load viewport shader");
     }
+
+    m_ViewportShader->Bind();
+    m_ViewportShader->SetVec3("u_Tint", glm::vec3(1.0f));
 
     if (m_ImGuiInitialized)
     {
