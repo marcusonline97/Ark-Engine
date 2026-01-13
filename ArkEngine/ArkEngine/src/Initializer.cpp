@@ -2,7 +2,7 @@
 #include "ArkApp.h"
 #include "Logger.h"
 #include "AssetManager.h"
-#include "Utility.h"
+#include "Utility/Utility.h"
 
 namespace Init {
     static App* s_app = nullptr;
