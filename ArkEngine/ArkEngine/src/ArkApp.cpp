@@ -16,6 +16,7 @@
 
 #include "Logger.h"
 #include "Utility/Utility.h"
+#include "Input/Input.h"
 
 static constexpr const char* kImGuiGLSLVersion = "#version 450";
 
@@ -27,6 +28,7 @@ GLFWwindow* App::GetWindowHandle() const
 App::App()
 {
     m_Window = std::make_unique<ArkWindow>(1400, 840, "Ark Engine");
+    Ark::Input::SetWindow(m_Window->GetNativeHandle());
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
         throw std::runtime_error("Failed to initialize GLAD");
@@ -106,6 +108,8 @@ void App::Run()
         const float dt = static_cast<float>(now - lastTime);
         lastTime = now;
 
+        Ark::Input::NewFrame();
+
         // Play mode: possess the primary camera and drive it with basic FPS controls.
         if (m_EditorUI.IsPlayMode())
         {
@@ -142,19 +146,18 @@ void App::Run()
                 const float speed = 3.5f;
                 const float move = speed * dt;
 
-                GLFWwindow* w = m_Window->GetNativeHandle();
-                if (glfwGetKey(w, GLFW_KEY_W) == GLFW_PRESS) camObj->position += front * move;
-                if (glfwGetKey(w, GLFW_KEY_S) == GLFW_PRESS) camObj->position -= front * move;
-                if (glfwGetKey(w, GLFW_KEY_D) == GLFW_PRESS) camObj->position += right * move;
-                if (glfwGetKey(w, GLFW_KEY_A) == GLFW_PRESS) camObj->position -= right * move;
-                if (glfwGetKey(w, GLFW_KEY_E) == GLFW_PRESS) camObj->position += up * move;
-                if (glfwGetKey(w, GLFW_KEY_Q) == GLFW_PRESS) camObj->position -= up * move;
+                if (Ark::Input::IsKeyDown(ARK_KEY_W)) camObj->position += front * move;
+                if (Ark::Input::IsKeyDown(ARK_KEY_S)) camObj->position -= front * move;
+                if (Ark::Input::IsKeyDown(ARK_KEY_D)) camObj->position += right * move;
+                if (Ark::Input::IsKeyDown(ARK_KEY_A)) camObj->position -= right * move;
+                if (Ark::Input::IsKeyDown(ARK_KEY_E)) camObj->position += up * move;
+                if (Ark::Input::IsKeyDown(ARK_KEY_Q)) camObj->position -= up * move;
 
                 // Hold RMB to rotate the camera.
-                if (glfwGetMouseButton(w, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
+                if (Ark::Input::IsMouseDown(ARK_MOUSE_RIGHT))
                 {
                     double mx = 0.0, my = 0.0;
-                    glfwGetCursorPos(w, &mx, &my);
+                    glfwGetCursorPos(m_Window->GetNativeHandle(), &mx, &my);
                     if (!rotating)
                     {
                         rotating = true;

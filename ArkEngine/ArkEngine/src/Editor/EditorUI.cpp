@@ -8,6 +8,8 @@
 #include <imgui/misc/cpp/imgui_stdlib.h>
 #include <Utility/Utility.h>
 
+#include "Input/Input.h"
+
 
 std::filesystem::path EditorUI::FindProjectRoot()
 {
@@ -276,10 +278,10 @@ void EditorUI::RenderViewport(std::vector<EditorObject>& objects, int& selectedO
 
                 if (imgHovered)
                 {
-                    if (ImGui::IsKeyPressed(ImGuiKey_W)) m_gizmoMode = 0;
-                    if (ImGui::IsKeyPressed(ImGuiKey_E)) m_gizmoMode = 1;
-                    if (ImGui::IsKeyPressed(ImGuiKey_R)) m_gizmoMode = 2;
-                    if (ImGui::IsKeyPressed(ImGuiKey_F5)) m_playMode = !m_playMode;
+                    if (Ark::Input::IsKeyPressed(ARK_KEY_W)) m_gizmoMode = 0;
+                    if (Ark::Input::IsKeyPressed(ARK_KEY_E)) m_gizmoMode = 1;
+                    if (Ark::Input::IsKeyPressed(ARK_KEY_R)) m_gizmoMode = 2;
+                    if (Ark::Input::IsKeyPressed(ARK_KEY_F5)) m_playMode = !m_playMode;
                 }
 
                 if (!m_playMode && hasSelection)
