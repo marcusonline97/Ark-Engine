@@ -12,6 +12,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#include "AssetManager.h"
 #include "Camera/Camera.h"
 #include "Logger.h"
 #include "Meshes/Cube.h"
@@ -19,6 +20,21 @@
 #include "Shader.h"
 
 #include <glm/gtc/matrix_transform.hpp>
+
+#if !defined(ARK_HAS_ASSIMP)
+// CMake defines this when it links assimp. For VS builds we default-on (the .vcxproj links Assimp).
+	#if defined(_WIN32)
+		#define ARK_HAS_ASSIMP 1
+	#else
+		#define ARK_HAS_ASSIMP 0
+	#endif
+#endif
+
+#if ARK_HAS_ASSIMP
+	#include <Importer.hpp>
+	#include <postprocess.h>
+	#include <scene.h>
+#endif
 
 namespace Ark::Rendering
 {
@@ -164,6 +180,116 @@ namespace Ark::Rendering
 		GLsizei m_vertexCount = 0;
 	};
 
+#if ARK_HAS_ASSIMP
+	struct AssimpGpuMesh
+	{
+		~AssimpGpuMesh()
+		{
+			if (m_vao) glDeleteVertexArrays(1, &m_vao);
+			if (m_vbo) glDeleteBuffers(1, &m_vbo);
+		}
+
+		bool LoadFromFile(const std::filesystem::path& path)
+		{
+			Assimp::Importer importer;
+			const unsigned int flags =
+				aiProcess_Triangulate |
+				aiProcess_JoinIdenticalVertices |
+				aiProcess_GenSmoothNormals |
+				aiProcess_ImproveCacheLocality |
+				aiProcess_SortByPType;
+
+			const aiScene* scene = importer.ReadFile(path.string(), flags);
+			if (!scene || !scene->mRootNode || scene->mNumMeshes == 0)
+				return false;
+
+			std::vector<glm::vec3> triPositions;
+			triPositions.reserve(4096);
+
+			for (unsigned int mi = 0; mi < scene->mNumMeshes; ++mi)
+			{
+				const aiMesh* mesh = scene->mMeshes[mi];
+				if (!mesh || !mesh->HasPositions())
+					continue;
+
+				for (unsigned int fi = 0; fi < mesh->mNumFaces; ++fi)
+				{
+					const aiFace& face = mesh->mFaces[fi];
+					if (face.mNumIndices != 3)
+						continue;
+
+					for (unsigned int k = 0; k < 3; ++k)
+					{
+						const unsigned int idx = face.mIndices[k];
+						if (idx >= mesh->mNumVertices)
+							continue;
+						const aiVector3D& v = mesh->mVertices[idx];
+						triPositions.emplace_back(v.x, v.y, v.z);
+					}
+				}
+			}
+
+			if (triPositions.empty())
+				return false;
+
+			// Normalize to fit inside [-0.5, 0.5] cube for consistent preview scale.
+			glm::vec3 mn = triPositions[0];
+			glm::vec3 mx = triPositions[0];
+			for (const auto& p : triPositions)
+			{
+				mn = glm::min(mn, p);
+				mx = glm::max(mx, p);
+			}
+			const glm::vec3 center = 0.5f * (mn + mx);
+			const glm::vec3 ext = (mx - mn);
+			const float maxExtent = std::max(ext.x, std::max(ext.y, ext.z));
+			const float inv = (maxExtent > 0.000001f) ? (1.0f / maxExtent) : 1.0f;
+
+			std::vector<float> verts;
+			verts.reserve(triPositions.size() * 6);
+			for (auto p : triPositions)
+			{
+				p = (p - center) * inv; // now roughly within [-0.5, 0.5]
+				verts.push_back(p.x);
+				verts.push_back(p.y);
+				verts.push_back(p.z);
+				// vertex color (white) - multiplied by u_Tint in shader
+				verts.push_back(1.0f);
+				verts.push_back(1.0f);
+				verts.push_back(1.0f);
+			}
+
+			m_vertexCount = static_cast<GLsizei>(triPositions.size());
+
+			if (!m_vao) glGenVertexArrays(1, &m_vao);
+			if (!m_vbo) glGenBuffers(1, &m_vbo);
+
+			glBindVertexArray(m_vao);
+			glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+			glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(verts.size() * sizeof(float)), verts.data(), GL_STATIC_DRAW);
+
+			// position
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+			glEnableVertexAttribArray(0);
+			// color
+			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+			glEnableVertexAttribArray(1);
+
+			return true;
+		}
+
+		void Draw() const
+		{
+			glBindVertexArray(m_vao);
+			glDrawArrays(GL_TRIANGLES, 0, m_vertexCount);
+		}
+
+		GLuint m_vao = 0;
+		GLuint m_vbo = 0;
+		GLsizei m_vertexCount = 0;
+	};
+#endif
+
 	static GLFWwindow* CreateHiddenSharedContextWindow(GLFWwindow* shareWith)
 	{
 		if (!shareWith)
@@ -251,6 +377,9 @@ namespace Ark::Rendering
 		struct CachedMesh
 		{
 			std::unique_ptr<ObjGpuMesh> mesh;
+#if ARK_HAS_ASSIMP
+			std::unique_ptr<AssimpGpuMesh> assimpMesh;
+#endif
 			bool failed = false;
 		};
 		std::unordered_map<std::string, CachedMesh> meshCache;
@@ -320,12 +449,14 @@ namespace Ark::Rendering
 					continue;
 				}
 
+				const std::string resolvedPath = AssetManager::Instance().ResolveAssetPath(inst.meshPath);
+
 				// Basic mesh preview: supports .obj files via a tiny built-in parser.
 				// Other formats fall back to cube unless Assimp is available in this build.
-				auto& entry = meshCache[inst.meshPath];
+				auto& entry = meshCache[resolvedPath];
 				if (!entry.mesh && !entry.failed)
 				{
-					const std::filesystem::path p(inst.meshPath);
+					const std::filesystem::path p(resolvedPath);
 					const std::string ext = p.has_extension() ? p.extension().string() : std::string();
 					std::string extLower = ext;
 					for (char& c : extLower) c = static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
@@ -342,13 +473,27 @@ namespace Ark::Rendering
 					}
 					else
 					{
+#if ARK_HAS_ASSIMP
+						entry.assimpMesh = std::make_unique<AssimpGpuMesh>();
+						if (!entry.assimpMesh->LoadFromFile(p))
+						{
+							entry.assimpMesh.reset();
+							entry.failed = true;
+							Logging::Warning() << "WorldRenderThread: Assimp failed to load mesh '" << inst.meshPath << "'. Falling back to cube.\n";
+						}
+#else
 						entry.failed = true;
 						Logging::Warning() << "WorldRenderThread: Mesh format not supported without Assimp: '" << inst.meshPath << "'. Falling back to cube.\n";
+#endif
 					}
 				}
 
 				if (entry.mesh)
 					entry.mesh->Draw();
+#if ARK_HAS_ASSIMP
+				else if (entry.assimpMesh)
+					entry.assimpMesh->Draw();
+#endif
 				else
 					cubeMesh.Draw();
 			}

@@ -68,8 +68,10 @@ endif()
 find_package(assimp QUIET)
 if(assimp_FOUND)
     target_link_libraries(${PROJECT_NAME} assimp::assimp)
+    target_compile_definitions(${PROJECT_NAME} PRIVATE ARK_HAS_ASSIMP=1)
 else()
     message(WARNING "Assimp not found - model loading may not work")
+    target_compile_definitions(${PROJECT_NAME} PRIVATE ARK_HAS_ASSIMP=0)
 endif()
 
 # Platform-specific settings
