@@ -103,7 +103,6 @@ private:
     void RenderMusicPlayer();
 
     void RenderHierarchy(std::vector<EditorObject>& objects, int& selectedObjectIndex);
-    void RenderCreatePanel(std::vector<EditorObject>& objects, int& selectedObjectIndex);
     void RenderInspector(std::vector<EditorObject>& objects, int& selectedObjectIndex);
 
 	void RenderMaterials(std::vector<EditorObject>& objects, int& selectedObjectIndex);
@@ -132,8 +131,6 @@ private:
     bool m_showHierarchy = true;
     bool m_showInspector = true;
     bool m_showMaterials = true;
-    bool m_showCreate = false;
-    bool m_focusCreateNextFrame = false;
 
     bool m_showConsole = true;
     bool m_showContentBrowser = true;
