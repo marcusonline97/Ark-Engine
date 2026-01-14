@@ -6,7 +6,9 @@
 
 
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
+#include <algorithm>
 #include <iostream>
 #include <stdexcept>
 
@@ -54,10 +56,25 @@ App::App()
     }
 
     // Minimal scene objects for the editor panels (until ECS/Scene is wired in)
-    m_Objects.push_back(EditorObject{ "Cube" });
-    m_Objects.push_back(EditorObject{ "Camera" });
-    m_Objects.back().position = glm::vec3(0.0f, 0.0f, 3.0f);
-    m_Objects.push_back(EditorObject{ "Directional Light" });
+    {
+        m_Objects.push_back(EditorObject{ "Static Mesh" });
+        m_Objects.back().staticMesh = StaticMeshEditorComponent{};
+        m_Objects.back().tint = glm::vec3(0.95f, 0.95f, 0.95f);
+
+        m_Objects.push_back(EditorObject{ "Skeletal Mesh" });
+        m_Objects.back().skeletalMesh = SkeletalMeshEditorComponent{};
+        m_Objects.back().position = glm::vec3(1.5f, 0.0f, 0.0f);
+        m_Objects.back().tint = glm::vec3(0.65f, 0.85f, 1.0f);
+
+        m_Objects.push_back(EditorObject{ "Camera" });
+        m_Objects.back().camera = CameraEditorComponent{};
+        m_Objects.back().position = glm::vec3(0.0f, 0.0f, 3.0f);
+
+        m_Objects.push_back(EditorObject{ "Point Light" });
+        m_Objects.back().pointLight = PointLightEditorComponent{};
+        m_Objects.back().position = glm::vec3(-1.25f, 1.0f, 0.0f);
+        m_Objects.back().scale = glm::vec3(0.2f);
+    }
     m_SelectedObject = 0;
     
     m_WorldRenderer = std::make_unique<Ark::Rendering::WorldRenderThread>(m_Window->GetNativeHandle());
@@ -80,23 +97,6 @@ void App::Run()
 {
     while (!m_Window->ShouldClose())
     {
-        EditorObject* cubeObj = nullptr;
-        if (!m_Objects.empty())
-        {
-            cubeObj = &m_Objects[0];
-            if (cubeObj->name != "Cube")
-            {
-                for (auto& o : m_Objects)
-                {
-                    if (o.name == "Cube")
-                    {
-                        cubeObj = &o;
-                        break;
-                    }
-                }
-            }
-        }
-
         glm::vec2 vpSize = m_EditorUI.GetViewportSize();
         int vpW = static_cast<int>(vpSize.x);
         int vpH = static_cast<int>(vpSize.y);
@@ -113,14 +113,71 @@ void App::Run()
             Ark::Rendering::WorldRenderInput input{};
             input.width = static_cast<uint32_t>(vpW);
             input.height = static_cast<uint32_t>(vpH);
-            input.cubeEnabled = (cubeObj != nullptr) && cubeObj->enabled;
-            if (cubeObj)
+
+            const auto toModel = [](const EditorObject& obj)
+                {
+                    const glm::mat4 rotX = glm::rotate(glm::mat4(1.0f), glm::radians(obj.rotationDeg.x), glm::vec3(1, 0, 0));
+                    const glm::mat4 rotY = glm::rotate(glm::mat4(1.0f), glm::radians(obj.rotationDeg.y), glm::vec3(0, 1, 0));
+                    const glm::mat4 rotZ = glm::rotate(glm::mat4(1.0f), glm::radians(obj.rotationDeg.z), glm::vec3(0, 0, 1));
+                    const glm::mat4 rot = rotZ * rotY * rotX;
+                    return glm::translate(glm::mat4(1.0f), obj.position) * rot * glm::scale(glm::mat4(1.0f), obj.scale);
+                };
+
+            // Camera selection: primary camera wins, otherwise first camera.
             {
-                input.position = cubeObj->position;
-                input.rotationDeg = cubeObj->rotationDeg;
-                input.scale = cubeObj->scale;
-                input.tint = cubeObj->tint;
+                EditorObject* camObj = nullptr;
+                for (auto& o : m_Objects)
+                {
+                    if (!o.enabled || !o.camera) continue;
+                    if (o.camera->primary) { camObj = &o; break; }
+                    if (!camObj) camObj = &o;
+                }
+
+                if (camObj && camObj->camera)
+                {
+                    input.camera.position = camObj->position;
+                    input.camera.pitchYawDeg = glm::vec2(camObj->rotationDeg.x, camObj->rotationDeg.y);
+                    input.camera.fovDeg = camObj->camera->fovDeg;
+                    input.camera.nearPlane = camObj->camera->nearPlane;
+                    input.camera.farPlane = camObj->camera->farPlane;
+                }
             }
+
+            // Render instances: static/skeletal meshes (as proxy cubes for now) + point lights (small proxy cubes).
+            input.instances.clear();
+            input.instances.reserve(m_Objects.size());
+
+            for (const auto& o : m_Objects)
+            {
+                if (!o.enabled)
+                    continue;
+
+                if (o.staticMesh || o.skeletalMesh)
+                {
+                    Ark::Rendering::RenderInstance inst{};
+                    inst.model = toModel(o);
+                    inst.tint = o.tint;
+                    input.instances.push_back(inst);
+                }
+
+                if (o.pointLight)
+                {
+                    Ark::Rendering::RenderInstance inst{};
+
+                    EditorObject proxy = o;
+                    // Keep the light proxy small-ish while still reflecting radius a bit.
+                    const float r = o.pointLight->radius;
+                    const float s = std::max(0.05f, 0.10f * r);
+                    proxy.scale = glm::vec3(s);
+
+                    inst.model = toModel(proxy);
+
+                    const glm::vec3 raw = o.pointLight->color * o.pointLight->intensity;
+                    inst.tint = glm::clamp(raw, glm::vec3(0.0f), glm::vec3(1.0f));
+                    input.instances.push_back(inst);
+                }
+            }
+
             m_WorldRenderer->Submit(input);
         }
 

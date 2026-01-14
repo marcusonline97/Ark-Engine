@@ -15,6 +15,8 @@ public:
     void Rotate(float pitchDelta, float yawDelta);
 
     void SetAspect(float aspect) { m_Aspect = aspect; }
+    void SetFOV(float fovDeg) { m_FOV = fovDeg; }
+    void SetClipPlanes(float nearPlane, float farPlane) { m_Near = nearPlane; m_Far = farPlane; }
 
 
     glm::mat4 GetViewMatrix() const;

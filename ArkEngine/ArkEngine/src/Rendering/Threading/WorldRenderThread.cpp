@@ -148,23 +148,17 @@ namespace Ark::Rendering
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 			camera.SetAspect(static_cast<float>(w) / static_cast<float>(h));
+			camera.SetPosition(input.camera.position);
+			camera.SetRotation(input.camera.pitchYawDeg.x, input.camera.pitchYawDeg.y);
+			camera.SetFOV(input.camera.fovDeg);
+			camera.SetClipPlanes(input.camera.nearPlane, input.camera.farPlane);
 
-			if (input.cubeEnabled)
+			viewportShader.Bind();
+			for (const RenderInstance& inst : input.instances)
 			{
-				const glm::mat4 rotX = glm::rotate(glm::mat4(1.0f), glm::radians(input.rotationDeg.x), glm::vec3(1, 0, 0));
-				const glm::mat4 rotY = glm::rotate(glm::mat4(1.0f), glm::radians(input.rotationDeg.y), glm::vec3(0, 1, 0));
-				const glm::mat4 rotZ = glm::rotate(glm::mat4(1.0f), glm::radians(input.rotationDeg.z), glm::vec3(0, 0, 1));
-				const glm::mat4 rot = rotZ * rotY * rotX;
-				const glm::mat4 model =
-					glm::translate(glm::mat4(1.0f), input.position) *
-					rot *
-					glm::scale(glm::mat4(1.0f), input.scale);
-
-				const glm::mat4 mvp = camera.GetViewProjection() * model;
-
-				viewportShader.Bind();
+				const glm::mat4 mvp = camera.GetViewProjection() * inst.model;
 				viewportShader.SetMat4("uMVP", mvp);
-				viewportShader.SetVec3("u_Tint", input.tint);
+				viewportShader.SetVec3("u_Tint", inst.tint);
 				cubeMesh.Draw();
 			}
 
