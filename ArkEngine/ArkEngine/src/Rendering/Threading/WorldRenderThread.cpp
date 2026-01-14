@@ -322,10 +322,19 @@ namespace Ark::Rendering
 
 				// Basic mesh preview: supports .obj files via a tiny built-in parser.
 				// Other formats fall back to cube unless Assimp is available in this build.
-				auto& entry = meshCache[inst.meshPath];
+								//
+				// Important: the editor's mesh path can be edited live; avoid spamming warnings
+				// and cache entries while the user is typing (e.g., "M", "MP", "MP7.fbx", ...).
+				const std::filesystem::path p(inst.meshPath);
+				std::error_code ec;
+				if (!std::filesystem::exists(p, ec) || ec)
+				{
+					// Not a real file yet (or error querying) -> just draw a cube quietly.
+					cubeMesh.Draw();
+					continue;
+				}
 				if (!entry.mesh && !entry.failed)
 				{
-					const std::filesystem::path p(inst.meshPath);
 					const std::string ext = p.has_extension() ? p.extension().string() : std::string();
 					std::string extLower = ext;
 					for (char& c : extLower) c = static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
@@ -337,13 +346,13 @@ namespace Ark::Rendering
 						{
 							entry.mesh.reset();
 							entry.failed = true;
-							Logging::Warning() << "WorldRenderThread: Failed to load OBJ mesh '" << inst.meshPath << "'. Falling back to cube.\n";
+							Logging::Warning() << "WorldRenderThread: Failed to load OBJ mesh '" << cacheKey << "'. Falling back to cube.\n";
 						}
 					}
 					else
 					{
 						entry.failed = true;
-						Logging::Warning() << "WorldRenderThread: Mesh format not supported without Assimp: '" << inst.meshPath << "'. Falling back to cube.\n";
+						Logging::Warning() << "WorldRenderThread: Mesh format not supported without Assimp: '" << cacheKey << "'. Falling back to cube.\n";
 					}
 				}
 

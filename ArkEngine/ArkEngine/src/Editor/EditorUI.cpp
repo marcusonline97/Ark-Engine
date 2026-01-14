@@ -571,7 +571,7 @@ void EditorUI::RenderViewport(std::vector<EditorObject>& objects, int& selectedO
                         }
                         else if (m_gizmoMode == 1)
                         {
-                            obj.rotationDeg = m_gizmoStartRotDeg + glm::vec3(-delta.y * kRotate, delta.x * kRotate, 0.0f);
+                            obj.rotationDeg = m_gizmoStartRotDeg + glm::vec3(delta.y * kRotate, delta.x * kRotate, 0.0f);
                         }
                         else if (m_gizmoMode == 2)
                         {

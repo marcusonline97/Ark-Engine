@@ -1,2 +1,14 @@
 ﻿  EditorUI.cpp
-  ArkEngine.vcxproj -> C:\ArkEngine\Ark-Engine\ArkEngine\x64\Debug\ArkEngine.exe
+  WorldRenderThread.cpp
+  Generating Code...
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Rendering\Threading\WorldRenderThread.cpp(336,10): error C2065: 'entry': undeclared identifier
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Rendering\Threading\WorldRenderThread.cpp(336,25): error C2065: 'entry': undeclared identifier
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Rendering\Threading\WorldRenderThread.cpp(344,7): error C2065: 'entry': undeclared identifier
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Rendering\Threading\WorldRenderThread.cpp(345,12): error C2065: 'entry': undeclared identifier
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Rendering\Threading\WorldRenderThread.cpp(347,8): error C2065: 'entry': undeclared identifier
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Rendering\Threading\WorldRenderThread.cpp(348,8): error C2065: 'entry': undeclared identifier
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Rendering\Threading\WorldRenderThread.cpp(349,80): error C2065: 'cacheKey': undeclared identifier
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Rendering\Threading\WorldRenderThread.cpp(354,7): error C2065: 'entry': undeclared identifier
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Rendering\Threading\WorldRenderThread.cpp(355,97): error C2065: 'cacheKey': undeclared identifier
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Rendering\Threading\WorldRenderThread.cpp(359,9): error C2065: 'entry': undeclared identifier
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Rendering\Threading\WorldRenderThread.cpp(360,6): error C2065: 'entry': undeclared identifier
