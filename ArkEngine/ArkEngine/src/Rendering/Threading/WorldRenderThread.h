@@ -3,6 +3,7 @@
 #include <atomic>
 #include <condition_variable>
 #include <cstdint>
+#include <string>
 #include <mutex>
 #include <thread>
 #include <vector>   // FIX: needed for std::vector
@@ -29,6 +30,10 @@ namespace Ark::Rendering
     {
         glm::mat4 model{ 1.0f };
         glm::vec3 tint{ 1.0f, 1.0f, 1.0f };
+
+        // Optional project-relative mesh path. When empty, a proxy cube is drawn.
+        // Example: "ArkEngine/Resources/Models/foo.obj"
+        std::string meshPath;
     };
 
     struct WorldRenderInput

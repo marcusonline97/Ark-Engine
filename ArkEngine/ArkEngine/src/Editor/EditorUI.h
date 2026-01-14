@@ -19,6 +19,9 @@ struct StaticMeshEditorComponent
     // .fbx/.obj (relative to project root / Resources layout)
     std::string meshPath;
 
+    // Optional display name for the component node in the hierarchy
+    std::string displayName = "Static Mesh";
+
     // Placeholder material bindings (the runtime material system is still evolving)
     std::string materialPath;
     std::string texturePath;
@@ -28,6 +31,9 @@ struct SkeletalMeshEditorComponent
 {
     // .fbx/.obj with armature/skin data
     std::string meshPath;
+
+    // Optional display name for the component node in the hierarchy
+    std::string displayName = "Skeletal Mesh";
 
     // Optional animation source
     std::string animationPath;
@@ -39,6 +45,7 @@ struct SkeletalMeshEditorComponent
 
 struct CameraEditorComponent
 {
+    std::string displayName = "Camera";
     bool primary = true;
     float fovDeg = 45.0f;
     float nearPlane = 0.1f;
@@ -47,6 +54,7 @@ struct CameraEditorComponent
 
 struct PointLightEditorComponent
 {
+    std::string displayName = "Point Light";
     glm::vec3 color{ 1.0f, 1.0f, 1.0f };
     float intensity = 1.0f;
     float radius = 1.0f;
@@ -163,6 +171,13 @@ private:
 	float m_musicVolume = 0.5f;
 
     std::uint32_t m_nextObjectId = 1;
+
+    // Rename state (Hierarchy + Inspector)
+    std::uint32_t m_renamingObjectId = 0;
+    enum class RenameTarget { None, Object, StaticMesh, SkeletalMesh, Camera, PointLight };
+    RenameTarget m_renameTarget = RenameTarget::None;
+    std::string m_renameBuffer;
+    bool m_focusRename = false;
 
 
     // Viewport  
