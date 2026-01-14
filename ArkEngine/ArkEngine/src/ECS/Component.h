@@ -46,6 +46,54 @@ namespace Ark
 		std::string ModelPath;
 		std::string TexturePath;
 	};
+
+	// Asset-backed renderables (future: imported geometry + materials).
+	struct StaticMeshComponent
+	{
+		// .fbx/.obj path (relative to project root / Resources layout)
+		std::string MeshPath;
+
+		// Optional material/texture reference (currently used by the editor/demo renderer as tint/texture inputs)
+		std::string MaterialPath;
+		std::string TexturePath;
+
+		Material* MaterialPtr = nullptr;
+	};
+
+	// Skeletal meshes with animations (future: skinning, armatures, animation graphs).
+	struct SkeletalMeshComponent
+	{
+		// .fbx/.obj path (relative to project root / Resources layout)
+		std::string MeshPath;
+
+		// Optional animation asset path (e.g. .fbx containing anims) and selection index.
+		std::string AnimationPath;
+		int AnimationIndex = -1;
+
+		std::string MaterialPath;
+		std::string TexturePath;
+
+		Material* MaterialPtr = nullptr;
+	};
+
+	struct CameraComponent
+	{
+		// The camera you "possess" when playing.
+		bool Primary = true;
+
+		// Perspective camera by default.
+		float FOVDeg = 45.0f;
+		float NearPlane = 0.1f;
+		float FarPlane = 100.0f;
+	};
+
+	struct PointLightComponent
+	{
+		// Small sphere-based volumetric light (currently visualized as a tiny emissive proxy in the demo renderer).
+		glm::vec3 Color{ 1.0f, 1.0f, 1.0f };
+		float Intensity = 1.0f;
+		float Radius = 1.0f;
+	};
 }
 
 
