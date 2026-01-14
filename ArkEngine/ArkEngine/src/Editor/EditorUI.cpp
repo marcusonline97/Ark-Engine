@@ -231,6 +231,7 @@ void EditorUI::RenderMaterials(std::vector<EditorObject>& objects, int& selected
     ImGui::End();
 }
 
+
 void EditorUI::RenderConsole()
 {
     // ConsolePanel owns the ImGui window and title.
@@ -1291,3 +1292,66 @@ void EditorUI::RenderInspector(std::vector<EditorObject>& objects, int& selected
     ImGui::Separator();
     ImGui::TextUnformatted("Transform");
     ImGui::DragFloat3("Position", &obj.position.x, 0.05f);
+    ImGui::DragFloat3("Rotation", &obj.rotationDeg.x, 0.25f);
+    ImGui::DragFloat3("Scale", &obj.scale.x, 0.05f, 0.001f, 1000.0f, "%.3f");
+
+    ImGui::Separator();
+    ImGui::TextUnformatted("Components");
+
+    if (obj.staticMesh)
+    {
+        if (ImGui::CollapsingHeader("Static Mesh", ImGuiTreeNodeFlags_DefaultOpen))
+        {
+            ImGui::InputText("Mesh", &obj.staticMesh->meshPath);
+            ImGui::InputText("Material", &obj.staticMesh->materialPath);
+            ImGui::InputText("Texture", &obj.staticMesh->texturePath);
+            ImGui::TextDisabled("Tip: drag assets from Content Browser onto the object.");
+            if (ImGui::SmallButton("Remove##InspectorStaticMesh"))
+                obj.staticMesh.reset();
+        }
+    }
+
+    if (obj.skeletalMesh)
+    {
+        if (ImGui::CollapsingHeader("Skeletal Mesh", ImGuiTreeNodeFlags_DefaultOpen))
+        {
+            ImGui::InputText("Mesh", &obj.skeletalMesh->meshPath);
+            ImGui::InputText("Animation", &obj.skeletalMesh->animationPath);
+            ImGui::DragInt("Anim Index", &obj.skeletalMesh->animationIndex, 1.0f, -1, 1024);
+            ImGui::InputText("Material", &obj.skeletalMesh->materialPath);
+            ImGui::InputText("Texture", &obj.skeletalMesh->texturePath);
+            if (ImGui::SmallButton("Remove##InspectorSkeletalMesh"))
+                obj.skeletalMesh.reset();
+        }
+    }
+
+    if (obj.camera)
+    {
+        if (ImGui::CollapsingHeader("Camera", ImGuiTreeNodeFlags_DefaultOpen))
+        {
+            ImGui::Checkbox("Primary", &obj.camera->primary);
+            ImGui::SliderFloat("FOV (deg)", &obj.camera->fovDeg, 1.0f, 140.0f, "%.1f");
+            ImGui::DragFloat("Near", &obj.camera->nearPlane, 0.01f, 0.001f, 100.0f, "%.3f");
+            ImGui::DragFloat("Far", &obj.camera->farPlane, 1.0f, 1.0f, 50000.0f, "%.1f");
+            if (ImGui::SmallButton("Remove##InspectorCamera"))
+                obj.camera.reset();
+        }
+    }
+
+    if (obj.pointLight)
+    {
+        if (ImGui::CollapsingHeader("Point Light", ImGuiTreeNodeFlags_DefaultOpen))
+        {
+            ImGui::ColorEdit3("Color", &obj.pointLight->color.x);
+            ImGui::DragFloat("Intensity", &obj.pointLight->intensity, 0.05f, 0.0f, 1000.0f, "%.2f");
+            ImGui::DragFloat("Radius", &obj.pointLight->radius, 0.05f, 0.0f, 1000.0f, "%.2f");
+            if (ImGui::SmallButton("Remove##InspectorPointLight"))
+                obj.pointLight.reset();
+        }
+    }
+
+    if (!obj.staticMesh && !obj.skeletalMesh && !obj.camera && !obj.pointLight)
+        ImGui::TextDisabled("No components on this object (use Hierarchy to add components).");
+
+    ImGui::End();
+}
