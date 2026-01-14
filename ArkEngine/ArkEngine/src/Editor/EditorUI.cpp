@@ -1,7 +1,9 @@
 #include "EditorUI.h"
 
 #include <algorithm>
+#include <cctype>
 #include <cstdio>
+#include <functional>
 #include <unordered_map>
 
 #include <imgui/imgui.h>
@@ -53,11 +55,12 @@ bool EditorUI::WouldCreateCycle(const std::vector<EditorObject>& objects, std::u
     std::uint32_t cur = newParentId;
     for (int guard = 0; guard < 1024 && cur != 0; ++guard)
     {
+        if (cur == childId)
+            return true;
+
         const int idx = FindObjectIndexById(objects, cur);
         if (idx < 0) break;
         const auto& obj = objects[static_cast<size_t>(idx)];
-        if (obj.parentId == childId)
-            return true;
         cur = obj.parentId;
     }
     return false;
@@ -553,9 +556,17 @@ void EditorUI::RenderHierarchy(std::vector<EditorObject>& objects, int& selected
 
     EnsureObjectIds(objects);
 
-    ImGui::OpenPopup("Create Object");
+    const bool hasSelection = (selectedObjectIndex >= 0 && selectedObjectIndex < static_cast<int>(objects.size()));
+
+    // Toolbar
+    if (ImGui::Button("+ Create"))
+    {
+        m_focusCreateNextFrame = true;
+        ImGui::OpenPopup("Create Object");
+    }
     ImGui::SameLine();
-    if (ImGui::Button("Delete") && selectedObjectIndex >= 0 && selectedObjectIndex < static_cast<int>(objects.size()))
+    ImGui::BeginDisabled(!hasSelection);
+    if (ImGui::Button("Delete"))
     {
         const std::uint32_t deletedId = objects[static_cast<size_t>(selectedObjectIndex)].id;
         Logging::Warning() << "Deleted GameObject '" << objects[selectedObjectIndex].name << "'.\n";
@@ -570,30 +581,42 @@ void EditorUI::RenderHierarchy(std::vector<EditorObject>& objects, int& selected
         objects.erase(objects.begin() + selectedObjectIndex);
         selectedObjectIndex = objects.empty() ? -1 : std::min(selectedObjectIndex, static_cast<int>(objects.size() - 1));
     }
+    ImGui::EndDisabled();
+
+    ImGui::SameLine();
+    static std::string hierarchyFilter;
+    ImGui::SetNextItemWidth(-1.0f);
+    ImGui::InputTextWithHint("##HierarchyFilter", "Search...", &hierarchyFilter);
 
     ImGui::Separator();
 
-        // Create popup with tabs for presets.
+    // Create popup with tabs for presets.
     {
-    static std::string newName;
-    static bool parentToSelected = true;
+        static std::string newName;
+        static bool parentToSelected = true;
 
-if (ImGui::BeginPopupModal("Create Object", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
-{
-    ImGui::TextUnformatted("Create a new object (components are managed from the Hierarchy).");
-    ImGui::Separator();
+        if (ImGui::BeginPopupModal("Create Object", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+        {
+            ImGui::TextUnformatted("Create a new object (components are managed from the Hierarchy).");
+            ImGui::Separator();
 
-        ImGui::InputText("Name", &newName);
+            if (m_focusCreateNextFrame)
+            {
+                ImGui::SetKeyboardFocusHere();
+                m_focusCreateNextFrame = false;
+            }
 
-        const bool hasSelected = (selectedObjectIndex >= 0 && selectedObjectIndex < static_cast<int>(objects.size()));
-        if (!hasSelected)
-            parentToSelected = false;
+            ImGui::InputText("Name", &newName);
 
-        ImGui::BeginDisabled(!hasSelected);
-        ImGui::Checkbox("Parent to selected object", &parentToSelected);
-        ImGui::EndDisabled();
+            const bool hasSelected = (selectedObjectIndex >= 0 && selectedObjectIndex < static_cast<int>(objects.size()));
+            if (!hasSelected)
+                parentToSelected = false;
 
-        const auto doCreate = [&](const char* defaultLabel, auto attachFn)
+            ImGui::BeginDisabled(!hasSelected);
+            ImGui::Checkbox("Parent to selected object", &parentToSelected);
+            ImGui::EndDisabled();
+
+            const auto doCreate = [&](const char* defaultLabel, auto attachFn)
             {
                 EditorObject obj{};
                 obj.id = AllocateObjectId();
@@ -608,289 +631,350 @@ if (ImGui::BeginPopupModal("Create Object", nullptr, ImGuiWindowFlags_AlwaysAuto
                 Logging::Debug() << "Created GameObject.\n";
             };
 
-        if (ImGui::BeginTabBar("##CreateTabs"))
-        {
-            if (ImGui::BeginTabItem("Empty"))
+            if (ImGui::BeginTabBar("##CreateTabs"))
             {
-                if (ImGui::Button("Create Empty"))
+                if (ImGui::BeginTabItem("Empty"))
                 {
-                    doCreate("GameObject", [](EditorObject&) {});
-                    ImGui::CloseCurrentPopup();
-                }
-                ImGui::EndTabItem();
-            }
-            if (ImGui::BeginTabItem("Static Mesh"))
-            {
-                ImGui::TextDisabled("Tip: drag a .fbx/.obj onto the object to set Mesh.");
-                if (ImGui::Button("Create Static Mesh Object"))
-                {
-                    doCreate("StaticMesh", [](EditorObject& o) { o.staticMesh = StaticMeshEditorComponent{}; });
-                    ImGui::CloseCurrentPopup();
-                }
-                ImGui::EndTabItem();
-            }
-            if (ImGui::BeginTabItem("Skeletal Mesh"))
-            {
-                ImGui::TextDisabled("Tip: drag a .fbx onto the object to set Mesh/Animation.");
-                if (ImGui::Button("Create Skeletal Mesh Object"))
-                {
-                    doCreate("SkeletalMesh", [](EditorObject& o) { o.skeletalMesh = SkeletalMeshEditorComponent{}; });
-                    ImGui::CloseCurrentPopup();
-                }
-                ImGui::EndTabItem();
-            }
-            if (ImGui::BeginTabItem("Camera"))
-            {
-                if (ImGui::Button("Create Camera Object"))
-                {
-                    doCreate("Camera", [](EditorObject& o) { o.camera = CameraEditorComponent{}; });
-                    ImGui::CloseCurrentPopup();
-                }
-                ImGui::EndTabItem();
-            }
-            if (ImGui::BeginTabItem("Point Light"))
-            {
-                if (ImGui::Button("Create Point Light Object"))
-                {
-                    doCreate("PointLight", [](EditorObject& o) { o.pointLight = PointLightEditorComponent{}; });
-                    ImGui::CloseCurrentPopup();
-                }
-                ImGui::EndTabItem();
-            }
-            ImGui::EndTabBar();
-        }
-                ImGui::Separator();
-                if (ImGui::Button("Close"))
-                    ImGui::CloseCurrentPopup();
-                ImGui::EndPopup();
-            }
-        }
-            // Build children lists (id -> children ids).
-            std::unordered_map<std::uint32_t, std::vector<std::uint32_t>> childrenByParent;
-        childrenByParent.reserve(objects.size());
-
-        for (const auto& obj : objects)
-        {
-            const std::uint32_t pid = obj.parentId;
-            if (pid != 0 && FindObjectIndexById(objects, pid) >= 0)
-                childrenByParent[pid].push_back(obj.id);
-        }
-
-        std::vector<std::uint32_t> roots;
-        roots.reserve(objects.size());
-        for (const auto& obj : objects)
-        {
-            if (obj.parentId == 0 || FindObjectIndexById(objects, obj.parentId) < 0)
-                roots.push_back(obj.id);
-        }
-
-        const auto isImage = [](const std::filesystem::path& p)
-            {
-                const auto ext = p.extension().string();
-                auto e = ext;
-                std::transform(e.begin(), e.end(), e.begin(), [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
-                return (e == ".png" || e == ".jpg" || e == ".jpeg" || e == ".bmp" || e == ".tga" || e == ".dds");
-            };
-
-        const auto isMesh = [](const std::filesystem::path& p)
-            {
-                const auto ext = p.extension().string();
-                auto e = ext;
-                std::transform(e.begin(), e.end(), e.begin(), [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
-                return (e == ".fbx" || e == ".obj" || e == ".gltf" || e == ".glb" || e == ".dae");
-            };
-
-                const auto isAnim = [](const std::filesystem::path& p)
-                {
-                    const auto ext = p.extension().string();
-                    auto e = ext;
-                    std::transform(e.begin(), e.end(), e.begin(), [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
-                    return (e == ".fbx" || e == ".dae" || e == ".gltf" || e == ".glb");
-                };
-            // Recursive tree draw.
-                std::function<void(std::uint32_t)> drawNode = [&](std::uint32_t id)
+                    if (ImGui::Button("Create Empty"))
                     {
-                        const int idx = FindObjectIndexById(objects, id);
-                        if (idx < 0) return;
-                        EditorObject& obj = objects[static_cast<size_t>(idx)];
-
-                        ImGui::TextDisabled("Note: static mesh importing/material binding is still being wired into the renderer.");
-                        ImGui::PushID(static_cast<int>(obj.id));
-
-                        if (ImGui::Button("Remove Static Mesh"))
-                            obj.staticMesh.reset();
-
-                        const bool selected = (selectedObjectIndex == idx);
-                        const bool hasChildren = (childrenByParent.find(obj.id) != childrenByParent.end() && !childrenByParent[obj.id].empty());
-
-                        ImGuiTreeNodeFlags flags =
-                            ImGuiTreeNodeFlags_OpenOnArrow |
-                            ImGuiTreeNodeFlags_OpenOnDoubleClick |
-                            (selected ? ImGuiTreeNodeFlags_Selected : 0) |
-                            (!hasChildren ? ImGuiTreeNodeFlags_Leaf : 0);
-
-                        const bool open = ImGui::TreeNodeEx("##obj", flags, "%s", obj.name.c_str());
-
-                        if (ImGui::IsItemClicked())
-                            selectedObjectIndex = idx;
-
-                        // Drag this object.
-                        if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
-                        {
-                            ImGui::SetDragDropPayload(kPayloadEditorObject, &obj.id, sizeof(obj.id));
-                            ImGui::Text("Attach: %s", obj.name.c_str());
-                            ImGui::EndDragDropSource();
-                        }
-
-                        // Drop target: parenting or asset assignment.
-                        if (ImGui::BeginDragDropTarget())
-                        {
-                            if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(kPayloadEditorObject))
-                            {
-                                const std::uint32_t childId = *static_cast<const std::uint32_t*>(payload->Data);
-                                ReparentObject(objects, childId, obj.id);
-                            }
-
-                            if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(kPayloadAssetPath))
-                            {
-                                const char* dropped = static_cast<const char*>(payload->Data);
-                                if (dropped && dropped[0] != '\0')
-                                {
-                                    const std::filesystem::path assetPath(dropped);
-                                    if (isMesh(assetPath))
-                                    {
-                                        if (!obj.staticMesh && !obj.skeletalMesh)
-                                            obj.staticMesh = StaticMeshEditorComponent{};
-
-                                        if (obj.staticMesh)
-                                            obj.staticMesh->meshPath = dropped;
-                                        else if (obj.skeletalMesh)
-                                            obj.skeletalMesh->meshPath = dropped;
-                                    }
-                                    else if (isImage(assetPath))
-                                    {
-                                        if (!obj.staticMesh)
-                                            obj.staticMesh = StaticMeshEditorComponent{};
-                                        obj.staticMesh->texturePath = dropped;
-                                    }
-                                    else if (isAnim(assetPath))
-                                    {
-                                        if (!obj.skeletalMesh)
-                                            obj.skeletalMesh = SkeletalMeshEditorComponent{};
-                                        obj.skeletalMesh->animationPath = dropped;
-                                    }
-                                }
-                            }
-                            ImGui::EndDragDropTarget();
-                        }
-
-                        // Context menu for components / detach.
-                        if (ImGui::BeginPopupContextItem("##obj_ctx"))
-                        {
-                            if (ImGui::MenuItem("Detach from parent", nullptr, false, obj.parentId != 0))
-                                obj.parentId = 0;
-
-                            if (ImGui::BeginMenu("Add Component"))
-                            {
-                                if (!obj.staticMesh && ImGui::MenuItem("Static Mesh")) obj.staticMesh = StaticMeshEditorComponent{};
-                                if (!obj.skeletalMesh && ImGui::MenuItem("Skeletal Mesh")) obj.skeletalMesh = SkeletalMeshEditorComponent{};
-                                if (!obj.camera && ImGui::MenuItem("Camera")) obj.camera = CameraEditorComponent{};
-                                if (!obj.pointLight && ImGui::MenuItem("Point Light")) obj.pointLight = PointLightEditorComponent{};
-                                ImGui::EndMenu();
-                            }
-
-                            if (ImGui::BeginMenu("Remove Component"))
-                            {
-                                if (obj.staticMesh && ImGui::MenuItem("Static Mesh")) obj.staticMesh.reset();
-                                if (obj.skeletalMesh && ImGui::MenuItem("Skeletal Mesh")) obj.skeletalMesh.reset();
-                                if (obj.camera && ImGui::MenuItem("Camera")) obj.camera.reset();
-                                if (obj.pointLight && ImGui::MenuItem("Point Light")) obj.pointLight.reset();
-                                ImGui::EndMenu();
-                            }
-
-                            ImGui::EndPopup();
-                        }
-
-                        if (open)
-                        {
-                            // Components live under the object in the hierarchy.
-                            if (obj.staticMesh)
-                            {
-                                if (ImGui::TreeNodeEx("Static Mesh", ImGuiTreeNodeFlags_DefaultOpen))
-                                {
-                                    ImGui::InputText("Mesh", &obj.staticMesh->meshPath);
-                                    ImGui::InputText("Texture", &obj.staticMesh->texturePath);
-                                    ImGui::TextDisabled("Drag mesh/image here (or onto the object).");
-                                    if (ImGui::SmallButton("Remove##StaticMesh")) obj.staticMesh.reset();
-                                    ImGui::TreePop();
-                                }
-                            }
-                            if (obj.skeletalMesh)
-                            {
-                                if (ImGui::TreeNodeEx("Skeletal Mesh", ImGuiTreeNodeFlags_DefaultOpen))
-                                {
-                                    ImGui::InputText("Mesh", &obj.skeletalMesh->meshPath);
-                                    ImGui::InputText("Animation", &obj.skeletalMesh->animationPath);
-                                    ImGui::DragInt("Anim Index", &obj.skeletalMesh->animationIndex, 1.0f, -1, 1024);
-                                    ImGui::InputText("Texture", &obj.skeletalMesh->texturePath);
-                                    ImGui::TextDisabled("Drag mesh/anim/image here (or onto the object).");
-                                    if (ImGui::SmallButton("Remove##SkeletalMesh")) obj.skeletalMesh.reset();
-                                    ImGui::TreePop();
-                                }
-                            }
-                            if (obj.camera)
-                            {
-                                if (ImGui::TreeNodeEx("Camera", ImGuiTreeNodeFlags_DefaultOpen))
-                                {
-                                    ImGui::Checkbox("Primary", &obj.camera->primary);
-                                    ImGui::SliderFloat("FOV (deg)", &obj.camera->fovDeg, 1.0f, 140.0f, "%.1f");
-                                    ImGui::DragFloat("Near", &obj.camera->nearPlane, 0.01f, 0.001f, 100.0f, "%.3f");
-                                    ImGui::DragFloat("Far", &obj.camera->farPlane, 1.0f, 1.0f, 50000.0f, "%.1f");
-                                    if (ImGui::SmallButton("Remove##Camera")) obj.camera.reset();
-                                    ImGui::TreePop();
-                                }
-                            }
-                            if (obj.pointLight)
-                            {
-                                if (ImGui::TreeNodeEx("Point Light", ImGuiTreeNodeFlags_DefaultOpen))
-                                {
-                                    ImGui::ColorEdit3("Color", &obj.pointLight->color.x);
-                                    ImGui::DragFloat("Intensity", &obj.pointLight->intensity, 0.05f, 0.0f, 1000.0f, "%.2f");
-                                    ImGui::DragFloat("Radius", &obj.pointLight->radius, 0.05f, 0.0f, 1000.0f, "%.2f");
-                                    if (ImGui::SmallButton("Remove##PointLight")) obj.pointLight.reset();
-                                    ImGui::TreePop();
-                                }
-                            }
-
-                            // Children
-                            const auto it = childrenByParent.find(obj.id);
-                            if (it != childrenByParent.end())
-                            {
-                                for (const auto child : it->second)
-                                    drawNode(child);
-                            }
-
-                            ImGui::TreePop();
-                        }
-
-                        ImGui::PopID();
-                    };
-                    for (const auto rootId : roots)
-                        drawNode(rootId);
-
-                    // Dropping an object onto empty hierarchy detaches it to root.
-                    if (ImGui::BeginDragDropTarget())
+                        doCreate("GameObject", [](EditorObject&) {});
+                        ImGui::CloseCurrentPopup();
+                    }
+                    ImGui::EndTabItem();
+                }
+                if (ImGui::BeginTabItem("Static Mesh"))
+                {
+                    ImGui::TextDisabled("Tip: drag a .fbx/.obj onto the object to set Mesh.");
+                    if (ImGui::Button("Create Static Mesh Object"))
                     {
+                        doCreate("StaticMesh", [](EditorObject& o) { o.staticMesh = StaticMeshEditorComponent{}; });
+                        ImGui::CloseCurrentPopup();
+                    }
+                    ImGui::EndTabItem();
+                }
+                if (ImGui::BeginTabItem("Skeletal Mesh"))
+                {
+                    ImGui::TextDisabled("Tip: drag a .fbx onto the object to set Mesh/Animation.");
+                    if (ImGui::Button("Create Skeletal Mesh Object"))
+                    {
+                        doCreate("SkeletalMesh", [](EditorObject& o) { o.skeletalMesh = SkeletalMeshEditorComponent{}; });
+                        ImGui::CloseCurrentPopup();
+                    }
+                    ImGui::EndTabItem();
+                }
+                if (ImGui::BeginTabItem("Camera"))
+                {
+                    if (ImGui::Button("Create Camera Object"))
+                    {
+                        doCreate("Camera", [](EditorObject& o) { o.camera = CameraEditorComponent{}; });
+                        ImGui::CloseCurrentPopup();
+                    }
+                    ImGui::EndTabItem();
+                }
+                if (ImGui::BeginTabItem("Point Light"))
+                {
+                    if (ImGui::Button("Create Point Light Object"))
+                    {
+                        doCreate("PointLight", [](EditorObject& o) { o.pointLight = PointLightEditorComponent{}; });
+                        ImGui::CloseCurrentPopup();
+                    }
+                    ImGui::EndTabItem();
+                }
+                ImGui::EndTabBar();
+            }
 
+            ImGui::Separator();
+            if (ImGui::Button("Close") || ImGui::IsKeyPressed(ImGuiKey_Escape))
+                ImGui::CloseCurrentPopup();
+
+            ImGui::EndPopup();
+        }
+    }
+
+    // Build index map (id -> index).
+    std::unordered_map<std::uint32_t, int> indexById;
+    indexById.reserve(objects.size());
+    for (int i = 0; i < static_cast<int>(objects.size()); ++i)
+        indexById[objects[static_cast<size_t>(i)].id] = i;
+
+    const auto findIdx = [&](std::uint32_t id) -> int
+    {
+        if (id == 0) return -1;
+        const auto it = indexById.find(id);
+        return (it == indexById.end()) ? -1 : it->second;
+    };
+
+    // Build children lists (id -> children ids).
+    std::unordered_map<std::uint32_t, std::vector<std::uint32_t>> childrenByParent;
+    childrenByParent.reserve(objects.size());
+    for (const auto& obj : objects)
+    {
+        const std::uint32_t pid = obj.parentId;
+        if (pid != 0 && findIdx(pid) >= 0)
+            childrenByParent[pid].push_back(obj.id);
+    }
+
+    // Roots (not parented or parent missing).
+    std::vector<std::uint32_t> roots;
+    roots.reserve(objects.size());
+    for (const auto& obj : objects)
+    {
+        if (obj.parentId == 0 || findIdx(obj.parentId) < 0)
+            roots.push_back(obj.id);
+    }
+
+    // Sort roots/children by name for stability.
+    const auto sortByName = [&](std::vector<std::uint32_t>& ids)
+    {
+        std::sort(ids.begin(), ids.end(), [&](std::uint32_t a, std::uint32_t b)
+        {
+            const int ia = findIdx(a);
+            const int ib = findIdx(b);
+            if (ia < 0 || ib < 0) return a < b;
+            return objects[static_cast<size_t>(ia)].name < objects[static_cast<size_t>(ib)].name;
+        });
+    };
+    sortByName(roots);
+    for (auto& [pid, kids] : childrenByParent)
+        sortByName(kids);
+
+    // Filter helpers (case-insensitive substring match).
+    std::string filterLower = hierarchyFilter;
+    std::transform(filterLower.begin(), filterLower.end(), filterLower.begin(),
+        [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+    const auto matchesFilter = [&](const std::string& name) -> bool
+    {
+        if (filterLower.empty())
+            return true;
+        std::string s = name;
+        std::transform(s.begin(), s.end(), s.begin(),
+            [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+        return s.find(filterLower) != std::string::npos;
+    };
+
+    const auto isImage = [](const std::filesystem::path& p)
+    {
+        auto e = p.extension().string();
+        std::transform(e.begin(), e.end(), e.begin(),
+            [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+        return (e == ".png" || e == ".jpg" || e == ".jpeg" || e == ".bmp" || e == ".tga" || e == ".dds");
+    };
+    const auto isMesh = [](const std::filesystem::path& p)
+    {
+        auto e = p.extension().string();
+        std::transform(e.begin(), e.end(), e.begin(),
+            [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+        return (e == ".fbx" || e == ".obj" || e == ".gltf" || e == ".glb" || e == ".dae");
+    };
+    const auto isAnim = [](const std::filesystem::path& p)
+    {
+        auto e = p.extension().string();
+        std::transform(e.begin(), e.end(), e.begin(),
+            [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+        return (e == ".fbx" || e == ".dae" || e == ".gltf" || e == ".glb");
+    };
+
+    // Determine if a node (or any descendant) matches the filter.
+    std::function<bool(std::uint32_t, int)> subtreeMatches = [&](std::uint32_t id, int depth) -> bool
+    {
+        if (depth > 512) return true;
+        const int idx = findIdx(id);
+        if (idx < 0) return false;
+        const EditorObject& obj = objects[static_cast<size_t>(idx)];
+        if (matchesFilter(obj.name))
+            return true;
+        const auto it = childrenByParent.find(id);
+        if (it != childrenByParent.end())
+        {
+            for (const auto child : it->second)
+            {
+                if (subtreeMatches(child, depth + 1))
+                    return true;
+            }
+        }
+        return false;
+    };
+
+    // Recursive tree draw.
+    std::function<void(std::uint32_t, int)> drawNode = [&](std::uint32_t id, int depth)
+    {
+        if (depth > 512) return;
+        const int idx = findIdx(id);
+        if (idx < 0) return;
+        EditorObject& obj = objects[static_cast<size_t>(idx)];
+
+        if (!subtreeMatches(id, depth))
+            return;
+
+        ImGui::PushID(static_cast<int>(obj.id));
+
+        const bool selected = (selectedObjectIndex == idx);
+        const bool hasChildren = (childrenByParent.find(obj.id) != childrenByParent.end() && !childrenByParent[obj.id].empty());
+
+        ImGuiTreeNodeFlags flags =
+            ImGuiTreeNodeFlags_OpenOnArrow |
+            ImGuiTreeNodeFlags_OpenOnDoubleClick |
+            (selected ? ImGuiTreeNodeFlags_Selected : 0) |
+            (!hasChildren ? ImGuiTreeNodeFlags_Leaf : 0);
+
+        const bool open = ImGui::TreeNodeEx("##obj", flags, "%s", obj.name.c_str());
+
+        if (ImGui::IsItemClicked())
+            selectedObjectIndex = idx;
+
+        // Drag this object.
+        if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
+        {
+            ImGui::SetDragDropPayload(kPayloadEditorObject, &obj.id, sizeof(obj.id));
+            ImGui::Text("Attach: %s", obj.name.c_str());
+            ImGui::EndDragDropSource();
+        }
+
+        // Drop target: parenting or asset assignment.
+        if (ImGui::BeginDragDropTarget())
+        {
             if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(kPayloadEditorObject))
             {
-                ImGui::Checkbox("Primary", &obj.camera->primary);
-                ImGui::SliderFloat("FOV (deg)", &obj.camera->fovDeg, 1.0f, 140.0f, "%.1f");
-                ImGui::DragFloat("Near", &obj.camera->nearPlane, 0.01f, 0.001f, 100.0f, "%.3f");
-                ImGui::DragFloat("Far", &obj.camera->farPlane, 1.0f, 1.0f, 50000.0f, "%.1f");
                 const std::uint32_t childId = *static_cast<const std::uint32_t*>(payload->Data);
-                ReparentObject(objects, childId, 0);
+                ReparentObject(objects, childId, obj.id);
             }
+
+            if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(kPayloadAssetPath))
+            {
+                const char* dropped = static_cast<const char*>(payload->Data);
+                if (dropped && dropped[0] != '\0')
+                {
+                    const std::filesystem::path assetPath(dropped);
+                    if (isMesh(assetPath))
+                    {
+                        if (!obj.staticMesh && !obj.skeletalMesh)
+                            obj.staticMesh = StaticMeshEditorComponent{};
+
+                        if (obj.staticMesh)
+                            obj.staticMesh->meshPath = dropped;
+                        else if (obj.skeletalMesh)
+                            obj.skeletalMesh->meshPath = dropped;
+                    }
+                    else if (isImage(assetPath))
+                    {
+                        if (!obj.staticMesh)
+                            obj.staticMesh = StaticMeshEditorComponent{};
+                        obj.staticMesh->texturePath = dropped;
+                    }
+                    else if (isAnim(assetPath))
+                    {
+                        if (!obj.skeletalMesh)
+                            obj.skeletalMesh = SkeletalMeshEditorComponent{};
+                        obj.skeletalMesh->animationPath = dropped;
+                    }
+                }
+            }
+            ImGui::EndDragDropTarget();
+        }
+
+        // Context menu for components / detach.
+        if (ImGui::BeginPopupContextItem("##obj_ctx"))
+        {
+            if (ImGui::MenuItem("Detach from parent", nullptr, false, obj.parentId != 0))
+                obj.parentId = 0;
+
+            if (ImGui::BeginMenu("Add Component"))
+            {
+                if (!obj.staticMesh && ImGui::MenuItem("Static Mesh")) obj.staticMesh = StaticMeshEditorComponent{};
+                if (!obj.skeletalMesh && ImGui::MenuItem("Skeletal Mesh")) obj.skeletalMesh = SkeletalMeshEditorComponent{};
+                if (!obj.camera && ImGui::MenuItem("Camera")) obj.camera = CameraEditorComponent{};
+                if (!obj.pointLight && ImGui::MenuItem("Point Light")) obj.pointLight = PointLightEditorComponent{};
+                ImGui::EndMenu();
+            }
+
+            if (ImGui::BeginMenu("Remove Component"))
+            {
+                if (obj.staticMesh && ImGui::MenuItem("Static Mesh")) obj.staticMesh.reset();
+                if (obj.skeletalMesh && ImGui::MenuItem("Skeletal Mesh")) obj.skeletalMesh.reset();
+                if (obj.camera && ImGui::MenuItem("Camera")) obj.camera.reset();
+                if (obj.pointLight && ImGui::MenuItem("Point Light")) obj.pointLight.reset();
+                ImGui::EndMenu();
+            }
+
+            ImGui::EndPopup();
+        }
+
+        if (open)
+        {
+            // Components live under the object in the hierarchy.
+            if (obj.staticMesh)
+            {
+                if (ImGui::TreeNodeEx("Static Mesh", ImGuiTreeNodeFlags_DefaultOpen))
+                {
+                    ImGui::InputText("Mesh", &obj.staticMesh->meshPath);
+                    ImGui::InputText("Texture", &obj.staticMesh->texturePath);
+                    ImGui::TextDisabled("Drag mesh/image here (or onto the object).");
+                    if (ImGui::SmallButton("Remove##StaticMesh")) obj.staticMesh.reset();
+                    ImGui::TreePop();
+                }
+            }
+            if (obj.skeletalMesh)
+            {
+                if (ImGui::TreeNodeEx("Skeletal Mesh", ImGuiTreeNodeFlags_DefaultOpen))
+                {
+                    ImGui::InputText("Mesh", &obj.skeletalMesh->meshPath);
+                    ImGui::InputText("Animation", &obj.skeletalMesh->animationPath);
+                    ImGui::DragInt("Anim Index", &obj.skeletalMesh->animationIndex, 1.0f, -1, 1024);
+                    ImGui::InputText("Texture", &obj.skeletalMesh->texturePath);
+                    ImGui::TextDisabled("Drag mesh/anim/image here (or onto the object).");
+                    if (ImGui::SmallButton("Remove##SkeletalMesh")) obj.skeletalMesh.reset();
+                    ImGui::TreePop();
+                }
+            }
+            if (obj.camera)
+            {
+                if (ImGui::TreeNodeEx("Camera", ImGuiTreeNodeFlags_DefaultOpen))
+                {
+                    ImGui::Checkbox("Primary", &obj.camera->primary);
+                    ImGui::SliderFloat("FOV (deg)", &obj.camera->fovDeg, 1.0f, 140.0f, "%.1f");
+                    ImGui::DragFloat("Near", &obj.camera->nearPlane, 0.01f, 0.001f, 100.0f, "%.3f");
+                    ImGui::DragFloat("Far", &obj.camera->farPlane, 1.0f, 1.0f, 50000.0f, "%.1f");
+                    if (ImGui::SmallButton("Remove##Camera")) obj.camera.reset();
+                    ImGui::TreePop();
+                }
+            }
+            if (obj.pointLight)
+            {
+                if (ImGui::TreeNodeEx("Point Light", ImGuiTreeNodeFlags_DefaultOpen))
+                {
+                    ImGui::ColorEdit3("Color", &obj.pointLight->color.x);
+                    ImGui::DragFloat("Intensity", &obj.pointLight->intensity, 0.05f, 0.0f, 1000.0f, "%.2f");
+                    ImGui::DragFloat("Radius", &obj.pointLight->radius, 0.05f, 0.0f, 1000.0f, "%.2f");
+                    if (ImGui::SmallButton("Remove##PointLight")) obj.pointLight.reset();
+                    ImGui::TreePop();
+                }
+            }
+
+            // Children
+            const auto it = childrenByParent.find(obj.id);
+            if (it != childrenByParent.end())
+            {
+                for (const auto child : it->second)
+                    drawNode(child, depth + 1);
+            }
+
+            ImGui::TreePop();
+        }
+
+        ImGui::PopID();
+    };
+
+    for (const auto rootId : roots)
+        drawNode(rootId, 0);
+
+    // Dropping an object onto empty hierarchy detaches it to root.
+    if (ImGui::BeginDragDropTarget())
+    {
+        if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(kPayloadEditorObject))
+        {
+            const std::uint32_t childId = *static_cast<const std::uint32_t*>(payload->Data);
+            ReparentObject(objects, childId, 0);
+        }
         ImGui::EndDragDropTarget();
     }
 
