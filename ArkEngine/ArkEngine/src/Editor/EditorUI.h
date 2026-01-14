@@ -132,6 +132,8 @@ private:
     bool m_showHierarchy = true;
     bool m_showInspector = true;
     bool m_showMaterials = true;
+    bool m_showCreate = false;
+    bool m_focusCreateNextFrame = false;
 
     bool m_showConsole = true;
     bool m_showContentBrowser = true;
