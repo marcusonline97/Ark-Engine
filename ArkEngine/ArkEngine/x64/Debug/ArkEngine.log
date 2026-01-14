@@ -1,36 +1,5 @@
 ﻿  ArkApp.cpp
-  EditorUI.cpp
-C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\ArkApp.cpp(60,41): error C2440: '<function-style-cast>': cannot convert from 'initializer list' to 'EditorObject'
-      C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\ArkApp.cpp(60,41):
-      Invalid aggregate initialization
-          C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\ArkApp.cpp(60,43):
-          'initializing': cannot convert from 'const char [12]' to 'uint32_t'
-              C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\ArkApp.cpp(60,43):
-              There is no context in which this conversion is possible
-  
-C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\ArkApp.cpp(64,41): error C2440: '<function-style-cast>': cannot convert from 'initializer list' to 'EditorObject'
-      C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\ArkApp.cpp(64,41):
-      Invalid aggregate initialization
-          C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\ArkApp.cpp(64,43):
-          'initializing': cannot convert from 'const char [14]' to 'uint32_t'
-              C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\ArkApp.cpp(64,43):
-              There is no context in which this conversion is possible
-  
-C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\ArkApp.cpp(69,41): error C2440: '<function-style-cast>': cannot convert from 'initializer list' to 'EditorObject'
-      C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\ArkApp.cpp(69,41):
-      Invalid aggregate initialization
-          C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\ArkApp.cpp(69,43):
-          'initializing': cannot convert from 'const char [7]' to 'uint32_t'
-              C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\ArkApp.cpp(69,43):
-              There is no context in which this conversion is possible
-  
-C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\ArkApp.cpp(73,41): error C2440: '<function-style-cast>': cannot convert from 'initializer list' to 'EditorObject'
-      C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\ArkApp.cpp(73,41):
-      Invalid aggregate initialization
-          C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\ArkApp.cpp(73,43):
-          'initializing': cannot convert from 'const char [12]' to 'uint32_t'
-              C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\ArkApp.cpp(73,43):
-              There is no context in which this conversion is possible
-  
   Initializer.cpp
   Generating Code...
+LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
+  ArkEngine.vcxproj -> C:\ArkEngine\Ark-Engine\ArkEngine\x64\Debug\ArkEngine.exe
