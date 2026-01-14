@@ -1,5 +1,7 @@
 #include "WorldRenderThread.h"
 
+#include <algorithm>
+#include <cctype>
 #include <stdexcept>
 #include <filesystem>
 #include <fstream>
