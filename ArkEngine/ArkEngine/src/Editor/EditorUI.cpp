@@ -303,7 +303,7 @@ void EditorUI::RenderGizmo(Ark::Scene& scene, entt::entity selectedEntity, const
         float nearP = 0.1f;
         float farP = 100.0f;
 
-        if (camE != entt::null && reg.valid(camE) && reg.any_of<Ark::TransformComponent>(camE, Ark::CameraComponent))
+        if (camE != entt::null && reg.valid(camE) && reg.all_of<Ark::TransformComponent, Ark::CameraComponent>(camE))
         {
             const auto& ct = reg.get<Ark::TransformComponent>(camE);
             const auto& cc = reg.get<Ark::CameraComponent>(camE);
