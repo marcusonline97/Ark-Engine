@@ -558,6 +558,15 @@ void EditorUI::RenderHierarchy(std::vector<EditorObject>& objects, int& selected
     if (!hasSelected)
         parentToSelected = false;
 
+    // F2 rename for the selected object when the hierarchy is focused.
+    if (hasSelected && ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows) && ImGui::IsKeyPressed(ImGuiKey_F2))
+    {
+        m_renamingObjectId = objects[static_cast<size_t>(selectedObjectIndex)].id;
+        m_renameTarget = RenameTarget::Object;
+        m_renameBuffer = objects[static_cast<size_t>(selectedObjectIndex)].name;
+        m_focusRename = true;
+    }
+
     const auto doCreate = [&](const char* defaultLabel, auto attachFn)
         {
             EditorObject obj{};
@@ -691,10 +700,49 @@ void EditorUI::RenderHierarchy(std::vector<EditorObject>& objects, int& selected
                 ImGuiTreeNodeFlags_OpenOnDoubleClick |
                 (selected ? ImGuiTreeNodeFlags_Selected : 0) |
                 (!hasChildren ? ImGuiTreeNodeFlags_Leaf : 0);
-            const bool open = ImGui::TreeNodeEx("##obj", flags, "%s", obj.name.c_str());
+            const bool renamingThisObject = (m_renamingObjectId == obj.id && m_renameTarget == RenameTarget::Object);
+            bool open = false;
+            if (!renamingThisObject)
+            {
+                open = ImGui::TreeNodeEx("##obj", flags, "%s", obj.name.c_str());
+            }
+            else
+            {
+                open = ImGui::TreeNodeEx("##obj", flags, "%s", "");
+                ImGui::SameLine();
+                ImGui::SetNextItemWidth(-1.0f);
+                if (m_focusRename)
+                {
+                    ImGui::SetKeyboardFocusHere();
+                    m_focusRename = false;
+                }
+                const bool committed = ImGui::InputText("##rename_obj", &m_renameBuffer, ImGuiInputTextFlags_AutoSelectAll | ImGuiInputTextFlags_EnterReturnsTrue);
+                const bool canceled = ImGui::IsKeyPressed(ImGuiKey_Escape);
+                if (committed || (!ImGui::IsItemActive() && ImGui::IsItemDeactivatedAfterEdit()))
+                {
+                    if (!m_renameBuffer.empty())
+                        obj.name = m_renameBuffer;
+                    m_renamingObjectId = 0;
+                    m_renameTarget = RenameTarget::None;
+                }
+                else if (canceled)
+                {
+                    m_renamingObjectId = 0;
+                    m_renameTarget = RenameTarget::None;
+                }
+            }
 
             if (ImGui::IsItemClicked())
                 selectedObjectIndex = idx;
+
+            // Double-click rename on objects
+            if (!renamingThisObject && ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
+            {
+                m_renamingObjectId = obj.id;
+                m_renameTarget = RenameTarget::Object;
+                m_renameBuffer = obj.name;
+                m_focusRename = true;
+            }
 
             // Drag this object.
             if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
@@ -752,6 +800,14 @@ void EditorUI::RenderHierarchy(std::vector<EditorObject>& objects, int& selected
                 if (ImGui::MenuItem("Detach from parent", nullptr, false, obj.parentId != 0))
                     obj.parentId = 0;
 
+                if (ImGui::MenuItem("Rename", "F2"))
+                {
+                    m_renamingObjectId = obj.id;
+                    m_renameTarget = RenameTarget::Object;
+                    m_renameBuffer = obj.name;
+                    m_focusRename = true;
+                }
+
                 if (ImGui::BeginMenu("Add Component"))
                 {
                     if (!obj.staticMesh && ImGui::MenuItem("Static Mesh")) obj.staticMesh = StaticMeshEditorComponent{};
@@ -778,19 +834,108 @@ void EditorUI::RenderHierarchy(std::vector<EditorObject>& objects, int& selected
                 // Components live under the object in the hierarchy.
                 if (obj.staticMesh)
                 {
-                    if (ImGui::TreeNodeEx("Static Mesh", ImGuiTreeNodeFlags_DefaultOpen))
+                        ImGui::PushID("StaticMeshNode");
+                    const bool renamingCmp = (m_renamingObjectId == obj.id && m_renameTarget == RenameTarget::StaticMesh);
+                    bool cmpOpen = false;
+                    if (!renamingCmp)
+                        cmpOpen = ImGui::TreeNodeEx(obj.staticMesh->displayName.c_str(), ImGuiTreeNodeFlags_DefaultOpen);
+                    else
+                        cmpOpen = ImGui::TreeNodeEx("##StaticMesh", ImGuiTreeNodeFlags_DefaultOpen, "%s", "");
+
+                    if (ImGui::BeginPopupContextItem("##staticmesh_ctx"))
                     {
+                        if (ImGui::MenuItem("Rename Component"))
+                        {
+                            m_renamingObjectId = obj.id;
+                            m_renameTarget = RenameTarget::StaticMesh;
+                            m_renameBuffer = obj.staticMesh->displayName;
+                            m_focusRename = true;
+                        }
+                        ImGui::EndPopup();
+                    }
+
+                    if (cmpOpen)
+                    {
+                        if (renamingCmp)
+                        {
+                            ImGui::SetNextItemWidth(-1.0f);
+                            if (m_focusRename)
+                            {
+                                ImGui::SetKeyboardFocusHere();
+                                m_focusRename = false;
+                            }
+                            const bool committed = ImGui::InputText("##rename_staticmesh", &m_renameBuffer, ImGuiInputTextFlags_AutoSelectAll | ImGuiInputTextFlags_EnterReturnsTrue);
+                            const bool canceled = ImGui::IsKeyPressed(ImGuiKey_Escape);
+                            if (committed || (!ImGui::IsItemActive() && ImGui::IsItemDeactivatedAfterEdit()))
+                            {
+                                if (!m_renameBuffer.empty())
+                                    obj.staticMesh->displayName = m_renameBuffer;
+                                m_renamingObjectId = 0;
+                                m_renameTarget = RenameTarget::None;
+                            }
+                            else if (canceled)
+                            {
+                                m_renamingObjectId = 0;
+                                m_renameTarget = RenameTarget::None;
+                            }
+                        }
+
                         ImGui::InputText("Mesh", &obj.staticMesh->meshPath);
                         ImGui::InputText("Texture", &obj.staticMesh->texturePath);
                         ImGui::TextDisabled("Drag mesh/image here (or onto the object).");
                         if (ImGui::SmallButton("Remove##StaticMesh")) obj.staticMesh.reset();
                         ImGui::TreePop();
                     }
+                    ImGui::PopID();
                 }
                 if (obj.skeletalMesh)
                 {
-                    if (ImGui::TreeNodeEx("Skeletal Mesh", ImGuiTreeNodeFlags_DefaultOpen))
+                        ImGui::PushID("SkeletalMeshNode");
+                    const bool renamingCmp = (m_renamingObjectId == obj.id && m_renameTarget == RenameTarget::SkeletalMesh);
+                    bool cmpOpen = false;
+                    if (!renamingCmp)
+                        cmpOpen = ImGui::TreeNodeEx(obj.skeletalMesh->displayName.c_str(), ImGuiTreeNodeFlags_DefaultOpen);
+                    else
+                        cmpOpen = ImGui::TreeNodeEx("##SkeletalMesh", ImGuiTreeNodeFlags_DefaultOpen, "%s", "");
+
+                    if (ImGui::BeginPopupContextItem("##skeletalmesh_ctx"))
                     {
+                        if (ImGui::MenuItem("Rename Component"))
+                        {
+                            m_renamingObjectId = obj.id;
+                            m_renameTarget = RenameTarget::SkeletalMesh;
+                            m_renameBuffer = obj.skeletalMesh->displayName;
+                            m_focusRename = true;
+                        }
+                        ImGui::EndPopup();
+                    }
+
+                    if (cmpOpen)
+                    {
+                        if (renamingCmp)
+                        {
+                            ImGui::SetNextItemWidth(-1.0f);
+                            if (m_focusRename)
+                            {
+                                ImGui::SetKeyboardFocusHere();
+                                m_focusRename = false;
+                            }
+                            const bool committed = ImGui::InputText("##rename_skeletalmesh", &m_renameBuffer, ImGuiInputTextFlags_AutoSelectAll | ImGuiInputTextFlags_EnterReturnsTrue);
+                            const bool canceled = ImGui::IsKeyPressed(ImGuiKey_Escape);
+                            if (committed || (!ImGui::IsItemActive() && ImGui::IsItemDeactivatedAfterEdit()))
+                            {
+                                if (!m_renameBuffer.empty())
+                                    obj.skeletalMesh->displayName = m_renameBuffer;
+                                m_renamingObjectId = 0;
+                                m_renameTarget = RenameTarget::None;
+                            }
+                            else if (canceled)
+                            {
+                                m_renamingObjectId = 0;
+                                m_renameTarget = RenameTarget::None;
+                            }
+                        }
+
                         ImGui::InputText("Mesh", &obj.skeletalMesh->meshPath);
                         ImGui::InputText("Animation", &obj.skeletalMesh->animationPath);
                         ImGui::DragInt("Anim Index", &obj.skeletalMesh->animationIndex, 1.0f, -1, 1024);
@@ -799,11 +944,56 @@ void EditorUI::RenderHierarchy(std::vector<EditorObject>& objects, int& selected
                         if (ImGui::SmallButton("Remove##SkeletalMesh")) obj.skeletalMesh.reset();
                         ImGui::TreePop();
                     }
+                    ImGui::PopID();
                 }
                 if (obj.camera)
                 {
-                    if (ImGui::TreeNodeEx("Camera", ImGuiTreeNodeFlags_DefaultOpen))
+                        ImGui::PushID("CameraNode");
+                    const bool renamingCmp = (m_renamingObjectId == obj.id && m_renameTarget == RenameTarget::Camera);
+                    bool cmpOpen = false;
+                    if (!renamingCmp)
+                        cmpOpen = ImGui::TreeNodeEx(obj.camera->displayName.c_str(), ImGuiTreeNodeFlags_DefaultOpen);
+                    else
+                        cmpOpen = ImGui::TreeNodeEx("##Camera", ImGuiTreeNodeFlags_DefaultOpen, "%s", "");
+
+                    if (ImGui::BeginPopupContextItem("##camera_ctx"))
                     {
+                        if (ImGui::MenuItem("Rename Component"))
+                        {
+                            m_renamingObjectId = obj.id;
+                            m_renameTarget = RenameTarget::Camera;
+                            m_renameBuffer = obj.camera->displayName;
+                            m_focusRename = true;
+                        }
+                        ImGui::EndPopup();
+                    }
+
+                    if (cmpOpen)
+                    {
+                        if (renamingCmp)
+                        {
+                            ImGui::SetNextItemWidth(-1.0f);
+                            if (m_focusRename)
+                            {
+                                ImGui::SetKeyboardFocusHere();
+                                m_focusRename = false;
+                            }
+                            const bool committed = ImGui::InputText("##rename_camera", &m_renameBuffer, ImGuiInputTextFlags_AutoSelectAll | ImGuiInputTextFlags_EnterReturnsTrue);
+                            const bool canceled = ImGui::IsKeyPressed(ImGuiKey_Escape);
+                            if (committed || (!ImGui::IsItemActive() && ImGui::IsItemDeactivatedAfterEdit()))
+                            {
+                                if (!m_renameBuffer.empty())
+                                    obj.camera->displayName = m_renameBuffer;
+                                m_renamingObjectId = 0;
+                                m_renameTarget = RenameTarget::None;
+                            }
+                            else if (canceled)
+                            {
+                                m_renamingObjectId = 0;
+                                m_renameTarget = RenameTarget::None;
+                            }
+                        }
+
                         ImGui::Checkbox("Primary", &obj.camera->primary);
                         ImGui::SliderFloat("FOV (deg)", &obj.camera->fovDeg, 1.0f, 140.0f, "%.1f");
                         ImGui::DragFloat("Near", &obj.camera->nearPlane, 0.01f, 0.001f, 100.0f, "%.3f");
@@ -811,17 +1001,63 @@ void EditorUI::RenderHierarchy(std::vector<EditorObject>& objects, int& selected
                         if (ImGui::SmallButton("Remove##Camera")) obj.camera.reset();
                         ImGui::TreePop();
                     }
+                    ImGui::PopID();
                 }
                 if (obj.pointLight)
                 {
-                    if (ImGui::TreeNodeEx("Point Light", ImGuiTreeNodeFlags_DefaultOpen))
+                        ImGui::PushID("PointLightNode");
+                    const bool renamingCmp = (m_renamingObjectId == obj.id && m_renameTarget == RenameTarget::PointLight);
+                    bool cmpOpen = false;
+                    if (!renamingCmp)
+                        cmpOpen = ImGui::TreeNodeEx(obj.pointLight->displayName.c_str(), ImGuiTreeNodeFlags_DefaultOpen);
+                    else
+                        cmpOpen = ImGui::TreeNodeEx("##PointLight", ImGuiTreeNodeFlags_DefaultOpen, "%s", "");
+
+                    if (ImGui::BeginPopupContextItem("##pointlight_ctx"))
                     {
+                        if (ImGui::MenuItem("Rename Component"))
+                        {
+                            m_renamingObjectId = obj.id;
+                            m_renameTarget = RenameTarget::PointLight;
+                            m_renameBuffer = obj.pointLight->displayName;
+                            m_focusRename = true;
+                        }
+                        ImGui::EndPopup();
+                    }
+
+                    if (cmpOpen)
+                    {
+                        if (renamingCmp)
+                        {
+                            ImGui::SetNextItemWidth(-1.0f);
+                            if (m_focusRename)
+                            {
+                                ImGui::SetKeyboardFocusHere();
+                                m_focusRename = false;
+                            }
+                            const bool committed = ImGui::InputText("##rename_pointlight", &m_renameBuffer, ImGuiInputTextFlags_AutoSelectAll | ImGuiInputTextFlags_EnterReturnsTrue);
+                            const bool canceled = ImGui::IsKeyPressed(ImGuiKey_Escape);
+                            if (committed || (!ImGui::IsItemActive() && ImGui::IsItemDeactivatedAfterEdit()))
+                            {
+                                if (!m_renameBuffer.empty())
+                                    obj.pointLight->displayName = m_renameBuffer;
+                                m_renamingObjectId = 0;
+                                m_renameTarget = RenameTarget::None;
+                            }
+                            else if (canceled)
+                            {
+                                m_renamingObjectId = 0;
+                                m_renameTarget = RenameTarget::None;
+                            }
+                        }
+
                         ImGui::ColorEdit3("Color", &obj.pointLight->color.x);
                         ImGui::DragFloat("Intensity", &obj.pointLight->intensity, 0.05f, 0.0f, 1000.0f, "%.2f");
                         ImGui::DragFloat("Radius", &obj.pointLight->radius, 0.05f, 0.0f, 1000.0f, "%.2f");
                         if (ImGui::SmallButton("Remove##PointLight")) obj.pointLight.reset();
                         ImGui::TreePop();
                     }
+                    ImGui::PopID();
                 }
 
                 // Children
@@ -874,204 +1110,9 @@ void EditorUI::RenderInspector(std::vector<EditorObject>& objects, int& selected
 
     ImGui::Checkbox("Enabled", &obj.enabled);
     ImGui::SameLine();
-    ImGui::TextUnformatted(obj.name.c_str());
+    ImGui::SetNextItemWidth(-1.0f);
+    ImGui::InputText("##ObjectName", &obj.name);
 
     ImGui::Separator();
     ImGui::TextUnformatted("Transform");
     ImGui::DragFloat3("Position", &obj.position.x, 0.05f);
-    ImGui::DragFloat3("Rotation (deg)", &obj.rotationDeg.x, 0.25f);
-    ImGui::DragFloat3("Scale", &obj.scale.x, 0.05f, 0.001f, 1000.0f);
-
-    ImGui::Separator();
-    ImGui::TextUnformatted("Material");
-    ImGui::ColorEdit3("Tint", &obj.tint.x);
-
-    ImGui::End();
-}
-
-void EditorUI::RenderMaterials(std::vector<EditorObject>& objects, int& selectedObjectIndex)
-{
-    if (!ImGui::Begin("Materials"))
-    {
-        ImGui::End();
-        return;
-    }
-
-    if (selectedObjectIndex < 0 || selectedObjectIndex >= static_cast<int>(objects.size()))
-    {
-        ImGui::TextDisabled("Select an object from the Hierarchy.");
-        ImGui::End();
-        return;
-    }
-
-    EditorObject& obj = objects[selectedObjectIndex];
-
-    ImGui::TextDisabled("Selected: %s", obj.name.c_str());
-    ImGui::Separator();
-
-    // Simple preset list (tint-only "materials" for now).
-    struct Preset { const char* name; glm::vec3 tint; };
-    static constexpr Preset kPresets[] = {
-        {"Default",   {1.0f, 1.0f, 1.0f}},
-        {"Clay",      {0.76f, 0.68f, 0.62f}},
-        {"Gold",      {1.0f, 0.78f, 0.25f}},
-        {"Emerald",   {0.20f, 0.85f, 0.45f}},
-        {"Magenta",   {0.95f, 0.25f, 0.85f}},
-        {"Ice",       {0.45f, 0.80f, 1.00f}},
-    };
-
-    const char* preview = (obj.materialPreset >= 0 && obj.materialPreset < static_cast<int>(IM_ARRAYSIZE(kPresets)))
-        ? kPresets[obj.materialPreset].name
-        : "<custom>";
-
-    if (ImGui::BeginCombo("Preset", preview))
-    {
-        for (int i = 0; i < static_cast<int>(IM_ARRAYSIZE(kPresets)); ++i)
-        {
-            const bool selected = (i == obj.materialPreset);
-            if (ImGui::Selectable(kPresets[i].name, selected))
-            {
-                obj.materialPreset = i;
-                obj.tint = kPresets[i].tint;
-            }
-            if (selected) ImGui::SetItemDefaultFocus();
-        }
-        ImGui::EndCombo();
-    }
-
-    ImGui::ColorEdit3("Tint", &obj.tint.x);
-    ImGui::TextDisabled("Note: This is currently a tint-only demo material.");
-
-    ImGui::End();
-}
-
-void EditorUI::RenderConsole()
-{
-    m_console.Render();
-
-}
-
-void EditorUI::DrawDirectoryBrowser(const char* id,
-    const std::filesystem::path& root,
-    std::filesystem::path& currentDir,
-    std::filesystem::path* selectedPath)
-{
-    ImGui::PushID(id);
-
-    // Breadcrumb
-    {
-        std::filesystem::path rel;
-        std::error_code ec;
-        rel = std::filesystem::relative(currentDir, root, ec);
-        if (ec) rel.clear();
-
-        if (ImGui::Button("Root"))
-            currentDir = root;
-
-        std::filesystem::path accum = root;
-        if (!rel.empty())
-        {
-            for (const auto& part : rel)
-            {
-                ImGui::SameLine();
-                ImGui::TextUnformatted("/");
-                ImGui::SameLine();
-                accum /= part;
-                if (ImGui::SmallButton(part.string().c_str()))
-                    currentDir = accum;
-            }
-        }
-    }
-
-    ImGui::Separator();
-
-    // Directory list
-    std::vector<std::filesystem::directory_entry> entries;
-    {
-        std::error_code ec;
-        for (const auto& e : std::filesystem::directory_iterator(currentDir, ec))
-        {
-            if (ec) break;
-            entries.push_back(e);
-        }
-    }
-
-    std::sort(entries.begin(), entries.end(),
-        [](const auto& a, const auto& b)
-        {
-            const bool ad = a.is_directory();
-            const bool bd = b.is_directory();
-            if (ad != bd) return ad > bd;
-            return a.path().filename().string() < b.path().filename().string();
-        });
-
-    if (ImGui::BeginChild("##dirList", ImVec2(0, 0), false))
-    {
-        if (currentDir != root)
-        {
-            if (ImGui::Selectable("..", false))
-                currentDir = currentDir.parent_path();
-        }
-
-        for (const auto& e : entries)
-        {
-            const bool isDir = e.is_directory();
-            const std::string name = e.path().filename().string();
-
-            std::string label = isDir ? ("[DIR] " + name) : name;
-            const bool isSelected = (selectedPath && *selectedPath == e.path());
-            if (ImGui::Selectable(label.c_str(), isSelected))
-            {
-                if (selectedPath) *selectedPath = e.path();
-            }
-
-            // Drag & drop asset path (project-relative) for files.
-            if (!isDir)
-            {
-                if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
-                {
-                    const std::string rel = MakeProjectRelativePath(e.path());
-                    ImGui::SetDragDropPayload(kPayloadAssetPath, rel.c_str(), rel.size() + 1);
-                    ImGui::Text("%s", rel.c_str());
-                    ImGui::EndDragDropSource();
-                }
-            }
-
-            if (isDir && ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0))
-            {
-                currentDir = e.path();
-            }
-        }
-        ImGui::EndChild();
-    }
-
-    ImGui::PopID();
-}
-
-void EditorUI::RenderContentBrowser()
-{
-    if (!ImGui::Begin("Content Browser"))
-    {
-        ImGui::End();
-        return;
-    }
-
-    ImGui::TextDisabled("Root: %s", m_resourcesRoot.string().c_str());
-    DrawDirectoryBrowser("content", m_resourcesRoot, m_contentDir, &m_selectedAsset);
-
-    ImGui::End();
-}
-
-void EditorUI::RenderFileExplorer()
-{
-    if (!ImGui::Begin("File Explorer"))
-    {
-        ImGui::End();
-        return;
-    }
-
-    ImGui::TextDisabled("Root: %s", m_projectRoot.string().c_str());
-    DrawDirectoryBrowser("files", m_projectRoot, m_fileDir, &m_selectedFile);
-
-    ImGui::End();
-}

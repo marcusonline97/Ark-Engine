@@ -3,10 +3,10 @@
 #include <atomic>
 #include <condition_variable>
 #include <cstdint>
+#include <string>
 #include <mutex>
 #include <thread>
-#include <vector>   // FIX: needed for std::vector
-
+#include <vector>  
 #include <glm/glm.hpp>
 
 struct GLFWwindow;
@@ -29,6 +29,9 @@ namespace Ark::Rendering
     {
         glm::mat4 model{ 1.0f };
         glm::vec3 tint{ 1.0f, 1.0f, 1.0f };
+
+        std::string meshPath;
+
     };
 
     struct WorldRenderInput
