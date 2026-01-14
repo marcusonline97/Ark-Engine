@@ -1,7 +1,9 @@
 #include "EditorUI.h"
 
 #include <algorithm>
+#include <cctype>
 #include <cstdio>
+#include <functional>
 #include <unordered_map>
 
 #include <imgui/imgui.h>
