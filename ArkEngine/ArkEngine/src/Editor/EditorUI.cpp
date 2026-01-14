@@ -175,6 +175,181 @@ void EditorUI::Render(std::vector<EditorObject>& objects, int& selectedObjectInd
         ImGui::ShowDemoWindow(&m_showImGuiDemo);
 }
 
+void EditorUI::RenderMaterials(std::vector<EditorObject>& objects, int& selectedObjectIndex)
+{
+    if (!ImGui::Begin("Materials"))
+    {
+        ImGui::End();
+        return;
+    }
+
+    if (selectedObjectIndex < 0 || selectedObjectIndex >= static_cast<int>(objects.size()))
+    {
+        ImGui::TextDisabled("Select an object to edit its material settings.");
+        ImGui::End();
+        return;
+    }
+
+    EditorObject& obj = objects[static_cast<size_t>(selectedObjectIndex)];
+
+    ImGui::TextDisabled("Object: %s", obj.name.c_str());
+    ImGui::Separator();
+
+    ImGui::ColorEdit3("Tint", &obj.tint.x);
+
+    static const char* kPresets[] =
+    {
+        "Default",
+        "Matte",
+        "Glossy",
+        "Metal",
+        "Emissive",
+    };
+    ImGui::Combo("Preset", &obj.materialPreset, kPresets, static_cast<int>(IM_ARRAYSIZE(kPresets)));
+
+    ImGui::Separator();
+    ImGui::TextDisabled("Component bindings (placeholder)");
+
+    if (obj.staticMesh)
+    {
+        ImGui::TextUnformatted("Static Mesh");
+        ImGui::InputText("Material", &obj.staticMesh->materialPath);
+        ImGui::InputText("Texture", &obj.staticMesh->texturePath);
+        ImGui::TextDisabled("Tip: drag an image into the Hierarchy to assign a texture.");
+    }
+    else if (obj.skeletalMesh)
+    {
+        ImGui::TextUnformatted("Skeletal Mesh");
+        ImGui::InputText("Material", &obj.skeletalMesh->materialPath);
+        ImGui::InputText("Texture", &obj.skeletalMesh->texturePath);
+    }
+    else
+    {
+        ImGui::TextDisabled("No renderable component on the selected object.");
+    }
+
+    ImGui::End();
+}
+
+void EditorUI::RenderConsole()
+{
+    // ConsolePanel owns the ImGui window and title.
+    m_console.Render();
+}
+
+void EditorUI::RenderContentBrowser()
+{
+    if (!ImGui::Begin("Content Browser"))
+    {
+        ImGui::End();
+        return;
+    }
+
+    DrawDirectoryBrowser("##ContentBrowserList", m_resourcesRoot, m_contentDir, &m_selectedAsset);
+    ImGui::End();
+}
+
+void EditorUI::RenderFileExplorer()
+{
+    if (!ImGui::Begin("File Explorer"))
+    {
+        ImGui::End();
+        return;
+    }
+
+    DrawDirectoryBrowser("##FileExplorerList", m_projectRoot, m_fileDir, &m_selectedFile);
+    ImGui::End();
+}
+
+void EditorUI::DrawDirectoryBrowser(const char* id, const std::filesystem::path& root, std::filesystem::path& currentDir, std::filesystem::path* selectedPath)
+{
+    if (root.empty() || !std::filesystem::exists(root))
+    {
+        ImGui::TextDisabled("Root folder does not exist: %s", root.string().c_str());
+        return;
+    }
+
+    // Keep the current directory valid and clamped to root.
+    if (currentDir.empty() || !std::filesystem::exists(currentDir))
+        currentDir = root;
+
+    {
+        std::error_code ec;
+        const auto absRoot = std::filesystem::absolute(root, ec).lexically_normal();
+        const auto absCur = std::filesystem::absolute(currentDir, ec).lexically_normal();
+        if (!ec)
+        {
+            const auto rootStr = absRoot.string();
+            const auto curStr = absCur.string();
+            if (curStr.rfind(rootStr, 0) != 0) // not under root
+                currentDir = root;
+        }
+    }
+
+    if (ImGui::Button("Up"))
+    {
+        if (currentDir != root && currentDir.has_parent_path())
+        {
+            currentDir = currentDir.parent_path();
+            m_dirScanner.RequestScan(currentDir);
+        }
+    }
+
+    ImGui::SameLine();
+    if (ImGui::Button("Refresh"))
+        m_dirScanner.RequestScan(currentDir);
+
+    ImGui::SameLine();
+    ImGui::TextDisabled("%s", MakeProjectRelativePath(currentDir).c_str());
+
+    ImGui::Separator();
+
+    ImGui::BeginChild(id, ImVec2(0, 0), true);
+
+    std::vector<Ark::Editor::DirectoryEntry> entries;
+    if (!m_dirScanner.TryGetListing(currentDir, entries))
+    {
+        m_dirScanner.RequestScan(currentDir);
+        ImGui::TextDisabled("Scanning...");
+        ImGui::EndChild();
+        return;
+    }
+
+    for (const auto& e : entries)
+    {
+        ImGui::PushID(e.name.c_str());
+
+        const bool isSelected = (selectedPath && *selectedPath == e.path);
+        const std::string label = e.isDirectory ? (std::string("[DIR] ") + e.name) : e.name;
+
+        if (ImGui::Selectable(label.c_str(), isSelected, ImGuiSelectableFlags_AllowDoubleClick))
+        {
+            if (e.isDirectory && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+            {
+                currentDir = e.path;
+                m_dirScanner.RequestScan(currentDir);
+            }
+            else if (!e.isDirectory && selectedPath)
+            {
+                *selectedPath = e.path;
+            }
+        }
+
+        // Drag-drop assets into the hierarchy/inspector/etc.
+        if (!e.isDirectory && ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
+        {
+            const std::string rel = MakeProjectRelativePath(e.path);
+            ImGui::SetDragDropPayload(kPayloadAssetPath, rel.c_str(), rel.size() + 1);
+            ImGui::TextUnformatted(rel.c_str());
+            ImGui::EndDragDropSource();
+        }
+
+        ImGui::PopID();
+    }
+
+    ImGui::EndChild();
+}
+
 void EditorUI::RenderDockspace()
 {
     static constexpr ImGuiWindowFlags hostFlags =
@@ -834,7 +1009,7 @@ void EditorUI::RenderHierarchy(std::vector<EditorObject>& objects, int& selected
                 // Components live under the object in the hierarchy.
                 if (obj.staticMesh)
                 {
-                        ImGui::PushID("StaticMeshNode");
+                    ImGui::PushID("StaticMeshNode");
                     const bool renamingCmp = (m_renamingObjectId == obj.id && m_renameTarget == RenameTarget::StaticMesh);
                     bool cmpOpen = false;
                     if (!renamingCmp)
@@ -890,7 +1065,7 @@ void EditorUI::RenderHierarchy(std::vector<EditorObject>& objects, int& selected
                 }
                 if (obj.skeletalMesh)
                 {
-                        ImGui::PushID("SkeletalMeshNode");
+                    ImGui::PushID("SkeletalMeshNode");
                     const bool renamingCmp = (m_renamingObjectId == obj.id && m_renameTarget == RenameTarget::SkeletalMesh);
                     bool cmpOpen = false;
                     if (!renamingCmp)
@@ -948,7 +1123,7 @@ void EditorUI::RenderHierarchy(std::vector<EditorObject>& objects, int& selected
                 }
                 if (obj.camera)
                 {
-                        ImGui::PushID("CameraNode");
+                    ImGui::PushID("CameraNode");
                     const bool renamingCmp = (m_renamingObjectId == obj.id && m_renameTarget == RenameTarget::Camera);
                     bool cmpOpen = false;
                     if (!renamingCmp)
@@ -1005,7 +1180,7 @@ void EditorUI::RenderHierarchy(std::vector<EditorObject>& objects, int& selected
                 }
                 if (obj.pointLight)
                 {
-                        ImGui::PushID("PointLightNode");
+                    ImGui::PushID("PointLightNode");
                     const bool renamingCmp = (m_renamingObjectId == obj.id && m_renameTarget == RenameTarget::PointLight);
                     bool cmpOpen = false;
                     if (!renamingCmp)
@@ -1116,3 +1291,4 @@ void EditorUI::RenderInspector(std::vector<EditorObject>& objects, int& selected
     ImGui::Separator();
     ImGui::TextUnformatted("Transform");
     ImGui::DragFloat3("Position", &obj.position.x, 0.05f);
+}
