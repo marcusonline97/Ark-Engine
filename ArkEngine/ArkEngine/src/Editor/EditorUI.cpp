@@ -779,7 +779,7 @@ void EditorUI::RenderHierarchy(std::vector<EditorObject>& objects, int& selected
 
         ImGui::Separator();
 
-        if (ImGui::BeginMenu("Rendering"))
+        if (ImGui::BeginMenu("Meshes"))
         {
             if (ImGui::MenuItem("Static Mesh"))
                 doCreate("StaticMesh", [](EditorObject& o) { o.staticMesh = StaticMeshEditorComponent{}; });
@@ -1291,4 +1291,6 @@ void EditorUI::RenderInspector(std::vector<EditorObject>& objects, int& selected
     ImGui::Separator();
     ImGui::TextUnformatted("Transform");
     ImGui::DragFloat3("Position", &obj.position.x, 0.05f);
+
+    ImGui::End();
 }
