@@ -6,7 +6,9 @@
 
 
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
+#include <algorithm>
 #include <iostream>
 #include <stdexcept>
 
@@ -53,11 +55,25 @@ App::App()
             });
     }
 
-    // Minimal scene objects for the editor panels (until ECS/Scene is wired in)
-    m_Objects.push_back(EditorObject{ "Cube" });
-    m_Objects.push_back(EditorObject{ "Camera" });
-    m_Objects.back().position = glm::vec3(0.0f, 0.0f, 3.0f);
-    m_Objects.push_back(EditorObject{ "Directional Light" });
+    {
+        m_Objects.push_back(EditorObject{ "Static Mesh" });
+        m_Objects.back().staticMesh = StaticMeshEditorComponent{};
+        m_Objects.back().tint = glm::vec3(0.95f, 0.95f, 0.95f);
+
+        m_Objects.push_back(EditorObject{ "Skeletal Mesh" });
+        m_Objects.back().skeletalMesh = SkeletalMeshEditorComponent{};
+        m_Objects.back().position = glm::vec3(1.5f, 0.0f, 0.0f);
+        m_Objects.back().tint = glm::vec3(0.65f, 0.85f, 1.0f);
+
+        m_Objects.push_back(EditorObject{ "Camera" });
+        m_Objects.back().camera = CameraEditorComponent{};
+        m_Objects.back().position = glm::vec3(0.0f, 0.0f, 3.0f);
+
+        m_Objects.push_back(EditorObject{ "Point Light" });
+        m_Objects.back().pointLight = PointLightEditorComponent{};
+        m_Objects.back().position = glm::vec3(-1.25f, 1.0f, 0.0f);
+        m_Objects.back().scale = glm::vec3(0.2f);
+    }
     m_SelectedObject = 0;
     
     m_WorldRenderer = std::make_unique<Ark::Rendering::WorldRenderThread>(m_Window->GetNativeHandle());

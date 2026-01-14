@@ -5,6 +5,7 @@
 
 #include <imgui/imgui.h>
 #include <imgui/imgui_internal.h>
+#include <imgui/misc/cpp/imgui_stdlib.h>
 #include <Utility/Utility.h>
 
 
@@ -89,7 +90,7 @@ void EditorUI::Render(std::vector<EditorObject>& objects, int& selectedObjectInd
     if (m_showContentBrowser) RenderContentBrowser();
     if (m_showFileExplorer)   RenderFileExplorer();
 
-    RenderViewport();
+    RenderViewport(objects, selectedObjectIndex);
 
     if (m_showImGuiDemo)
         ImGui::ShowDemoWindow(&m_showImGuiDemo);
@@ -193,6 +194,13 @@ void EditorUI::RenderMenuBar()
         ImGui::EndMenu();
     }
 
+    if (ImGui::BeginMenu("Run"))
+    {
+        if (ImGui::MenuItem(m_playMode ? "Stop" : "Play", "F5"))
+            m_playMode = !m_playMode;
+        ImGui::EndMenu();
+    }
+
     ImGui::TextDisabled("Project: %s", m_projectRoot.string().c_str());
     // Right-aligned viewport FPS.
     {
@@ -212,7 +220,7 @@ void EditorUI::RenderMenuBar()
     ImGui::EndMenuBar();
 }
 
-void EditorUI::RenderViewport()
+void EditorUI::RenderViewport(std::vector<EditorObject>& objects, int& selectedObjectIndex)
 {
     if (!ImGui::Begin("Viewport"))
     {
@@ -226,6 +234,28 @@ void EditorUI::RenderViewport()
         {
 			const ImVec2 availableSize = ImGui::GetContentRegionAvail();
 			m_viewportSize = glm::vec2(availableSize.x, availableSize.y);
+            // Viewport toolbar (edit gizmos + play mode)
+            {
+                const bool canEdit = !m_playMode;
+                ImGui::TextDisabled("Gizmo:");
+                ImGui::SameLine();
+
+                ImGui::BeginDisabled(!canEdit);
+                if (ImGui::SmallButton("Translate (W)")) m_gizmoMode = 0;
+                ImGui::SameLine();
+                if (ImGui::SmallButton("Rotate (E)")) m_gizmoMode = 1;
+                ImGui::SameLine();
+                if (ImGui::SmallButton("Scale (R)")) m_gizmoMode = 2;
+                ImGui::EndDisabled();
+
+                ImGui::SameLine();
+                ImGui::SeparatorText(m_playMode ? "PLAYING" : "EDIT");
+                ImGui::SameLine();
+                if (ImGui::SmallButton(m_playMode ? "Stop (F5)" : "Play (F5)"))
+                    m_playMode = !m_playMode;
+
+                ImGui::Separator();
+            }
 
             if (m_viewportTextureId != 0 && availableSize.x > 1.0f && availableSize.y > 1.0f)
             {
@@ -235,6 +265,73 @@ void EditorUI::RenderViewport()
                     ImVec2(0.0f, 1.0f),
                     ImVec2(1.0f, 0.0f)
                 );
+            }
+
+            // Simple viewport gizmo: click+drag over the viewport image to transform the selected object.
+            // - W/E/R switches mode (Translate/Rotate/Scale) when the viewport is hovered.
+            // - This is intentionally a "data-first" gizmo until a full 3D handle renderer is added.
+            const bool hasSelection = (selectedObjectIndex >= 0 && selectedObjectIndex < static_cast<int>(objects.size()));
+            const bool imgHovered = ImGui::IsItemHovered();
+            ImGuiIO& io = ImGui::GetIO();
+
+            if (imgHovered)
+            {
+                if (ImGui::IsKeyPressed(ImGuiKey_W)) m_gizmoMode = 0;
+                if (ImGui::IsKeyPressed(ImGuiKey_E)) m_gizmoMode = 1;
+                if (ImGui::IsKeyPressed(ImGuiKey_R)) m_gizmoMode = 2;
+                if (ImGui::IsKeyPressed(ImGuiKey_F5)) m_playMode = !m_playMode;
+            }
+
+            if (!m_playMode && hasSelection)
+            {
+                EditorObject& obj = objects[static_cast<size_t>(selectedObjectIndex)];
+
+                if (!m_gizmoDragging && imgHovered && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+                {
+                    m_gizmoDragging = true;
+                    m_gizmoDragStartMouse = glm::vec2(io.MousePos.x, io.MousePos.y);
+                    m_gizmoStartPos = obj.position;
+                    m_gizmoStartRotDeg = obj.rotationDeg;
+                    m_gizmoStartScale = obj.scale;
+                }
+
+                if (m_gizmoDragging)
+                {
+                    if (ImGui::IsMouseReleased(ImGuiMouseButton_Left))
+                    {
+                        m_gizmoDragging = false;
+                    }
+                    else if (ImGui::IsMouseDown(ImGuiMouseButton_Left))
+                    {
+                        const glm::vec2 mouseNow(io.MousePos.x, io.MousePos.y);
+                        const glm::vec2 delta = mouseNow - m_gizmoDragStartMouse;
+
+                        // Tunables (screen-space -> world/deg scaling)
+                        constexpr float kTranslate = 0.01f;
+                        constexpr float kRotate = 0.15f;
+                        constexpr float kScale = 0.01f;
+
+                        if (m_gizmoMode == 0)
+                        {
+                            obj.position = m_gizmoStartPos + glm::vec3(delta.x * kTranslate, -delta.y * kTranslate, 0.0f);
+                        }
+                        else if (m_gizmoMode == 1)
+                        {
+                            obj.rotationDeg = m_gizmoStartRotDeg + glm::vec3(-delta.y * kRotate, delta.x * kRotate, 0.0f);
+                        }
+                        else if (m_gizmoMode == 2)
+                        {
+                            const float uniform = 1.0f + (-delta.y * kScale);
+                            const float s = (uniform < 0.001f) ? 0.001f : uniform;
+                            obj.scale = m_gizmoStartScale * s;
+                        }
+                    }
+                }
+
+                // Minimal on-viewport hint.
+                const char* modeName = (m_gizmoMode == 0) ? "Translate" : (m_gizmoMode == 1) ? "Rotate" : "Scale";
+                ImGui::SetCursorScreenPos(ImGui::GetItemRectMin() + ImVec2(10.0f, 10.0f));
+                ImGui::TextDisabled("%s%s", modeName, m_gizmoDragging ? " (dragging)" : "");
             }
 
             else
@@ -432,6 +529,117 @@ void EditorUI::RenderInspector(std::vector<EditorObject>& objects, int& selected
     ImGui::Separator();
     ImGui::TextUnformatted("Material");
     ImGui::ColorEdit3("Tint", &obj.tint.x);
+
+    ImGui::Separator();
+    ImGui::TextUnformatted("Components");
+
+    // Add Component
+    {
+        const char* preview = "Add Component...";
+        if (ImGui::BeginCombo("##AddComponent", preview))
+        {
+            if (!obj.staticMesh && ImGui::Selectable("Static Mesh"))
+                obj.staticMesh = StaticMeshEditorComponent{};
+            if (!obj.skeletalMesh && ImGui::Selectable("Skeletal Mesh"))
+                obj.skeletalMesh = SkeletalMeshEditorComponent{};
+            if (!obj.camera && ImGui::Selectable("Camera"))
+                obj.camera = CameraEditorComponent{};
+            if (!obj.pointLight && ImGui::Selectable("Point Light"))
+                obj.pointLight = PointLightEditorComponent{};
+
+            ImGui::EndCombo();
+        }
+    }
+
+    const auto setPathFromSelectedAsset = [this](std::string& outPath)
+        {
+            if (m_selectedAsset.empty() || !std::filesystem::exists(m_selectedAsset))
+                return;
+
+            std::error_code ec;
+            const auto rel = std::filesystem::relative(m_selectedAsset, m_projectRoot, ec);
+            outPath = ec ? m_selectedAsset.string() : rel.string();
+        };
+
+    if (obj.staticMesh)
+    {
+        if (ImGui::CollapsingHeader("Static Mesh", ImGuiTreeNodeFlags_DefaultOpen))
+        {
+            ImGui::InputText("Mesh", &obj.staticMesh->meshPath);
+            ImGui::SameLine();
+            if (ImGui::SmallButton("Use Selected##StaticMesh"))
+                setPathFromSelectedAsset(obj.staticMesh->meshPath);
+
+            ImGui::InputText("Texture", &obj.staticMesh->texturePath);
+            ImGui::SameLine();
+            if (ImGui::SmallButton("Use Selected##StaticMeshTex"))
+                setPathFromSelectedAsset(obj.staticMesh->texturePath);
+
+            ImGui::TextDisabled("Note: static mesh importing/material binding is still being wired into the renderer.");
+
+            if (ImGui::Button("Remove Static Mesh"))
+                obj.staticMesh.reset();
+        }
+    }
+
+    if (obj.skeletalMesh)
+    {
+        if (ImGui::CollapsingHeader("Skeletal Mesh", ImGuiTreeNodeFlags_DefaultOpen))
+        {
+            ImGui::InputText("Mesh", &obj.skeletalMesh->meshPath);
+            ImGui::SameLine();
+            if (ImGui::SmallButton("Use Selected##SkelMesh"))
+                setPathFromSelectedAsset(obj.skeletalMesh->meshPath);
+
+            ImGui::InputText("Animation", &obj.skeletalMesh->animationPath);
+            ImGui::SameLine();
+            if (ImGui::SmallButton("Use Selected##SkelAnim"))
+                setPathFromSelectedAsset(obj.skeletalMesh->animationPath);
+
+            ImGui::DragInt("Anim Index", &obj.skeletalMesh->animationIndex, 1.0f, -1, 1024);
+
+            ImGui::InputText("Texture", &obj.skeletalMesh->texturePath);
+            ImGui::SameLine();
+            if (ImGui::SmallButton("Use Selected##SkelTex"))
+                setPathFromSelectedAsset(obj.skeletalMesh->texturePath);
+
+            ImGui::TextDisabled("Note: skeletal animation/skinning is planned; this component is data-first for now.");
+
+            if (ImGui::Button("Remove Skeletal Mesh"))
+                obj.skeletalMesh.reset();
+        }
+    }
+
+    if (obj.camera)
+    {
+        if (ImGui::CollapsingHeader("Camera", ImGuiTreeNodeFlags_DefaultOpen))
+        {
+            ImGui::Checkbox("Primary", &obj.camera->primary);
+            ImGui::SliderFloat("FOV (deg)", &obj.camera->fovDeg, 1.0f, 140.0f, "%.1f");
+            ImGui::DragFloat("Near", &obj.camera->nearPlane, 0.01f, 0.001f, 100.0f, "%.3f");
+            ImGui::DragFloat("Far", &obj.camera->farPlane, 1.0f, 1.0f, 50000.0f, "%.1f");
+
+            ImGui::TextDisabled("Tip: press Play to possess the primary camera.");
+
+            if (ImGui::Button("Remove Camera"))
+                obj.camera.reset();
+        }
+    }
+
+    if (obj.pointLight)
+    {
+        if (ImGui::CollapsingHeader("Point Light", ImGuiTreeNodeFlags_DefaultOpen))
+        {
+            ImGui::ColorEdit3("Color", &obj.pointLight->color.x);
+            ImGui::DragFloat("Intensity", &obj.pointLight->intensity, 0.05f, 0.0f, 1000.0f, "%.2f");
+            ImGui::DragFloat("Radius", &obj.pointLight->radius, 0.05f, 0.0f, 1000.0f, "%.2f");
+
+            ImGui::TextDisabled("Note: currently visualized as a small proxy in the demo renderer.");
+
+            if (ImGui::Button("Remove Point Light"))
+                obj.pointLight.reset();
+        }
+    }
 
     ImGui::End();
 }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <filesystem>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -12,6 +13,44 @@
 #include "Editor/DirectoryScanner.h"
 #include "Panels/ConsolePanel.h"
 
+struct StaticMeshEditorComponent
+{
+    // .fbx/.obj (relative to project root / Resources layout)
+    std::string meshPath;
+
+    // Placeholder material bindings (the runtime material system is still evolving)
+    std::string materialPath;
+    std::string texturePath;
+};
+
+struct SkeletalMeshEditorComponent
+{
+    // .fbx/.obj with armature/skin data
+    std::string meshPath;
+
+    // Optional animation source
+    std::string animationPath;
+    int animationIndex = -1;
+
+    std::string materialPath;
+    std::string texturePath;
+};
+
+struct CameraEditorComponent
+{
+    bool primary = true;
+    float fovDeg = 45.0f;
+    float nearPlane = 0.1f;
+    float farPlane = 100.0f;
+};
+
+struct PointLightEditorComponent
+{
+    glm::vec3 color{ 1.0f, 1.0f, 1.0f };
+    float intensity = 1.0f;
+    float radius = 1.0f;
+};
+
 struct EditorObject
 {
     std::string name = "GameObject";
@@ -22,6 +61,11 @@ struct EditorObject
 
 	glm::vec3 tint{ 1.0f, 1.0f, 1.0f };
     int materialPreset = 0;
+
+    std::optional<StaticMeshEditorComponent> staticMesh;
+    std::optional<SkeletalMeshEditorComponent> skeletalMesh;
+    std::optional<CameraEditorComponent> camera;
+    std::optional<PointLightEditorComponent> pointLight;
 };
 
 class EditorUI
@@ -36,6 +80,8 @@ public:
     unsigned int GetViewportTextureId() const { return m_viewportTextureId; }
     glm::vec2 GetViewportSize() const { return m_viewportSize; }
 
+    bool IsPlayMode() const { return m_playMode; }
+
     // a Thread-safe entry point for my Logging sink callback
     void PushLog(Logging::Level level, std::string_view msg);
 
@@ -45,9 +91,12 @@ private:
     void RenderDockspace();
     void RenderMenuBar();
 
-    void RenderViewport();
-	void RenderMusicPlayer();
+    void RenderViewport(std::vector<EditorObject>& objects, int& selectedObjectIndex);
+    
+    void RenderMusicPlayer();
+
     void RenderHierarchy(std::vector<EditorObject>& objects, int& selectedObjectIndex);
+
     void RenderInspector(std::vector<EditorObject>& objects, int& selectedObjectIndex);
 
 	void RenderMaterials(std::vector<EditorObject>& objects, int& selectedObjectIndex);
@@ -74,6 +123,16 @@ private:
     bool m_showContentBrowser = true;
     bool m_showFileExplorer = true;
     bool m_showImGuiDemo = false;
+
+    bool m_playMode = false;
+
+
+    int m_gizmoMode = 0;
+    bool m_gizmoDragging = false;
+    glm::vec2 m_gizmoDragStartMouse{ 0.0f, 0.0f };
+    glm::vec3 m_gizmoStartPos{ 0.0f, 0.0f, 0.0f };
+    glm::vec3 m_gizmoStartRotDeg{ 0.0f, 0.0f, 0.0f };
+    glm::vec3 m_gizmoStartScale{ 1.0f, 1.0f, 1.0f };
 
     std::filesystem::path m_projectRoot;
     std::filesystem::path m_resourcesRoot;

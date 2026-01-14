@@ -3,12 +3,24 @@
   "WorkspaceRootPath": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\ArkApp.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|solutionrelative:ArkEngine\\src\\ArkApp.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Editor\\EditorUI.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|solutionrelative:ArkEngine\\src\\Editor\\EditorUI.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\ArkApp.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|solutionrelative:ArkEngine\\src\\ArkApp.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+      "AbsoluteMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Camera\\Camera.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|solutionrelative:ArkEngine\\src\\Camera\\Camera.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Editor\\EditorUI.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|solutionrelative:ArkEngine\\src\\Editor\\EditorUI.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Rendering\\Threading\\WorldRenderThread.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{E64B13BA-0763-40F2-AC95-38E729DEA0F4}|ArkEngine.vcxproj|solutionrelative:ArkEngine\\src\\Rendering\\Threading\\WorldRenderThread.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     }
   ],
   "DocumentGroupContainers": [
@@ -18,7 +30,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 4,
+          "SelectedChildIndex": 6,
           "Children": [
             {
               "$type": "Bookmark",
@@ -34,26 +46,65 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 2,
+              "Title": "Camera.h",
+              "DocumentMoniker": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Camera\\Camera.h",
+              "RelativeDocumentMoniker": "ArkEngine\\src\\Camera\\Camera.h",
+              "ToolTip": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Camera\\Camera.h",
+              "RelativeToolTip": "ArkEngine\\src\\Camera\\Camera.h",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABIAAABhAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2026-01-14T11:42:32.389Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "EditorUI.h",
+              "DocumentMoniker": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Editor\\EditorUI.h",
+              "RelativeDocumentMoniker": "ArkEngine\\src\\Editor\\EditorUI.h",
+              "ToolTip": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Editor\\EditorUI.h",
+              "RelativeToolTip": "ArkEngine\\src\\Editor\\EditorUI.h",
+              "ViewState": "AgIAAGcAAAAAAAAAAAAmwIAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2026-01-14T11:39:45.532Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "WorldRenderThread.cpp",
+              "DocumentMoniker": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Rendering\\Threading\\WorldRenderThread.cpp",
+              "RelativeDocumentMoniker": "ArkEngine\\src\\Rendering\\Threading\\WorldRenderThread.cpp",
+              "ToolTip": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Rendering\\Threading\\WorldRenderThread.cpp",
+              "RelativeToolTip": "ArkEngine\\src\\Rendering\\Threading\\WorldRenderThread.cpp",
+              "ViewState": "AgIAAIQAAAAAAAAAAAAAAKAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2026-01-14T11:37:27.884Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
               "Title": "ArkApp.cpp",
               "DocumentMoniker": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\ArkApp.cpp",
               "RelativeDocumentMoniker": "ArkEngine\\src\\ArkApp.cpp",
               "ToolTip": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\ArkApp.cpp",
               "RelativeToolTip": "ArkEngine\\src\\ArkApp.cpp",
-              "ViewState": "AgIAABsAAAAAAAAAAAAAAIsAAAAiAAAAAAAAAA==",
+              "ViewState": "AgIAABsAAAAAAAAAAAAAAEsAAAAFAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2026-01-14T10:17:15.113Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
               "Title": "EditorUI.cpp",
               "DocumentMoniker": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Editor\\EditorUI.cpp",
               "RelativeDocumentMoniker": "ArkEngine\\src\\Editor\\EditorUI.cpp",
               "ToolTip": "C:\\ArkEngine\\Ark-Engine\\ArkEngine\\ArkEngine\\src\\Editor\\EditorUI.cpp",
               "RelativeToolTip": "ArkEngine\\src\\Editor\\EditorUI.cpp",
-              "ViewState": "AgIAAEwCAAAAAAAAAAAAABYCAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAADUBAAAAAAAAAAAWwEwBAABCAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2026-01-14T09:34:12.362Z",
               "EditorCaption": ""

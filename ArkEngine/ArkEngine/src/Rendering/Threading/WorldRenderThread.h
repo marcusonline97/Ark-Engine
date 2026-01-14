@@ -12,17 +12,31 @@ struct GLFWwindow;
 
 namespace Ark::Rendering
 {
+
+	struct WorldCameraInput
+	{
+		glm::vec3 position{ 0.0f, 0.0f, 3.0f };
+		// pitch/yaw in degrees (roll currently ignored by ArkCamera)
+		glm::vec2 pitchYawDeg{ 0.0f, -90.0f };
+
+		float fovDeg = 45.0f;
+		float nearPlane = 0.1f;
+		float farPlane = 100.0f;
+	};
+
+	struct RenderInstance
+	{
+		glm::mat4 model{ 1.0f };
+		glm::vec3 tint{ 1.0f, 1.0f, 1.0f };
+	};
+
 	struct WorldRenderInput
 	{
 		uint32_t width = 1;
 		uint32_t height = 1;
 
-		// Demo object for the current viewport (until a real Scene/ECS is wired).
-		bool cubeEnabled = true;
-		glm::vec3 position{ 0.0f, 0.0f, 0.0f };
-		glm::vec3 rotationDeg{ 0.0f, 0.0f, 0.0f };
-		glm::vec3 scale{ 1.0f, 1.0f, 1.0f };
-		glm::vec3 tint{ 1.0f, 1.0f, 1.0f };
+		WorldCameraInput camera{};
+		std::vector<RenderInstance> instances;
 	};
 
 	// Renders the "world" (viewport content) on a dedicated thread using a hidden
