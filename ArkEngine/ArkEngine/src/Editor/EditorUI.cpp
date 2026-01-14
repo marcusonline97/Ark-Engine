@@ -7,6 +7,8 @@
 #include <imgui/imgui_internal.h>
 #include <Utility/Utility.h>
 
+#include <ECS/Scene.h>
+#include <ECS/Component.h>
 
 std::filesystem::path EditorUI::FindProjectRoot()
 {
@@ -78,13 +80,13 @@ void EditorUI::PushLog(Logging::Level level, std::string_view msg)
 
 }
 
-void EditorUI::Render(std::vector<EditorObject>& objects, int& selectedObjectIndex)
+void EditorUI::Render(Ark::Scene& scene, entt::entity& selectedEntity)
 {
     RenderDockspace();
 
-    if (m_showHierarchy)      RenderHierarchy(objects, selectedObjectIndex);
-    if (m_showInspector)      RenderInspector(objects, selectedObjectIndex);
-    if (m_showMaterials)      RenderMaterials(objects, selectedObjectIndex);
+    if (m_showHierarchy)      RenderHierarchy(scene, selectedEntity);
+    if (m_showInspector)      RenderInspector(scene, selectedEntity);
+    if (m_showMaterials)      RenderMaterials(scene, selectedEntity);
     if (m_showConsole)        RenderConsole();
     if (m_showContentBrowser) RenderContentBrowser();
     if (m_showFileExplorer)   RenderFileExplorer();
@@ -364,7 +366,59 @@ void EditorUI::RenderMusicPlayer()
     ImGui::TextUnformatted(m_music.GetStatusText().c_str());
 }
 
-void EditorUI::RenderHierarchy(std::vector<EditorObject>& objects, int& selectedObjectIndex)
+static const char* GetEntityName(Ark::Scene& scene, entt::entity e)
+{
+    auto& reg = scene.Registry();
+    if (reg.valid(e) && reg.any_of<Ark::TagComponent>(e))
+        return reg.get<Ark::TagComponent>(e).Tag.c_str();
+    return "<Entity>";
+}
+
+static bool InputTextString(const char* label, std::string& value)
+{
+    // ImGui core InputText doesn't support std::string without imgui_stdlib;
+    // keep a fixed buffer and copy on edit.
+    char buf[512]{};
+    if (!value.empty())
+        std::snprintf(buf, sizeof(buf), "%s", value.c_str());
+    if (ImGui::InputText(label, buf, sizeof(buf)))
+    {
+        value = buf;
+        return true;
+    }
+    return false;
+}
+
+void EditorUI::RenderEntityTree(Ark::Scene& scene, entt::entity entity, entt::entity& selectedEntity)
+{
+    auto& reg = scene.Registry();
+    if (!reg.valid(entity))
+        return;
+
+    const bool isSelected = (selectedEntity == entity);
+    const auto& children = scene.GetChildren(entity);
+    const ImGuiTreeNodeFlags flags =
+        ImGuiTreeNodeFlags_SpanAvailWidth |
+        ImGuiTreeNodeFlags_OpenOnArrow |
+        ImGuiTreeNodeFlags_OpenOnDoubleClick |
+        (children.empty() ? ImGuiTreeNodeFlags_Leaf : 0) |
+        (isSelected ? ImGuiTreeNodeFlags_Selected : 0);
+
+    const char* label = GetEntityName(scene, entity);
+    const bool opened = ImGui::TreeNodeEx(reinterpret_cast<void*>(static_cast<uintptr_t>(static_cast<uint32_t>(entity))), flags, "%s", label);
+
+    if (ImGui::IsItemClicked())
+        selectedEntity = entity;
+
+    if (opened)
+    {
+        for (const entt::entity c : children)
+            RenderEntityTree(scene, c, selectedEntity);
+        ImGui::TreePop();
+    }
+}
+
+void EditorUI::RenderHierarchy(Ark::Scene& scene, entt::entity& selectedEntity)
 {
     if (!ImGui::Begin("Hierarchy"))
     {
@@ -373,36 +427,80 @@ void EditorUI::RenderHierarchy(std::vector<EditorObject>& objects, int& selected
     }
 
     if (ImGui::Button("Create"))
-    {
-        objects.push_back(EditorObject{ "GameObject " + std::to_string(objects.size() + 1) });
-        selectedObjectIndex = static_cast<int>(objects.size() - 1);
-        Logging::Debug() << "Created GameObject.\n";
-    }
+        ImGui::OpenPopup("##CreateEntityPopup");
     ImGui::SameLine();
-    if (ImGui::Button("Delete") && selectedObjectIndex >= 0 && selectedObjectIndex < static_cast<int>(objects.size()))
+    if (ImGui::Button("Delete") && selectedEntity != entt::null && scene.Registry().valid(selectedEntity))
     {
-        Logging::Warning() << "Deleted GameObject '" << objects[selectedObjectIndex].name << "'.\n";
-        objects.erase(objects.begin() + selectedObjectIndex);
-        selectedObjectIndex = objects.empty() ? -1 : std::min(selectedObjectIndex, static_cast<int>(objects.size() - 1));
+        Logging::Warning() << "Deleted Entity '" << GetEntityName(scene, selectedEntity) << "'.\n";
+        scene.DestroyEntity(selectedEntity);
+        selectedEntity = entt::null;
+    }
+
+    if (ImGui::BeginPopup("##CreateEntityPopup"))
+    {
+        auto& reg = scene.Registry();
+
+        if (ImGui::MenuItem("Empty GameObject"))
+        {
+            entt::entity e = scene.CreateEntity("GameObject");
+            selectedEntity = e;
+            Logging::Debug() << "Created GameObject.\n";
+        }
+
+        if (ImGui::MenuItem("Static Mesh"))
+        {
+            entt::entity e = scene.CreateEntity("StaticMesh");
+            reg.emplace<Ark::StaticMeshComponent>(e, Ark::StaticMeshComponent{});
+            selectedEntity = e;
+            Logging::Debug() << "Created Static Mesh.\n";
+        }
+
+        if (ImGui::MenuItem("Skeletal Mesh"))
+        {
+            entt::entity e = scene.CreateEntity("SkeletalMesh");
+            reg.emplace<Ark::SkeletalMeshComponent>(e, Ark::SkeletalMeshComponent{});
+            selectedEntity = e;
+            Logging::Debug() << "Created Skeletal Mesh.\n";
+        }
+
+        if (ImGui::MenuItem("Camera"))
+        {
+            entt::entity e = scene.CreateEntity("Camera");
+            reg.emplace<Ark::CameraComponent>(e, Ark::CameraComponent{});
+
+            // If this is the first camera, auto-possess it.
+            if (scene.GetPossessedCamera() == entt::null)
+                scene.SetPossessedCamera(e);
+
+            selectedEntity = e;
+            Logging::Debug() << "Created Camera.\n";
+        }
+
+        if (ImGui::MenuItem("Point Light"))
+        {
+            entt::entity e = scene.CreateEntity("PointLight");
+            reg.emplace<Ark::PointLightComponent>(e, Ark::PointLightComponent{});
+            selectedEntity = e;
+            Logging::Debug() << "Created Point Light.\n";
+        }
+
+        ImGui::EndPopup();
     }
 
     ImGui::Separator();
 
-    for (int i = 0; i < static_cast<int>(objects.size()); ++i)
+    // Render tree roots (entities with no parent)
+    auto& reg = scene.Registry();
+    reg.view<Ark::HierarchyComponent>().each([&](entt::entity e, const Ark::HierarchyComponent& h)
     {
-        EditorObject& obj = objects[i];
-        ImGui::PushID(i);
-        const bool selected = (selectedObjectIndex == i);
-        const char* label = obj.name.c_str();
-        if (ImGui::Selectable(label, selected))
-            selectedObjectIndex = i;
-        ImGui::PopID();
-    }
+        if (h.Parent == entt::null)
+            RenderEntityTree(scene, e, selectedEntity);
+    });
 
     ImGui::End();
 }
 
-void EditorUI::RenderInspector(std::vector<EditorObject>& objects, int& selectedObjectIndex)
+void EditorUI::RenderInspector(Ark::Scene& scene, entt::entity& selectedEntity)
 {
     if (!ImGui::Begin("Inspector"))
     {
@@ -410,32 +508,96 @@ void EditorUI::RenderInspector(std::vector<EditorObject>& objects, int& selected
         return;
     }
 
-    if (selectedObjectIndex < 0 || selectedObjectIndex >= static_cast<int>(objects.size()))
+    auto& reg = scene.Registry();
+    if (selectedEntity == entt::null || !reg.valid(selectedEntity))
     {
         ImGui::TextDisabled("Select an object from the Hierarchy.");
         ImGui::End();
         return;
     }
 
-    EditorObject& obj = objects[selectedObjectIndex];
+    // Header: Enabled + Name
+    if (reg.any_of<Ark::EnabledComponent>(selectedEntity))
+        ImGui::Checkbox("Enabled", &reg.get<Ark::EnabledComponent>(selectedEntity).Enabled);
+    else
+        ImGui::TextDisabled("Enabled: <missing>");
 
-    ImGui::Checkbox("Enabled", &obj.enabled);
     ImGui::SameLine();
-    ImGui::TextUnformatted(obj.name.c_str());
+    if (reg.any_of<Ark::TagComponent>(selectedEntity))
+        ImGui::TextUnformatted(reg.get<Ark::TagComponent>(selectedEntity).Tag.c_str());
+    else
+        ImGui::TextUnformatted("<Entity>");
 
     ImGui::Separator();
-    ImGui::TextUnformatted("Transform");
-    ImGui::DragFloat3("Position", &obj.position.x, 0.05f);
-    ImGui::DragFloat3("Rotation (deg)", &obj.rotationDeg.x, 0.25f);
-    ImGui::DragFloat3("Scale", &obj.scale.x, 0.05f, 0.001f, 1000.0f);
+    if (reg.any_of<Ark::TransformComponent>(selectedEntity))
+    {
+        auto& t = reg.get<Ark::TransformComponent>(selectedEntity);
+        ImGui::TextUnformatted("Transform");
+        ImGui::DragFloat3("Position", &t.Translation.x, 0.05f);
+        ImGui::DragFloat3("Rotation (deg)", &t.Rotation.x, 0.25f);
+
+        const bool isCamera = reg.any_of<Ark::CameraComponent>(selectedEntity);
+        if (!isCamera)
+            ImGui::DragFloat3("Scale", &t.Scale.x, 0.05f, 0.001f, 1000.0f);
+        else
+            ImGui::TextDisabled("Scale: (disabled for Camera)");
+    }
+    else
+    {
+        ImGui::TextDisabled("Transform: <missing>");
+    }
 
     ImGui::Separator();
-    ImGui::TextUnformatted("Material");
-    ImGui::ColorEdit3("Tint", &obj.tint.x);
+    // Component-specific sections
+    if (reg.any_of<Ark::StaticMeshComponent>(selectedEntity))
+    {
+        auto& sm = reg.get<Ark::StaticMeshComponent>(selectedEntity);
+        ImGui::TextUnformatted("Static Mesh");
+        InputTextString("Mesh Path", sm.MeshPath);
+        InputTextString("BaseColor Texture", sm.BaseColorTexturePath);
+        ImGui::ColorEdit3("Tint", &sm.Tint.x);
+    }
+
+    if (reg.any_of<Ark::SkeletalMeshComponent>(selectedEntity))
+    {
+        auto& sk = reg.get<Ark::SkeletalMeshComponent>(selectedEntity);
+        ImGui::TextUnformatted("Skeletal Mesh");
+        InputTextString("Mesh Path", sk.MeshPath);
+        InputTextString("Animation Path", sk.AnimationPath);
+        InputTextString("BaseColor Texture", sk.BaseColorTexturePath);
+        ImGui::ColorEdit3("Tint", &sk.Tint.x);
+        ImGui::TextDisabled("Animation playback is pending a runtime animator.");
+    }
+
+    if (reg.any_of<Ark::CameraComponent>(selectedEntity))
+    {
+        auto& cam = reg.get<Ark::CameraComponent>(selectedEntity);
+        ImGui::TextUnformatted("Camera");
+        ImGui::SliderFloat("FOV", &cam.FOV, 10.0f, 120.0f, "%.1f deg");
+        ImGui::DragFloat("Near", &cam.NearPlane, 0.01f, 0.001f, 10.0f);
+        ImGui::DragFloat("Far", &cam.FarPlane, 1.0f, 10.0f, 10000.0f);
+
+        bool possess = cam.bPossess;
+        if (ImGui::Checkbox("bPossess", &possess))
+        {
+            if (possess)
+                scene.SetPossessedCamera(selectedEntity);
+            else
+                cam.bPossess = false;
+        }
+    }
+
+    if (reg.any_of<Ark::PointLightComponent>(selectedEntity))
+    {
+        auto& pl = reg.get<Ark::PointLightComponent>(selectedEntity);
+        ImGui::TextUnformatted("Point Light");
+        ImGui::ColorEdit3("Color", &pl.Color.x);
+        ImGui::DragFloat("Strength", &pl.Strength, 0.1f, 0.0f, 100000.0f);
+    }
 
     ImGui::End();
 }
-void EditorUI::RenderMaterials(std::vector<EditorObject>& objects, int& selectedObjectIndex)
+void EditorUI::RenderMaterials(Ark::Scene& scene, entt::entity& selectedEntity)
 {
     if (!ImGui::Begin("Materials"))
     {
@@ -443,19 +605,18 @@ void EditorUI::RenderMaterials(std::vector<EditorObject>& objects, int& selected
         return;
     }
 
-    if (selectedObjectIndex < 0 || selectedObjectIndex >= static_cast<int>(objects.size()))
+    auto& reg = scene.Registry();
+    if (selectedEntity == entt::null || !reg.valid(selectedEntity))
     {
         ImGui::TextDisabled("Select an object from the Hierarchy.");
         ImGui::End();
         return;
     }
 
-    EditorObject& obj = objects[selectedObjectIndex];
-
-    ImGui::TextDisabled("Selected: %s", obj.name.c_str());
+    ImGui::TextDisabled("Selected: %s", GetEntityName(scene, selectedEntity));
     ImGui::Separator();
 
-    // Simple preset list (tint-only "materials" for now).
+    // Tint-only presets (applies to StaticMeshComponent / SkeletalMeshComponent)
     struct Preset { const char* name; glm::vec3 tint; };
     static constexpr Preset kPresets[] = {
         {"Default",   {1.0f, 1.0f, 1.0f}},
@@ -466,27 +627,30 @@ void EditorUI::RenderMaterials(std::vector<EditorObject>& objects, int& selected
         {"Ice",       {0.45f, 0.80f, 1.00f}},
     };
 
-    const char* preview = (obj.materialPreset >= 0 && obj.materialPreset < static_cast<int>(IM_ARRAYSIZE(kPresets)))
-        ? kPresets[obj.materialPreset].name
-        : "<custom>";
-
-    if (ImGui::BeginCombo("Preset", preview))
+    auto applyTintPreset = [&](const glm::vec3& tint)
     {
-        for (int i = 0; i < static_cast<int>(IM_ARRAYSIZE(kPresets)); ++i)
+        if (reg.any_of<Ark::StaticMeshComponent>(selectedEntity))
+            reg.get<Ark::StaticMeshComponent>(selectedEntity).Tint = tint;
+        if (reg.any_of<Ark::SkeletalMeshComponent>(selectedEntity))
+            reg.get<Ark::SkeletalMeshComponent>(selectedEntity).Tint = tint;
+    };
+
+    if (ImGui::BeginCombo("Preset", "Select..."))
+    {
+        for (const auto& p : kPresets)
         {
-            const bool selected = (i == obj.materialPreset);
-            if (ImGui::Selectable(kPresets[i].name, selected))
-            {
-                obj.materialPreset = i;
-                obj.tint = kPresets[i].tint;
-            }
-            if (selected) ImGui::SetItemDefaultFocus();
+            if (ImGui::Selectable(p.name))
+                applyTintPreset(p.tint);
         }
         ImGui::EndCombo();
     }
 
-    ImGui::ColorEdit3("Tint", &obj.tint.x);
-    ImGui::TextDisabled("Note: This is currently a tint-only demo material.");
+    if (reg.any_of<Ark::StaticMeshComponent>(selectedEntity))
+        ImGui::ColorEdit3("Tint (StaticMesh)", &reg.get<Ark::StaticMeshComponent>(selectedEntity).Tint.x);
+    if (reg.any_of<Ark::SkeletalMeshComponent>(selectedEntity))
+        ImGui::ColorEdit3("Tint (SkeletalMesh)", &reg.get<Ark::SkeletalMeshComponent>(selectedEntity).Tint.x);
+
+    ImGui::TextDisabled("Note: Full material system wiring is in progress (texture slots next).");
 
     ImGui::End();
 }

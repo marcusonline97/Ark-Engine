@@ -3,26 +3,17 @@
 #include <filesystem>
 #include <string>
 #include <string_view>
-#include <vector>
 
 #include <glm/glm.hpp>
+
+#include <entt.hpp>
 
 #include "Logger.h"
 #include "MusicPlayer/MusicPlayer.h"
 #include "Editor/DirectoryScanner.h"
 #include "Panels/ConsolePanel.h"
 
-struct EditorObject
-{
-    std::string name = "GameObject";
-    bool enabled = true;
-    glm::vec3 position{ 0.0f, 0.0f, 0.0f };
-    glm::vec3 rotationDeg{ 0.0f, 0.0f, 0.0f };
-    glm::vec3 scale{ 1.0f, 1.0f, 1.0f };
-
-	glm::vec3 tint{ 1.0f, 1.0f, 1.0f };
-    int materialPreset = 0;
-};
+namespace Ark { class Scene; }
 
 class EditorUI
 {
@@ -30,7 +21,7 @@ public:
     void Init();
     void Shutdown();
 
-    void Render(std::vector<EditorObject>& objects, int& selectedObjectIndex);
+    void Render(Ark::Scene& scene, entt::entity& selectedEntity);
 
     void SetViewportTextureId(unsigned int textureId) { m_viewportTextureId = textureId; }
     unsigned int GetViewportTextureId() const { return m_viewportTextureId; }
@@ -47,15 +38,17 @@ private:
 
     void RenderViewport();
 	void RenderMusicPlayer();
-    void RenderHierarchy(std::vector<EditorObject>& objects, int& selectedObjectIndex);
-    void RenderInspector(std::vector<EditorObject>& objects, int& selectedObjectIndex);
+    void RenderHierarchy(Ark::Scene& scene, entt::entity& selectedEntity);
+    void RenderInspector(Ark::Scene& scene, entt::entity& selectedEntity);
 
-	void RenderMaterials(std::vector<EditorObject>& objects, int& selectedObjectIndex);
+	void RenderMaterials(Ark::Scene& scene, entt::entity& selectedEntity);
     void RenderConsole();
     void RenderContentBrowser();
     void RenderFileExplorer();
 
     void EnsureDefaultLayout();
+
+    void RenderEntityTree(Ark::Scene& scene, entt::entity entity, entt::entity& selectedEntity);
 
     // Shared directory browser helper
     void DrawDirectoryBrowser(const char* id, const std::filesystem::path& root, std::filesystem::path& currentDir, std::filesystem::path* selectedPath);

@@ -14,6 +14,7 @@
 
 #include "Logger.h"
 #include "Utility/Utility.h"
+#include "ECS/Component.h"
 
 static constexpr const char* kImGuiGLSLVersion = "#version 450";
 
@@ -53,12 +54,28 @@ App::App()
             });
     }
 
-    // Minimal scene objects for the editor panels (until ECS/Scene is wired in)
-    m_Objects.push_back(EditorObject{ "Cube" });
-    m_Objects.push_back(EditorObject{ "Camera" });
-    m_Objects.back().position = glm::vec3(0.0f, 0.0f, 3.0f);
-    m_Objects.push_back(EditorObject{ "Directional Light" });
-    m_SelectedObject = 0;
+    // Create a minimal ECS scene for the editor.
+    {
+        auto& reg = m_Scene.Registry();
+
+        m_DemoCubeEntity = m_Scene.CreateEntity("Cube");
+        reg.emplace<Ark::StaticMeshComponent>(m_DemoCubeEntity, Ark::StaticMeshComponent{});
+
+        // Demo tint so materials panel has something to tweak.
+        reg.get<Ark::StaticMeshComponent>(m_DemoCubeEntity).Tint = glm::vec3(1.0f, 1.0f, 1.0f);
+
+        entt::entity cam = m_Scene.CreateEntity("Camera");
+        reg.emplace<Ark::CameraComponent>(cam, Ark::CameraComponent{});
+        reg.get<Ark::TransformComponent>(cam).Translation = glm::vec3(0.0f, 0.0f, 3.0f);
+        m_Scene.SetPossessedCamera(cam);
+
+        entt::entity light = m_Scene.CreateEntity("PointLight");
+        reg.emplace<Ark::PointLightComponent>(light, Ark::PointLightComponent{});
+        reg.get<Ark::TransformComponent>(light).Translation = glm::vec3(1.5f, 1.5f, 1.5f);
+        reg.get<Ark::TransformComponent>(light).Scale = glm::vec3(0.2f);
+
+        m_SelectedEntity = m_DemoCubeEntity;
+    }
     
     m_WorldRenderer = std::make_unique<Ark::Rendering::WorldRenderThread>(m_Window->GetNativeHandle());
 }
@@ -80,22 +97,7 @@ void App::Run()
 {
     while (!m_Window->ShouldClose())
     {
-        EditorObject* cubeObj = nullptr;
-        if (!m_Objects.empty())
-        {
-            cubeObj = &m_Objects[0];
-            if (cubeObj->name != "Cube")
-            {
-                for (auto& o : m_Objects)
-                {
-                    if (o.name == "Cube")
-                    {
-                        cubeObj = &o;
-                        break;
-                    }
-                }
-            }
-        }
+        auto& reg = m_Scene.Registry();
 
         glm::vec2 vpSize = m_EditorUI.GetViewportSize();
         int vpW = static_cast<int>(vpSize.x);
@@ -113,13 +115,21 @@ void App::Run()
             Ark::Rendering::WorldRenderInput input{};
             input.width = static_cast<uint32_t>(vpW);
             input.height = static_cast<uint32_t>(vpH);
-            input.cubeEnabled = (cubeObj != nullptr) && cubeObj->enabled;
-            if (cubeObj)
+            input.cubeEnabled = (m_DemoCubeEntity != entt::null) && reg.valid(m_DemoCubeEntity) &&
+                (!reg.any_of<Ark::EnabledComponent>(m_DemoCubeEntity) || reg.get<Ark::EnabledComponent>(m_DemoCubeEntity).Enabled);
+
+            if (m_DemoCubeEntity != entt::null && reg.valid(m_DemoCubeEntity))
             {
-                input.position = cubeObj->position;
-                input.rotationDeg = cubeObj->rotationDeg;
-                input.scale = cubeObj->scale;
-                input.tint = cubeObj->tint;
+                if (reg.any_of<Ark::TransformComponent>(m_DemoCubeEntity))
+                {
+                    const auto& t = reg.get<Ark::TransformComponent>(m_DemoCubeEntity);
+                    input.position = t.Translation;
+                    input.rotationDeg = t.Rotation;
+                    input.scale = t.Scale;
+                }
+
+                if (reg.any_of<Ark::StaticMeshComponent>(m_DemoCubeEntity))
+                    input.tint = reg.get<Ark::StaticMeshComponent>(m_DemoCubeEntity).Tint;
             }
             m_WorldRenderer->Submit(input);
         }
@@ -137,7 +147,8 @@ void App::Run()
         if (m_ImGui.IsInitialized())
         {
             m_ImGui.BeginFrame();
-            m_EditorUI.SetViewportTextureId(m_WorldRenderer ? m_WorldRenderer->GetLatestTextureId() : 0);            m_EditorUI.Render(m_Objects, m_SelectedObject);
+            m_EditorUI.SetViewportTextureId(m_WorldRenderer ? m_WorldRenderer->GetLatestTextureId() : 0);
+            m_EditorUI.Render(m_Scene, m_SelectedEntity);
             m_ImGui.EndFrame();
         }
 

@@ -1,12 +1,12 @@
 #pragma once
 
 #include <memory>
-#include <vector>
 
 #include "Logger.h"
 #include "Editor/EditorUI.h"
 #include "Editor/ImGuiLayer.h"
 #include "Rendering/Threading/WorldRenderThread.h"
+#include "ECS/Scene.h"
 
 struct GLFWwindow;
 
@@ -30,6 +30,8 @@ private:
 
     EditorUI m_EditorUI;
     Logging::SinkId m_LogSinkId = 0;
-    std::vector<EditorObject> m_Objects;
-    int m_SelectedObject = -1;
+
+    Ark::Scene m_Scene;
+    entt::entity m_SelectedEntity = entt::null;
+    entt::entity m_DemoCubeEntity = entt::null;
 };
