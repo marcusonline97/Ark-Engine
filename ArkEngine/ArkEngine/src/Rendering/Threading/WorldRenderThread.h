@@ -4,6 +4,7 @@
 #include <condition_variable>
 #include <cstdint>
 #include <mutex>
+#include <string>
 #include <thread>
 #include <vector>
 
@@ -30,6 +31,10 @@ namespace Ark::Rendering
 		glm::vec3 rotationDeg{ 0.0f, 0.0f, 0.0f };
 		glm::vec3 scale{ 1.0f, 1.0f, 1.0f };
 		glm::vec3 tint{ 1.0f, 1.0f, 1.0f };
+
+		// Optional simple material slot (basecolor texture)
+		bool useTexture = false;
+		std::string baseColorTexturePath;
 	};
 
 	struct WorldRenderInput

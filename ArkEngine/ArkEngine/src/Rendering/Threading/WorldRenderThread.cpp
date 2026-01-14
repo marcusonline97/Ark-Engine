@@ -6,10 +6,12 @@
 #include <GLFW/glfw3.h>
 
 #include "Camera/Camera.h"
+#include "AssetManager.h"
 #include "Logger.h"
 #include "Meshes/Cube.h"
 #include "Rendering/Framebuffer/Framebuffer.h"
 #include "Shader.h"
+#include "Texture.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -169,6 +171,25 @@ namespace Ark::Rendering
 				viewportShader.Bind();
 				viewportShader.SetMat4("uMVP", mvp);
 				viewportShader.SetVec3("u_Tint", obj.tint);
+
+				// Optional basecolor texture
+				if (obj.useTexture && !obj.baseColorTexturePath.empty())
+				{
+					if (Texture* tex = AssetManager::Instance().LoadTexture2D(obj.baseColorTexturePath, true))
+					{
+						tex->BindUnit(0);
+						viewportShader.SetInt("uTexture", 0);
+						viewportShader.SetInt("uUseTexture", 1);
+					}
+					else
+					{
+						viewportShader.SetInt("uUseTexture", 0);
+					}
+				}
+				else
+				{
+					viewportShader.SetInt("uUseTexture", 0);
+				}
 				cubeMesh.Draw();
 			}
 

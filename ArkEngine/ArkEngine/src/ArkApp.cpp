@@ -135,7 +135,7 @@ void App::Run()
             input.objects.clear();
             input.objects.reserve(64);
 
-            auto addObject = [&](entt::entity e, const glm::vec3& tintOverride)
+            auto addObject = [&](entt::entity e, const glm::vec3& tintOverride, const std::string& baseColorTexturePath)
             {
                 if (!reg.valid(e) || !reg.any_of<Ark::TransformComponent>(e))
                     return;
@@ -149,17 +149,19 @@ void App::Run()
                 o.rotationDeg = t.Rotation;
                 o.scale = t.Scale;
                 o.tint = tintOverride;
+                o.useTexture = !baseColorTexturePath.empty();
+                o.baseColorTexturePath = baseColorTexturePath;
                 input.objects.push_back(o);
             };
 
             reg.view<Ark::TransformComponent, Ark::StaticMeshComponent>().each([&](entt::entity e, const Ark::TransformComponent&, const Ark::StaticMeshComponent& sm)
             {
-                addObject(e, sm.Tint);
+                addObject(e, sm.Tint, sm.BaseColorTexturePath);
             });
 
             reg.view<Ark::TransformComponent, Ark::SkeletalMeshComponent>().each([&](entt::entity e, const Ark::TransformComponent&, const Ark::SkeletalMeshComponent& sk)
             {
-                addObject(e, sk.Tint);
+                addObject(e, sk.Tint, sk.BaseColorTexturePath);
             });
 
             reg.view<Ark::TransformComponent, Ark::PointLightComponent>().each([&](entt::entity e, const Ark::TransformComponent&, const Ark::PointLightComponent& pl)
