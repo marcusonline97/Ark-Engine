@@ -159,6 +159,7 @@
     <ClInclude Include="ArkEngine\src\Editor\Panels\ConsolePanel.h" />
     <ClInclude Include="ArkEngine\src\ImguiStyling.h" />
     <ClInclude Include="ArkEngine\src\Initializer.h" />
+    <ClInclude Include="ArkEngine\src\Input\Input.h" />
     <ClInclude Include="ArkEngine\src\Input\KeyCodes.h" />
     <ClInclude Include="ArkEngine\src\Logger.h" />
     <ClInclude Include="ArkEngine\src\Meshes\Cube.h" />

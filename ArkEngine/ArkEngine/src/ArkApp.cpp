@@ -16,6 +16,7 @@
 
 #include "Logger.h"
 #include "Utility/Utility.h"
+#include "Input/Input.h"
 
 static constexpr const char* kImGuiGLSLVersion = "#version 450";
 
@@ -27,6 +28,7 @@ GLFWwindow* App::GetWindowHandle() const
 App::App()
 {
     m_Window = std::make_unique<ArkWindow>(1400, 840, "Ark Engine");
+    Ark::Input::SetWindow(m_Window->GetNativeHandle());
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
         throw std::runtime_error("Failed to initialize GLAD");
@@ -54,7 +56,6 @@ App::App()
                 m_EditorUI.PushLog(lvl, msg);
             });
     }
-
     {
         m_Objects.push_back(EditorObject{ "Static Mesh" });
         m_Objects.back().staticMesh = StaticMeshEditorComponent{};
@@ -75,7 +76,7 @@ App::App()
         m_Objects.back().scale = glm::vec3(0.2f);
     }
     m_SelectedObject = 0;
-    
+
     m_WorldRenderer = std::make_unique<Ark::Rendering::WorldRenderThread>(m_Window->GetNativeHandle());
 }
 
@@ -88,27 +89,99 @@ App::~App()
     }
 
     m_EditorUI.Shutdown();
-	m_ImGui.Shutdown();
+    m_ImGui.Shutdown();
     m_WorldRenderer.reset();
 }
 
+
 void App::Run()
 {
+    double lastTime = glfwGetTime();
+    bool rotating = false;
+    double lastMouseX = 0.0;
+    double lastMouseY = 0.0;
+
     while (!m_Window->ShouldClose())
     {
-        EditorObject* cubeObj = nullptr;
-        if (!m_Objects.empty())
+            const double now = glfwGetTime();
+        const float dt = static_cast<float>(now - lastTime);
+        lastTime = now;
+
+        Ark::Input::NewFrame();
+
+        // Play mode: possess the primary camera and drive it with basic FPS controls.
+        if (m_EditorUI.IsPlayMode())
         {
-            cubeObj = &m_Objects[0];
-            if (cubeObj->name != "Cube")
+                EditorObject* camObj = nullptr;
+            for (auto& o : m_Objects)
+            {
+                if (!o.enabled || !o.camera) continue;
+                if (o.camera->primary) { camObj = &o; break; }
+            }
+            if (!camObj)
             {
                 for (auto& o : m_Objects)
                 {
-                    if (o.name == "Cube")
+                    if (!o.enabled || !o.camera) continue;
+                    camObj = &o;
+                    break;
+                }
+            }
+
+            if (camObj)
+            {
+                const float pitch = camObj->rotationDeg.x;
+                const float yaw = camObj->rotationDeg.y;
+
+                glm::vec3 front;
+                front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+                front.y = sin(glm::radians(pitch));
+                front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+                front = glm::normalize(front);
+
+                const glm::vec3 up(0.0f, 1.0f, 0.0f);
+                const glm::vec3 right = glm::normalize(glm::cross(front, up));
+
+                const float speed = 3.5f;
+                const float move = speed * dt;
+
+                if (Ark::Input::IsKeyDown(ARK_KEY_W)) camObj->position += front * move;
+                if (Ark::Input::IsKeyDown(ARK_KEY_S)) camObj->position -= front * move;
+                if (Ark::Input::IsKeyDown(ARK_KEY_D)) camObj->position += right * move;
+                if (Ark::Input::IsKeyDown(ARK_KEY_A)) camObj->position -= right * move;
+                if (Ark::Input::IsKeyDown(ARK_KEY_E)) camObj->position += up * move;
+                if (Ark::Input::IsKeyDown(ARK_KEY_Q)) camObj->position -= up * move;
+
+                // Hold RMB to rotate the camera.
+                if (Ark::Input::IsMouseDown(ARK_MOUSE_RIGHT))
+                {
+                    double mx = 0.0, my = 0.0;
+                    glfwGetCursorPos(m_Window->GetNativeHandle(), &mx, &my);
+                    if (!rotating)
                     {
-                        cubeObj = &o;
-                        break;
+                        rotating = true;
+                        lastMouseX = mx;
+                        lastMouseY = my;
                     }
+                    else
+                    {
+                        const double dx = mx - lastMouseX;
+                        const double dy = my - lastMouseY;
+                        lastMouseX = mx;
+                        lastMouseY = my;
+
+                        constexpr float sensitivity = 0.12f;
+                        camObj->rotationDeg.y += static_cast<float>(dx) * sensitivity;
+                        camObj->rotationDeg.x -= static_cast<float>(dy) * sensitivity;
+
+                        // Clamp pitch to avoid gimbal flip.
+                        if (camObj->rotationDeg.x > 89.0f) camObj->rotationDeg.x = 89.0f;
+                        if (camObj->rotationDeg.x < -89.0f) camObj->rotationDeg.x = -89.0f;
+                    }
+                }
+                else
+                {
+                    rotating = false;
                 }
             }
         }
@@ -129,14 +202,71 @@ void App::Run()
             Ark::Rendering::WorldRenderInput input{};
             input.width = static_cast<uint32_t>(vpW);
             input.height = static_cast<uint32_t>(vpH);
-            input.cubeEnabled = (cubeObj != nullptr) && cubeObj->enabled;
-            if (cubeObj)
+
+                const auto toModel = [](const EditorObject& obj)
+                {
+                    const glm::mat4 rotX = glm::rotate(glm::mat4(1.0f), glm::radians(obj.rotationDeg.x), glm::vec3(1, 0, 0));
+                    const glm::mat4 rotY = glm::rotate(glm::mat4(1.0f), glm::radians(obj.rotationDeg.y), glm::vec3(0, 1, 0));
+                    const glm::mat4 rotZ = glm::rotate(glm::mat4(1.0f), glm::radians(obj.rotationDeg.z), glm::vec3(0, 0, 1));
+                    const glm::mat4 rot = rotZ * rotY * rotX;
+                    return glm::translate(glm::mat4(1.0f), obj.position) * rot * glm::scale(glm::mat4(1.0f), obj.scale);
+                };
+
+            // Camera selection: primary camera wins, otherwise first camera.
             {
-                input.position = cubeObj->position;
-                input.rotationDeg = cubeObj->rotationDeg;
-                input.scale = cubeObj->scale;
-                input.tint = cubeObj->tint;
+                EditorObject* camObj = nullptr;
+                for (auto& o : m_Objects)
+                {
+                    if (!o.enabled || !o.camera) continue;
+                    if (o.camera->primary) { camObj = &o; break; }
+                    if (!camObj) camObj = &o;
+                }
+
+                if (camObj && camObj->camera)
+                {
+                    input.camera.position = camObj->position;
+                    input.camera.pitchYawDeg = glm::vec2(camObj->rotationDeg.x, camObj->rotationDeg.y);
+                    input.camera.fovDeg = camObj->camera->fovDeg;
+                    input.camera.nearPlane = camObj->camera->nearPlane;
+                    input.camera.farPlane = camObj->camera->farPlane;
+                }
             }
+
+            // Render instances: static/skeletal meshes (as proxy cubes for now) + point lights (small proxy cubes).
+            input.instances.clear();
+            input.instances.reserve(m_Objects.size());
+
+            for (const auto& o : m_Objects)
+            {
+                if (!o.enabled)
+                    continue;
+
+                if (o.staticMesh || o.skeletalMesh)
+                {
+                    Ark::Rendering::RenderInstance inst{};
+                    inst.model = toModel(o);
+                    inst.tint = o.tint;
+                    input.instances.push_back(inst);
+                }
+
+                if (o.pointLight)
+                {
+                    Ark::Rendering::RenderInstance inst{};
+
+                    EditorObject proxy = o;
+                    // Keep the light proxy small-ish while still reflecting radius a bit.
+                    const float r = o.pointLight->radius;
+                    const float s = std::max(0.05f, 0.10f * r);
+                    proxy.scale = glm::vec3(s);
+
+                    inst.model = toModel(proxy);
+
+                    const glm::vec3 raw = o.pointLight->color * o.pointLight->intensity;
+                    inst.tint = glm::clamp(raw, glm::vec3(0.0f), glm::vec3(1.0f));
+                    input.instances.push_back(inst);
+                }
+            }
+
             m_WorldRenderer->Submit(input);
         }
 
@@ -161,4 +291,3 @@ void App::Run()
         m_Window->PollEvents();
     }
 }
-

@@ -67,7 +67,7 @@ void EditorUI::Init()
 void EditorUI::Shutdown()
 {
     // nothing to add here since the panels are in intermediate mode
-	m_music.Shutdown();
+    m_music.Shutdown();
     m_dirScanner.Stop();
 
 }
@@ -232,8 +232,8 @@ void EditorUI::RenderViewport(std::vector<EditorObject>& objects, int& selectedO
     {
         if (ImGui::BeginTabItem("Viewport"))
         {
-			const ImVec2 availableSize = ImGui::GetContentRegionAvail();
-			m_viewportSize = glm::vec2(availableSize.x, availableSize.y);
+            const ImVec2 availableSize = ImGui::GetContentRegionAvail();
+            m_viewportSize = glm::vec2(availableSize.x, availableSize.y);
             // Viewport toolbar (edit gizmos + play mode)
             {
                 const bool canEdit = !m_playMode;
@@ -330,7 +330,10 @@ void EditorUI::RenderViewport(std::vector<EditorObject>& objects, int& selectedO
 
                 // Minimal on-viewport hint.
                 const char* modeName = (m_gizmoMode == 0) ? "Translate" : (m_gizmoMode == 1) ? "Rotate" : "Scale";
-                ImGui::SetCursorScreenPos(ImGui::GetItemRectMin() + ImVec2(10.0f, 10.0f));
+                ImVec2 hintPos = ImGui::GetItemRectMin();
+                hintPos.x += 10.0f;
+                hintPos.y += 10.0f;
+                ImGui::SetCursorScreenPos(hintPos);
                 ImGui::TextDisabled("%s%s", modeName, m_gizmoDragging ? " (dragging)" : "");
             }
 
@@ -346,7 +349,7 @@ void EditorUI::RenderViewport(std::vector<EditorObject>& objects, int& selectedO
 
         if (ImGui::BeginTabItem("Music"))
         {
-			RenderMusicPlayer();
+            RenderMusicPlayer();
             ImGui::EndTabItem();
         }
 

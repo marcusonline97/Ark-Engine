@@ -314,6 +314,7 @@
     <ClInclude Include="ArkEngine\src\Editor\ImGuiLayer.h" />
     <ClInclude Include="ArkEngine\src\Rendering\Threading\WorldRenderThread.h" />
     <ClInclude Include="ArkEngine\src\Editor\DirectoryScanner.h" />
+    <ClInclude Include="ArkEngine\src\Input\Input.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Vendor\glm\detail\func_common.inl" />
