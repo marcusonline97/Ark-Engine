@@ -3,26 +3,18 @@
 
 #include "ArkApp.h"
 #include "ArkWindow.h"
-#include "Shader.h"
-#include "Camera/Camera.h"
-#include "Meshes/Cube.h"
-#include "Material.h"
-#include "Texture.h"
+
 
 #include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
 
 #include <iostream>
-#include <filesystem>
 #include <stdexcept>
 
 
 
 #include "Logger.h"
-#include "AssetManager.h"
-#include "Rendering/Framebuffer/Framebuffer.h"
 #include "Utility/Utility.h"
+
 static constexpr const char* kImGuiGLSLVersion = "#version 450";
 
 GLFWwindow* App::GetWindowHandle() const
@@ -47,63 +39,10 @@ App::App()
         }
     );
 
-    m_Camera = std::make_unique<ArkCamera>(
-        glm::vec3(0.0f, 0.0f, 3.0f),
-        45.0f,
-        1280.0f / 720.0f,
-        0.1f,
-        100.0f
-    );
-
-    m_Shader = std::make_unique<Shader>();
-    if (!m_Shader->LoadFromFiles(
-        "ArkEngine/Resources/Shaders/vertex.glsl",
-        "ArkEngine/Resources/Shaders/fragment.glsl"))
-    {
-        throw std::runtime_error("Failed to load shader");
-    }
-
-    m_CubeMesh = std::make_unique<CubeMesh>();
-
-    m_Material = std::make_unique<Material>();
-    m_Material->SetShader(m_Shader.get());
-    m_Material->SetUseTexture(true);
-    m_Material->SetTint(glm::vec3(1.0f));
-
-    // Use AssetManager for consistent path resolution and caching
-    Texture* diffuse = AssetManager::Instance().LoadTexture2D("ArkEngine/Resources/Textures/BathroomFloor_ALB.png", true);
-
-    if (!diffuse)
-    {
-		Logging::Error() << "Failed to load texture. Falling back to default Texture.\n";
-		m_Material->SetUseTexture(false);
-
-    }
-    else
-    {
-		m_TextureObj = diffuse;
-		m_Material->SetTexture(m_TextureObj);
-    }
-
-    m_Shader->Bind();
-    m_Shader->SetVec3("u_Tint", glm::vec3(1.0f));
-	m_Shader->SetInt("uTexture", 0); // Texture unit 0)
-
     std::cout << "OpenGL Version: " << glGetString(GL_VERSION) << std::endl;
 
     const bool imguiOk = m_ImGui.Init(m_Window->GetNativeHandle(), kImGuiGLSLVersion);
     Logging::ToDo() << "Initializing ImGui.\n";
-
-    m_ViewportShader = std::make_unique<Shader>();
-    if (!m_ViewportShader->LoadFromFiles(
-        "ArkEngine/Resources/Shaders/vertex.glsl",
-        "ArkEngine/Resources/Shaders/fragment.glsl"))
-    {
-        throw std::runtime_error("Failed to load viewport shader");
-    }
-
-    m_ViewportShader->Bind();
-    m_ViewportShader->SetVec3("u_Tint", glm::vec3(1.0f));
 
     if (imguiOk)
     {
@@ -121,6 +60,7 @@ App::App()
     m_Objects.push_back(EditorObject{ "Directional Light" });
     m_SelectedObject = 0;
     
+    m_WorldRenderer = std::make_unique<Ark::Rendering::WorldRenderThread>(m_Window->GetNativeHandle());
 }
 
 App::~App()
@@ -133,8 +73,7 @@ App::~App()
 
     m_EditorUI.Shutdown();
 	m_ImGui.Shutdown();
-	// Note to self DO NOT DELETE m_TextureObj; it is owned by AssetManager
-    m_TextureObj = nullptr;
+    m_WorldRenderer.reset();
 }
 
 void App::Run()
@@ -169,50 +108,24 @@ void App::Run()
         if (vpW < 1) vpW = 1;
         if (vpH < 1) vpH = 1;
 
-        // (Re)allocate FBO if needed.
-        if (m_ViewportFramebuffer.GetColorTextureId() == 0)
-            m_ViewportFramebuffer.Create(static_cast<uint32_t>(vpW), static_cast<uint32_t>(vpH));
-        else
-            m_ViewportFramebuffer.Resize(static_cast<uint32_t>(vpW), static_cast<uint32_t>(vpH));
-
-        // Render a simple scene (spinning cube) into the FBO.
-        m_ViewportFramebuffer.Bind();
-        glViewport(0, 0, vpW, vpH);
-        glEnable(GL_DEPTH_TEST);
-        glClearColor(0.08f, 0.09f, 0.10f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        if (m_ViewportShader && m_CubeMesh && m_Camera)
+        if (m_WorldRenderer)
         {
-            m_Camera->SetAspect(static_cast<float>(vpW) / static_cast<float>(vpH));
-
-            if (!cubeObj || !cubeObj->enabled)
+            Ark::Rendering::WorldRenderInput input{};
+            input.width = static_cast<uint32_t>(vpW);
+            input.height = static_cast<uint32_t>(vpH);
+            input.cubeEnabled = (cubeObj != nullptr) && cubeObj->enabled;
+            if (cubeObj)
             {
-                // nothing to render for the demo object
+                input.position = cubeObj->position;
+                input.rotationDeg = cubeObj->rotationDeg;
+                input.scale = cubeObj->scale;
+                input.tint = cubeObj->tint;
             }
-            else
-            {
-                const glm::mat4 rotX = glm::rotate(glm::mat4(1.0f), glm::radians(cubeObj->rotationDeg.x), glm::vec3(1, 0, 0));
-                const glm::mat4 rotY = glm::rotate(glm::mat4(1.0f), glm::radians(cubeObj->rotationDeg.y), glm::vec3(0, 1, 0));
-                const glm::mat4 rotZ = glm::rotate(glm::mat4(1.0f), glm::radians(cubeObj->rotationDeg.z), glm::vec3(0, 0, 1));
-                const glm::mat4 rot = rotZ * rotY * rotX;
-                const glm::mat4 model =
-                    glm::translate(glm::mat4(1.0f), cubeObj->position) *
-                    rot *
-                    glm::scale(glm::mat4(1.0f), cubeObj->scale);
-
-                const glm::mat4 mvp = m_Camera->GetViewProjection() * model;
-
-                m_ViewportShader->Bind();
-                m_ViewportShader->SetMat4("uMVP", mvp);
-                m_ViewportShader->SetVec3("u_Tint", cubeObj->tint);
-                m_CubeMesh->Draw();
-            }
-
+            m_WorldRenderer->Submit(input);
         }
+
         Utilities::TickViewportFPS(glfwGetTime());
 
-        Framebuffer::Unbind();
 
         // Clear the main framebuffer before drawing UI.
         int winW = 0, winH = 0;
@@ -224,8 +137,7 @@ void App::Run()
         if (m_ImGui.IsInitialized())
         {
             m_ImGui.BeginFrame();
-            m_EditorUI.SetViewportTextureId(m_ViewportFramebuffer.GetColorTextureId());
-            m_EditorUI.Render(m_Objects, m_SelectedObject);
+            m_EditorUI.SetViewportTextureId(m_WorldRenderer ? m_WorldRenderer->GetLatestTextureId() : 0);            m_EditorUI.Render(m_Objects, m_SelectedObject);
             m_ImGui.EndFrame();
         }
 

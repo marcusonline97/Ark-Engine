@@ -3,6 +3,7 @@ C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\ArkEngine.cpp;C:\ArkEngine\Ark-E
 C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\ArkWindow.cpp;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\x64\Debug\ArkWindow.obj
 C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\AssetManager.cpp;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\x64\Debug\AssetManager.obj
 C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Camera\Camera.cpp;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\x64\Debug\Camera.obj
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Editor\DirectoryScanner.cpp;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\x64\Debug\DirectoryScanner.obj
 C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Editor\EditorUI.cpp;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\x64\Debug\EditorUI.obj
 C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Initializer.cpp;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\x64\Debug\Initializer.obj
 C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Logger.cpp;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\x64\Debug\Logger.obj
@@ -13,6 +14,7 @@ C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\MusicPlayer\Backend\FmodMusicBac
 C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\MusicPlayer\Backend\SoLoudBackend.cpp;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\x64\Debug\SoLoudBackend.obj
 C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\MusicPlayer\MusicPlayer.cpp;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\x64\Debug\MusicPlayer.obj
 C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Rendering\Framebuffer\Framebuffer.cpp;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\x64\Debug\Framebuffer.obj
+C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Rendering\Threading\WorldRenderThread.cpp;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\x64\Debug\WorldRenderThread.obj
 C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Texture.cpp;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\x64\Debug\Texture.obj
 C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Shader.cpp;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\x64\Debug\Shader.obj
 C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\Utility\Utility.cpp;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\x64\Debug\Utility.obj

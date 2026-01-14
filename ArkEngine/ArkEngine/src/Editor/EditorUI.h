@@ -9,6 +9,7 @@
 
 #include "Logger.h"
 #include "MusicPlayer/MusicPlayer.h"
+#include "Editor/DirectoryScanner.h"
 #include "Panels/ConsolePanel.h"
 
 struct EditorObject
@@ -83,6 +84,8 @@ private:
     std::filesystem::path m_selectedFile;
 
     Ark::Editor::ConsolePanel m_console;
+    Ark::Editor::DirectoryScanner m_dirScanner;
+
 
 	ArkAudio::MusicPlayer m_music;
 	float m_musicVolume = 0.5f;

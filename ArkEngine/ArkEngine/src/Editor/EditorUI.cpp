@@ -40,6 +40,9 @@ void EditorUI::Init()
     m_contentDir = m_resourcesRoot;
     m_fileDir = m_projectRoot;
 
+    m_dirScanner.Start();
+    m_dirScanner.RequestScan(m_contentDir);
+    m_dirScanner.RequestScan(m_fileDir);
     // Editor music player: expects <Resources>/Music/<Genre>/*.wav|*.mp3|...
     {
         ArkAudio::MusicPlayerConfig cfg;
@@ -64,6 +67,8 @@ void EditorUI::Shutdown()
 {
     // nothing to add here since the panels are in intermediate mode
 	m_music.Shutdown();
+    m_dirScanner.Stop();
+
 }
 
 
