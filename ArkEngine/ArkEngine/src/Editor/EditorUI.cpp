@@ -1,6 +1,7 @@
 #include "EditorUI.h"
 
 #include <algorithm>
+#include <cstdint>
 #include <cstdio>
 
 #include <imgui/imgui.h>
@@ -410,6 +411,31 @@ void EditorUI::RenderEntityTree(Ark::Scene& scene, entt::entity entity, entt::en
     if (ImGui::IsItemClicked())
         selectedEntity = entity;
 
+    // Drag this entity
+    if (ImGui::BeginDragDropSource())
+    {
+        const uint32_t payload = static_cast<uint32_t>(entity);
+        ImGui::SetDragDropPayload("ARK_DND_ENTITY", &payload, sizeof(payload));
+        ImGui::TextUnformatted(label);
+        ImGui::EndDragDropSource();
+    }
+
+    // Accept reparent drops
+    if (ImGui::BeginDragDropTarget())
+    {
+        if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ARK_DND_ENTITY"))
+        {
+            if (payload->DataSize == sizeof(uint32_t))
+            {
+                const uint32_t droppedId = *static_cast<const uint32_t*>(payload->Data);
+                const entt::entity dropped = static_cast<entt::entity>(droppedId);
+                scene.SetParent(dropped, entity);
+                selectedEntity = dropped;
+            }
+        }
+        ImGui::EndDragDropTarget();
+    }
+
     if (opened)
     {
         for (const entt::entity c : children)
@@ -496,6 +522,22 @@ void EditorUI::RenderHierarchy(Ark::Scene& scene, entt::entity& selectedEntity)
         if (h.Parent == entt::null)
             RenderEntityTree(scene, e, selectedEntity);
     });
+
+    // Drop on empty space to unparent (make root)
+    if (ImGui::BeginDragDropTarget())
+    {
+        if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ARK_DND_ENTITY"))
+        {
+            if (payload->DataSize == sizeof(uint32_t))
+            {
+                const uint32_t droppedId = *static_cast<const uint32_t*>(payload->Data);
+                const entt::entity dropped = static_cast<entt::entity>(droppedId);
+                scene.SetParent(dropped, entt::null);
+                selectedEntity = dropped;
+            }
+        }
+        ImGui::EndDragDropTarget();
+    }
 
     ImGui::End();
 }
