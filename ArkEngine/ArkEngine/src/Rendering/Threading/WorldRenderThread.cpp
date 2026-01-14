@@ -99,12 +99,6 @@ namespace Ark::Rendering
 		}
 
 		CubeMesh cubeMesh;
-		ArkCamera camera(
-			glm::vec3(0.0f, 0.0f, 3.0f),
-			45.0f,
-			1280.0f / 720.0f,
-			0.1f,
-			100.0f);
 
 		Framebuffer viewportFramebuffer;
 
@@ -147,24 +141,34 @@ namespace Ark::Rendering
 			glClearColor(0.08f, 0.09f, 0.10f, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-			camera.SetAspect(static_cast<float>(w) / static_cast<float>(h));
+			const float aspect = static_cast<float>(w) / static_cast<float>(h);
+			ArkCamera camera(
+				input.camera.position,
+				input.camera.fov,
+				aspect,
+				input.camera.nearPlane,
+				input.camera.farPlane);
+			camera.SetRotation(input.camera.rotationDeg.x, input.camera.rotationDeg.y);
 
-			if (input.cubeEnabled)
+			for (const auto& obj : input.objects)
 			{
-				const glm::mat4 rotX = glm::rotate(glm::mat4(1.0f), glm::radians(input.rotationDeg.x), glm::vec3(1, 0, 0));
-				const glm::mat4 rotY = glm::rotate(glm::mat4(1.0f), glm::radians(input.rotationDeg.y), glm::vec3(0, 1, 0));
-				const glm::mat4 rotZ = glm::rotate(glm::mat4(1.0f), glm::radians(input.rotationDeg.z), glm::vec3(0, 0, 1));
+				if (!obj.enabled)
+					continue;
+
+				const glm::mat4 rotX = glm::rotate(glm::mat4(1.0f), glm::radians(obj.rotationDeg.x), glm::vec3(1, 0, 0));
+				const glm::mat4 rotY = glm::rotate(glm::mat4(1.0f), glm::radians(obj.rotationDeg.y), glm::vec3(0, 1, 0));
+				const glm::mat4 rotZ = glm::rotate(glm::mat4(1.0f), glm::radians(obj.rotationDeg.z), glm::vec3(0, 0, 1));
 				const glm::mat4 rot = rotZ * rotY * rotX;
 				const glm::mat4 model =
-					glm::translate(glm::mat4(1.0f), input.position) *
+					glm::translate(glm::mat4(1.0f), obj.position) *
 					rot *
-					glm::scale(glm::mat4(1.0f), input.scale);
+					glm::scale(glm::mat4(1.0f), obj.scale);
 
 				const glm::mat4 mvp = camera.GetViewProjection() * model;
 
 				viewportShader.Bind();
 				viewportShader.SetMat4("uMVP", mvp);
-				viewportShader.SetVec3("u_Tint", input.tint);
+				viewportShader.SetVec3("u_Tint", obj.tint);
 				cubeMesh.Draw();
 			}
 

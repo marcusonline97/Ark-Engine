@@ -115,22 +115,71 @@ void App::Run()
             Ark::Rendering::WorldRenderInput input{};
             input.width = static_cast<uint32_t>(vpW);
             input.height = static_cast<uint32_t>(vpH);
-            input.cubeEnabled = (m_DemoCubeEntity != entt::null) && reg.valid(m_DemoCubeEntity) &&
-                (!reg.any_of<Ark::EnabledComponent>(m_DemoCubeEntity) || reg.get<Ark::EnabledComponent>(m_DemoCubeEntity).Enabled);
 
-            if (m_DemoCubeEntity != entt::null && reg.valid(m_DemoCubeEntity))
+            // Camera: use possessed camera if present
             {
-                if (reg.any_of<Ark::TransformComponent>(m_DemoCubeEntity))
+                const entt::entity camE = m_Scene.GetPossessedCamera();
+                if (camE != entt::null && reg.valid(camE) && reg.all_of<Ark::TransformComponent, Ark::CameraComponent>(camE))
                 {
-                    const auto& t = reg.get<Ark::TransformComponent>(m_DemoCubeEntity);
-                    input.position = t.Translation;
-                    input.rotationDeg = t.Rotation;
-                    input.scale = t.Scale;
+                    const auto& t = reg.get<Ark::TransformComponent>(camE);
+                    const auto& c = reg.get<Ark::CameraComponent>(camE);
+                    input.camera.position = t.Translation;
+                    input.camera.rotationDeg = t.Rotation;
+                    input.camera.fov = c.FOV;
+                    input.camera.nearPlane = c.NearPlane;
+                    input.camera.farPlane = c.FarPlane;
                 }
-
-                if (reg.any_of<Ark::StaticMeshComponent>(m_DemoCubeEntity))
-                    input.tint = reg.get<Ark::StaticMeshComponent>(m_DemoCubeEntity).Tint;
             }
+
+            // Renderable objects: StaticMesh + SkeletalMesh (placeholder cube), plus PointLight icon cube
+            input.objects.clear();
+            input.objects.reserve(64);
+
+            auto addObject = [&](entt::entity e, const glm::vec3& tintOverride)
+            {
+                if (!reg.valid(e) || !reg.any_of<Ark::TransformComponent>(e))
+                    return;
+
+                Ark::Rendering::WorldRenderObject o{};
+                if (reg.any_of<Ark::EnabledComponent>(e))
+                    o.enabled = reg.get<Ark::EnabledComponent>(e).Enabled;
+
+                const auto& t = reg.get<Ark::TransformComponent>(e);
+                o.position = t.Translation;
+                o.rotationDeg = t.Rotation;
+                o.scale = t.Scale;
+                o.tint = tintOverride;
+                input.objects.push_back(o);
+            };
+
+            reg.view<Ark::TransformComponent, Ark::StaticMeshComponent>().each([&](entt::entity e, const Ark::TransformComponent&, const Ark::StaticMeshComponent& sm)
+            {
+                addObject(e, sm.Tint);
+            });
+
+            reg.view<Ark::TransformComponent, Ark::SkeletalMeshComponent>().each([&](entt::entity e, const Ark::TransformComponent&, const Ark::SkeletalMeshComponent& sk)
+            {
+                addObject(e, sk.Tint);
+            });
+
+            reg.view<Ark::TransformComponent, Ark::PointLightComponent>().each([&](entt::entity e, const Ark::TransformComponent&, const Ark::PointLightComponent& pl)
+            {
+                // Light icon: keep small regardless of user scale (still respects it).
+                if (!reg.valid(e) || !reg.any_of<Ark::TransformComponent>(e))
+                    return;
+
+                Ark::Rendering::WorldRenderObject o{};
+                if (reg.any_of<Ark::EnabledComponent>(e))
+                    o.enabled = reg.get<Ark::EnabledComponent>(e).Enabled;
+
+                const auto& t = reg.get<Ark::TransformComponent>(e);
+                o.position = t.Translation;
+                o.rotationDeg = t.Rotation;
+                o.scale = t.Scale * 0.25f;
+                o.tint = pl.Color;
+                input.objects.push_back(o);
+            });
+
             m_WorldRenderer->Submit(input);
         }
 
