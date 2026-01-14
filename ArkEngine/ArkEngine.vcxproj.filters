@@ -315,6 +315,7 @@
     <ClInclude Include="ArkEngine\src\Rendering\Threading\WorldRenderThread.h" />
     <ClInclude Include="ArkEngine\src\Editor\DirectoryScanner.h" />
     <ClInclude Include="ArkEngine\src\Input\Input.h" />
+    <ClInclude Include="ArkEngine\Vendor\imgui\include\imgui\misc\cpp\imgui_stdlib.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Vendor\glm\detail\func_common.inl" />
@@ -491,6 +492,7 @@
     <ClCompile Include="ArkEngine\src\Rendering\Framebuffer\Framebuffer.cpp" />
     <ClCompile Include="ArkEngine\src\Rendering\Threading\WorldRenderThread.cpp" />
     <ClCompile Include="ArkEngine\src\Editor\DirectoryScanner.cpp" />
+    <ClCompile Include="ArkEngine\Vendor\imgui\include\imgui\misc\cpp\imgui_stdlib.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="ArkEngine\Resources\Textures\BathroomFloor_ALB.png" />
