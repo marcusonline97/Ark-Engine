@@ -57,20 +57,28 @@ App::App()
             });
     }
     {
-        m_Objects.push_back(EditorObject{ "Static Mesh" });
+        EditorObject obj{};
+        obj.name = "Static Mesh";
+        m_Objects.push_back(obj);
         m_Objects.back().staticMesh = StaticMeshEditorComponent{};
         m_Objects.back().tint = glm::vec3(0.95f, 0.95f, 0.95f);
 
-        m_Objects.push_back(EditorObject{ "Skeletal Mesh" });
+        obj = EditorObject{};
+        obj.name = "Skeletal Mesh";
+        m_Objects.push_back(obj);
         m_Objects.back().skeletalMesh = SkeletalMeshEditorComponent{};
         m_Objects.back().position = glm::vec3(1.5f, 0.0f, 0.0f);
         m_Objects.back().tint = glm::vec3(0.65f, 0.85f, 1.0f);
 
-        m_Objects.push_back(EditorObject{ "Camera" });
+        obj = EditorObject{};
+        obj.name = "Camera";
+        m_Objects.push_back(obj);
         m_Objects.back().camera = CameraEditorComponent{};
         m_Objects.back().position = glm::vec3(0.0f, 0.0f, 3.0f);
 
-        m_Objects.push_back(EditorObject{ "Point Light" });
+        obj = EditorObject{};
+        obj.name = "Point Light";
+        m_Objects.push_back(obj);
         m_Objects.back().pointLight = PointLightEditorComponent{};
         m_Objects.back().position = glm::vec3(-1.25f, 1.0f, 0.0f);
         m_Objects.back().scale = glm::vec3(0.2f);
