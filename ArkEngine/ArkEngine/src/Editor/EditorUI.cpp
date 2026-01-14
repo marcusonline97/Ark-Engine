@@ -13,6 +13,53 @@ namespace
 {
     constexpr const char* kPayloadEditorObject = "ARK_EDITOR_OBJECT_ID";
     constexpr const char* kPayloadAssetPath = "ARK_EDITOR_ASSET_PATH";
+
+    static bool ContainsCaseInsensitive(std::string_view haystack, std::string_view needle)
+    {
+        if (needle.empty()) return true;
+        if (haystack.size() < needle.size()) return false;
+
+        const auto toLower = [](unsigned char c) { return static_cast<char>(std::tolower(c)); };
+        for (size_t i = 0; i + needle.size() <= haystack.size(); ++i)
+        {
+            bool match = true;
+            for (size_t j = 0; j < needle.size(); ++j)
+            {
+                if (toLower(static_cast<unsigned char>(haystack[i + j])) != toLower(static_cast<unsigned char>(needle[j])))
+                {
+                    match = false;
+                    break;
+                }
+            }
+            if (match) return true;
+        }
+        return false;
+    }
+
+    static std::string ToLowerCopy(std::string s)
+    {
+        std::transform(s.begin(), s.end(), s.begin(),
+            [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+        return s;
+    }
+
+    static bool IsImageAsset(const std::filesystem::path& p)
+    {
+        const std::string e = ToLowerCopy(p.extension().string());
+        return (e == ".png" || e == ".jpg" || e == ".jpeg" || e == ".bmp" || e == ".tga" || e == ".dds");
+    }
+
+    static bool IsMeshAsset(const std::filesystem::path& p)
+    {
+        const std::string e = ToLowerCopy(p.extension().string());
+        return (e == ".fbx" || e == ".obj" || e == ".gltf" || e == ".glb" || e == ".dae");
+    }
+
+    static bool IsAnimAsset(const std::filesystem::path& p)
+    {
+        const std::string e = ToLowerCopy(p.extension().string());
+        return (e == ".fbx" || e == ".dae" || e == ".gltf" || e == ".glb");
+    }
 }
 
 std::uint32_t EditorUI::AllocateObjectId()
@@ -652,28 +699,7 @@ void EditorUI::RenderHierarchy(std::vector<EditorObject>& objects, int& selected
             roots.push_back(obj.id);
     }
 
-    const auto isImage = [](const std::filesystem::path& p)
-        {
-            const auto ext = p.extension().string();
-            auto e = ext;
-            std::transform(e.begin(), e.end(), e.begin(), [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
-            return (e == ".png" || e == ".jpg" || e == ".jpeg" || e == ".bmp" || e == ".tga" || e == ".dds");
-        };
-    const auto isMesh = [](const std::filesystem::path& p)
-        {
-            const auto ext = p.extension().string();
-            auto e = ext;
-            std::transform(e.begin(), e.end(), e.begin(), [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
-            return (e == ".fbx" || e == ".obj" || e == ".gltf" || e == ".glb" || e == ".dae");
-        };
-
-    const auto isAnim = [](const std::filesystem::path& p)
-        {
-            const auto ext = p.extension().string();
-            auto e = ext;
-            std::transform(e.begin(), e.end(), e.begin(), [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
-            return (e == ".fbx" || e == ".dae" || e == ".gltf" || e == ".glb");
-        };
+    // Asset helpers live at file-scope (IsMeshAsset/IsImageAsset/IsAnimAsset)
     // Recursive tree draw.
     std::function<void(std::uint32_t)> drawNode = [&](std::uint32_t id)
         {
@@ -718,7 +744,7 @@ void EditorUI::RenderHierarchy(std::vector<EditorObject>& objects, int& selected
                     if (dropped && dropped[0] != '\0')
                     {
                         const std::filesystem::path assetPath(dropped);
-                        if (isMesh(assetPath))
+                        if (IsMeshAsset(assetPath))
                         {
                             if (!obj.staticMesh && !obj.skeletalMesh)
                                 obj.staticMesh = StaticMeshEditorComponent{};
@@ -728,13 +754,13 @@ void EditorUI::RenderHierarchy(std::vector<EditorObject>& objects, int& selected
                             else if (obj.skeletalMesh)
                                 obj.skeletalMesh->meshPath = dropped;
                         }
-                        else if (isImage(assetPath))
+                        else if (IsImageAsset(assetPath))
                         {
                             if (!obj.staticMesh)
                                 obj.staticMesh = StaticMeshEditorComponent{};
                             obj.staticMesh->texturePath = dropped;
                         }
-                        else if (isAnim(assetPath))
+                        else if (IsAnimAsset(assetPath))
                         {
                             if (!obj.skeletalMesh)
                                 obj.skeletalMesh = SkeletalMeshEditorComponent{};
@@ -779,7 +805,116 @@ void EditorUI::RenderHierarchy(std::vector<EditorObject>& objects, int& selected
                 {
                     if (ImGui::TreeNodeEx("Static Mesh", ImGuiTreeNodeFlags_DefaultOpen))
                     {
+                        // Mesh path (supports drag & drop + searchable picker)
                         ImGui::InputText("Mesh", &obj.staticMesh->meshPath);
+                        if (ImGui::BeginDragDropTarget())
+                        {
+                            if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(kPayloadAssetPath))
+                            {
+                                const char* dropped = static_cast<const char*>(payload->Data);
+                                if (dropped && dropped[0] != '\0' && IsMeshAsset(std::filesystem::path(dropped)))
+                                    obj.staticMesh->meshPath = dropped;
+                            }
+                            ImGui::EndDragDropTarget();
+                        }
+                        ImGui::SameLine();
+                        if (ImGui::SmallButton("...##PickStaticMesh"))
+                            ImGui::OpenPopup("##PickStaticMeshPopup");
+
+                        if (ImGui::BeginPopup("##PickStaticMeshPopup"))
+                        {
+                            static std::filesystem::path s_dir = {};
+                            static std::string s_filter;
+                            if (s_dir.empty())
+                                s_dir = m_resourcesRoot;
+
+                            ImGui::TextDisabled("Pick mesh (Resources)");
+                            ImGui::Separator();
+
+                            // Quick action: use selection from the Content Browser if it's a mesh.
+                            if (!m_selectedAsset.empty() && ImGui::Button("Use selected asset"))
+                            {
+                                const std::filesystem::path rel = MakeProjectRelativePath(m_selectedAsset);
+                                if (IsMeshAsset(rel))
+                                {
+                                    obj.staticMesh->meshPath = rel.string();
+                                    ImGui::CloseCurrentPopup();
+                                }
+                            }
+                            ImGui::SameLine();
+                            ImGui::InputTextWithHint("##meshFilter", "Search...", &s_filter);
+                            ImGui::Separator();
+
+                            // Breadcrumb + navigation
+                            {
+                                if (ImGui::SmallButton("Root##meshroot"))
+                                    s_dir = m_resourcesRoot;
+
+                                std::error_code ec;
+                                std::filesystem::path rel = std::filesystem::relative(s_dir, m_resourcesRoot, ec);
+                                if (ec) rel.clear();
+                                std::filesystem::path accum = m_resourcesRoot;
+                                for (const auto& part : rel)
+                                {
+                                    ImGui::SameLine();
+                                    ImGui::TextUnformatted("/");
+                                    ImGui::SameLine();
+                                    accum /= part;
+                                    if (ImGui::SmallButton(part.string().c_str()))
+                                        s_dir = accum;
+                                }
+                            }
+
+                            std::vector<Ark::Editor::DirectoryEntry> entries;
+                            if (!m_dirScanner.TryGetListing(s_dir, entries))
+                            {
+                                m_dirScanner.RequestScan(s_dir);
+                                ImGui::TextDisabled("Scanning...");
+                            }
+                            else
+                            {
+                                ImGui::BeginChild("##meshPickList", ImVec2(420.0f, 260.0f), true);
+
+                                if (s_dir != m_resourcesRoot)
+                                {
+                                    if (ImGui::Selectable("..", false))
+                                    {
+                                        const auto parent = s_dir.parent_path();
+                                        // Don't navigate above the resources root.
+                                        if (parent.string().find(m_resourcesRoot.string()) == 0)
+                                            s_dir = parent;
+                                    }
+                                }
+
+                                for (const auto& e : entries)
+                                {
+                                    if (e.isDirectory)
+                                    {
+                                        const std::string label = "[DIR] " + e.name;
+                                        if (ImGui::Selectable(label.c_str(), false) && ImGui::IsMouseDoubleClicked(0))
+                                            s_dir = e.path;
+                                        continue;
+                                    }
+
+                                    const std::filesystem::path rel = MakeProjectRelativePath(e.path);
+                                    if (!IsMeshAsset(rel))
+                                        continue;
+
+                                    if (!ContainsCaseInsensitive(rel.string(), s_filter))
+                                        continue;
+
+                                    if (ImGui::Selectable(rel.string().c_str(), false))
+                                    {
+                                        obj.staticMesh->meshPath = rel.string();
+                                        ImGui::CloseCurrentPopup();
+                                    }
+                                }
+                                ImGui::EndChild();
+                            }
+
+                            ImGui::EndPopup();
+                        }
+
                         ImGui::InputText("Texture", &obj.staticMesh->texturePath);
                         ImGui::TextDisabled("Drag mesh/image here (or onto the object).");
                         if (ImGui::SmallButton("Remove##StaticMesh")) obj.staticMesh.reset();
@@ -790,7 +925,114 @@ void EditorUI::RenderHierarchy(std::vector<EditorObject>& objects, int& selected
                 {
                     if (ImGui::TreeNodeEx("Skeletal Mesh", ImGuiTreeNodeFlags_DefaultOpen))
                     {
+                        // Mesh path (supports drag & drop + searchable picker)
                         ImGui::InputText("Mesh", &obj.skeletalMesh->meshPath);
+                        if (ImGui::BeginDragDropTarget())
+                        {
+                            if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(kPayloadAssetPath))
+                            {
+                                const char* dropped = static_cast<const char*>(payload->Data);
+                                if (dropped && dropped[0] != '\0' && IsMeshAsset(std::filesystem::path(dropped)))
+                                    obj.skeletalMesh->meshPath = dropped;
+                            }
+                            ImGui::EndDragDropTarget();
+                        }
+                        ImGui::SameLine();
+                        if (ImGui::SmallButton("...##PickSkeletalMesh"))
+                            ImGui::OpenPopup("##PickSkeletalMeshPopup");
+
+                        if (ImGui::BeginPopup("##PickSkeletalMeshPopup"))
+                        {
+                            static std::filesystem::path s_dir = {};
+                            static std::string s_filter;
+                            if (s_dir.empty())
+                                s_dir = m_resourcesRoot;
+
+                            ImGui::TextDisabled("Pick mesh (Resources)");
+                            ImGui::Separator();
+
+                            if (!m_selectedAsset.empty() && ImGui::Button("Use selected asset"))
+                            {
+                                const std::filesystem::path rel = MakeProjectRelativePath(m_selectedAsset);
+                                if (IsMeshAsset(rel))
+                                {
+                                    obj.skeletalMesh->meshPath = rel.string();
+                                    ImGui::CloseCurrentPopup();
+                                }
+                            }
+                            ImGui::SameLine();
+                            ImGui::InputTextWithHint("##meshFilter", "Search...", &s_filter);
+                            ImGui::Separator();
+
+                            // Breadcrumb + navigation
+                            {
+                                if (ImGui::SmallButton("Root##meshroot"))
+                                    s_dir = m_resourcesRoot;
+
+                                std::error_code ec;
+                                std::filesystem::path rel = std::filesystem::relative(s_dir, m_resourcesRoot, ec);
+                                if (ec) rel.clear();
+                                std::filesystem::path accum = m_resourcesRoot;
+                                for (const auto& part : rel)
+                                {
+                                    ImGui::SameLine();
+                                    ImGui::TextUnformatted("/");
+                                    ImGui::SameLine();
+                                    accum /= part;
+                                    if (ImGui::SmallButton(part.string().c_str()))
+                                        s_dir = accum;
+                                }
+                            }
+
+                            std::vector<Ark::Editor::DirectoryEntry> entries;
+                            if (!m_dirScanner.TryGetListing(s_dir, entries))
+                            {
+                                m_dirScanner.RequestScan(s_dir);
+                                ImGui::TextDisabled("Scanning...");
+                            }
+                            else
+                            {
+                                ImGui::BeginChild("##meshPickList", ImVec2(420.0f, 260.0f), true);
+
+                                if (s_dir != m_resourcesRoot)
+                                {
+                                    if (ImGui::Selectable("..", false))
+                                    {
+                                        const auto parent = s_dir.parent_path();
+                                        if (parent.string().find(m_resourcesRoot.string()) == 0)
+                                            s_dir = parent;
+                                    }
+                                }
+
+                                for (const auto& e : entries)
+                                {
+                                    if (e.isDirectory)
+                                    {
+                                        const std::string label = "[DIR] " + e.name;
+                                        if (ImGui::Selectable(label.c_str(), false) && ImGui::IsMouseDoubleClicked(0))
+                                            s_dir = e.path;
+                                        continue;
+                                    }
+
+                                    const std::filesystem::path rel = MakeProjectRelativePath(e.path);
+                                    if (!IsMeshAsset(rel))
+                                        continue;
+
+                                    if (!ContainsCaseInsensitive(rel.string(), s_filter))
+                                        continue;
+
+                                    if (ImGui::Selectable(rel.string().c_str(), false))
+                                    {
+                                        obj.skeletalMesh->meshPath = rel.string();
+                                        ImGui::CloseCurrentPopup();
+                                    }
+                                }
+                                ImGui::EndChild();
+                            }
+
+                            ImGui::EndPopup();
+                        }
+
                         ImGui::InputText("Animation", &obj.skeletalMesh->animationPath);
                         ImGui::DragInt("Anim Index", &obj.skeletalMesh->animationIndex, 1.0f, -1, 1024);
                         ImGui::InputText("Texture", &obj.skeletalMesh->texturePath);
