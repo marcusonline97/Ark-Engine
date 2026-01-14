@@ -250,6 +250,10 @@ void App::Run()
                     Ark::Rendering::RenderInstance inst{};
                     inst.model = toModel(o);
                     inst.tint = o.tint;
+                    if (o.staticMesh && !o.staticMesh->meshPath.empty())
+                        inst.meshPath = o.staticMesh->meshPath;
+                    else if (o.skeletalMesh && !o.skeletalMesh->meshPath.empty())
+                        inst.meshPath = o.skeletalMesh->meshPath;
                     input.instances.push_back(inst);
                 }
 
