@@ -5,6 +5,7 @@
 
 #include <imgui/imgui.h>
 #include <imgui/imgui_internal.h>
+#include <imgui/misc/cpp/imgui_stdlib.h>
 #include <Utility/Utility.h>
 
 
@@ -190,6 +191,13 @@ void EditorUI::RenderMenuBar()
         ImGui::MenuItem("File Explorer", nullptr, &m_showFileExplorer);
         ImGui::Separator();
         ImGui::MenuItem("ImGui Demo", nullptr, &m_showImGuiDemo);
+        ImGui::EndMenu();
+    }
+
+    if (ImGui::BeginMenu("Run"))
+    {
+        if (ImGui::MenuItem(m_playMode ? "Stop" : "Play", "F5"))
+            m_playMode = !m_playMode;
         ImGui::EndMenu();
     }
 
@@ -432,6 +440,117 @@ void EditorUI::RenderInspector(std::vector<EditorObject>& objects, int& selected
     ImGui::Separator();
     ImGui::TextUnformatted("Material");
     ImGui::ColorEdit3("Tint", &obj.tint.x);
+
+    ImGui::Separator();
+    ImGui::TextUnformatted("Components");
+
+    // Add Component
+    {
+        const char* preview = "Add Component...";
+        if (ImGui::BeginCombo("##AddComponent", preview))
+        {
+            if (!obj.staticMesh && ImGui::Selectable("Static Mesh"))
+                obj.staticMesh = StaticMeshEditorComponent{};
+            if (!obj.skeletalMesh && ImGui::Selectable("Skeletal Mesh"))
+                obj.skeletalMesh = SkeletalMeshEditorComponent{};
+            if (!obj.camera && ImGui::Selectable("Camera"))
+                obj.camera = CameraEditorComponent{};
+            if (!obj.pointLight && ImGui::Selectable("Point Light"))
+                obj.pointLight = PointLightEditorComponent{};
+
+            ImGui::EndCombo();
+        }
+    }
+
+    const auto setPathFromSelectedAsset = [this](std::string& outPath)
+        {
+            if (m_selectedAsset.empty() || !std::filesystem::exists(m_selectedAsset))
+                return;
+
+            std::error_code ec;
+            const auto rel = std::filesystem::relative(m_selectedAsset, m_projectRoot, ec);
+            outPath = ec ? m_selectedAsset.string() : rel.string();
+        };
+
+    if (obj.staticMesh)
+    {
+        if (ImGui::CollapsingHeader("Static Mesh", ImGuiTreeNodeFlags_DefaultOpen))
+        {
+            ImGui::InputText("Mesh", &obj.staticMesh->meshPath);
+            ImGui::SameLine();
+            if (ImGui::SmallButton("Use Selected##StaticMesh"))
+                setPathFromSelectedAsset(obj.staticMesh->meshPath);
+
+            ImGui::InputText("Texture", &obj.staticMesh->texturePath);
+            ImGui::SameLine();
+            if (ImGui::SmallButton("Use Selected##StaticMeshTex"))
+                setPathFromSelectedAsset(obj.staticMesh->texturePath);
+
+            ImGui::TextDisabled("Note: static mesh importing/material binding is still being wired into the renderer.");
+
+            if (ImGui::Button("Remove Static Mesh"))
+                obj.staticMesh.reset();
+        }
+    }
+
+    if (obj.skeletalMesh)
+    {
+        if (ImGui::CollapsingHeader("Skeletal Mesh", ImGuiTreeNodeFlags_DefaultOpen))
+        {
+            ImGui::InputText("Mesh", &obj.skeletalMesh->meshPath);
+            ImGui::SameLine();
+            if (ImGui::SmallButton("Use Selected##SkelMesh"))
+                setPathFromSelectedAsset(obj.skeletalMesh->meshPath);
+
+            ImGui::InputText("Animation", &obj.skeletalMesh->animationPath);
+            ImGui::SameLine();
+            if (ImGui::SmallButton("Use Selected##SkelAnim"))
+                setPathFromSelectedAsset(obj.skeletalMesh->animationPath);
+
+            ImGui::DragInt("Anim Index", &obj.skeletalMesh->animationIndex, 1.0f, -1, 1024);
+
+            ImGui::InputText("Texture", &obj.skeletalMesh->texturePath);
+            ImGui::SameLine();
+            if (ImGui::SmallButton("Use Selected##SkelTex"))
+                setPathFromSelectedAsset(obj.skeletalMesh->texturePath);
+
+            ImGui::TextDisabled("Note: skeletal animation/skinning is planned; this component is data-first for now.");
+
+            if (ImGui::Button("Remove Skeletal Mesh"))
+                obj.skeletalMesh.reset();
+        }
+    }
+
+    if (obj.camera)
+    {
+        if (ImGui::CollapsingHeader("Camera", ImGuiTreeNodeFlags_DefaultOpen))
+        {
+            ImGui::Checkbox("Primary", &obj.camera->primary);
+            ImGui::SliderFloat("FOV (deg)", &obj.camera->fovDeg, 1.0f, 140.0f, "%.1f");
+            ImGui::DragFloat("Near", &obj.camera->nearPlane, 0.01f, 0.001f, 100.0f, "%.3f");
+            ImGui::DragFloat("Far", &obj.camera->farPlane, 1.0f, 1.0f, 50000.0f, "%.1f");
+
+            ImGui::TextDisabled("Tip: press Play to possess the primary camera.");
+
+            if (ImGui::Button("Remove Camera"))
+                obj.camera.reset();
+        }
+    }
+
+    if (obj.pointLight)
+    {
+        if (ImGui::CollapsingHeader("Point Light", ImGuiTreeNodeFlags_DefaultOpen))
+        {
+            ImGui::ColorEdit3("Color", &obj.pointLight->color.x);
+            ImGui::DragFloat("Intensity", &obj.pointLight->intensity, 0.05f, 0.0f, 1000.0f, "%.2f");
+            ImGui::DragFloat("Radius", &obj.pointLight->radius, 0.05f, 0.0f, 1000.0f, "%.2f");
+
+            ImGui::TextDisabled("Note: currently visualized as a small proxy in the demo renderer.");
+
+            if (ImGui::Button("Remove Point Light"))
+                obj.pointLight.reset();
+        }
+    }
 
     ImGui::End();
 }
