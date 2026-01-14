@@ -10,6 +10,42 @@
 
 namespace Ark
 {
+	static void DecomposeToTRS(const glm::mat4& m, TransformComponent& tc)
+	{
+		// Translation
+		tc.Translation = glm::vec3(m[3]);
+
+		// Extract scale from basis vectors
+		const glm::vec3 basisX = glm::vec3(m[0]);
+		const glm::vec3 basisY = glm::vec3(m[1]);
+		const glm::vec3 basisZ = glm::vec3(m[2]);
+		tc.Scale = glm::vec3(glm::length(basisX), glm::length(basisY), glm::length(basisZ));
+
+		glm::mat3 rotM(1.0f);
+		if (tc.Scale.x != 0.0f) rotM[0] = basisX / tc.Scale.x;
+		if (tc.Scale.y != 0.0f) rotM[1] = basisY / tc.Scale.y;
+		if (tc.Scale.z != 0.0f) rotM[2] = basisZ / tc.Scale.z;
+
+		// Convert to Euler degrees (XYZ)
+		const float sy = -rotM[2][0];
+		const float cy = std::sqrt(std::max(0.0f, 1.0f - sy * sy));
+		float x = 0.0f, y = 0.0f, z = 0.0f;
+		if (cy > 1e-5f)
+		{
+			x = std::atan2(rotM[2][1], rotM[2][2]);
+			y = std::asin(sy);
+			z = std::atan2(rotM[1][0], rotM[0][0]);
+		}
+		else
+		{
+			// Gimbal lock
+			x = std::atan2(-rotM[1][2], rotM[1][1]);
+			y = std::asin(sy);
+			z = 0.0f;
+		}
+		tc.Rotation = glm::degrees(glm::vec3(x, y, z));
+	}
+
 	entt::entity Scene::CreateEntity(const std::string& name)
 	{
 		const entt::entity e = m_registry.create();
@@ -119,39 +155,8 @@ namespace Ark
 			const glm::mat4 parentWorld = (newParent == entt::null) ? glm::mat4(1.0f) : GetWorldTransform(newParent);
 			const glm::mat4 newLocal = glm::inverse(parentWorld) * childWorld;
 
-			// Decompose matrix to Translation/Rotation/Scale (simple; assumes no shear)
 			TransformComponent& tc = m_registry.get<TransformComponent>(child);
-			tc.Translation = glm::vec3(newLocal[3]);
-
-			// Extract scale from basis vectors
-			const glm::vec3 basisX = glm::vec3(newLocal[0]);
-			const glm::vec3 basisY = glm::vec3(newLocal[1]);
-			const glm::vec3 basisZ = glm::vec3(newLocal[2]);
-			tc.Scale = glm::vec3(glm::length(basisX), glm::length(basisY), glm::length(basisZ));
-
-			glm::mat3 rotM(1.0f);
-			if (tc.Scale.x != 0.0f) rotM[0] = basisX / tc.Scale.x;
-			if (tc.Scale.y != 0.0f) rotM[1] = basisY / tc.Scale.y;
-			if (tc.Scale.z != 0.0f) rotM[2] = basisZ / tc.Scale.z;
-
-			// Convert to Euler degrees (XYZ)
-			const float sy = -rotM[2][0];
-			const float cy = std::sqrt(std::max(0.0f, 1.0f - sy * sy));
-			float x = 0.0f, y = 0.0f, z = 0.0f;
-			if (cy > 1e-5f)
-			{
-				x = std::atan2(rotM[2][1], rotM[2][2]);
-				y = std::asin(sy);
-				z = std::atan2(rotM[1][0], rotM[0][0]);
-			}
-			else
-			{
-				// Gimbal lock
-				x = std::atan2(-rotM[1][2], rotM[1][1]);
-				y = std::asin(sy);
-				z = 0.0f;
-			}
-			tc.Rotation = glm::degrees(glm::vec3(x, y, z));
+			DecomposeToTRS(newLocal, tc);
 		}
 
 		// Remove child from old parent children list
@@ -194,6 +199,16 @@ namespace Ark
 
 		if (cameraEntity != entt::null && m_registry.valid(cameraEntity) && m_registry.any_of<CameraComponent>(cameraEntity))
 			m_registry.get<CameraComponent>(cameraEntity).bPossess = true;
+	}
+
+	void Scene::SetWorldTransform(entt::entity e, const glm::mat4& world)
+	{
+		if (e == entt::null || !m_registry.valid(e) || !m_registry.any_of<TransformComponent>(e))
+			return;
+
+		const glm::mat4 parentWorld = GetParentWorldTransform(e);
+		const glm::mat4 local = glm::inverse(parentWorld) * world;
+		DecomposeToTRS(local, m_registry.get<TransformComponent>(e));
 	}
 }
 

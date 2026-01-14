@@ -6,6 +6,7 @@
 
 #include <glm/glm.hpp>
 
+#include <imgui/imgui.h>
 #include <entt.hpp>
 
 #include "Logger.h"
@@ -36,7 +37,7 @@ private:
     void RenderDockspace();
     void RenderMenuBar();
 
-    void RenderViewport();
+    void RenderViewport(Ark::Scene& scene, entt::entity selectedEntity);
 	void RenderMusicPlayer();
     void RenderHierarchy(Ark::Scene& scene, entt::entity& selectedEntity);
     void RenderInspector(Ark::Scene& scene, entt::entity& selectedEntity);
@@ -49,6 +50,7 @@ private:
     void EnsureDefaultLayout();
 
     void RenderEntityTree(Ark::Scene& scene, entt::entity entity, entt::entity& selectedEntity);
+    void RenderGizmo(Ark::Scene& scene, entt::entity selectedEntity, const ImVec2& viewportMin, const ImVec2& viewportSize);
 
     // Shared directory browser helper
     void DrawDirectoryBrowser(const char* id, const std::filesystem::path& root, std::filesystem::path& currentDir, std::filesystem::path* selectedPath);
@@ -87,4 +89,9 @@ private:
     // Viewport  
     unsigned int m_viewportTextureId = 0;
     glm::vec2 m_viewportSize{ 0.0f, 0.0f };
+
+    // Gizmo
+    int m_gizmoOperation = 0; // ImGuizmo::TRANSLATE by default
+    int m_gizmoMode = 1;      // ImGuizmo::WORLD by default
+    bool m_gizmoEnabled = true;
 };

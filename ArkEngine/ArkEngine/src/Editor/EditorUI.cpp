@@ -10,6 +10,10 @@
 
 #include <ECS/Scene.h>
 #include <ECS/Component.h>
+#include <Camera/Camera.h>
+
+#include <ImGuizmo.h>
+#include <glm/gtc/type_ptr.hpp>
 
 std::filesystem::path EditorUI::FindProjectRoot()
 {
@@ -83,6 +87,8 @@ void EditorUI::PushLog(Logging::Level level, std::string_view msg)
 
 void EditorUI::Render(Ark::Scene& scene, entt::entity& selectedEntity)
 {
+    ImGuizmo::BeginFrame();
+
     RenderDockspace();
 
     if (m_showHierarchy)      RenderHierarchy(scene, selectedEntity);
@@ -92,7 +98,7 @@ void EditorUI::Render(Ark::Scene& scene, entt::entity& selectedEntity)
     if (m_showContentBrowser) RenderContentBrowser();
     if (m_showFileExplorer)   RenderFileExplorer();
 
-    RenderViewport();
+    RenderViewport(scene, selectedEntity);
 
     if (m_showImGuiDemo)
         ImGui::ShowDemoWindow(&m_showImGuiDemo);
@@ -215,7 +221,7 @@ void EditorUI::RenderMenuBar()
     ImGui::EndMenuBar();
 }
 
-void EditorUI::RenderViewport()
+void EditorUI::RenderViewport(Ark::Scene& scene, entt::entity selectedEntity)
 {
     if (!ImGui::Begin("Viewport"))
     {
@@ -238,6 +244,14 @@ void EditorUI::RenderViewport()
                     ImVec2(0.0f, 1.0f),
                     ImVec2(1.0f, 0.0f)
                 );
+
+                // Overlay gizmo in the same rect as the viewport image.
+                if (m_gizmoEnabled)
+                {
+                    const ImVec2 vpMin = ImGui::GetItemRectMin();
+                    const ImVec2 vpSize = ImGui::GetItemRectSize();
+                    RenderGizmo(scene, selectedEntity, vpMin, vpSize);
+                }
             }
 
             else
@@ -260,6 +274,74 @@ void EditorUI::RenderViewport()
     }
 
     ImGui::End();
+}
+
+void EditorUI::RenderGizmo(Ark::Scene& scene, entt::entity selectedEntity, const ImVec2& viewportMin, const ImVec2& viewportSize)
+{
+    auto& reg = scene.Registry();
+    if (selectedEntity == entt::null || !reg.valid(selectedEntity) || !reg.any_of<Ark::TransformComponent>(selectedEntity))
+        return;
+
+    // Hotkeys (only when the viewport is hovered)
+    if (ImGui::IsWindowHovered(ImGuiHoveredFlags_ChildWindows))
+    {
+        if (ImGui::IsKeyPressed(ImGuiKey_W)) m_gizmoOperation = ImGuizmo::TRANSLATE;
+        if (ImGui::IsKeyPressed(ImGuiKey_E)) m_gizmoOperation = ImGuizmo::ROTATE;
+        if (ImGui::IsKeyPressed(ImGuiKey_R)) m_gizmoOperation = ImGuizmo::SCALE;
+        if (ImGui::IsKeyPressed(ImGuiKey_Q)) m_gizmoMode = (m_gizmoMode == ImGuizmo::WORLD) ? ImGuizmo::LOCAL : ImGuizmo::WORLD;
+    }
+
+    // Camera for gizmo: use possessed camera if available, otherwise a simple default
+    glm::mat4 view(1.0f);
+    glm::mat4 proj(1.0f);
+    {
+        entt::entity camE = scene.GetPossessedCamera();
+        glm::vec3 camPos(0.0f, 0.0f, 3.0f);
+        float pitch = 0.0f;
+        float yaw = -90.0f;
+        float fov = 45.0f;
+        float nearP = 0.1f;
+        float farP = 100.0f;
+
+        if (camE != entt::null && reg.valid(camE) && reg.any_of<Ark::TransformComponent>(camE, Ark::CameraComponent))
+        {
+            const auto& ct = reg.get<Ark::TransformComponent>(camE);
+            const auto& cc = reg.get<Ark::CameraComponent>(camE);
+            camPos = ct.Translation;
+            pitch = ct.Rotation.x;
+            yaw = ct.Rotation.y;
+            fov = cc.FOV;
+            nearP = cc.NearPlane;
+            farP = cc.FarPlane;
+        }
+
+        const float aspect = (viewportSize.y > 0.0f) ? (viewportSize.x / viewportSize.y) : 1.0f;
+        ArkCamera cam(camPos, fov, aspect, nearP, farP);
+        cam.SetRotation(pitch, yaw);
+        view = cam.GetViewMatrix();
+        proj = cam.GetProjectionMatrix();
+    }
+
+    // Gizmo setup
+    ImGuizmo::SetOrthographic(false);
+    ImGuizmo::SetDrawlist();
+    ImGuizmo::SetRect(viewportMin.x, viewportMin.y, viewportSize.x, viewportSize.y);
+
+    // Camera entities should not be scaled
+    ImGuizmo::OPERATION op = static_cast<ImGuizmo::OPERATION>(m_gizmoOperation);
+    if (reg.any_of<Ark::CameraComponent>(selectedEntity) && op == ImGuizmo::SCALE)
+        op = ImGuizmo::TRANSLATE;
+
+    glm::mat4 model = scene.GetWorldTransform(selectedEntity);
+    const bool changed = ImGuizmo::Manipulate(
+        glm::value_ptr(view),
+        glm::value_ptr(proj),
+        op,
+        static_cast<ImGuizmo::MODE>(m_gizmoMode),
+        glm::value_ptr(model));
+
+    if (changed && ImGuizmo::IsUsing())
+        scene.SetWorldTransform(selectedEntity, model);
 }
 
 void EditorUI::RenderMusicPlayer()

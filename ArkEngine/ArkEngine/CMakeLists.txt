@@ -29,6 +29,7 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/Vendor/entt
     ${CMAKE_SOURCE_DIR}/Vendor/imgui/include
     ${CMAKE_SOURCE_DIR}/Vendor/imgui/include/imgui
+    ${CMAKE_SOURCE_DIR}/Vendor/ImGuizmo
     ${CMAKE_SOURCE_DIR}/Vendor/compressonator/include
 )
 
@@ -61,7 +62,11 @@ set(IMGUI_SOURCES
     "Vendor/imgui/include/imgui/backends/imgui_impl_opengl3.cpp"
 )
 
-set(SOURCES ${ENGINE_SOURCES} ${IMGUI_SOURCES})
+set(IMGUIZMO_SOURCES
+    "Vendor/ImGuizmo/ImGuizmo.cpp"
+)
+
+set(SOURCES ${ENGINE_SOURCES} ${IMGUI_SOURCES} ${IMGUIZMO_SOURCES})
 
 # Add source files to target
 target_sources(${PROJECT_NAME} PRIVATE ${SOURCES})

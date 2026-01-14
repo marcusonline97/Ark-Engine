@@ -38,6 +38,10 @@ namespace Ark
 		glm::mat4 GetWorldTransform(entt::entity e) const;
 		glm::mat4 GetParentWorldTransform(entt::entity e) const;
 
+		// Set local transform so the resulting world transform matches 'world'.
+		// Useful for gizmo editing.
+		void SetWorldTransform(entt::entity e, const glm::mat4& world);
+
 	private:
 		HierarchyComponent& EnsureHierarchy(entt::entity e);
 
