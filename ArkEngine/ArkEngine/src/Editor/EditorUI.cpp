@@ -553,10 +553,68 @@ void EditorUI::RenderHierarchy(std::vector<EditorObject>& objects, int& selected
 
     EnsureObjectIds(objects);
 
+    const bool hasSelected = (selectedObjectIndex >= 0 && selectedObjectIndex < static_cast<int>(objects.size()));
+    static bool parentToSelected = true;
+    if (!hasSelected)
+        parentToSelected = false;
+
+    const auto doCreate = [&](const char* defaultLabel, auto attachFn)
+        {
+            EditorObject obj{};
+            obj.id = AllocateObjectId();
+            obj.parentId = (parentToSelected && hasSelected) ? objects[static_cast<size_t>(selectedObjectIndex)].id : 0;
+            obj.name = std::string(defaultLabel) + " " + std::to_string(objects.size() + 1);
+            attachFn(obj);
+            objects.push_back(std::move(obj));
+            selectedObjectIndex = static_cast<int>(objects.size() - 1);
+            Logging::Debug() << "Created GameObject.\n";
+        };
+
+    static constexpr const char* kCreatePopupId = "##HierarchyCreatePopup";
+
     if (ImGui::Button("Create"))
+        ImGui::OpenPopup(kCreatePopupId);
+
+    // Anchor the popup to the Create button (next to/under it).
+    const ImVec2 createMin = ImGui::GetItemRectMin();
+    const ImVec2 createMax = ImGui::GetItemRectMax();
+    ImGui::SetNextWindowPos(ImVec2(createMin.x, createMax.y), ImGuiCond_Appearing);
+
+    if (ImGui::BeginPopup(kCreatePopupId))
     {
-        m_showCreate = true;
-        m_focusCreateNextFrame = true;
+        ImGui::TextDisabled("Create object");
+        ImGui::Separator();
+
+        ImGui::BeginDisabled(!hasSelected);
+        ImGui::Checkbox("Parent to selected", &parentToSelected);
+        ImGui::EndDisabled();
+        ImGui::Separator();
+
+        if (ImGui::MenuItem("Empty"))
+            doCreate("GameObject", [](EditorObject&) {});
+
+        ImGui::Separator();
+
+        if (ImGui::BeginMenu("Rendering"))
+        {
+            if (ImGui::MenuItem("Static Mesh"))
+                doCreate("StaticMesh", [](EditorObject& o) { o.staticMesh = StaticMeshEditorComponent{}; });
+            if (ImGui::MenuItem("Skeletal Mesh"))
+                doCreate("SkeletalMesh", [](EditorObject& o) { o.skeletalMesh = SkeletalMeshEditorComponent{}; });
+            ImGui::EndMenu();
+        }
+
+        if (ImGui::MenuItem("Camera"))
+            doCreate("Camera", [](EditorObject& o) { o.camera = CameraEditorComponent{}; });
+
+        if (ImGui::BeginMenu("Lights"))
+        {
+            if (ImGui::MenuItem("Point Light"))
+                doCreate("PointLight", [](EditorObject& o) { o.pointLight = PointLightEditorComponent{}; });
+            ImGui::EndMenu();
+        }
+
+        ImGui::EndPopup();
     }
     ImGui::SameLine();
     if (ImGui::Button("Delete") && selectedObjectIndex >= 0 && selectedObjectIndex < static_cast<int>(objects.size()))
@@ -793,92 +851,6 @@ void EditorUI::RenderHierarchy(std::vector<EditorObject>& objects, int& selected
         }
         ImGui::EndDragDropTarget();
     }
-    ImGui::End();
-}
-
-void EditorUI::RenderCreatePanel(std::vector<EditorObject>& objects, int& selectedObjectIndex)
-{
-    EnsureObjectIds(objects);
-
-    if (m_focusCreateNextFrame)
-    {
-        ImGui::SetNextWindowFocus();
-        m_focusCreateNextFrame = false;
-    }
-
-    if (!ImGui::Begin("Create", &m_showCreate))
-    {
-        ImGui::End();
-        return;
-    }
-    static std::string newName;
-    static bool parentToSelected = true;
-
-    ImGui::TextUnformatted("Create a new object (components + assets are managed from the Hierarchy).");
-    ImGui::Separator();
-
-    ImGui::InputText("Name", &newName);
-
-    const bool hasSelected = (selectedObjectIndex >= 0 && selectedObjectIndex < static_cast<int>(objects.size()));
-    if (!hasSelected)
-        parentToSelected = false;
-
-    ImGui::BeginDisabled(!hasSelected);
-    ImGui::Checkbox("Parent to selected object", &parentToSelected);
-    ImGui::EndDisabled();
-
-    const auto doCreate = [&](const char* defaultLabel, auto attachFn)
-        {
-            EditorObject obj{};
-            obj.id = AllocateObjectId();
-            obj.parentId = (parentToSelected && hasSelected) ? objects[static_cast<size_t>(selectedObjectIndex)].id : 0;
-            obj.name = newName.empty()
-                ? std::string(defaultLabel) + " " + std::to_string(objects.size() + 1)
-                : newName;
-            attachFn(obj);
-            objects.push_back(std::move(obj));
-            selectedObjectIndex = static_cast<int>(objects.size() - 1);
-            Logging::Debug() << "Created GameObject.\n";
-        };
-    if (ImGui::BeginTabBar("##CreateTabs"))
-    {
-        if (ImGui::BeginTabItem("Empty"))
-        {
-            if (ImGui::Button("Create Empty"))
-                doCreate("GameObject", [](EditorObject&) {});
-            ImGui::EndTabItem();
-        }
-        if (ImGui::BeginTabItem("Static Mesh"))
-        {
-            ImGui::TextDisabled("Tip: drag a .fbx/.obj onto the object to set Mesh.");
-            if (ImGui::Button("Create Static Mesh Object"))
-                doCreate("StaticMesh", [](EditorObject& o) { o.staticMesh = StaticMeshEditorComponent{}; });
-            ImGui::EndTabItem();
-        }
-        if (ImGui::BeginTabItem("Skeletal Mesh"))
-        {
-            ImGui::TextDisabled("Tip: drag a .fbx onto the object to set Mesh/Animation.");
-            if (ImGui::Button("Create Skeletal Mesh Object"))
-                doCreate("SkeletalMesh", [](EditorObject& o) { o.skeletalMesh = SkeletalMeshEditorComponent{}; });
-            ImGui::EndTabItem();
-        }
-        if (ImGui::BeginTabItem("Camera"))
-        {
-            if (ImGui::Button("Create Camera Object"))
-                doCreate("Camera", [](EditorObject& o) { o.camera = CameraEditorComponent{}; });
-            ImGui::EndTabItem();
-        }
-        if (ImGui::BeginTabItem("Point Light"))
-        {
-            if (ImGui::Button("Create Point Light Object"))
-                doCreate("PointLight", [](EditorObject& o) { o.pointLight = PointLightEditorComponent{}; });
-            ImGui::EndTabItem();
-        }
-        ImGui::EndTabBar();
-    }
-    ImGui::SeparatorText("Workflow");
-    ImGui::TextDisabled("1) Create object  2) Drag assets onto it  3) Drag objects to parent them");
-
     ImGui::End();
 }
 
