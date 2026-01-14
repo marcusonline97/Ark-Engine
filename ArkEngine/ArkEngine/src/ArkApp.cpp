@@ -95,8 +95,95 @@ App::~App()
 
 void App::Run()
 {
+    double lastTime = glfwGetTime();
+    bool rotating = false;
+    double lastMouseX = 0.0;
+    double lastMouseY = 0.0;
+
     while (!m_Window->ShouldClose())
     {
+        const double now = glfwGetTime();
+        const float dt = static_cast<float>(now - lastTime);
+        lastTime = now;
+
+        // Play mode: possess the primary camera and drive it with basic FPS controls.
+        if (m_EditorUI.IsPlayMode())
+        {
+            EditorObject* camObj = nullptr;
+            for (auto& o : m_Objects)
+            {
+                if (!o.enabled || !o.camera) continue;
+                if (o.camera->primary) { camObj = &o; break; }
+            }
+            if (!camObj)
+            {
+                for (auto& o : m_Objects)
+                {
+                    if (!o.enabled || !o.camera) continue;
+                    camObj = &o;
+                    break;
+                }
+            }
+
+            if (camObj)
+            {
+                const float pitch = camObj->rotationDeg.x;
+                const float yaw = camObj->rotationDeg.y;
+
+                glm::vec3 front;
+                front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+                front.y = sin(glm::radians(pitch));
+                front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+                front = glm::normalize(front);
+
+                const glm::vec3 up(0.0f, 1.0f, 0.0f);
+                const glm::vec3 right = glm::normalize(glm::cross(front, up));
+
+                const float speed = 3.5f;
+                const float move = speed * dt;
+
+                GLFWwindow* w = m_Window->GetNativeHandle();
+                if (glfwGetKey(w, GLFW_KEY_W) == GLFW_PRESS) camObj->position += front * move;
+                if (glfwGetKey(w, GLFW_KEY_S) == GLFW_PRESS) camObj->position -= front * move;
+                if (glfwGetKey(w, GLFW_KEY_D) == GLFW_PRESS) camObj->position += right * move;
+                if (glfwGetKey(w, GLFW_KEY_A) == GLFW_PRESS) camObj->position -= right * move;
+                if (glfwGetKey(w, GLFW_KEY_E) == GLFW_PRESS) camObj->position += up * move;
+                if (glfwGetKey(w, GLFW_KEY_Q) == GLFW_PRESS) camObj->position -= up * move;
+
+                // Hold RMB to rotate the camera.
+                if (glfwGetMouseButton(w, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
+                {
+                    double mx = 0.0, my = 0.0;
+                    glfwGetCursorPos(w, &mx, &my);
+                    if (!rotating)
+                    {
+                        rotating = true;
+                        lastMouseX = mx;
+                        lastMouseY = my;
+                    }
+                    else
+                    {
+                        const double dx = mx - lastMouseX;
+                        const double dy = my - lastMouseY;
+                        lastMouseX = mx;
+                        lastMouseY = my;
+
+                        constexpr float sensitivity = 0.12f;
+                        camObj->rotationDeg.y += static_cast<float>(dx) * sensitivity;
+                        camObj->rotationDeg.x -= static_cast<float>(dy) * sensitivity;
+
+                        // Clamp pitch to avoid gimbal flip.
+                        if (camObj->rotationDeg.x > 89.0f) camObj->rotationDeg.x = 89.0f;
+                        if (camObj->rotationDeg.x < -89.0f) camObj->rotationDeg.x = -89.0f;
+                    }
+                }
+                else
+                {
+                    rotating = false;
+                }
+            }
+        }
+
         glm::vec2 vpSize = m_EditorUI.GetViewportSize();
         int vpW = static_cast<int>(vpSize.x);
         int vpH = static_cast<int>(vpSize.y);

@@ -92,7 +92,7 @@ private:
     void RenderDockspace();
     void RenderMenuBar();
 
-    void RenderViewport();
+    void RenderViewport(std::vector<EditorObject>& objects, int& selectedObjectIndex);
 	void RenderMusicPlayer();
     void RenderHierarchy(std::vector<EditorObject>& objects, int& selectedObjectIndex);
     void RenderInspector(std::vector<EditorObject>& objects, int& selectedObjectIndex);
@@ -123,6 +123,15 @@ private:
     bool m_showImGuiDemo = false;
 
     bool m_playMode = false;
+
+    // Viewport gizmo state (simple drag-based manipulator for now)
+    // 0 = translate (W), 1 = rotate (E), 2 = scale (R)
+    int m_gizmoMode = 0;
+    bool m_gizmoDragging = false;
+    glm::vec2 m_gizmoDragStartMouse{ 0.0f, 0.0f };
+    glm::vec3 m_gizmoStartPos{ 0.0f, 0.0f, 0.0f };
+    glm::vec3 m_gizmoStartRotDeg{ 0.0f, 0.0f, 0.0f };
+    glm::vec3 m_gizmoStartScale{ 1.0f, 1.0f, 1.0f };
 
     std::filesystem::path m_projectRoot;
     std::filesystem::path m_resourcesRoot;
