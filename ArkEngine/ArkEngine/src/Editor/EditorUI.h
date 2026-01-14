@@ -103,7 +103,7 @@ private:
     void RenderMusicPlayer();
 
     void RenderHierarchy(std::vector<EditorObject>& objects, int& selectedObjectIndex);
-
+    void RenderCreatePanel(std::vector<EditorObject>& objects, int& selectedObjectIndex);
     void RenderInspector(std::vector<EditorObject>& objects, int& selectedObjectIndex);
 
 	void RenderMaterials(std::vector<EditorObject>& objects, int& selectedObjectIndex);
