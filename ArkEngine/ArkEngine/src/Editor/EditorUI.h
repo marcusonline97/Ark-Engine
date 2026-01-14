@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include <filesystem>
 #include <optional>
 #include <string>
@@ -53,6 +54,12 @@ struct PointLightEditorComponent
 
 struct EditorObject
 {
+    // Stable identifier for drag/drop & parenting (0 = uninitialized/invalid).
+    std::uint32_t id = 0;
+
+    // Parent object id (0 = root).
+    std::uint32_t parentId = 0;
+
     std::string name = "GameObject";
     bool enabled = true;
     glm::vec3 position{ 0.0f, 0.0f, 0.0f };
@@ -112,6 +119,13 @@ private:
     static std::filesystem::path FindProjectRoot();
     static std::filesystem::path FindResourcesRoot(const std::filesystem::path& projectRoot);
 
+    std::uint32_t AllocateObjectId();
+    void EnsureObjectIds(std::vector<EditorObject>& objects);
+    int FindObjectIndexById(const std::vector<EditorObject>& objects, std::uint32_t id) const;
+    bool WouldCreateCycle(const std::vector<EditorObject>& objects, std::uint32_t childId, std::uint32_t newParentId) const;
+    void ReparentObject(std::vector<EditorObject>& objects, std::uint32_t childId, std::uint32_t newParentId);
+    std::string MakeProjectRelativePath(const std::filesystem::path& p) const;
+
 private:
     bool m_layoutBuilt = false;
 
@@ -149,6 +163,7 @@ private:
 	ArkAudio::MusicPlayer m_music;
 	float m_musicVolume = 0.5f;
 
+    std::uint32_t m_nextObjectId = 1;
 
     // Viewport  
     unsigned int m_viewportTextureId = 0;
