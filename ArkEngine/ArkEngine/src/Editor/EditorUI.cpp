@@ -1116,3 +1116,184 @@ void EditorUI::RenderInspector(std::vector<EditorObject>& objects, int& selected
     ImGui::Separator();
     ImGui::TextUnformatted("Transform");
     ImGui::DragFloat3("Position", &obj.position.x, 0.05f);
+    ImGui::DragFloat3("Rotation (deg)", &obj.rotationDeg.x, 0.25f);
+    ImGui::DragFloat3("Scale", &obj.scale.x, 0.01f, 0.001f, 1000.0f, "%.3f");
+
+    ImGui::Separator();
+    ImGui::TextUnformatted("Rendering");
+    ImGui::ColorEdit3("Tint", &obj.tint.x);
+
+    ImGui::Separator();
+    ImGui::TextUnformatted("Components");
+    ImGui::TextDisabled("Tip: drag assets from Content Browser onto objects (Hierarchy).");
+
+    if (obj.staticMesh)
+    {
+        ImGui::SeparatorText("Static Mesh");
+        ImGui::InputText("Mesh Path", &obj.staticMesh->meshPath);
+        ImGui::InputText("Texture Path", &obj.staticMesh->texturePath);
+    }
+
+    if (obj.skeletalMesh)
+    {
+        ImGui::SeparatorText("Skeletal Mesh");
+        ImGui::InputText("Mesh Path", &obj.skeletalMesh->meshPath);
+        ImGui::InputText("Animation Path", &obj.skeletalMesh->animationPath);
+        ImGui::DragInt("Animation Index", &obj.skeletalMesh->animationIndex, 1.0f, -1, 1024);
+        ImGui::InputText("Texture Path", &obj.skeletalMesh->texturePath);
+    }
+
+    if (obj.camera)
+    {
+        ImGui::SeparatorText("Camera");
+        ImGui::Checkbox("Primary", &obj.camera->primary);
+        ImGui::SliderFloat("FOV (deg)", &obj.camera->fovDeg, 1.0f, 140.0f, "%.1f");
+        ImGui::DragFloat("Near", &obj.camera->nearPlane, 0.01f, 0.001f, 100.0f, "%.3f");
+        ImGui::DragFloat("Far", &obj.camera->farPlane, 1.0f, 1.0f, 50000.0f, "%.1f");
+    }
+
+    if (obj.pointLight)
+    {
+        ImGui::SeparatorText("Point Light");
+        ImGui::ColorEdit3("Color", &obj.pointLight->color.x);
+        ImGui::DragFloat("Intensity", &obj.pointLight->intensity, 0.05f, 0.0f, 1000.0f, "%.2f");
+        ImGui::DragFloat("Radius", &obj.pointLight->radius, 0.05f, 0.0f, 1000.0f, "%.2f");
+    }
+
+    ImGui::End();
+}
+
+void EditorUI::RenderMaterials(std::vector<EditorObject>& objects, int& selectedObjectIndex)
+{
+    if (!ImGui::Begin("Materials"))
+    {
+        ImGui::End();
+        return;
+    }
+
+    ImGui::TextDisabled("This is a placeholder panel (material system is WIP).");
+    ImGui::Separator();
+
+    if (selectedObjectIndex < 0 || selectedObjectIndex >= static_cast<int>(objects.size()))
+    {
+        ImGui::TextDisabled("Select an object to edit its material preset.");
+        ImGui::End();
+        return;
+    }
+
+    EditorObject& obj = objects[static_cast<size_t>(selectedObjectIndex)];
+
+    static const char* kPresets[] = {
+        "Default",
+        "Metal",
+        "Plastic",
+        "Stone",
+        "Emissive"
+    };
+    static constexpr int kPresetCount = 5;
+
+    int preset = obj.materialPreset;
+    if (preset < 0) preset = 0;
+    if (preset >= kPresetCount) preset = 0;
+
+    if (ImGui::Combo("Preset", &preset, kPresets, kPresetCount))
+        obj.materialPreset = preset;
+
+    ImGui::ColorEdit3("Tint", &obj.tint.x);
+    ImGui::End();
+}
+
+void EditorUI::RenderConsole()
+{
+    m_console.Render();
+}
+
+void EditorUI::RenderContentBrowser()
+{
+    std::filesystem::path selected;
+    DrawDirectoryBrowser("Content Browser", m_resourcesRoot, m_contentDir, &selected);
+    if (!selected.empty())
+        m_selectedAsset = selected;
+}
+
+void EditorUI::RenderFileExplorer()
+{
+    std::filesystem::path selected;
+    DrawDirectoryBrowser("File Explorer", m_projectRoot, m_fileDir, &selected);
+    if (!selected.empty())
+        m_selectedFile = selected;
+}
+
+void EditorUI::DrawDirectoryBrowser(
+    const char* id,
+    const std::filesystem::path& root,
+    std::filesystem::path& currentDir,
+    std::filesystem::path* selectedPath)
+{
+    if (!ImGui::Begin(id))
+    {
+        ImGui::End();
+        return;
+    }
+
+    if (currentDir.empty() || !std::filesystem::exists(currentDir))
+        currentDir = root;
+
+    ImGui::TextDisabled("Root: %s", root.string().c_str());
+    ImGui::SameLine();
+    ImGui::TextDisabled("Dir: %s", currentDir.string().c_str());
+
+    if (ImGui::Button("Up") && currentDir != root)
+    {
+        const auto parent = currentDir.parent_path();
+        if (!parent.empty())
+            currentDir = parent;
+        m_dirScanner.RequestScan(currentDir);
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Refresh"))
+        m_dirScanner.RequestScan(currentDir);
+
+    ImGui::Separator();
+
+    std::vector<Ark::Editor::DirectoryEntry> entries;
+    if (!m_dirScanner.TryGetListing(currentDir, entries))
+    {
+        // If not yet cached, request and render an empty list this frame.
+        m_dirScanner.RequestScan(currentDir);
+    }
+
+    ImGui::BeginChild("##dir_list", ImVec2(0, 0), true);
+    for (const auto& e : entries)
+    {
+        ImGui::PushID(e.name.c_str());
+        if (e.isDirectory)
+        {
+            if (ImGui::Selectable((std::string("[DIR] ") + e.name).c_str(), false))
+            {
+                currentDir = e.path;
+                m_dirScanner.RequestScan(currentDir);
+            }
+        }
+        else
+        {
+            if (ImGui::Selectable(e.name.c_str(), false))
+            {
+                if (selectedPath)
+                    *selectedPath = e.path;
+            }
+
+            if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
+            {
+                const std::string rel = MakeProjectRelativePath(e.path);
+                ImGui::SetDragDropPayload(kPayloadAssetPath, rel.c_str(), rel.size() + 1);
+                ImGui::TextUnformatted(rel.c_str());
+                ImGui::EndDragDropSource();
+            }
+        }
+
+        ImGui::PopID();
+    }
+    ImGui::EndChild();
+    ImGui::End();
+}
