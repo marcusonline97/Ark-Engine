@@ -29,6 +29,7 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/Vendor/entt
     ${CMAKE_SOURCE_DIR}/Vendor/imgui/include
     ${CMAKE_SOURCE_DIR}/Vendor/compressonator/include
+    ${CMAKE_SOURCE_DIR}/Vendor/ImGuizmo
 )
 
 # Create executable first
@@ -43,6 +44,7 @@ file(GLOB_RECURSE SOURCES
     "Vendor/lodepng/include/lodepng/*.cpp"
     "Vendor/tinyexr/*.cpp"
     "Vendor/imgui/include/imgui/*.cpp"
+    "Vendor/ImGuizmo/ImGuizmo.cpp"
 )
 
 # Add source files to target

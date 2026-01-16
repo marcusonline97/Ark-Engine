@@ -17,7 +17,7 @@ public:
     std::string ResolveAssetPath(const std::string& relativePath) const;
 
     // Texture cache (returns cached Texture*; ownership stays in manager)
-    Texture* LoadTexture2D(const std::string& relativePath, bool flipY);
+    Texture* LoadTexture2D(const std::string& relativePath, bool flipY, bool generateMipmaps = true);
 
     // Optional: clear cache
     void Clear();

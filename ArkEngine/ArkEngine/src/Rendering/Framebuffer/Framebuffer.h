@@ -1,38 +1,63 @@
 #pragma once
 
-#include <cstdint>
+#include <glad/glad.h>
 
+#include "Viewport/Viewport.h"
+#include "Math/3DMath_util.h"
+
+// TODO: try to merge with the Framebuffer class
 class Framebuffer
 {
+
 public:
-    Framebuffer() = default;
+    Framebuffer();
+
     ~Framebuffer();
 
-    Framebuffer(const Framebuffer&) = delete;
-    Framebuffer& operator=(const Framebuffer&) = delete;
+    void Init(int Width, int Height, int NumFormatComponents, bool IsFloat, bool DepthEnabled, bool NormalEnabled);
 
-    Framebuffer(Framebuffer&& other) noexcept;
-    Framebuffer& operator=(Framebuffer&& other) noexcept;
+    void BindForWriting();
 
-    bool Create(uint32_t width, uint32_t height);
-    void Destroy();
+    void UnbindWriting();
 
-    bool Resize(uint32_t width, uint32_t height);
+    void BindForReading(GLenum TextureUnit);    // TODO: rename to BindColorForReading
 
-    void Bind() const;
-    static void Unbind();
+    void BindNormalForReading(GLenum TextureUnit);
 
-    uint32_t GetColorTextureId() const { return m_colorTex; }
-    uint32_t GetWidth() const { return m_width; }
-    uint32_t GetHeight() const { return m_height; }
+    void BindDepthForReading(GLenum TextureUnit);
+
+    void Clear();
+
+    void ClearColorBuffer(const Vector4f& Color);
+
+    void BlitToWindow();
+
+    GLuint GetTexture() const { return m_colorBuffer; }
+
+    GLuint GetDepthTexture() const { return m_depthBuffer; }
+
+    int GetWidth() const { return m_width; }
+
+    int GetHeight() const { return m_height; }
 
 private:
-    bool Allocate(uint32_t width, uint32_t height);
+    void InitDSA(int Width, int Height, int NumFormatComponents, bool IsFloat, bool DepthEnabled, bool NormalEnabled);
 
-private:
-    uint32_t m_fbo = 0;
-    uint32_t m_colorTex = 0;
-    uint32_t m_depthRbo = 0;
-    uint32_t m_width = 0;
-    uint32_t m_height = 0;
+    void InitNonDSA(int Width, int Height, int NumFormatComponents, bool IsFloat, bool DepthEnabled, bool NormalEnabled);
+
+    void GenerateBuffer(GLuint& Buffer, int Width, int Height, int NumFormatComponents, bool IsFloat);
+
+    void GenerateBufferNonDSA(GLuint& Buffer, int NumFormatComponents, bool IsFloat, int Width, int Height);
+
+    void GenerateBufferDSA(GLuint& Buffer, int NumFormatComponents, bool IsFloat, int Width, int Height);
+
+    void GenerateDepthBuffer(int Width, int Height);
+
+    int m_width = 0;
+    int m_height = 0;
+    GLuint m_fbo = -1;
+    GLuint m_colorBuffer = -1;
+    GLuint m_depthBuffer = -1;
+    GLuint m_normalBuffer = -1;
+    SaveViewport m_saveViewport;
 };

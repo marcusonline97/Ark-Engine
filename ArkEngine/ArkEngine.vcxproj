@@ -71,10 +71,10 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\lodepng\include\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\imgui\include\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\nlohmann_json\include\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\tinyexr\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\SDL3\include\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\GLFW\include\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\physx\include\physx\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\rapidjson\include\;$(ProjectDir)Vendor\assimp\include\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\stb_image\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\glfw\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\soloud\include\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\glad\include\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\compressonator\include\cmp_compressonatorlib\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\</IncludePath>
+    <IncludePath>$(ProjectDir)ArkEngine\Vendor\meshoptimizer\;$(ProjectDir)ArkEngine\Vendor\;$(ProjectDir)ArkEngine\Vendor\Assimp\include\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\lodepng\include\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\imgui\include\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\nlohmann_json\include\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\tinyexr\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\SDL3\include\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\GLFW\include\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\physx\include\physx\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\rapidjson\include\;$(ProjectDir)Vendor\assimp\include\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\stb_image\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\glfw\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\soloud\include\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\glad\include\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\compressonator\include\cmp_compressonatorlib\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\imgui\include\imgui\misc\cpp\imgui_stdlib.cpp;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\lodepng\include\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\imgui\include\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\nlohmann_json\include\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\tinyexr\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\SDL3\include\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\GLFW\include\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\physx\include\physx\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\rapidjson\include\;$(ProjectDir)Vendor\assimp\include\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\stb_image\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\glfw\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\soloud\include\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\glad\include\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\compressonator\include\cmp_compressonatorlib\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\</IncludePath>
+    <IncludePath>$(ProjectDir)ArkEngine\Vendor\;$(ProjectDir)ArkEngine\Vendor\Assimp\include\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\ImGuizmo;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\imgui\include\imgui\misc\cpp\imgui_stdlib.cpp;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\lodepng\include\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\imgui\include\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\nlohmann_json\include\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\tinyexr\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\SDL3\include\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\GLFW\include\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\physx\include\physx\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\rapidjson\include\;$(ProjectDir)Vendor\assimp\include\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\stb_image\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\glfw\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\soloud\include\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\glad\include\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\compressonator\include\cmp_compressonatorlib\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\src\</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -114,8 +114,8 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>user32.lib;gdi32.lib;shell32.lib;advapi32.lib;vulkan-1.lib;glfw3.lib;assimp-vc143-mtd.lib;fmod_vc.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\assimp\lib\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\FMod\lib\;$(SolutionDir)\3rdParty\lib\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\GLFW\lib\release\;$(SolutionDir)\Vendor\GLFW\lib;C:\VulkanSDK\1.4.328.1\Lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>user32.lib;gdi32.lib;shell32.lib;advapi32.lib;vulkan-1.lib;glfw3.lib;assimp-vc143-mtd.lib;fmod_vc.lib;meshoptimizer.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Assimp\lib\;$(ProjectDir)\ArkEngine\Vendor\meshoptimizer\lib\Debug\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\FMod\lib\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Assimp\lib\debug\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\GLFW\lib\release\;$(SolutionDir)\Vendor\GLFW\lib;C:\VulkanSDK\1.4.328.1\Lib</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>
@@ -131,13 +131,13 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)\src\;$(SolutionDir)\Resources\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\compressonator\include\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\;$(SolutionDir)\Vendor\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\meshoptimizer\;$(SolutionDir)\src\;$(SolutionDir)\Resources\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\compressonator\include\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\Vulkan\Include\;$(SolutionDir)\Vendor\</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\assimp\lib\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\FMod\lib\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\GLFW\lib/\release\;$(SolutionDir)\Vendor\GLFW\lib;C:\VulkanSDK\1.4.328.1\Lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>user32.lib;gdi32.lib;shell32.lib;advapi32.lib;vulkan-1.lib;glfw3.lib;assimp-vc143-mt.lib;fmod_vc.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)ArkEngine\Vendor\Assimp\lib\;$(ProjectDir)ArkEngine\Vendor\meshoptimizer\lib\Release\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\FMod\lib\;C:\ArkEngine\Ark-Engine\ArkEngine\ArkEngine\Vendor\GLFW\lib/\release\;$(SolutionDir)\Vendor\GLFW\lib;C:\VulkanSDK\1.4.328.1\Lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>user32.lib;gdi32.lib;shell32.lib;advapi32.lib;vulkan-1.lib;glfw3.lib;assimp-vc143-mt.lib;meshoptimizer.lib;fmod_vc.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>
@@ -151,13 +151,80 @@
     <ClInclude Include="ArkEngine\src\ArkWindow.h" />
     <ClInclude Include="ArkEngine\src\AssetManager.h" />
     <ClInclude Include="ArkEngine\src\AssetManager\AssetManager.h" />
+    <ClInclude Include="ArkEngine\src\AssetManager\ResourceLoader.h" />
+    <ClInclude Include="ArkEngine\src\Camera\BasicCamera.h" />
     <ClInclude Include="ArkEngine\src\Camera\Camera.h" />
+    <ClInclude Include="ArkEngine\src\Camera\Camera_API.h" />
+    <ClInclude Include="ArkEngine\src\Camera\ViewportCamera.h" />
+    <ClInclude Include="ArkEngine\src\Common\IO_Buffer.h" />
+    <ClInclude Include="ArkEngine\src\Common\Pipeline.h" />
+    <ClInclude Include="ArkEngine\src\ECS\Common\Basic_Mesh.h" />
+    <ClInclude Include="ArkEngine\src\ECS\Common\Mesh.h" />
+    <ClInclude Include="ArkEngine\src\ECS\Common\Mesh_Common.h" />
+    <ClInclude Include="ArkEngine\src\ECS\Lights\Lights_common.h" />
+    <ClInclude Include="ArkEngine\src\ECS\SkinnedMesh\Skinned_Mesh.h" />
+    <ClInclude Include="ArkEngine\src\ECS\StaticMeshComponent.h" />
+    <ClInclude Include="ArkEngine\src\Maps\Ect_Cubemap.h" />
+    <ClInclude Include="ArkEngine\src\Maps\InfiniteGrid\InfiniteGrid.h" />
+    <ClInclude Include="ArkEngine\src\Maps\Skybox.h" />
+    <ClInclude Include="ArkEngine\src\Maps\Techniques\Geometry_pass_Technique.h" />
+    <ClInclude Include="ArkEngine\src\Maps\Techniques\Infinite_Grid_Technique.h" />
+    <ClInclude Include="ArkEngine\src\Maps\Techniques\Shadow_Mapping_Technique.h" />
+    <ClInclude Include="ArkEngine\src\Maps\Techniques\Skinning_Technique.h" />
+    <ClInclude Include="ArkEngine\src\Maps\Techniques\Skybox_Technique.h" />
+    <ClInclude Include="ArkEngine\src\Math\3DMath_util.h" />
+    <ClInclude Include="ArkEngine\src\Rendering\Assets\MeshCache.h" />
+    <ClInclude Include="ArkEngine\src\Rendering\Framebuffer\Framebuffer_Object.h" />
+    <ClInclude Include="ArkEngine\src\Rendering\Lightning\Lightning.h" />
+    <ClInclude Include="ArkEngine\src\Rendering\Texture\bitmap.h" />
+    <ClInclude Include="ArkEngine\src\Rendering\Cache\TextureCache.h" />
+    <ClInclude Include="ArkEngine\src\Rendering\Material\Material.h" />
+    <ClInclude Include="ArkEngine\src\Rendering\Mesh\ObjGPUMesh.h" />
+    <ClInclude Include="ArkEngine\src\Rendering\Phong\Phong_Renderer.h" />
+    <ClInclude Include="ArkEngine\src\Rendering\Texture\Cubemap_Texture.h" />
+    <ClInclude Include="ArkEngine\src\Rendering\VertexBuffer\VertexBuffer.h" />
+    <ClInclude Include="ArkEngine\src\Rendering\WorldRendererLegacy.h" />
+    <ClInclude Include="ArkEngine\src\Test\mesh.h" />
+    <ClInclude Include="ArkEngine\src\Utility\ArkTypes.h" />
+    <ClInclude Include="ArkEngine\src\Utility\Common.h" />
+    <ClInclude Include="ArkEngine\src\Utility\MemoryDiagnostics.h" />
+    <ClInclude Include="ArkEngine\src\Utility\SceneIO.h" />
     <ClInclude Include="ArkEngine\src\ECS\Component.h" />
     <ClInclude Include="ArkEngine\src\Editor\DirectoryScanner.h" />
     <ClInclude Include="ArkEngine\src\Editor\EditorUI.h" />
     <ClInclude Include="ArkEngine\src\Editor\ImGuiLayer.h" />
     <ClInclude Include="ArkEngine\src\Editor\Panels\ConsolePanel.h" />
     <ClInclude Include="ArkEngine\src\ImguiStyling.h" />
+    <ClCompile Include="ArkEngine\src\AssetManager\ResourceLoader.cpp" />
+    <ClCompile Include="ArkEngine\src\Camera\BasicCamera.cpp" />
+    <ClCompile Include="ArkEngine\src\Camera\ViewportCamera.cpp" />
+    <ClCompile Include="ArkEngine\src\Common\IO_Buffer.cpp" />
+    <ClCompile Include="ArkEngine\src\Common\Pipeline.cpp" />
+    <ClCompile Include="ArkEngine\src\ECS\Common\Basic_Mesh.cpp" />
+    <ClCompile Include="ArkEngine\src\ECS\Common\Mesh.cpp" />
+    <ClCompile Include="ArkEngine\src\ECS\SkinnedMesh\Skinned_Mesh.cpp" />
+    <ClCompile Include="ArkEngine\src\Maps\Ect_Cubemap.cpp" />
+    <ClCompile Include="ArkEngine\src\Maps\InfiniteGrid\InfiniteGrid.cpp" />
+    <ClCompile Include="ArkEngine\src\Maps\Skybox.cpp" />
+    <ClCompile Include="ArkEngine\src\Maps\Techniques\Geometry_pass_Technique.cpp" />
+    <ClCompile Include="ArkEngine\src\Maps\Techniques\Infinite_Grid_Technique.cpp" />
+    <ClCompile Include="ArkEngine\src\Maps\Techniques\Shadow_Mapping_Technique.cpp" />
+    <ClCompile Include="ArkEngine\src\Maps\Techniques\Skinning_Technique.cpp" />
+    <ClCompile Include="ArkEngine\src\Maps\Techniques\Skybox_Technique.cpp" />
+    <ClCompile Include="ArkEngine\src\Math\3DMath_util.cpp" />
+    <ClCompile Include="ArkEngine\src\Rendering\Assets\MeshCache.cpp" />
+    <ClCompile Include="ArkEngine\src\Rendering\Cache\TextureCache.cpp" />
+    <ClCompile Include="ArkEngine\src\Rendering\Framebuffer\Framebuffer_Object.cpp" />
+    <ClCompile Include="ArkEngine\src\Rendering\Lightning\Lightning.cpp" />
+    <ClCompile Include="ArkEngine\src\Rendering\Mesh\ObjGPUMesh.cpp" />
+    <ClCompile Include="ArkEngine\src\Rendering\Phong\Phong_Renderer.cpp" />
+    <ClCompile Include="ArkEngine\src\Rendering\Texture\Cubemap_Texture.cpp" />
+    <ClCompile Include="ArkEngine\src\Rendering\WorldRendererLegacy.cpp" />
+    <ClCompile Include="ArkEngine\src\Utility\MemoryDiagnostics.cpp" />
+    <ClCompile Include="ArkEngine\src\Utility\Technique.cpp" />
+    <ClCompile Include="ArkEngine\src\Utility\Transform.cpp" />
+    <ClCompile Include="ArkEngine\src\Utility\Util.cpp" />
+    <ClCompile Include="ArkEngine\Vendor\ImGuizmo\ImGuizmo.cpp" />
     <ClInclude Include="ArkEngine\src\Initializer.h" />
     <ClInclude Include="ArkEngine\src\Input\Input.h" />
     <ClInclude Include="ArkEngine\src\Input\KeyCodes.h" />
@@ -167,11 +234,97 @@
     <ClInclude Include="ArkEngine\src\MusicPlayer\MusicPlayer.h" />
     <ClInclude Include="ArkEngine\src\Rendering\Framebuffer\Framebuffer.h" />
     <ClInclude Include="ArkEngine\src\Rendering\Threading\WorldRenderThread.h" />
-    <ClInclude Include="ArkEngine\src\Texture.h" />
+    <ClInclude Include="ArkEngine\src\Rendering\Texture\Texture.h" />
     <ClInclude Include="ArkEngine\src\Shader.h" />
+    <ClInclude Include="ArkEngine\src\Utility\Technique.h" />
+    <ClInclude Include="ArkEngine\src\Utility\Transform.h" />
+    <ClInclude Include="ArkEngine\src\Utility\Util.h" />
     <ClInclude Include="ArkEngine\src\Utility\Utility.h" />
+    <ClInclude Include="ArkEngine\src\Viewport\Viewport.h" />
+    <ClInclude Include="ArkEngine\Vendor\Assimp\include\assimp\aabb.h" />
+    <ClInclude Include="ArkEngine\Vendor\Assimp\include\assimp\ai_assert.h" />
+    <ClInclude Include="ArkEngine\Vendor\Assimp\include\assimp\anim.h" />
+    <ClInclude Include="ArkEngine\Vendor\Assimp\include\assimp\AssertHandler.h" />
+    <ClInclude Include="ArkEngine\Vendor\Assimp\include\assimp\Base64.hpp" />
+    <ClInclude Include="ArkEngine\Vendor\Assimp\include\assimp\BaseImporter.h" />
+    <ClInclude Include="ArkEngine\Vendor\Assimp\include\assimp\Bitmap.h" />
+    <ClInclude Include="ArkEngine\Vendor\Assimp\include\assimp\BlobIOSystem.h" />
+    <ClInclude Include="ArkEngine\Vendor\Assimp\include\assimp\ByteSwapper.h" />
+    <ClInclude Include="ArkEngine\Vendor\Assimp\include\assimp\camera.h" />
+    <ClInclude Include="ArkEngine\Vendor\Assimp\include\assimp\cexport.h" />
+    <ClInclude Include="ArkEngine\Vendor\Assimp\include\assimp\cfileio.h" />
+    <ClInclude Include="ArkEngine\Vendor\Assimp\include\assimp\cimport.h" />
+    <ClInclude Include="ArkEngine\Vendor\Assimp\include\assimp\ColladaMetaData.h" />
+    <ClInclude Include="ArkEngine\Vendor\Assimp\include\assimp\color4.h" />
+    <ClInclude Include="ArkEngine\Vendor\Assimp\include\assimp\commonMetaData.h" />
+    <ClInclude Include="ArkEngine\Vendor\Assimp\include\assimp\Compiler\poppack1.h" />
+    <ClInclude Include="ArkEngine\Vendor\Assimp\include\assimp\Compiler\pstdint.h" />
+    <ClInclude Include="ArkEngine\Vendor\Assimp\include\assimp\Compiler\pushpack1.h" />
+    <ClInclude Include="ArkEngine\Vendor\Assimp\include\assimp\config.h" />
+    <ClInclude Include="ArkEngine\Vendor\Assimp\include\assimp\CreateAnimMesh.h" />
+    <ClInclude Include="ArkEngine\Vendor\Assimp\include\assimp\DefaultIOStream.h" />
+    <ClInclude Include="ArkEngine\Vendor\Assimp\include\assimp\DefaultIOSystem.h" />
+    <ClInclude Include="ArkEngine\Vendor\Assimp\include\assimp\DefaultLogger.hpp" />
+    <ClInclude Include="ArkEngine\Vendor\Assimp\include\assimp\defs.h" />
+    <ClInclude Include="ArkEngine\Vendor\Assimp\include\assimp\Exceptional.h" />
+    <ClInclude Include="ArkEngine\Vendor\Assimp\include\assimp\Exporter.hpp" />
+    <ClInclude Include="ArkEngine\Vendor\Assimp\include\assimp\fast_atof.h" />
+    <ClInclude Include="ArkEngine\Vendor\Assimp\include\assimp\GenericProperty.h" />
+    <ClInclude Include="ArkEngine\Vendor\Assimp\include\assimp\GltfMaterial.h" />
+    <ClInclude Include="ArkEngine\Vendor\Assimp\include\assimp\Hash.h" />
+    <ClInclude Include="ArkEngine\Vendor\Assimp\include\assimp\Importer.hpp" />
+    <ClInclude Include="ArkEngine\Vendor\Assimp\include\assimp\importerdesc.h" />
+    <ClInclude Include="ArkEngine\Vendor\Assimp\include\assimp\IOStream.hpp" />
+    <ClInclude Include="ArkEngine\Vendor\Assimp\include\assimp\IOStreamBuffer.h" />
+    <ClInclude Include="ArkEngine\Vendor\Assimp\include\assimp\IOSystem.hpp" />
+    <ClInclude Include="ArkEngine\Vendor\Assimp\include\assimp\light.h" />
+    <ClInclude Include="ArkEngine\Vendor\Assimp\include\assimp\LineSplitter.h" />
+    <ClInclude Include="ArkEngine\Vendor\Assimp\include\assimp\LogAux.h" />
+    <ClInclude Include="ArkEngine\Vendor\Assimp\include\assimp\Logger.hpp" />
+    <ClInclude Include="ArkEngine\Vendor\Assimp\include\assimp\LogStream.hpp" />
+    <ClInclude Include="ArkEngine\Vendor\Assimp\include\assimp\material.h" />
+    <ClInclude Include="ArkEngine\Vendor\Assimp\include\assimp\MathFunctions.h" />
+    <ClInclude Include="ArkEngine\Vendor\Assimp\include\assimp\matrix3x3.h" />
+    <ClInclude Include="ArkEngine\Vendor\Assimp\include\assimp\matrix4x4.h" />
+    <ClInclude Include="ArkEngine\Vendor\Assimp\include\assimp\MemoryIOWrapper.h" />
+    <ClInclude Include="ArkEngine\Vendor\Assimp\include\assimp\mesh.h" />
+    <ClInclude Include="ArkEngine\Vendor\Assimp\include\assimp\metadata.h" />
+    <ClInclude Include="ArkEngine\Vendor\Assimp\include\assimp\NullLogger.hpp" />
+    <ClInclude Include="ArkEngine\Vendor\Assimp\include\assimp\ObjMaterial.h" />
+    <ClInclude Include="ArkEngine\Vendor\Assimp\include\assimp\ParsingUtils.h" />
+    <ClInclude Include="ArkEngine\Vendor\Assimp\include\assimp\pbrmaterial.h" />
+    <ClInclude Include="ArkEngine\Vendor\Assimp\include\assimp\postprocess.h" />
+    <ClInclude Include="ArkEngine\Vendor\Assimp\include\assimp\Profiler.h" />
+    <ClInclude Include="ArkEngine\Vendor\Assimp\include\assimp\ProgressHandler.hpp" />
+    <ClInclude Include="ArkEngine\Vendor\Assimp\include\assimp\qnan.h" />
+    <ClInclude Include="ArkEngine\Vendor\Assimp\include\assimp\quaternion.h" />
+    <ClInclude Include="ArkEngine\Vendor\Assimp\include\assimp\RemoveComments.h" />
+    <ClInclude Include="ArkEngine\Vendor\Assimp\include\assimp\scene.h" />
+    <ClInclude Include="ArkEngine\Vendor\Assimp\include\assimp\SceneCombiner.h" />
+    <ClInclude Include="ArkEngine\Vendor\Assimp\include\assimp\SGSpatialSort.h" />
+    <ClInclude Include="ArkEngine\Vendor\Assimp\include\assimp\SkeletonMeshBuilder.h" />
+    <ClInclude Include="ArkEngine\Vendor\Assimp\include\assimp\SmallVector.h" />
+    <ClInclude Include="ArkEngine\Vendor\Assimp\include\assimp\SmoothingGroups.h" />
+    <ClInclude Include="ArkEngine\Vendor\Assimp\include\assimp\SpatialSort.h" />
+    <ClInclude Include="ArkEngine\Vendor\Assimp\include\assimp\StandardShapes.h" />
+    <ClInclude Include="ArkEngine\Vendor\Assimp\include\assimp\StreamReader.h" />
+    <ClInclude Include="ArkEngine\Vendor\Assimp\include\assimp\StreamWriter.h" />
+    <ClInclude Include="ArkEngine\Vendor\Assimp\include\assimp\StringComparison.h" />
+    <ClInclude Include="ArkEngine\Vendor\Assimp\include\assimp\StringUtils.h" />
+    <ClInclude Include="ArkEngine\Vendor\Assimp\include\assimp\Subdivision.h" />
+    <ClInclude Include="ArkEngine\Vendor\Assimp\include\assimp\texture.h" />
+    <ClInclude Include="ArkEngine\Vendor\Assimp\include\assimp\TinyFormatter.h" />
+    <ClInclude Include="ArkEngine\Vendor\Assimp\include\assimp\types.h" />
+    <ClInclude Include="ArkEngine\Vendor\Assimp\include\assimp\vector2.h" />
+    <ClInclude Include="ArkEngine\Vendor\Assimp\include\assimp\vector3.h" />
+    <ClInclude Include="ArkEngine\Vendor\Assimp\include\assimp\version.h" />
+    <ClInclude Include="ArkEngine\Vendor\Assimp\include\assimp\Vertex.h" />
+    <ClInclude Include="ArkEngine\Vendor\Assimp\include\assimp\XmlParser.h" />
+    <ClInclude Include="ArkEngine\Vendor\Assimp\include\assimp\XMLTools.h" />
+    <ClInclude Include="ArkEngine\Vendor\Assimp\include\assimp\ZipArchiveIOSystem.h" />
     <ClInclude Include="ArkEngine\Vendor\imgui\include\imgui\misc\cpp\imgui_stdlib.h" />
     <ClInclude Include="ArkEngine\Vendor\stb_image\stb_image.h" />
+    <ClInclude Include="ArkEngine\Vendor\stb_image\stb_image_write.h" />
     <ClInclude Include="Vendor\glm\common.hpp" />
     <ClInclude Include="Vendor\glm\detail\compute_common.hpp" />
     <ClInclude Include="Vendor\glm\detail\compute_vector_decl.hpp" />
@@ -464,8 +617,20 @@
   <ItemGroup>
     <None Include="ArkEngine\Resources\Shaders\fragment.glsl" />
     <None Include="ArkEngine\Resources\Shaders\vertex.glsl" />
+    <None Include="ArkEngine\Resources\Shaders\viewport_textured.frag" />
+    <None Include="ArkEngine\Resources\Shaders\viewport_textured.vert" />
     <None Include="ArkEngine\src\Rendering\shaders\fragment.glsl" />
     <None Include="ArkEngine\src\Rendering\shaders\vertex.glsl" />
+    <None Include="ArkEngine\Vendor\Assimp\include\assimp\color4.inl" />
+    <None Include="ArkEngine\Vendor\Assimp\include\assimp\material.inl" />
+    <None Include="ArkEngine\Vendor\Assimp\include\assimp\matrix3x3.inl" />
+    <None Include="ArkEngine\Vendor\Assimp\include\assimp\matrix4x4.inl" />
+    <None Include="ArkEngine\Vendor\Assimp\include\assimp\quaternion.inl" />
+    <None Include="ArkEngine\Vendor\Assimp\include\assimp\SmoothingGroups.inl" />
+    <None Include="ArkEngine\Vendor\Assimp\include\assimp\vector2.inl" />
+    <None Include="ArkEngine\Vendor\Assimp\include\assimp\vector3.inl" />
+    <None Include="ArkEngine\Vendor\Assimp\lib\debug\assimp-vc143-mtd.pdb" />
+    <None Include="ArkEngine\Vendor\Assimp\lib\release\assimp-vc143-mt.pdb" />
     <None Include="Vendor\glm\detail\func_common.inl" />
     <None Include="Vendor\glm\detail\func_common_simd.inl" />
     <None Include="Vendor\glm\detail\func_exponential.inl" />
@@ -629,8 +794,9 @@
     <ClCompile Include="ArkEngine\src\MusicPlayer\MusicPlayer.cpp" />
     <ClCompile Include="ArkEngine\src\Rendering\Framebuffer\Framebuffer.cpp" />
     <ClCompile Include="ArkEngine\src\Rendering\Threading\WorldRenderThread.cpp" />
-    <ClCompile Include="ArkEngine\src\Texture.cpp" />
+    <ClCompile Include="ArkEngine\src\Rendering\Texture\Texture.cpp" />
     <ClCompile Include="ArkEngine\src\Shader.cpp" />
+    <ClCompile Include="ArkEngine\src\Utility\SceneIO.cpp" />
     <ClCompile Include="ArkEngine\src\Utility\Utility.cpp" />
     <ClCompile Include="ArkEngine\Vendor\GLAD\src\glad.c" />
     <ClCompile Include="ArkEngine\Vendor\imgui\include\imgui\backends\imgui_impl_glfw.cpp" />
@@ -645,6 +811,10 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="ArkEngine\Resources\Textures\BathroomFloor_ALB.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="ArkEngine\Vendor\meshoptimizer\lib\Debug\meshoptimizer.lib" />
+    <Library Include="ArkEngine\Vendor\meshoptimizer\lib\Release\meshoptimizer.lib" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

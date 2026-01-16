@@ -4,15 +4,33 @@
 #include <cstdio>
 #include <unordered_map>
 
+#include <glm/gtc/matrix_transform.hpp>
+
 #include <imgui/imgui.h>
 #include <imgui/imgui_internal.h>
 #include <imgui/misc/cpp/imgui_stdlib.h>
+
+#include "ImGuizmo/ImGuizmo.h"
+#include "Input/Input.h"
+#include "Input/KeyCodes.h"
+
 #include <Utility/Utility.h>
 
 namespace
 {
     constexpr const char* kPayloadEditorObject = "ARK_EDITOR_OBJECT_ID";
     constexpr const char* kPayloadAssetPath = "ARK_EDITOR_ASSET_PATH";
+    static glm::vec3 ComputeForward(float pitchDeg, float yawDeg)
+    {
+        glm::vec3 front;
+        const float pitch = glm::radians(pitchDeg);
+        const float yaw = glm::radians(yawDeg);
+
+        front.x = cos(yaw) * cos(pitch);
+        front.y = sin(pitch);
+        front.z = sin(yaw) * cos(pitch);
+        return glm::normalize(front);
+    }
 }
 
 std::uint32_t EditorUI::AllocateObjectId()
@@ -61,6 +79,17 @@ bool EditorUI::WouldCreateCycle(const std::vector<EditorObject>& objects, std::u
         cur = obj.parentId;
     }
     return false;
+}
+
+Ark::Rendering::WorldCameraInput EditorUI::GetEditorViewportCamera() const
+{
+    Ark::Rendering::WorldCameraInput cam{};
+    cam.position = m_editorCamPos;
+    cam.pitchYawDeg = glm::vec2(m_editorCamPitchDeg, m_editorCamYawDeg);
+    cam.fovDeg = m_editorCamFovDeg;
+    cam.nearPlane = m_editorCamNear;
+    cam.farPlane = m_editorCamFar;
+    return cam;
 }
 
 void EditorUI::ReparentObject(std::vector<EditorObject>& objects, std::uint32_t childId, std::uint32_t newParentId)
@@ -155,7 +184,6 @@ void EditorUI::Shutdown()
 void EditorUI::PushLog(Logging::Level level, std::string_view msg)
 {
     m_console.PushLog(level, msg);
-
 }
 
 void EditorUI::Render(std::vector<EditorObject>& objects, int& selectedObjectIndex)
@@ -425,8 +453,26 @@ void EditorUI::RenderMenuBar()
     if (!ImGui::BeginMenuBar())
         return;
 
+    {
+        ImGuiIO& io = ImGui::GetIO();
+        const bool ctrl = io.KeyCtrl;
+
+        if (ctrl && ImGui::IsKeyPressed(ImGuiKey_S, false))
+            m_requestSaveScene = true;
+
+        if (ctrl && ImGui::IsKeyPressed(ImGuiKey_O, false))
+            m_requestLoadScene = true;
+    }
+
+
     if (ImGui::BeginMenu("File"))
     {
+        // inside EditorUI::RenderMenuBar(), in the "File" menu
+        if (ImGui::MenuItem("Save Scene", "Ctrl+S"))
+            m_requestSaveScene = true;
+
+        if (ImGui::MenuItem("Load Scene", "Ctrl+O"))
+            m_requestLoadScene = true;
         if (ImGui::MenuItem("Reset Layout"))
             m_layoutBuilt = false;
         if (ImGui::MenuItem("Quit"))
@@ -488,8 +534,10 @@ void EditorUI::RenderViewport(std::vector<EditorObject>& objects, int& selectedO
         {
             const ImVec2 availableSize = ImGui::GetContentRegionAvail();
             m_viewportSize = glm::vec2(availableSize.x, availableSize.y);
-            // Viewport toolbar (edit gizmos + play mode)
+
+            // Toolbar
             {
+
                 const bool canEdit = !m_playMode;
                 ImGui::TextDisabled("Gizmo:");
                 ImGui::SameLine();
@@ -508,89 +556,153 @@ void EditorUI::RenderViewport(std::vector<EditorObject>& objects, int& selectedO
                 if (ImGui::SmallButton(m_playMode ? "Stop (F5)" : "Play (F5)"))
                     m_playMode = !m_playMode;
 
+                // inside EditorUI::RenderViewport, where you have the tab bar
+
+                if (ImGui::BeginTabItem("Rendering"))
+                {
+                    ImGui::Checkbox("Wireframe", &m_wireframeEnabled);
+                    ImGui::Checkbox("Use Mipmaps", &m_useMipmaps);
+                    ImGui::TextDisabled("Applies to the rendered scene (WorldRenderThread). Individual objects can override.");
+                    ImGui::EndTabItem();
+                }
+
                 ImGui::Separator();
             }
 
+            ImVec2 imageMin(0, 0);
+            ImVec2 imageMax(0, 0);
+
             if (m_viewportTextureId != 0 && availableSize.x > 1.0f && availableSize.y > 1.0f)
             {
+                imageMin = ImGui::GetCursorScreenPos();
+
                 ImGui::Image(
                     static_cast<ImTextureID>(m_viewportTextureId),
                     availableSize,
                     ImVec2(0.0f, 1.0f),
                     ImVec2(1.0f, 0.0f)
                 );
-            }
 
-            // Simple viewport gizmo: click+drag over the viewport image to transform the selected object.
-            // - W/E/R switches mode (Translate/Rotate/Scale) when the viewport is hovered.
-            // - This is intentionally a "data-first" gizmo until a full 3D handle renderer is added.
-            const bool hasSelection = (selectedObjectIndex >= 0 && selectedObjectIndex < static_cast<int>(objects.size()));
-            const bool imgHovered = ImGui::IsItemHovered();
-            ImGuiIO& io = ImGui::GetIO();
+                imageMax = ImGui::GetItemRectMax();
 
-            if (imgHovered)
-            {
-                if (ImGui::IsKeyPressed(ImGuiKey_W)) m_gizmoMode = 0;
-                if (ImGui::IsKeyPressed(ImGuiKey_E)) m_gizmoMode = 1;
-                if (ImGui::IsKeyPressed(ImGuiKey_R)) m_gizmoMode = 2;
-                if (ImGui::IsKeyPressed(ImGuiKey_F5)) m_playMode = !m_playMode;
-            }
+                const bool imgHovered = ImGui::IsItemHovered();
+                ImGuiIO& io = ImGui::GetIO();
 
-            if (!m_playMode && hasSelection)
-            {
-                EditorObject& obj = objects[static_cast<size_t>(selectedObjectIndex)];
-
-                if (!m_gizmoDragging && imgHovered && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+                // Hotkeys only when viewport is hovered
+                if (imgHovered)
                 {
-                    m_gizmoDragging = true;
-                    m_gizmoDragStartMouse = glm::vec2(io.MousePos.x, io.MousePos.y);
-                    m_gizmoStartPos = obj.position;
-                    m_gizmoStartRotDeg = obj.rotationDeg;
-                    m_gizmoStartScale = obj.scale;
+                    if (ImGui::IsKeyPressed(ImGuiKey_W)) m_gizmoMode = 0;
+                    if (ImGui::IsKeyPressed(ImGuiKey_E)) m_gizmoMode = 1;
+                    if (ImGui::IsKeyPressed(ImGuiKey_R)) m_gizmoMode = 2;
+                    if (ImGui::IsKeyPressed(ImGuiKey_F5)) m_playMode = !m_playMode;
                 }
 
-                if (m_gizmoDragging)
+                // EDIT MODE CAMERA CONTROLS (WASD + RMB look) only when hovered and not using gizmo.
+                const bool allowViewportCameraInput = imgHovered && !m_playMode && !ImGuizmo::IsUsing();
+
+                if (allowViewportCameraInput)
                 {
-                    if (ImGui::IsMouseReleased(ImGuiMouseButton_Left))
+                    const float dt = io.DeltaTime;
+                    const float baseSpeed = 3.5f;
+                    const float fastMul = Ark::Input::IsKeyDown(ARK_KEY_LEFT_SHIFT) ? 3.0f : 1.0f;
+                    const float move = baseSpeed * fastMul * dt;
+
+                    const glm::vec3 forward = ComputeForward(m_editorCamPitchDeg, m_editorCamYawDeg);
+                    const glm::vec3 up(0.0f, 1.0f, 0.0f);
+                    const glm::vec3 right = glm::normalize(glm::cross(forward, up));
+
+                    if (Ark::Input::IsKeyDown(ARK_KEY_W)) m_editorCamPos += forward * move;
+                    if (Ark::Input::IsKeyDown(ARK_KEY_S)) m_editorCamPos -= forward * move;
+                    if (Ark::Input::IsKeyDown(ARK_KEY_D)) m_editorCamPos += right * move;
+                    if (Ark::Input::IsKeyDown(ARK_KEY_A)) m_editorCamPos -= right * move;
+                    if (Ark::Input::IsKeyDown(ARK_KEY_E)) m_editorCamPos += up * move;
+                    if (Ark::Input::IsKeyDown(ARK_KEY_Q)) m_editorCamPos -= up * move;
+
+                    const bool rmbDown = Ark::Input::IsMouseDown(ARK_MOUSE_RIGHT);
+                    if (rmbDown)
                     {
-                        m_gizmoDragging = false;
+                        if (!m_viewportRmbLooking)
+                        {
+                            m_viewportRmbLooking = true;
+                            m_viewportLastMouse = io.MousePos;
+                        }
+                        else
+                        {
+                            const ImVec2 delta(io.MousePos.x - m_viewportLastMouse.x, io.MousePos.y - m_viewportLastMouse.y);
+                            m_viewportLastMouse = io.MousePos;
+
+                            constexpr float sensitivity = 0.12f;
+                            m_editorCamYawDeg += delta.x * sensitivity;
+                            m_editorCamPitchDeg -= delta.y * sensitivity;
+
+                            if (m_editorCamPitchDeg > 89.0f) m_editorCamPitchDeg = 89.0f;
+                            if (m_editorCamPitchDeg < -89.0f) m_editorCamPitchDeg = -89.0f;
+                        }
                     }
-                    else if (ImGui::IsMouseDown(ImGuiMouseButton_Left))
+                    else
                     {
-                        const glm::vec2 mouseNow(io.MousePos.x, io.MousePos.y);
-                        const glm::vec2 delta = mouseNow - m_gizmoDragStartMouse;
-
-                        // Tunables (screen-space -> world/deg scaling)
-                        constexpr float kTranslate = 0.01f;
-                        constexpr float kRotate = 0.15f;
-                        constexpr float kScale = 0.01f;
-
-                        if (m_gizmoMode == 0)
-                        {
-                            obj.position = m_gizmoStartPos + glm::vec3(delta.x * kTranslate, -delta.y * kTranslate, 0.0f);
-                        }
-                        else if (m_gizmoMode == 1)
-                        {
-                            obj.rotationDeg = m_gizmoStartRotDeg + glm::vec3(delta.y * kRotate, delta.x * kRotate, 0.0f);
-                        }
-                        else if (m_gizmoMode == 2)
-                        {
-                            const float uniform = 1.0f + (-delta.y * kScale);
-                            const float s = (uniform < 0.001f) ? 0.001f : uniform;
-                            obj.scale = m_gizmoStartScale * s;
-                        }
+                        m_viewportRmbLooking = false;
                     }
                 }
+                else
+                {
+                    // Stop look state when leaving viewport / starting gizmo drag.
+                    m_viewportRmbLooking = false;
+                }
 
-                // Minimal on-viewport hint.
-                const char* modeName = (m_gizmoMode == 0) ? "Translate" : (m_gizmoMode == 1) ? "Rotate" : "Scale";
-                ImVec2 hintPos = ImGui::GetItemRectMin();
-                hintPos.x += 10.0f;
-                hintPos.y += 10.0f;
-                ImGui::SetCursorScreenPos(hintPos);
-                ImGui::TextDisabled("%s%s", modeName, m_gizmoDragging ? " (dragging)" : "");
+                const bool hasSelection = (selectedObjectIndex >= 0 && selectedObjectIndex < static_cast<int>(objects.size()));
+
+                if (!m_playMode && hasSelection)
+                {
+                    EditorObject& obj = objects[static_cast<size_t>(selectedObjectIndex)];
+
+                    // Use editor camera (NOT a fixed lookAt) for gizmo matrices
+                    const glm::vec3 camPos = m_editorCamPos;
+                    const glm::vec3 camForward = ComputeForward(m_editorCamPitchDeg, m_editorCamYawDeg);
+                    const glm::mat4 view = glm::lookAt(camPos, camPos + camForward, glm::vec3(0, 1, 0));
+
+                    const float aspect = (availableSize.y > 1.0f) ? (availableSize.x / availableSize.y) : 1.0f;
+                    const glm::mat4 projection = glm::perspective(glm::radians(m_editorCamFovDeg), aspect, m_editorCamNear, m_editorCamFar);
+
+                    glm::mat4 model(1.0f);
+                    {
+                        const glm::mat4 rotX = glm::rotate(glm::mat4(1.0f), glm::radians(obj.rotationDeg.x), glm::vec3(1, 0, 0));
+                        const glm::mat4 rotY = glm::rotate(glm::mat4(1.0f), glm::radians(obj.rotationDeg.y), glm::vec3(0, 1, 0));
+                        const glm::mat4 rotZ = glm::rotate(glm::mat4(1.0f), glm::radians(obj.rotationDeg.z), glm::vec3(0, 0, 1));
+                        const glm::mat4 rot = rotZ * rotY * rotX;
+                        model = glm::translate(glm::mat4(1.0f), obj.position) * rot * glm::scale(glm::mat4(1.0f), obj.scale);
+                    }
+
+                    // Important: draw gizmo in viewport rect
+                    ImGuizmo::SetDrawlist(ImGui::GetWindowDrawList());
+                    ImGuizmo::SetRect(imageMin.x, imageMin.y, availableSize.x, availableSize.y);
+
+                    ImGuizmo::OPERATION op = ImGuizmo::TRANSLATE;
+                    if (m_gizmoMode == 1) op = ImGuizmo::ROTATE;
+                    if (m_gizmoMode == 2) op = ImGuizmo::SCALE;
+
+                    ImGuizmo::MODE mode = (op == ImGuizmo::TRANSLATE) ? ImGuizmo::WORLD : ImGuizmo::LOCAL;
+
+                    glm::mat4 modelCopy = model;
+
+                    // This is what enables "press gizmo inside viewport and drag it"
+                    ImGuizmo::Manipulate(
+                        &view[0][0],
+                        &projection[0][0],
+                        op,
+                        mode,
+                        &modelCopy[0][0]);
+
+                    if (ImGuizmo::IsUsing())
+                    {
+                        float t[3]{}, r[3]{}, s[3]{};
+                        ImGuizmo::DecomposeMatrixToComponents(&modelCopy[0][0], t, r, s);
+                        obj.position = glm::vec3(t[0], t[1], t[2]);
+                        obj.rotationDeg = glm::vec3(r[0], r[1], r[2]);
+                        obj.scale = glm::vec3(s[0], s[1], s[2]);
+                    }
+                }
             }
-
             else
             {
                 ImGui::TextUnformatted("Viewport (waiting for scene render)");
@@ -1171,7 +1283,7 @@ void EditorUI::RenderHierarchy(std::vector<EditorObject>& objects, int& selected
 
                         ImGui::Checkbox("Primary", &obj.camera->primary);
                         ImGui::SliderFloat("FOV (deg)", &obj.camera->fovDeg, 1.0f, 140.0f, "%.1f");
-                        ImGui::DragFloat("Near", &obj.camera->nearPlane, 0.01f, 0.001f, 100.0f, "%.3f");
+                        ImGui::DragFloat("Near", &obj.camera->nearPlane, 0.01f, 0.001f, 1000.0f, "%.3f");
                         ImGui::DragFloat("Far", &obj.camera->farPlane, 1.0f, 1.0f, 50000.0f, "%.1f");
                         if (ImGui::SmallButton("Remove##Camera")) obj.camera.reset();
                         ImGui::TreePop();
@@ -1264,7 +1376,19 @@ void EditorUI::RenderHierarchy(std::vector<EditorObject>& objects, int& selected
     }
     ImGui::End();
 }
+bool EditorUI::ConsumeSaveSceneRequested()
+{
+    const bool v = m_requestSaveScene;
+    m_requestSaveScene = false;
+    return v;
+}
 
+bool EditorUI::ConsumeLoadSceneRequested()
+{
+    const bool v = m_requestLoadScene;
+    m_requestLoadScene = false;
+    return v;
+}
 
 void EditorUI::RenderInspector(std::vector<EditorObject>& objects, int& selectedObjectIndex)
 {
@@ -1281,16 +1405,165 @@ void EditorUI::RenderInspector(std::vector<EditorObject>& objects, int& selected
         return;
     }
 
-    EditorObject& obj = objects[selectedObjectIndex];
+    EditorObject& obj = objects[static_cast<size_t>(selectedObjectIndex)];
 
+    // Header
     ImGui::Checkbox("Enabled", &obj.enabled);
     ImGui::SameLine();
     ImGui::SetNextItemWidth(-1.0f);
     ImGui::InputText("##ObjectName", &obj.name);
 
+    // Transform
     ImGui::Separator();
     ImGui::TextUnformatted("Transform");
+
+    if (ImGui::Button("Reset##TransformReset"))
+    {
+        obj.position = glm::vec3(0.0f);
+        obj.rotationDeg = glm::vec3(0.0f);
+        obj.scale = glm::vec3(1.0f);
+    }
+
     ImGui::DragFloat3("Position", &obj.position.x, 0.05f);
+    ImGui::DragFloat3("Rotation (deg)", &obj.rotationDeg.x, 0.25f);
+    ImGui::DragFloat3("Scale", &obj.scale.x, 0.05f, 0.001f, 1000.0f);
+
+    // Material
+    ImGui::Separator();
+    ImGui::TextUnformatted("Material");
+    ImGui::ColorEdit3("Tint", &obj.tint.x);
+
+    static const char* kPresets[] =
+    {
+        "Default",
+        "Matte",
+        "Glossy",
+        "Metal",
+        "Emissive",
+    };
+    ImGui::Combo("Preset", &obj.materialPreset, kPresets, static_cast<int>(IM_ARRAYSIZE(kPresets)));
+
+    // Mesh / asset bindings
+    ImGui::Separator();
+    ImGui::TextUnformatted("Mesh / Assets");
+
+    const auto applyDroppedAsset = [&](const char* dropped)
+        {
+            if (!dropped || dropped[0] == '\0')
+                return;
+
+            const std::filesystem::path p(dropped);
+            std::string ext = p.has_extension() ? p.extension().string() : std::string();
+            std::transform(ext.begin(), ext.end(), ext.begin(),
+                [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+
+            const bool isMesh = (ext == ".fbx" || ext == ".obj" || ext == ".gltf" || ext == ".glb" || ext == ".dae");
+            const bool isImage = (ext == ".png" || ext == ".jpg" || ext == ".jpeg" || ext == ".bmp" || ext == ".tga" || ext == ".dds");
+
+            if (isMesh)
+            {
+                if (!obj.staticMesh && !obj.skeletalMesh)
+                    obj.staticMesh = StaticMeshEditorComponent{};
+
+                if (obj.staticMesh)
+                    obj.staticMesh->meshPath = dropped;
+                else if (obj.skeletalMesh)
+                    obj.skeletalMesh->meshPath = dropped;
+            }
+            else if (isImage)
+            {
+                if (!obj.staticMesh && !obj.skeletalMesh)
+                    obj.staticMesh = StaticMeshEditorComponent{};
+
+                if (obj.staticMesh)
+                    obj.staticMesh->texturePath = dropped;
+                else if (obj.skeletalMesh)
+                    obj.skeletalMesh->texturePath = dropped;
+            }
+        };
+
+    const auto acceptMeshDropToString = [&](std::string& dst)
+        {
+            if (!ImGui::BeginDragDropTarget())
+                return;
+
+            if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(kPayloadAssetPath))
+            {
+                const char* dropped = static_cast<const char*>(payload->Data);
+                if (dropped && dropped[0] != '\0')
+                {
+                    const std::filesystem::path p(dropped);
+                    std::string ext = p.has_extension() ? p.extension().string() : std::string();
+                    std::transform(ext.begin(), ext.end(), ext.begin(),
+                        [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+
+                    const bool isMesh = (ext == ".fbx" || ext == ".obj" || ext == ".gltf" || ext == ".glb" || ext == ".dae");
+                    if (isMesh)
+                        dst = dropped;
+                }
+            }
+
+            ImGui::EndDragDropTarget();
+        };
+
+    if (obj.staticMesh)
+    {
+        if (ImGui::CollapsingHeader("Static Mesh", ImGuiTreeNodeFlags_DefaultOpen))
+        {
+            ImGui::InputText("Mesh Path", &obj.staticMesh->meshPath);
+            acceptMeshDropToString(obj.staticMesh->meshPath);
+
+            ImGui::InputText("Material Path", &obj.staticMesh->materialPath);
+            ImGui::InputText("Texture Path", &obj.staticMesh->texturePath);
+
+            ImGui::TextDisabled("Tip: drag-drop a mesh/texture from Content Browser onto this section or the Mesh Path field.");
+
+            if (ImGui::BeginDragDropTarget())
+            {
+                if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(kPayloadAssetPath))
+                {
+                    const char* dropped = static_cast<const char*>(payload->Data);
+                    applyDroppedAsset(dropped);
+                }
+                ImGui::EndDragDropTarget();
+            }
+
+            if (ImGui::Button("Remove Static Mesh"))
+                obj.staticMesh.reset();
+        }
+    }
+    else if (obj.skeletalMesh)
+    {
+        if (ImGui::CollapsingHeader("Skeletal Mesh", ImGuiTreeNodeFlags_DefaultOpen))
+        {
+            ImGui::InputText("Mesh Path", &obj.skeletalMesh->meshPath);
+            acceptMeshDropToString(obj.skeletalMesh->meshPath);
+
+            ImGui::InputText("Animation Path", &obj.skeletalMesh->animationPath);
+            ImGui::DragInt("Anim Index", &obj.skeletalMesh->animationIndex, 1.0f, -1, 1024);
+            ImGui::InputText("Material Path", &obj.skeletalMesh->materialPath);
+            ImGui::InputText("Texture Path", &obj.skeletalMesh->texturePath);
+
+            ImGui::TextDisabled("Tip: drag-drop a mesh/texture from Content Browser onto this section or the Mesh Path field.");
+
+            if (ImGui::BeginDragDropTarget())
+            {
+                if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(kPayloadAssetPath))
+                {
+                    const char* dropped = static_cast<const char*>(payload->Data);
+                    applyDroppedAsset(dropped);
+                }
+                ImGui::EndDragDropTarget();
+            }
+
+            if (ImGui::Button("Remove Skeletal Mesh"))
+                obj.skeletalMesh.reset();
+        }
+    }
+    else
+    {
+        ImGui::TextDisabled("No mesh component. Add one from the Hierarchy context menu.");
+    }
 
     ImGui::End();
 }

@@ -14,29 +14,22 @@
 #include "Editor/DirectoryScanner.h"
 #include "Panels/ConsolePanel.h"
 
+#include "Rendering/Threading/WorldRenderThread.h"
+
 struct StaticMeshEditorComponent
 {
-    // .fbx/.obj (relative to project root / Resources layout)
     std::string meshPath;
-
     std::string displayName = "Static Mesh";
-
-    // Placeholder material bindings (the runtime material system is still evolving)
     std::string materialPath;
     std::string texturePath;
 };
 
 struct SkeletalMeshEditorComponent
 {
-    // .fbx/.obj with armature/skin data
     std::string meshPath;
-
     std::string displayName = "Skeletal Mesh";
-
-    // Optional animation source
     std::string animationPath;
     int animationIndex = -1;
-
     std::string materialPath;
     std::string texturePath;
 };
@@ -60,10 +53,7 @@ struct PointLightEditorComponent
 
 struct EditorObject
 {
-
     std::uint32_t id = 0;
-
-    // Parent object id (0 = root).
     std::uint32_t parentId = 0;
 
     std::string name = "GameObject";
@@ -72,7 +62,7 @@ struct EditorObject
     glm::vec3 rotationDeg{ 0.0f, 0.0f, 0.0f };
     glm::vec3 scale{ 1.0f, 1.0f, 1.0f };
 
-	glm::vec3 tint{ 1.0f, 1.0f, 1.0f };
+    glm::vec3 tint{ 1.0f, 1.0f, 1.0f };
     int materialPreset = 0;
 
     std::optional<StaticMeshEditorComponent> staticMesh;
@@ -95,30 +85,35 @@ public:
 
     bool IsPlayMode() const { return m_playMode; }
 
-    // a Thread-safe entry point for my Logging sink callback
+    Ark::Rendering::WorldCameraInput GetEditorViewportCamera() const;
+
+    bool GetWireframeEnabled() const { return m_wireframeEnabled; }
+
+    bool GetUseMipmaps() const { return m_useMipmaps; }
+
     void PushLog(Logging::Level level, std::string_view msg);
 
+    bool ConsumeSaveSceneRequested();
+    bool ConsumeLoadSceneRequested();
+
 private:
-
-
     void RenderDockspace();
     void RenderMenuBar();
 
     void RenderViewport(std::vector<EditorObject>& objects, int& selectedObjectIndex);
-    
+
     void RenderMusicPlayer();
 
     void RenderHierarchy(std::vector<EditorObject>& objects, int& selectedObjectIndex);
     void RenderInspector(std::vector<EditorObject>& objects, int& selectedObjectIndex);
 
-	void RenderMaterials(std::vector<EditorObject>& objects, int& selectedObjectIndex);
+    void RenderMaterials(std::vector<EditorObject>& objects, int& selectedObjectIndex);
     void RenderConsole();
     void RenderContentBrowser();
     void RenderFileExplorer();
 
     void EnsureDefaultLayout();
 
-    // Shared directory browser helper
     void DrawDirectoryBrowser(const char* id, const std::filesystem::path& root, std::filesystem::path& currentDir, std::filesystem::path* selectedPath);
 
     static std::filesystem::path FindProjectRoot();
@@ -137,6 +132,8 @@ private:
     bool m_showHierarchy = true;
     bool m_showInspector = true;
     bool m_showMaterials = true;
+    bool m_wireframeEnabled = false;
+    bool m_useMipmaps = true;
 
     bool m_showConsole = true;
     bool m_showContentBrowser = true;
@@ -144,14 +141,10 @@ private:
     bool m_showImGuiDemo = false;
 
     bool m_playMode = false;
-
+    bool m_requestSaveScene = false;
+    bool m_requestLoadScene = false;
 
     int m_gizmoMode = 0;
-    bool m_gizmoDragging = false;
-    glm::vec2 m_gizmoDragStartMouse{ 0.0f, 0.0f };
-    glm::vec3 m_gizmoStartPos{ 0.0f, 0.0f, 0.0f };
-    glm::vec3 m_gizmoStartRotDeg{ 0.0f, 0.0f, 0.0f };
-    glm::vec3 m_gizmoStartScale{ 1.0f, 1.0f, 1.0f };
 
     std::filesystem::path m_projectRoot;
     std::filesystem::path m_resourcesRoot;
@@ -164,20 +157,30 @@ private:
     Ark::Editor::ConsolePanel m_console;
     Ark::Editor::DirectoryScanner m_dirScanner;
 
-
-	ArkAudio::MusicPlayer m_music;
-	float m_musicVolume = 0.5f;
+    ArkAudio::MusicPlayer m_music;
+    float m_musicVolume = 0.5f;
 
     std::uint32_t m_nextObjectId = 1;
 
-    // Rename state (Hierarchy + Inspector)
     std::uint32_t m_renamingObjectId = 0;
     enum class RenameTarget { None, Object, StaticMesh, SkeletalMesh, Camera, PointLight };
     RenameTarget m_renameTarget = RenameTarget::None;
     std::string m_renameBuffer;
     bool m_focusRename = false;
 
-    // Viewport  
+    // Viewport
     unsigned int m_viewportTextureId = 0;
     glm::vec2 m_viewportSize{ 0.0f, 0.0f };
+
+    // Editor viewport camera (used in EDIT mode)
+    glm::vec3 m_editorCamPos{ 0.0f, 0.0f, 3.0f };
+    float m_editorCamPitchDeg = 0.0f;
+    float m_editorCamYawDeg = -90.0f;
+    float m_editorCamFovDeg = 45.0f;
+    float m_editorCamNear = 0.1f;
+    float m_editorCamFar = 100.0f;
+
+    // Input bookkeeping for RMB look
+    bool m_viewportRmbLooking = false;
+    ImVec2 m_viewportLastMouse{ 0.0f, 0.0f };
 };

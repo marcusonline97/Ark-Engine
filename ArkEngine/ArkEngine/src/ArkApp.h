@@ -7,6 +7,7 @@
 #include "Editor/EditorUI.h"
 #include "Editor/ImGuiLayer.h"
 #include "Rendering/Threading/WorldRenderThread.h"
+#include "AssetManager/ResourceLoader.h"
 
 struct GLFWwindow;
 
@@ -15,21 +16,22 @@ class ArkWindow;
 class App
 {
 public:
-    App();
-    ~App();
+	App();
+	~App();
 
-    void Run();
+	void Run();
 
+	GLFWwindow* GetWindowHandle() const;
 
-    GLFWwindow* GetWindowHandle() const;
 private:
+	std::unique_ptr<ArkWindow> m_Window;
 
-    std::unique_ptr<ArkWindow> m_Window;
-    std::unique_ptr<Ark::Rendering::WorldRenderThread> m_WorldRenderer;
-    Ark::Editor::ImGuiLayer m_ImGui;
+	Ark::Rendering::ResourceLoader m_cpuResourceLoader;
+	std::unique_ptr<Ark::Rendering::WorldRenderThread> m_WorldRenderer;
 
-    EditorUI m_EditorUI;
-    Logging::SinkId m_LogSinkId = 0;
-    std::vector<EditorObject> m_Objects;
-    int m_SelectedObject = -1;
+	Ark::Editor::ImGuiLayer m_ImGui;
+	EditorUI m_EditorUI;
+	Logging::SinkId m_LogSinkId = 0;
+	std::vector<EditorObject> m_Objects;
+	int m_SelectedObject = -1;
 };

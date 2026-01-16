@@ -10,7 +10,7 @@
 #endif
 
 #include "Logger.h"
-#include "Texture.h" 
+#include "Rendering/Texture/Texture.h" 
 
 AssetManager& AssetManager::Instance()
 {
@@ -63,24 +63,31 @@ std::string AssetManager::ResolveAssetPath(const std::string& relativePath) cons
     return ResolveAgainstLayouts(relativePath).string();
 }
 
-Texture* AssetManager::LoadTexture2D(const std::string& relativePath, bool flipY)
+Texture* AssetManager::LoadTexture2D(const std::string& relativePath, bool flipY, bool generateMipmaps)
 {
     const std::lock_guard<std::mutex> lock(m_Mutex);
 
     const std::string resolved = ResolveAssetPath(relativePath);
-    auto it = m_TextureCache.find(resolved);
+
+    // Current Texture implementation doesn't expose these toggles.
+    (void)flipY;
+    (void)generateMipmaps;
+
+    const std::string cacheKey = resolved;
+
+    auto it = m_TextureCache.find(cacheKey);
     if (it != m_TextureCache.end())
         return it->second.get();
 
-    // Create and cache
-    auto tex = std::make_unique<Texture>();
-    if(!tex->Load2D(resolved, true, true)) // srgb and mipmaps
+    auto tex = std::make_unique<Texture>(GL_TEXTURE_2D, resolved);
+    if (!tex->Load(true))
     {
         std::cerr << "Failed to load texture: " << resolved << "\n";
         return nullptr;
-	}
+    }
+
     Texture* raw = tex.get();
-    m_TextureCache.emplace(resolved, std::move(tex));
+    m_TextureCache.emplace(cacheKey, std::move(tex));
     return raw;
 }
 
