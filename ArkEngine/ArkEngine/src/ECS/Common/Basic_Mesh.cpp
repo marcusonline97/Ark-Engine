@@ -1,7 +1,7 @@
 #include "Basic_Mesh.h"
 #include "Utility/Common.h"
 
-#include "meshoptimizer/meshoptimizer.h"
+#include <meshoptimizer/meshoptimizer.h>
 
 #define POSITION_LOCATION  0
 #define TEX_COORD_LOCATION 1

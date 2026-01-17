@@ -3,7 +3,7 @@
 #include <string>
 
 #include <glad/glad.h>
-#include "gli/gli.hpp"
+#include <gli/gli.hpp>
 
 
 class BaseTexture

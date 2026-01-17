@@ -9,8 +9,8 @@
 #include <unistd.h>
 #endif
 
-#include "Logger.h"
-#include "Rendering/Texture/Texture.h" 
+#include <Logger.h>
+#include <Rendering/Texture/Texture.h>
 
 AssetManager& AssetManager::Instance()
 {

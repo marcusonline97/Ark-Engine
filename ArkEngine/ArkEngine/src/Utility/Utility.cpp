@@ -1,6 +1,6 @@
 #include "Utility.h"
 #include <GLFW/glfw3.h>
-#include <stb_image.h>
+#include <stb_image/stb_image.h>
 #include "Logger.h"
 
 

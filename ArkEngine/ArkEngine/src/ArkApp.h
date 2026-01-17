@@ -3,11 +3,11 @@
 #include <memory>
 #include <vector>
 
-#include "Logger.h"
-#include "Editor/EditorUI.h"
-#include "Editor/ImGuiLayer.h"
-#include "Rendering/Threading/WorldRenderThread.h"
-#include "AssetManager/ResourceLoader.h"
+#include <Logger.h>
+#include <Editor/EditorUI.h>
+#include <Editor/ImGuiLayer.h>
+#include <Rendering/Threading/WorldRenderThread.h>
+#include <AssetManager/ResourceLoader.h>
 
 struct GLFWwindow;
 

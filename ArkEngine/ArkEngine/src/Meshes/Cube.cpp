@@ -1,4 +1,5 @@
 #include "Cube.h"
+#include <GLAD/glad.h>
 
 CubeMesh::CubeMesh()
 {

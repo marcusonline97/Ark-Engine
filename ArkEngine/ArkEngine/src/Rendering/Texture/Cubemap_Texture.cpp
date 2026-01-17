@@ -2,12 +2,12 @@
 #include <glm/glm.hpp>
 #include <glm/ext.hpp>
 #include <gli/gli.hpp>
+#include <stb_image/stb_image.h>
 
 #include "Math/3DMath_util.h"
 #include "Maps/Ect_Cubemap.h"
 #include "Cubemap_Texture.h"
 #include "Utility/util.h"
-#include "stb_image.h"
 
 static const GLenum types[6] = { GL_TEXTURE_CUBE_MAP_POSITIVE_X,
                                   GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
