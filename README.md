@@ -1,4 +1,6 @@
 # Ark-Engine
+<img width="1169" height="570" alt="image" src="https://github.com/user-attachments/assets/68ac19ea-107f-443a-9952-214eafed9048" />
+
 <img width="2552" height="1527" alt="image" src="https://github.com/user-attachments/assets/b59126c7-eee8-4262-98ee-258b0720ecb3" />
 
 # 🛠️ Ark-Engine
