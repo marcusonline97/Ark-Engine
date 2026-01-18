@@ -109,6 +109,7 @@ namespace Ark::Rendering
 		glBindVertexArray(m_dummyVao);
 
 		// Grid
+		if (input.showGrid)
 		{
 			const Matrix4f VP = m_pipeline.GetVPTrans();
 			m_grid.Render(m_gridCfg, VP, camPos);

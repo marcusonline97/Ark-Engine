@@ -7,6 +7,7 @@
 #include <stb_image/stb_image.h>
 #include <stb_image/stb_image_write.h>
 
+#include "Logger.h"
 #include "Utility/Util.h"
 
 static int GetNumMipMapLevels2D(int w, int h)
@@ -67,8 +68,9 @@ bool Texture::Load(bool IsSRGB)
     }
 
     if (!pImageData) {
-        printf("Can't load texture from '%s' - %s\n", m_fileName.c_str(), stbi_failure_reason());
-        exit(0);
+        Logging::Warning() << "Texture load failed: '" << m_fileName
+            << "' - " << (stbi_failure_reason() ? stbi_failure_reason() : "unknown reason");
+        return false;
     }
 
     printf("Loaded texture '%s' width %d, height %d, bpp %d\n", m_fileName.c_str(), m_imageWidth, m_imageHeight, m_imageBPP);

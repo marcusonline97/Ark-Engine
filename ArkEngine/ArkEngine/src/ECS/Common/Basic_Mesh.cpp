@@ -361,7 +361,9 @@ void BasicMesh::LoadDiffuseTextureFromFile(const string& Dir, const aiString& Pa
 
     if (!m_Materials[MaterialIndex].pTextures[TEX_TYPE_BASE]->Load(IsSRGB)) {
         printf("Error loading diffuse texture '%s'\n", FullPath.c_str());
-        exit(0);
+        delete m_Materials[MaterialIndex].pTextures[TEX_TYPE_BASE];
+        m_Materials[MaterialIndex].pTextures[TEX_TYPE_BASE] = NULL;
+        return;
     }
     else {
         printf("Loaded diffuse texture '%s' at index %d\n", FullPath.c_str(), MaterialIndex);

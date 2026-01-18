@@ -3,7 +3,8 @@
 
 #include "Util.h"
 #include "Technique.h"
-
+#include "AssetManager.h"
+#include "Logger.h"
 Technique::Technique()
 {
     m_shaderProg = 0;
@@ -49,9 +50,12 @@ bool Technique::AddShader(GLenum ShaderType, const char* pFilename)
 {
     string s;
 
-    if (!ReadFile(pFilename, s)) {
+    const std::string resolvedPath = AssetManager::Instance().ResolveAssetPath(pFilename);
+    fprintf(stderr, "Loading shader: '%s' -> '%s'\n", pFilename, resolvedPath.c_str());
+    if (!ReadFile(resolvedPath.c_str(), s)) {
         return false;
     }
+    Logging::ToDo() << "Shader has successfully been read: " << resolvedPath << "\n";
 
     GLuint ShaderObj = glCreateShader(ShaderType);
 
@@ -77,7 +81,10 @@ bool Technique::AddShader(GLenum ShaderType, const char* pFilename)
     if (!success) {
         GLchar InfoLog[1024];
         glGetShaderInfoLog(ShaderObj, 1024, NULL, InfoLog);
-        fprintf(stderr, "Error compiling '%s': '%s'\n", pFilename, InfoLog);
+        Logging::Warning()
+            << "Shader compile FAILED: " << resolvedPath
+            << " (type=" << ShaderType << "): " << InfoLog << "\n";
+        fprintf(stderr, "Error compiling '%s': '%s'\n", resolvedPath.c_str(), InfoLog);
         return false;
     }
 

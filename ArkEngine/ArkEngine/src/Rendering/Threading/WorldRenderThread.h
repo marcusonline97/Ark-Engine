@@ -81,6 +81,8 @@ namespace Ark::Rendering
 		float exposure = 1.35f;
 
 		bool useMipmaps = true;
+
+		bool showGrid = true;
 	};
 
 	class WorldRenderThread

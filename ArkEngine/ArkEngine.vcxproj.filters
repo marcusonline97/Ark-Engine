@@ -189,11 +189,15 @@
     <None Include="ArkEngine\Resources\Shaders\infinite_grid.frag" />
     <None Include="ArkEngine\Resources\Shaders\shadow_map.vert" />
     <None Include="ArkEngine\Resources\Shaders\empty.frag" />
-    <None Include="ArkEngine\Resources\Shaders\lightning_new.vert" />
-    <None Include="ArkEngine\Resources\Shaders\lightning_new.frag" />
+    <None Include="ArkEngine\Resources\Shaders\lighting_new.vert" />
+    <None Include="ArkEngine\Resources\Shaders\lighting_new.frag" />
     <None Include="ArkEngine\Resources\Shaders\passthru.gs" />
-    <None Include="ArkEngine\Resources\Shaders\lightning_new_to_gs.vert" />
+    <None Include="ArkEngine\Resources\Shaders\lighting_new_to_gs.vert" />
     <None Include="ArkEngine\Resources\Shaders\wireframe_on_mesh.gs" />
     <None Include="ArkEngine\Resources\Shaders\skinning.vert" />
+    <None Include="ArkEngine\Resources\Shaders\tex.frag" />
+    <None Include="ArkEngine\Resources\Shaders\tex.vert" />
+    <None Include="ArkEngine\Resources\Shaders\shadow_map_point_light.vert" />
+    <None Include="ArkEngine\Resources\Shaders\shadow_map_point_light.frag" />
   </ItemGroup>
 </Project>

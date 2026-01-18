@@ -21,7 +21,7 @@ namespace Init {
             Logging::ToDo() << "Initializer::StartUp";
             s_app = new App();
 
-            const std::string iconAbs = AssetManager::Instance().ResolveAssetPath("ArkEngine/Resources/Icon/Ark.png");
+            const std::string iconAbs = AssetManager::Instance().ResolveAssetPath("Resources/Icon/Ark.png");
             Util::SetWindowIcon(s_app->GetWindowHandle(), iconAbs);
         }
         catch (const std::exception& e) {

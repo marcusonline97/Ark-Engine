@@ -55,30 +55,26 @@ App::App()
 			});
 	}
 
+	// Load blank map first (clean state), then load EditorScene.json.
 	{
-		EditorObject obj{};
-		obj.name = "Static Mesh";
-		m_Objects.push_back(obj);        m_Objects.back().staticMesh = StaticMeshEditorComponent{};
-		m_Objects.back().tint = glm::vec3(0.95f, 0.95f, 0.95f);
+		// Blank map = no objects
+		m_Objects.clear();
+		m_SelectedObject = -1;
 
-		obj = EditorObject{};
-		obj.name = "Skeletal Mesh";
-		m_Objects.push_back(obj);        m_Objects.back().skeletalMesh = SkeletalMeshEditorComponent{};
-		m_Objects.back().position = glm::vec3(1.5f, 0.0f, 0.0f);
-		m_Objects.back().tint = glm::vec3(0.65f, 0.85f, 1.0f);
+		const std::filesystem::path scenePath =
+			std::filesystem::current_path() / "ArkEngine" / "Resources" / "Scenes" / "EditorScene.json";
 
-		obj = EditorObject{};
-		obj.name = "Camera";
-		m_Objects.push_back(obj);        m_Objects.back().camera = CameraEditorComponent{};
-		m_Objects.back().position = glm::vec3(0.0f, 0.0f, 3.0f);
+		if (!Ark::Editor::LoadEditorScene(scenePath, m_Objects))
+		{
+			Logging::Warning() << "Failed to load scene: " << scenePath.string() << " (scene will be empty)\n";
 
-		obj = EditorObject{};
-		obj.name = "Point Light";
-		m_Objects.push_back(obj);        m_Objects.back().pointLight = PointLightEditorComponent{};
-		m_Objects.back().position = glm::vec3(-1.25f, 1.0f, 0.0f);
-		m_Objects.back().scale = glm::vec3(0.2f);
+			// IMPORTANT: Do not create fallback objects here.
+			// The Hierarchy should reflect only what's in the Scene.json file.
+			m_Objects.clear();
+		}
+
+		m_SelectedObject = m_Objects.empty() ? -1 : 0;
 	}
-	m_SelectedObject = 0;
 
 	m_WorldRenderer = std::make_unique<Ark::Rendering::WorldRenderThread>(
 		m_Window->GetNativeHandle(),
@@ -105,6 +101,8 @@ void App::Run()
 	double lastMouseX = 0.0;
 	double lastMouseY = 0.0;
 
+	bool showGrid = true;
+
 	{
 		std::uint32_t nextId = 1;
 		for (auto& o : m_Objects)
@@ -123,6 +121,16 @@ void App::Run()
 		lastTime = now;
 
 		Ark::Input::NewFrame();
+
+		if (Ark::Input::IsKeyPressed(ARK_KEY_G))
+		{
+			showGrid = !showGrid;
+
+			if (!showGrid)
+				Logging::Debug() << "Grid cleared (hidden).\n";
+			else
+				Logging::Debug() << "Grid enabled.\n";
+		}
 
 		// CPU iterative resource loading: do a small bounded amount per frame.
 		m_cpuResourceLoader.Pump(2);
@@ -158,15 +166,17 @@ void App::Run()
 				front = glm::normalize(front);
 
 				const glm::vec3 up(0.0f, 1.0f, 0.0f);
-				const glm::vec3 right = glm::normalize(glm::cross(front, up));
+				const glm::vec3 right = glm::normalize(glm::cross(up, front));
 
 				const float speed = 3.5f;
 				const float move = speed * dt;
 
 				if (Ark::Input::IsKeyDown(ARK_KEY_W)) camObj->position += front * move;
 				if (Ark::Input::IsKeyDown(ARK_KEY_S)) camObj->position -= front * move;
-				if (Ark::Input::IsKeyDown(ARK_KEY_D)) camObj->position += right * move;
-				if (Ark::Input::IsKeyDown(ARK_KEY_A)) camObj->position -= right * move;
+
+				if (Ark::Input::IsKeyDown(ARK_KEY_A)) camObj->position -= right * move; // left
+				if (Ark::Input::IsKeyDown(ARK_KEY_D)) camObj->position += right * move; // right
+
 				if (Ark::Input::IsKeyDown(ARK_KEY_E)) camObj->position += up * move;
 				if (Ark::Input::IsKeyDown(ARK_KEY_Q)) camObj->position -= up * move;
 
@@ -221,6 +231,7 @@ void App::Run()
 
 			input.wireframe = m_EditorUI.GetWireframeEnabled();
 			input.useMipmaps = m_EditorUI.GetUseMipmaps();
+			input.showGrid = m_EditorUI.GetShowGrid();
 
 			const auto toModel = [](const EditorObject& obj)
 				{
@@ -231,7 +242,14 @@ void App::Run()
 					return glm::translate(glm::mat4(1.0f), obj.position) * rot * glm::scale(glm::mat4(1.0f), obj.scale);
 				};
 
-			// Camera selection: primary camera wins, otherwise first camera.
+			// Camera selection:
+			// - EDIT mode: use the editor viewport camera (world-space).
+			// - PLAY mode: use the scene's primary camera (or first camera).
+			if (!m_EditorUI.IsPlayMode())
+			{
+				input.camera = m_EditorUI.GetEditorViewportCamera();
+			}
+			else
 			{
 				EditorObject* camObj = nullptr;
 				for (auto& o : m_Objects)

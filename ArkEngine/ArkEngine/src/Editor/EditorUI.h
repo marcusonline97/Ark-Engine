@@ -96,6 +96,8 @@ public:
     bool ConsumeSaveSceneRequested();
     bool ConsumeLoadSceneRequested();
 
+    bool GetShowGrid() const { return m_showGrid; }
+
 private:
     void RenderDockspace();
     void RenderMenuBar();
@@ -126,6 +128,8 @@ private:
     void ReparentObject(std::vector<EditorObject>& objects, std::uint32_t childId, std::uint32_t newParentId);
     std::string MakeProjectRelativePath(const std::filesystem::path& p) const;
 
+    void ValidateSceneState(std::vector<EditorObject>& objects, int& selectedObjectIndex);
+
 private:
     bool m_layoutBuilt = false;
 
@@ -139,6 +143,7 @@ private:
     bool m_showContentBrowser = true;
     bool m_showFileExplorer = true;
     bool m_showImGuiDemo = false;
+    bool m_showGrid = true;
 
     bool m_playMode = false;
     bool m_requestSaveScene = false;

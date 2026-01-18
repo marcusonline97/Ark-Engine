@@ -28,7 +28,8 @@ namespace
 
         front.x = cos(yaw) * cos(pitch);
         front.y = sin(pitch);
-        front.z = sin(yaw) * cos(pitch);
+        front.z = -sin(yaw) * cos(pitch);
+
         return glm::normalize(front);
     }
 }
@@ -85,7 +86,10 @@ Ark::Rendering::WorldCameraInput EditorUI::GetEditorViewportCamera() const
 {
     Ark::Rendering::WorldCameraInput cam{};
     cam.position = m_editorCamPos;
+
+    // Editor camera is now also left-handed; no conversion here.
     cam.pitchYawDeg = glm::vec2(m_editorCamPitchDeg, m_editorCamYawDeg);
+
     cam.fovDeg = m_editorCamFovDeg;
     cam.nearPlane = m_editorCamNear;
     cam.farPlane = m_editorCamFar;
@@ -188,6 +192,8 @@ void EditorUI::PushLog(Logging::Level level, std::string_view msg)
 
 void EditorUI::Render(std::vector<EditorObject>& objects, int& selectedObjectIndex)
 {
+    ValidateSceneState(objects, selectedObjectIndex);
+
     RenderDockspace();
 
     if (m_showHierarchy)      RenderHierarchy(objects, selectedObjectIndex);
@@ -201,6 +207,8 @@ void EditorUI::Render(std::vector<EditorObject>& objects, int& selectedObjectInd
 
     if (m_showImGuiDemo)
         ImGui::ShowDemoWindow(&m_showImGuiDemo);
+
+    ValidateSceneState(objects, selectedObjectIndex);
 }
 
 void EditorUI::RenderMaterials(std::vector<EditorObject>& objects, int& selectedObjectIndex)
@@ -595,6 +603,12 @@ void EditorUI::RenderViewport(std::vector<EditorObject>& objects, int& selectedO
                     if (ImGui::IsKeyPressed(ImGuiKey_E)) m_gizmoMode = 1;
                     if (ImGui::IsKeyPressed(ImGuiKey_R)) m_gizmoMode = 2;
                     if (ImGui::IsKeyPressed(ImGuiKey_F5)) m_playMode = !m_playMode;
+
+                    if (ImGui::IsKeyPressed(ImGuiKey_G))
+                    {
+                        m_showGrid = !m_showGrid;
+                        Logging::Debug() << (m_showGrid ? "Grid enabled.\n" : "Grid cleared (hidden).\n");
+                    }
                 }
 
                 // EDIT MODE CAMERA CONTROLS (WASD + RMB look) only when hovered and not using gizmo.
@@ -609,40 +623,18 @@ void EditorUI::RenderViewport(std::vector<EditorObject>& objects, int& selectedO
 
                     const glm::vec3 forward = ComputeForward(m_editorCamPitchDeg, m_editorCamYawDeg);
                     const glm::vec3 up(0.0f, 1.0f, 0.0f);
-                    const glm::vec3 right = glm::normalize(glm::cross(forward, up));
+                    const glm::vec3 right = glm::normalize(glm::cross(up, forward));
 
-                    if (Ark::Input::IsKeyDown(ARK_KEY_W)) m_editorCamPos += forward * move;
-                    if (Ark::Input::IsKeyDown(ARK_KEY_S)) m_editorCamPos -= forward * move;
-                    if (Ark::Input::IsKeyDown(ARK_KEY_D)) m_editorCamPos += right * move;
-                    if (Ark::Input::IsKeyDown(ARK_KEY_A)) m_editorCamPos -= right * move;
+                    // forward/back (as you currently have it)
+                    if (Ark::Input::IsKeyDown(ARK_KEY_W)) m_editorCamPos -= forward * move;
+                    if (Ark::Input::IsKeyDown(ARK_KEY_S)) m_editorCamPos += forward * move;
+
+                    // left/right (as you currently have it)
+                    if (Ark::Input::IsKeyDown(ARK_KEY_A)) m_editorCamPos += right * move;
+                    if (Ark::Input::IsKeyDown(ARK_KEY_D)) m_editorCamPos -= right * move;
+
                     if (Ark::Input::IsKeyDown(ARK_KEY_E)) m_editorCamPos += up * move;
                     if (Ark::Input::IsKeyDown(ARK_KEY_Q)) m_editorCamPos -= up * move;
-
-                    const bool rmbDown = Ark::Input::IsMouseDown(ARK_MOUSE_RIGHT);
-                    if (rmbDown)
-                    {
-                        if (!m_viewportRmbLooking)
-                        {
-                            m_viewportRmbLooking = true;
-                            m_viewportLastMouse = io.MousePos;
-                        }
-                        else
-                        {
-                            const ImVec2 delta(io.MousePos.x - m_viewportLastMouse.x, io.MousePos.y - m_viewportLastMouse.y);
-                            m_viewportLastMouse = io.MousePos;
-
-                            constexpr float sensitivity = 0.12f;
-                            m_editorCamYawDeg += delta.x * sensitivity;
-                            m_editorCamPitchDeg -= delta.y * sensitivity;
-
-                            if (m_editorCamPitchDeg > 89.0f) m_editorCamPitchDeg = 89.0f;
-                            if (m_editorCamPitchDeg < -89.0f) m_editorCamPitchDeg = -89.0f;
-                        }
-                    }
-                    else
-                    {
-                        m_viewportRmbLooking = false;
-                    }
                 }
                 else
                 {
@@ -1118,234 +1110,8 @@ void EditorUI::RenderHierarchy(std::vector<EditorObject>& objects, int& selected
 
             if (open)
             {
-                // Components live under the object in the hierarchy.
-                if (obj.staticMesh)
-                {
-                    ImGui::PushID("StaticMeshNode");
-                    const bool renamingCmp = (m_renamingObjectId == obj.id && m_renameTarget == RenameTarget::StaticMesh);
-                    bool cmpOpen = false;
-                    if (!renamingCmp)
-                        cmpOpen = ImGui::TreeNodeEx(obj.staticMesh->displayName.c_str(), ImGuiTreeNodeFlags_DefaultOpen);
-                    else
-                        cmpOpen = ImGui::TreeNodeEx("##StaticMesh", ImGuiTreeNodeFlags_DefaultOpen, "%s", "");
-
-                    if (ImGui::BeginPopupContextItem("##staticmesh_ctx"))
-                    {
-                        if (ImGui::MenuItem("Rename Component"))
-                        {
-                            m_renamingObjectId = obj.id;
-                            m_renameTarget = RenameTarget::StaticMesh;
-                            m_renameBuffer = obj.staticMesh->displayName;
-                            m_focusRename = true;
-                        }
-                        ImGui::EndPopup();
-                    }
-
-                    if (cmpOpen)
-                    {
-                        if (renamingCmp)
-                        {
-                            ImGui::SetNextItemWidth(-1.0f);
-                            if (m_focusRename)
-                            {
-                                ImGui::SetKeyboardFocusHere();
-                                m_focusRename = false;
-                            }
-                            const bool committed = ImGui::InputText("##rename_staticmesh", &m_renameBuffer, ImGuiInputTextFlags_AutoSelectAll | ImGuiInputTextFlags_EnterReturnsTrue);
-                            const bool canceled = ImGui::IsKeyPressed(ImGuiKey_Escape);
-                            if (committed || (!ImGui::IsItemActive() && ImGui::IsItemDeactivatedAfterEdit()))
-                            {
-                                if (!m_renameBuffer.empty())
-                                    obj.staticMesh->displayName = m_renameBuffer;
-                                m_renamingObjectId = 0;
-                                m_renameTarget = RenameTarget::None;
-                            }
-                            else if (canceled)
-                            {
-                                m_renamingObjectId = 0;
-                                m_renameTarget = RenameTarget::None;
-                            }
-                        }
-
-                        ImGui::InputText("Mesh", &obj.staticMesh->meshPath);
-                        ImGui::InputText("Texture", &obj.staticMesh->texturePath);
-                        ImGui::TextDisabled("Drag mesh/image here (or onto the object).");
-                        if (ImGui::SmallButton("Remove##StaticMesh")) obj.staticMesh.reset();
-                        ImGui::TreePop();
-                    }
-                    ImGui::PopID();
-                }
-                if (obj.skeletalMesh)
-                {
-                    ImGui::PushID("SkeletalMeshNode");
-                    const bool renamingCmp = (m_renamingObjectId == obj.id && m_renameTarget == RenameTarget::SkeletalMesh);
-                    bool cmpOpen = false;
-                    if (!renamingCmp)
-                        cmpOpen = ImGui::TreeNodeEx(obj.skeletalMesh->displayName.c_str(), ImGuiTreeNodeFlags_DefaultOpen);
-                    else
-                        cmpOpen = ImGui::TreeNodeEx("##SkeletalMesh", ImGuiTreeNodeFlags_DefaultOpen, "%s", "");
-
-                    if (ImGui::BeginPopupContextItem("##skeletalmesh_ctx"))
-                    {
-                        if (ImGui::MenuItem("Rename Component"))
-                        {
-                            m_renamingObjectId = obj.id;
-                            m_renameTarget = RenameTarget::SkeletalMesh;
-                            m_renameBuffer = obj.skeletalMesh->displayName;
-                            m_focusRename = true;
-                        }
-                        ImGui::EndPopup();
-                    }
-
-                    if (cmpOpen)
-                    {
-                        if (renamingCmp)
-                        {
-                            ImGui::SetNextItemWidth(-1.0f);
-                            if (m_focusRename)
-                            {
-                                ImGui::SetKeyboardFocusHere();
-                                m_focusRename = false;
-                            }
-                            const bool committed = ImGui::InputText("##rename_skeletalmesh", &m_renameBuffer, ImGuiInputTextFlags_AutoSelectAll | ImGuiInputTextFlags_EnterReturnsTrue);
-                            const bool canceled = ImGui::IsKeyPressed(ImGuiKey_Escape);
-                            if (committed || (!ImGui::IsItemActive() && ImGui::IsItemDeactivatedAfterEdit()))
-                            {
-                                if (!m_renameBuffer.empty())
-                                    obj.skeletalMesh->displayName = m_renameBuffer;
-                                m_renamingObjectId = 0;
-                                m_renameTarget = RenameTarget::None;
-                            }
-                            else if (canceled)
-                            {
-                                m_renamingObjectId = 0;
-                                m_renameTarget = RenameTarget::None;
-                            }
-                        }
-
-                        ImGui::InputText("Mesh", &obj.skeletalMesh->meshPath);
-                        ImGui::InputText("Animation", &obj.skeletalMesh->animationPath);
-                        ImGui::DragInt("Anim Index", &obj.skeletalMesh->animationIndex, 1.0f, -1, 1024);
-                        ImGui::InputText("Texture", &obj.skeletalMesh->texturePath);
-                        ImGui::TextDisabled("Drag mesh/anim/image here (or onto the object).");
-                        if (ImGui::SmallButton("Remove##SkeletalMesh")) obj.skeletalMesh.reset();
-                        ImGui::TreePop();
-                    }
-                    ImGui::PopID();
-                }
-                if (obj.camera)
-                {
-                    ImGui::PushID("CameraNode");
-                    const bool renamingCmp = (m_renamingObjectId == obj.id && m_renameTarget == RenameTarget::Camera);
-                    bool cmpOpen = false;
-                    if (!renamingCmp)
-                        cmpOpen = ImGui::TreeNodeEx(obj.camera->displayName.c_str(), ImGuiTreeNodeFlags_DefaultOpen);
-                    else
-                        cmpOpen = ImGui::TreeNodeEx("##Camera", ImGuiTreeNodeFlags_DefaultOpen, "%s", "");
-
-                    if (ImGui::BeginPopupContextItem("##camera_ctx"))
-                    {
-                        if (ImGui::MenuItem("Rename Component"))
-                        {
-                            m_renamingObjectId = obj.id;
-                            m_renameTarget = RenameTarget::Camera;
-                            m_renameBuffer = obj.camera->displayName;
-                            m_focusRename = true;
-                        }
-                        ImGui::EndPopup();
-                    }
-
-                    if (cmpOpen)
-                    {
-                        if (renamingCmp)
-                        {
-                            ImGui::SetNextItemWidth(-1.0f);
-                            if (m_focusRename)
-                            {
-                                ImGui::SetKeyboardFocusHere();
-                                m_focusRename = false;
-                            }
-                            const bool committed = ImGui::InputText("##rename_camera", &m_renameBuffer, ImGuiInputTextFlags_AutoSelectAll | ImGuiInputTextFlags_EnterReturnsTrue);
-                            const bool canceled = ImGui::IsKeyPressed(ImGuiKey_Escape);
-                            if (committed || (!ImGui::IsItemActive() && ImGui::IsItemDeactivatedAfterEdit()))
-                            {
-                                if (!m_renameBuffer.empty())
-                                    obj.camera->displayName = m_renameBuffer;
-                                m_renamingObjectId = 0;
-                                m_renameTarget = RenameTarget::None;
-                            }
-                            else if (canceled)
-                            {
-                                m_renamingObjectId = 0;
-                                m_renameTarget = RenameTarget::None;
-                            }
-                        }
-
-                        ImGui::Checkbox("Primary", &obj.camera->primary);
-                        ImGui::SliderFloat("FOV (deg)", &obj.camera->fovDeg, 1.0f, 140.0f, "%.1f");
-                        ImGui::DragFloat("Near", &obj.camera->nearPlane, 0.01f, 0.001f, 1000.0f, "%.3f");
-                        ImGui::DragFloat("Far", &obj.camera->farPlane, 1.0f, 1.0f, 50000.0f, "%.1f");
-                        if (ImGui::SmallButton("Remove##Camera")) obj.camera.reset();
-                        ImGui::TreePop();
-                    }
-                    ImGui::PopID();
-                }
-                if (obj.pointLight)
-                {
-                    ImGui::PushID("PointLightNode");
-                    const bool renamingCmp = (m_renamingObjectId == obj.id && m_renameTarget == RenameTarget::PointLight);
-                    bool cmpOpen = false;
-                    if (!renamingCmp)
-                        cmpOpen = ImGui::TreeNodeEx(obj.pointLight->displayName.c_str(), ImGuiTreeNodeFlags_DefaultOpen);
-                    else
-                        cmpOpen = ImGui::TreeNodeEx("##PointLight", ImGuiTreeNodeFlags_DefaultOpen, "%s", "");
-
-                    if (ImGui::BeginPopupContextItem("##pointlight_ctx"))
-                    {
-                        if (ImGui::MenuItem("Rename Component"))
-                        {
-                            m_renamingObjectId = obj.id;
-                            m_renameTarget = RenameTarget::PointLight;
-                            m_renameBuffer = obj.pointLight->displayName;
-                            m_focusRename = true;
-                        }
-                        ImGui::EndPopup();
-                    }
-
-                    if (cmpOpen)
-                    {
-                        if (renamingCmp)
-                        {
-                            ImGui::SetNextItemWidth(-1.0f);
-                            if (m_focusRename)
-                            {
-                                ImGui::SetKeyboardFocusHere();
-                                m_focusRename = false;
-                            }
-                            const bool committed = ImGui::InputText("##rename_pointlight", &m_renameBuffer, ImGuiInputTextFlags_AutoSelectAll | ImGuiInputTextFlags_EnterReturnsTrue);
-                            const bool canceled = ImGui::IsKeyPressed(ImGuiKey_Escape);
-                            if (committed || (!ImGui::IsItemActive() && ImGui::IsItemDeactivatedAfterEdit()))
-                            {
-                                if (!m_renameBuffer.empty())
-                                    obj.pointLight->displayName = m_renameBuffer;
-                                m_renamingObjectId = 0;
-                                m_renameTarget = RenameTarget::None;
-                            }
-                            else if (canceled)
-                            {
-                                m_renamingObjectId = 0;
-                                m_renameTarget = RenameTarget::None;
-                            }
-                        }
-
-                        ImGui::ColorEdit3("Color", &obj.pointLight->color.x);
-                        ImGui::DragFloat("Intensity", &obj.pointLight->intensity, 0.05f, 0.0f, 1000.0f, "%.2f");
-                        ImGui::DragFloat("Radius", &obj.pointLight->radius, 0.05f, 0.0f, 1000.0f, "%.2f");
-                        if (ImGui::SmallButton("Remove##PointLight")) obj.pointLight.reset();
-                        ImGui::TreePop();
-                    }
-                    ImGui::PopID();
-                }
+                // Hierarchy shows only object nodes (no component/property editing here).
+                // Component editing belongs in the Inspector.
 
                 // Children
                 const auto it = childrenByParent.find(obj.id);
@@ -1566,4 +1332,20 @@ void EditorUI::RenderInspector(std::vector<EditorObject>& objects, int& selected
     }
 
     ImGui::End();
+}
+void EditorUI::ValidateSceneState(std::vector<EditorObject>& objects, int& selectedObjectIndex)
+{
+    EnsureObjectIds(objects);
+
+    if (objects.empty())
+    {
+        selectedObjectIndex = -1;
+        return;
+    }
+
+    if (selectedObjectIndex < -1)
+        selectedObjectIndex = -1;
+
+    if (selectedObjectIndex >= static_cast<int>(objects.size()))
+        selectedObjectIndex = static_cast<int>(objects.size() - 1);
 }
