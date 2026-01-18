@@ -389,6 +389,17 @@
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
     </CopyFileToFolders>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="ArkEngine\Resources\Shaders\empty.frag" />
+    <None Include="ArkEngine\Resources\Shaders\infinite_grid.frag" />
+    <None Include="ArkEngine\Resources\Shaders\Infinite_grid.vert" />
+    <None Include="ArkEngine\Resources\Shaders\lightning_new.frag" />
+    <None Include="ArkEngine\Resources\Shaders\lightning_new.vert" />
+    <None Include="ArkEngine\Resources\Shaders\lightning_new_to_gs.vert" />
+    <None Include="ArkEngine\Resources\Shaders\passthru.gs" />
+    <None Include="ArkEngine\Resources\Shaders\shadow_map.vert" />
+    <None Include="ArkEngine\Resources\Shaders\wireframe_on_mesh.gs" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

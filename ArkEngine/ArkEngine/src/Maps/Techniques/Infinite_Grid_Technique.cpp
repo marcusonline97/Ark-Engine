@@ -7,11 +7,11 @@ bool InfiniteGridTechnique::Init()
         return false;
     }
 
-    if (!AddShader(GL_VERTEX_SHADER, "../Common/Shaders/infinite_grid.vs")) {
+    if (!AddShader(GL_VERTEX_SHADER, "Resources/Shaders/infinite_grid.vert")) {
         return false;
     }
 
-    if (!AddShader(GL_FRAGMENT_SHADER, "../Common/Shaders/infinite_grid.fs")) {
+    if (!AddShader(GL_FRAGMENT_SHADER, "Resources/Shaders/infinite_grid.frag")) {
         return false;
     }
 

@@ -38,28 +38,28 @@ bool LightingTechnique::Init(int SubTech)
 
     switch (SubTech) {
     case SUBTECH_DEFAULT:
-        if (!AddShader(GL_VERTEX_SHADER, "../Common/Shaders/lighting_new.vs")) {
+        if (!AddShader(GL_VERTEX_SHADER, "Resources/Shaders/lighting_new.vert")) {
             return false;
         }
 
         break;
 
     case SUBTECH_PASSTHRU_GS:
-        if (!AddShader(GL_VERTEX_SHADER, "../Common/Shaders/lighting_new_to_gs.vs")) {
+        if (!AddShader(GL_VERTEX_SHADER, "Resources/Shaders/lighting_new_to_gs.vert")) {
             return false;
         }
 
-        if (!AddShader(GL_GEOMETRY_SHADER, "../Common/Shaders/passthru.gs")) {
+        if (!AddShader(GL_GEOMETRY_SHADER, "Resources/Shaders/passthru.gs")) {
             return false;
         }
         break;
 
     case SUBTECH_WIREFRAME_ON_MESH:
-        if (!AddShader(GL_VERTEX_SHADER, "../Common/Shaders/lighting_new_to_gs.vs")) {
+        if (!AddShader(GL_VERTEX_SHADER, "Resources/Shaders/lighting_new_to_gs.vert")) {
             return false;
         }
 
-        if (!AddShader(GL_GEOMETRY_SHADER, "../Common/Shaders/wireframe_on_mesh.gs")) {
+        if (!AddShader(GL_GEOMETRY_SHADER, "Resources/Shaders/wireframe_on_mesh.gs")) {
             return false;
         }
         break;
@@ -69,7 +69,7 @@ bool LightingTechnique::Init(int SubTech)
         exit(0);
     }
 
-    if (!AddShader(GL_FRAGMENT_SHADER, "../Common/Shaders/lighting_new.fs")) {
+    if (!AddShader(GL_FRAGMENT_SHADER, "Resources/Shaders/lighting_new.frag")) {
         return false;
     }
 
