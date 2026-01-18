@@ -15,12 +15,12 @@ bool GeomPassTech::Init()
         return false;
     }
 
-    if (!AddShader(GL_VERTEX_SHADER, "shaders/geometry_pass.vs")) {
+    if (!AddShader(GL_VERTEX_SHADER, "Shaders/geometry_pass.vs")) {
         return false;
     }
 
 
-    if (!AddShader(GL_FRAGMENT_SHADER, "shaders/geometry_pass.fs")) {
+    if (!AddShader(GL_FRAGMENT_SHADER, "Shaders/geometry_pass.fs")) {
         return false;
     }
 

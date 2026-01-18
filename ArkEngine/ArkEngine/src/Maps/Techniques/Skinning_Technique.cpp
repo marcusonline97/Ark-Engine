@@ -12,11 +12,11 @@ bool SkinningTechnique::Init()
         return false;
     }
 
-    if (!AddShader(GL_VERTEX_SHADER, "../Common/Shaders/skinning.vs")) {
+    if (!AddShader(GL_VERTEX_SHADER, "Resources/Shaders/skinning.vert")) {
         return false;
     }
 
-    if (!AddShader(GL_FRAGMENT_SHADER, "../Common/Shaders/lighting_new.fs")) {
+    if (!AddShader(GL_FRAGMENT_SHADER, "Resources/Shaders/lighting_new.frag")) {
         return false;
     }
 
