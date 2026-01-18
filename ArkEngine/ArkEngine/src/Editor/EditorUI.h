@@ -65,6 +65,8 @@ struct EditorObject
     glm::vec3 tint{ 1.0f, 1.0f, 1.0f };
     int materialPreset = 0;
 
+    bool flipUvV = false;
+
     std::optional<StaticMeshEditorComponent> staticMesh;
     std::optional<SkeletalMeshEditorComponent> skeletalMesh;
     std::optional<CameraEditorComponent> camera;
@@ -97,6 +99,9 @@ public:
     bool ConsumeLoadSceneRequested();
 
     bool GetShowGrid() const { return m_showGrid; }
+
+    void SetViewportTriangleCount(uint32_t tris) { m_viewportTriangleCount = tris; }
+    uint32_t GetViewportTriangleCount() const { return m_viewportTriangleCount; }
 
 private:
     void RenderDockspace();
@@ -188,4 +193,6 @@ private:
     // Input bookkeeping for RMB look
     bool m_viewportRmbLooking = false;
     ImVec2 m_viewportLastMouse{ 0.0f, 0.0f };
+
+    uint32_t m_viewportTriangleCount = 0;
 };

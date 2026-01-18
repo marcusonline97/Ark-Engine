@@ -513,8 +513,10 @@ void EditorUI::RenderMenuBar()
     // Right-aligned viewport FPS.
     {
         const float fps = Utilities::GetViewportFPS();
-        char buf[64]{};
-        std::snprintf(buf, sizeof(buf), "FPS: %.1f", fps);
+        const uint32_t tris = m_viewportTriangleCount;
+
+        char buf[96]{};
+        std::snprintf(buf, sizeof(buf), "FPS: %.1f | Tris: %u", fps, tris);
 
         const float textWidth = ImGui::CalcTextSize(buf).x;
         const float avail = ImGui::GetContentRegionAvail().x;
@@ -608,6 +610,11 @@ void EditorUI::RenderViewport(std::vector<EditorObject>& objects, int& selectedO
                     {
                         m_showGrid = !m_showGrid;
                         Logging::Debug() << (m_showGrid ? "Grid enabled.\n" : "Grid cleared (hidden).\n");
+                    }
+                    if (ImGui::IsKeyPressed(ImGuiKey_H))
+                    {
+                        m_wireframeEnabled = !m_wireframeEnabled;
+                        Logging::Debug() << (m_wireframeEnabled ? "Wireframe enabled.\n" : "Wireframe disabled.\n");
                     }
                 }
 
@@ -1272,6 +1279,30 @@ void EditorUI::RenderInspector(std::vector<EditorObject>& objects, int& selected
             ImGui::EndDragDropTarget();
         };
 
+    const auto acceptImageDropToString = [&](std::string& dst)
+        {
+            if (!ImGui::BeginDragDropTarget())
+                return;
+
+            if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(kPayloadAssetPath))
+            {
+                const char* dropped = static_cast<const char*>(payload->Data);
+                if (dropped && dropped[0] != '\0')
+                {
+                    const std::filesystem::path p(dropped);
+                    std::string ext = p.has_extension() ? p.extension().string() : std::string();
+                    std::transform(ext.begin(), ext.end(), ext.begin(),
+                        [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+
+                    const bool isImage = (ext == ".png" || ext == ".jpg" || ext == ".jpeg" || ext == ".bmp" || ext == ".tga" || ext == ".dds");
+                    if (isImage)
+                        dst = dropped;
+                }
+            }
+
+            ImGui::EndDragDropTarget();
+        };
+
     if (obj.staticMesh)
     {
         if (ImGui::CollapsingHeader("Static Mesh", ImGuiTreeNodeFlags_DefaultOpen))
@@ -1280,9 +1311,11 @@ void EditorUI::RenderInspector(std::vector<EditorObject>& objects, int& selected
             acceptMeshDropToString(obj.staticMesh->meshPath);
 
             ImGui::InputText("Material Path", &obj.staticMesh->materialPath);
-            ImGui::InputText("Texture Path", &obj.staticMesh->texturePath);
 
-            ImGui::TextDisabled("Tip: drag-drop a mesh/texture from Content Browser onto this section or the Mesh Path field.");
+            ImGui::InputText("Texture Path", &obj.staticMesh->texturePath);
+            acceptImageDropToString(obj.staticMesh->texturePath);
+
+            ImGui::TextDisabled("Tip: drag-drop a mesh/texture from Content Browser onto this section or the Mesh/Texture Path fields.");
 
             if (ImGui::BeginDragDropTarget())
             {
@@ -1349,3 +1382,5 @@ void EditorUI::ValidateSceneState(std::vector<EditorObject>& objects, int& selec
     if (selectedObjectIndex >= static_cast<int>(objects.size()))
         selectedObjectIndex = static_cast<int>(objects.size() - 1);
 }
+
+

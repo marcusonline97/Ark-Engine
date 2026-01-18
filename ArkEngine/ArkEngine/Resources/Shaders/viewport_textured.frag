@@ -39,6 +39,7 @@ void main()
     vec3 N = normalize(vWorldNormal);
     vec3 V = normalize(uCameraPos - vWorldPos);
 
+    // Texture sampling uses vUV directly (no additional flip in shader).
     vec3 baseColor = u_Tint;
     if (uHasAlbedoTexture)
         baseColor *= texture(uAlbedoTexture, vUV).rgb;

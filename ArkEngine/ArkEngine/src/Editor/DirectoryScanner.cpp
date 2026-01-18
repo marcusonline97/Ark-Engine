@@ -3,6 +3,8 @@
 #include <algorithm>
 #include <system_error>
 
+#include "Logger.h"
+
 namespace Ark::Editor
 {
 	void DirectoryScanner::Start()
@@ -78,17 +80,57 @@ namespace Ark::Editor
 			}
 
 			std::vector<DirectoryEntry> entries;
+
+			try
 			{
 				std::error_code ec;
-				for (const auto& e : std::filesystem::directory_iterator(dir, ec))
+
+				std::filesystem::directory_iterator it(dir, ec);
+				std::filesystem::directory_iterator end;
+				if (ec)
 				{
-					if (ec) break;
-					DirectoryEntry de;
-					de.path = e.path();
-					de.name = e.path().filename().string();
-					de.isDirectory = e.is_directory();
-					entries.push_back(std::move(de));
+					Logging::Warning() << "DirectoryScanner: Failed to enumerate '" << dir.string()
+						<< "': " << ec.message() << "\n";
 				}
+				else
+				{
+					for (; it != end; it.increment(ec))
+					{
+						if (ec)
+						{
+							Logging::Warning() << "DirectoryScanner: Enumeration error in '" << dir.string()
+								<< "': " << ec.message() << "\n";
+							break;
+						}
+
+						const auto& e = *it;
+
+						DirectoryEntry de;
+						de.path = e.path();
+						de.name = e.path().filename().string();
+
+						std::error_code typeEc;
+						de.isDirectory = e.is_directory(typeEc);
+						entries.push_back(std::move(de));
+					}
+				}
+			}
+			catch (const std::system_error& e)
+			{
+				Logging::Warning() << "DirectoryScanner: std::system_error while scanning '" << dir.string()
+					<< "': " << e.what() << "\n";
+				entries.clear();
+			}
+			catch (const std::exception& e)
+			{
+				Logging::Warning() << "DirectoryScanner: exception while scanning '" << dir.string()
+					<< "': " << e.what() << "\n";
+				entries.clear();
+			}
+			catch (...)
+			{
+				Logging::Warning() << "DirectoryScanner: unknown exception while scanning '" << dir.string() << "'\n";
+				entries.clear();
 			}
 
 			std::sort(entries.begin(), entries.end(),

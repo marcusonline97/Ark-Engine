@@ -162,6 +162,7 @@ namespace Ark::Editor
 			{ "scale", Vec3ToJson(o.scale) },
 			{ "tint", Vec3ToJson(o.tint) },
 			{ "materialPreset", o.materialPreset },
+			{ "flipUvV", o.flipUvV },
 		};
 
 		if (o.staticMesh) { json c; ToJson(c, *o.staticMesh); j["staticMesh"] = c; }
@@ -183,6 +184,7 @@ namespace Ark::Editor
 		(void)JsonToVec3(j.value("tint", json::array({ 1.0f, 1.0f, 1.0f })), o.tint);
 
 		o.materialPreset = j.value("materialPreset", 0);
+		o.flipUvV = j.value("flipUvV", false);
 
 		o.staticMesh.reset();
 		o.skeletalMesh.reset();

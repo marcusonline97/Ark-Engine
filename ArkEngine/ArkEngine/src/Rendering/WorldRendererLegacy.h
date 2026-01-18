@@ -12,9 +12,11 @@
 #include "Maps/InfiniteGrid/InfiniteGrid.h"
 #include "Maps/Techniques/Shadow_Mapping_Technique.h"
 #include "Maps/Techniques/Skinning_Technique.h"
+#include "Rendering/Cache/TextureCache.h"
 #include "Rendering/Framebuffer/Framebuffer.h"
 #include "Rendering/Framebuffer/Framebuffer_Object.h"
 #include "Rendering/Threading/WorldRenderThread.h"
+#include "Shader.h"
 
 class BasicMesh;
 class SkinnedMesh;
@@ -32,7 +34,8 @@ namespace Ark::Rendering
 		void Render(const WorldRenderInput& input);
 
 		uint32_t GetOutputTextureId() const { return static_cast<uint32_t>(m_viewportFbo.GetTexture()); }
-
+		uint32_t GetLastTriangleCount() const { return m_lastTriangleCount; }
+		
 	private:
 		BasicMesh* GetOrLoadStaticMesh(const std::string& meshPath);
 		SkinnedMesh* GetOrLoadSkeletalMesh(const std::string& meshPath);
@@ -63,5 +66,10 @@ namespace Ark::Rendering
 		std::vector<Matrix4f> m_boneTransforms;
 
 		GLuint m_dummyVao = 0;
+
+		Shader m_viewportShader;
+		TextureCache m_textureCache{ nullptr };
+
+		uint32_t m_lastTriangleCount = 0;
 	};
 }

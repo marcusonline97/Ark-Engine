@@ -353,6 +353,7 @@ void App::Run()
 		{
 			m_ImGui.BeginFrame();
 			m_EditorUI.SetViewportTextureId(m_WorldRenderer ? m_WorldRenderer->GetLatestTextureId() : 0);
+			m_EditorUI.SetViewportTriangleCount(m_WorldRenderer ? m_WorldRenderer->GetLatestTriangleCount() : 0);
 			m_EditorUI.Render(m_Objects, m_SelectedObject);
 
 			const std::filesystem::path scenePath =

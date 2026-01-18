@@ -18,11 +18,36 @@ AssetManager& AssetManager::Instance()
     return s_Instance;
 }
 
+static std::filesystem::path SanitizeRelativePath(std::filesystem::path p)
+{
+    // Treat root-relative paths like "\ArkEngine\Resources\..." as relative ("ArkEngine/Resources/...").
+    if (!p.empty())
+    {
+        const std::string s = p.generic_string();
+        if (!s.empty() && (s[0] == '/' || s[0] == '\\'))
+            return std::filesystem::path(s.substr(1));
+    }
+
+    return p;
+}
+
 std::filesystem::path AssetManager::ResolveAgainstLayouts(const std::filesystem::path& rel) const
 {
+    if (rel.empty())
+        return rel;
+
+    // If caller passed an absolute path, honor it.
+    {
+        std::error_code ec;
+        const auto abs = std::filesystem::absolute(rel, ec).lexically_normal();
+        if (!ec && abs.is_absolute() && std::filesystem::exists(abs))
+            return abs;
+    }
+
+    const std::filesystem::path sanitizedRel = SanitizeRelativePath(rel);
+
     std::filesystem::path exeDir = std::filesystem::current_path();
 #if defined(_WIN32)
-    // Executable directoryw
     char exePath[MAX_PATH] = { 0 };
     DWORD len = GetModuleFileNameA(nullptr, exePath, static_cast<DWORD>(sizeof(exePath)));
 
@@ -37,10 +62,11 @@ std::filesystem::path AssetManager::ResolveAgainstLayouts(const std::filesystem:
         exeDir = std::filesystem::path(std::string(exePath)).parent_path();
     }
 #endif
+
     // Try typical layouts
-    std::filesystem::path try1 = exeDir / rel;                                                // next to exe
-    std::filesystem::path try2 = exeDir.parent_path().parent_path() / rel;                    // project root
-    std::filesystem::path try3 = exeDir.parent_path().parent_path().parent_path() / rel;      // solution root
+    std::filesystem::path try1 = exeDir / sanitizedRel;                                           // next to exe
+    std::filesystem::path try2 = exeDir.parent_path().parent_path() / sanitizedRel;               // project root
+    std::filesystem::path try3 = exeDir.parent_path().parent_path().parent_path() / sanitizedRel; // solution root
 
     std::filesystem::path asset = try1;
     if (!std::filesystem::exists(asset)) asset = try2;
@@ -53,8 +79,9 @@ std::filesystem::path AssetManager::ResolveAgainstLayouts(const std::filesystem:
         std::cerr << " - " << try2.string() << "\n";
         std::cerr << " - " << try3.string() << "\n";
         std::cerr << "Working directory: " << std::filesystem::current_path().string() << "\n";
-        return rel; // fallback
+        return sanitizedRel; // fallback
     }
+
     return asset;
 }
 
@@ -69,8 +96,6 @@ Texture* AssetManager::LoadTexture2D(const std::string& relativePath, bool flipY
 
     const std::string resolved = ResolveAssetPath(relativePath);
 
-    // Current Texture implementation doesn't expose these toggles.
-    (void)flipY;
     (void)generateMipmaps;
 
     const std::string cacheKey = resolved;
@@ -80,6 +105,8 @@ Texture* AssetManager::LoadTexture2D(const std::string& relativePath, bool flipY
         return it->second.get();
 
     auto tex = std::make_unique<Texture>(GL_TEXTURE_2D, resolved);
+    tex->SetFlipY(flipY);
+
     if (!tex->Load(true))
     {
         std::cerr << "Failed to load texture: " << resolved << "\n";

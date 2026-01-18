@@ -9,18 +9,19 @@
         "primary": true
       },
       "enabled": true,
+      "flipUvV": false,
       "id": 3,
       "materialPreset": 0,
       "name": "Camera",
       "parentId": 0,
       "position": [
-        0.0,
-        0.0,
-        3.0
+        2.884490489959717,
+        5.162692546844482,
+        16.322711944580078
       ],
       "rotationDeg": [
-        0.0,
-        0.0,
+        -7.320090293884277,
+        -112.19972229003906,
         0.0
       ],
       "scale": [
@@ -36,9 +37,10 @@
     },
     {
       "enabled": true,
+      "flipUvV": false,
       "id": 4,
       "materialPreset": 0,
-      "name": "Point Light",
+      "name": "PointLight",
       "parentId": 0,
       "pointLight": {
         "color": [
@@ -73,10 +75,11 @@
     },
     {
       "enabled": true,
+      "flipUvV": false,
       "id": 5,
       "materialPreset": 0,
-      "name": "StaticMesh 3",
-      "parentId": 4,
+      "name": "Lamp",
+      "parentId": 0,
       "position": [
         0.0,
         0.0,
@@ -95,7 +98,143 @@
       "staticMesh": {
         "displayName": "Static Mesh",
         "materialPath": "",
-        "meshPath": "",
+        "meshPath": "ArkEngine/Resources/Models/OBJ/Lamp.obj",
+        "texturePath": ""
+      },
+      "tint": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "enabled": true,
+      "flipUvV": false,
+      "id": 6,
+      "materialPreset": 0,
+      "name": "MetalGreymon",
+      "parentId": 0,
+      "position": [
+        -5.25,
+        0.3499999940395355,
+        0.0
+      ],
+      "rotationDeg": [
+        -3.0,
+        36.25,
+        0.0
+      ],
+      "scale": [
+        0.009999999776482582,
+        0.009999999776482582,
+        0.009999999776482582
+      ],
+      "staticMesh": {
+        "displayName": "Static Mesh",
+        "materialPath": "",
+        "meshPath": "ArkEngine/Resources/Models/OBJ/MetalGreymon/MetalGreymonPS1.obj",
+        "texturePath": "ArkEngine/Resources/Models/OBJ/MetalGreymon/textures/Image_0.png"
+      },
+      "tint": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "enabled": true,
+      "flipUvV": false,
+      "id": 7,
+      "materialPreset": 0,
+      "name": "StaticMesh 5",
+      "parentId": 0,
+      "position": [
+        3.0,
+        4.550000190734863,
+        0.0
+      ],
+      "rotationDeg": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "staticMesh": {
+        "displayName": "Static Mesh",
+        "materialPath": "",
+        "meshPath": "ArkEngine/Resources/Models/OBJ/ImperialDramon/ImperialDramon.OBJ",
+        "texturePath": "ArkEngine/Resources/Models/OBJ/ImperialDramon/internal_ground_ao_texture.jpeg"
+      },
+      "tint": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "enabled": true,
+      "flipUvV": false,
+      "id": 8,
+      "materialPreset": 0,
+      "name": "StaticMesh 6",
+      "parentId": 0,
+      "position": [
+        -7.800000190734863,
+        3.75,
+        7.949999809265137
+      ],
+      "rotationDeg": [
+        0.0,
+        62.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "staticMesh": {
+        "displayName": "Static Mesh",
+        "materialPath": "",
+        "meshPath": "ArkEngine/Resources/Models/OBJ/Kabuterimon/MegaKabuterimon.OBJ",
+        "texturePath": ""
+      },
+      "tint": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "enabled": true,
+      "flipUvV": false,
+      "id": 9,
+      "materialPreset": 0,
+      "name": "Ammo Box",
+      "parentId": 0,
+      "position": [
+        0.10000000149011612,
+        1.649999976158142,
+        7.25
+      ],
+      "rotationDeg": [
+        -59.75,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "staticMesh": {
+        "displayName": "Static Mesh",
+        "materialPath": "",
+        "meshPath": "ArkEngine/Resources/Models/OBJ/SM_Ammobox.obj",
         "texturePath": ""
       },
       "tint": [

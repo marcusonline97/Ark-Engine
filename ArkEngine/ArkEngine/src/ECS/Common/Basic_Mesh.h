@@ -1,21 +1,3 @@
-/*
-
-        Copyright 2011 Etay Meiri
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
 #pragma once
 
 #include <map>
@@ -56,9 +38,26 @@ public:
 
     PBRMaterial& GetPBRMaterial() { return m_Materials[0].PBRmaterial; };
 
+    Texture* GetPBRAlbedoTexture() const { return m_Materials.empty() ? nullptr : m_Materials[0].PBRmaterial.pAlbedo; };
+
+    Texture* GetDiffuseTexture() const
+    {
+        if (m_Materials.empty())
+            return nullptr;
+        return m_Materials[0].pTextures[TEX_TYPE_BASE];
+    }
+
     void GetLeadingVertex(uint DrawIndex, uint PrimID, Vector3f& Vertex);
 
     void SetPBR(bool IsPBR) { m_isPBR = IsPBR; }
+
+    uint32_t GetTriangleCount() const
+    {
+        uint32_t tris = 0;
+        for (const auto& e : m_Meshes)
+            tris += (e.NumIndices / 3);
+        return tris;
+    }
 
 protected:
 

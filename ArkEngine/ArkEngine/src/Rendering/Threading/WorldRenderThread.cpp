@@ -123,6 +123,7 @@ namespace Ark::Rendering
 
 			renderer.Render(input);
 			m_latestTextureId.store(renderer.GetOutputTextureId(), std::memory_order_relaxed);
+			m_latestTriangleCount.store(renderer.GetLastTriangleCount(), std::memory_order_relaxed);
 
 			glFinish();
 		}

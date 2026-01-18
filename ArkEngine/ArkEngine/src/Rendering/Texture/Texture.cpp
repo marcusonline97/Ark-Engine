@@ -62,8 +62,7 @@ bool Texture::Load(bool IsSRGB)
         pImageData = (unsigned char*)gliTex.data();
     }
     else {
-        stbi_set_flip_vertically_on_load(1);
-
+        stbi_set_flip_vertically_on_load(m_flipY ? 1 : 0);
         pImageData = stbi_load(m_fileName.c_str(), &m_imageWidth, &m_imageHeight, &m_imageBPP, 0);
     }
 
@@ -77,7 +76,6 @@ bool Texture::Load(bool IsSRGB)
 
     LoadInternal(pImageData, IsSRGB);
 
-    // Free the image data after loading it into OpenGL
     if (!m_isKTX) {
         stbi_image_free(pImageData);
     }
@@ -159,9 +157,8 @@ void Texture::LoadInternalNonDSA(const void* pImageData, bool IsSRGB)
     glTexParameteri(m_textureTarget, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(m_textureTarget, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(m_textureTarget, GL_TEXTURE_BASE_LEVEL, 0);
-    glTexParameteri(m_textureTarget, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(m_textureTarget, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    //glTexParameteri(m_textureTarget, GL_TEXTURE_WRAP_R, GL_REPEAT);
+    glTexParameteri(m_textureTarget, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(m_textureTarget, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
     glGenerateMipmap(m_textureTarget);
 
@@ -225,8 +222,8 @@ void Texture::LoadInternalDSA(const void* pImageData, bool IsSRGB)
     glTextureParameteri(m_textureObj, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTextureParameteri(m_textureObj, GL_TEXTURE_BASE_LEVEL, 0);
     glTextureParameteri(m_textureObj, GL_TEXTURE_MAX_LEVEL, Levels - 1);
-    glTextureParameteri(m_textureObj, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTextureParameteri(m_textureObj, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTextureParameteri(m_textureObj, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTextureParameteri(m_textureObj, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTextureParameteri(m_textureObj, GL_TEXTURE_MAX_ANISOTROPY, 16);
 
     glGenerateTextureMipmap(m_textureObj);

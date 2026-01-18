@@ -97,6 +97,7 @@ namespace Ark::Rendering
 		void Submit(const WorldRenderInput& input);
 
 		uint32_t GetLatestTextureId() const { return m_latestTextureId.load(std::memory_order_relaxed); }
+		uint32_t GetLatestTriangleCount() const { return m_latestTriangleCount.load(std::memory_order_relaxed); }
 
 
 	private:
@@ -117,5 +118,6 @@ namespace Ark::Rendering
 		bool m_stop = false;
 
 		std::atomic<uint32_t> m_latestTextureId{ 0 };
+		std::atomic<uint32_t> m_latestTriangleCount{ 0 };
 	};
 }

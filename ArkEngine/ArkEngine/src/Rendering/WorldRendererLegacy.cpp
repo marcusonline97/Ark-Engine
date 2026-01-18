@@ -2,12 +2,60 @@
 
 #include <filesystem>
 
+#include <glad/glad.h>
+
+#include <glm/ext/matrix_clip_space.hpp>
+#include <glm/ext/matrix_transform.hpp>
+
 #include "ECS/Common/Basic_Mesh.h"
+#include "ECS/Common/Mesh_Common.h"
 #include "ECS/SkinnedMesh/Skinned_Mesh.h"
 #include "Logger.h"
 
 namespace Ark::Rendering
 {
+	namespace
+	{
+		class ViewportRenderCallbacks final : public IRenderCallbacks
+		{
+		public:
+			ViewportRenderCallbacks(Shader& shader, Texture* albedoTexture, bool hasAlbedoTexture)
+				: m_shader(shader),
+				m_albedoTexture(albedoTexture),
+				m_hasAlbedoTexture(hasAlbedoTexture)
+			{
+			}
+
+			void DisableDiffuseTexture() override
+			{
+				m_hasAlbedoTexture = false;
+				m_albedoTexture = nullptr;
+			}
+
+			void DrawStartCB(uint DrawIndex) override
+			{
+				(void)DrawIndex;
+				Logging::ToDo() << "DrawStartCB called, hasTex=" << m_hasAlbedoTexture << "\n";
+
+
+				if (m_hasAlbedoTexture && m_albedoTexture)
+				{
+					m_albedoTexture->Bind(GL_TEXTURE0);
+					m_shader.SetInt("uHasAlbedoTexture", 1);
+				}
+				else
+				{
+					m_shader.SetInt("uHasAlbedoTexture", 0);
+				}
+			}
+
+		private:
+			Shader& m_shader;
+			Texture* m_albedoTexture = nullptr;
+			bool m_hasAlbedoTexture = false;
+		};
+	}
+
 	WorldRendererLegacy::WorldRendererLegacy() = default;
 
 	WorldRendererLegacy::~WorldRendererLegacy()
@@ -38,6 +86,18 @@ namespace Ark::Rendering
 		if (!m_skinningTech.Init())
 		{
 			Logging::Error() << "WorldRendererLegacy: SkinningTechnique init failed.\n";
+			return false;
+		}
+
+		try
+		{
+			m_viewportShader.LoadFromFiles(
+				"ArkEngine/Resources/Shaders/viewport_textured.vert",
+				"ArkEngine/Resources/Shaders/viewport_textured.frag");
+		}
+		catch (const std::exception& e)
+		{
+			Logging::Error() << "WorldRendererLegacy: Failed to load viewport shader: " << e.what() << "\n";
 			return false;
 		}
 
@@ -81,21 +141,35 @@ namespace Ark::Rendering
 		proj.zFar = input.camera.farPlane;
 		m_pipeline.SetPerspectiveProj(proj);
 
-		const Vector3f camPos(input.camera.position);
-
-		// Compute target direction from pitch/yaw (like ArkCamera)
+		// Build GLM view/proj once per frame (avoid Matrix4f -> glm::mat4 reinterpretation).
 		const float pitch = input.camera.pitchYawDeg.x;
 		const float yaw = input.camera.pitchYawDeg.y;
+
 		glm::vec3 front;
 		front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
 		front.y = sin(glm::radians(pitch));
 		front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
 		front = glm::normalize(front);
 
-		const Vector3f camTarget(glm::vec3(input.camera.position) + front);
-		const Vector3f camUp(0.0f, 1.0f, 0.0f);
+		const glm::vec3 camPosGlm = input.camera.position;
+		const glm::vec3 camTargetGlm = camPosGlm + front;
+		const glm::vec3 camUpGlm(0.0f, 1.0f, 0.0f);
 
-		m_pipeline.SetCamera(camPos, camTarget - camPos, camUp);
+		const float aspect = (m_height > 0) ? (static_cast<float>(m_width) / static_cast<float>(m_height)) : 1.0f;
+
+		const glm::mat4 projGlm = glm::perspectiveLH_ZO(
+			glm::radians(input.camera.fovDeg),
+			aspect,
+			input.camera.nearPlane,
+			input.camera.farPlane);
+
+		const glm::mat4 viewGlm = glm::lookAtLH(camPosGlm, camTargetGlm, camUpGlm);
+		const glm::mat4 vpGlm = projGlm * viewGlm;
+
+		// Keep Pipeline camera for the grid (it uses Matrix4f internally).
+		const Vector3f camPos(input.camera.position);
+
+		m_pipeline.SetCamera(camPos, Vector3f(front), Vector3f(camUpGlm));
 
 		m_viewportFbo.BindForWriting();
 		m_viewportFbo.Clear();
@@ -105,50 +179,113 @@ namespace Ark::Rendering
 		else
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-		// Ensure a VAO is bound for core profile draws (grid uses glDrawArrays*)
 		glBindVertexArray(m_dummyVao);
 
-		// Grid
 		if (input.showGrid)
 		{
 			const Matrix4f VP = m_pipeline.GetVPTrans();
 			m_grid.Render(m_gridCfg, VP, camPos);
 		}
 
+		uint32_t triangleCount = 0;
+
 		for (const RenderInstance& inst : input.instances)
 		{
-			// Pipeline expects TRS, so feed it directly from glm model.
-			// NOTE: this is a limitation of the current Pipeline API.
-			// If needed, we can add a `Pipeline::SetWorldMatrix(Matrix4f)` later.
-			const Matrix4f world = ToMatrix4f(inst.model);
-			(void)world;
+			const glm::mat4 model = inst.model;
+			const glm::mat4 mvp = vpGlm * model;
 
-			// Approximate by pulling TRS out of glm and feeding Pipeline.
-			// This keeps correct WVP for editor transforms.
-			glm::vec3 t{}, s{}, eulerDeg{};
-			{
-				// cheap TRS approximation: translation and uniform-ish scale
-				t = glm::vec3(inst.model[3]);
-				s = glm::vec3(
-					glm::length(glm::vec3(inst.model[0])),
-					glm::length(glm::vec3(inst.model[1])),
-					glm::length(glm::vec3(inst.model[2])));
-				eulerDeg = glm::vec3(0.0f);
-			}
-
-			m_pipeline.WorldPos(t.x, t.y, t.z);
-			m_pipeline.Scale(s.x, s.y, s.z);
-			m_pipeline.Rotate(eulerDeg.x, eulerDeg.y, eulerDeg.z);
-
-			const Matrix4f WVP = m_pipeline.GetWVPTrans();
-			const Matrix4f WorldM = m_pipeline.GetWorldTrans();
+			const Matrix4f WorldM = ToMatrix4f(model);
+			const Matrix4f WVP = ToMatrix4f(mvp);
 
 			if (inst.meshType == RenderMeshType::Static)
 			{
-				if (BasicMesh* m = GetOrLoadStaticMesh(inst.meshPath))
+				BasicMesh* mesh = GetOrLoadStaticMesh(inst.meshPath);
+				if (!mesh)
+					continue;
+
+				triangleCount += mesh->GetTriangleCount();
+
+				const GLboolean cullWasEnabled = glIsEnabled(GL_CULL_FACE);
+				GLint oldCullFaceMode = GL_BACK;
+				GLint oldFrontFace = GL_CCW;
+
+				glGetIntegerv(GL_CULL_FACE_MODE, &oldCullFaceMode);
+				glGetIntegerv(GL_FRONT_FACE, &oldFrontFace);
+
+				glEnable(GL_CULL_FACE);
+				glCullFace(GL_BACK);
+				glFrontFace(GL_CW);
+
+				Texture* albedo = nullptr;
+
+				// 1) Prefer explicit editor-provided texture (inst.albedoTexturePath)
+				if (!inst.albedoTexturePath.empty())
 				{
-					m->Render(nullptr);
+					// Do not flip at load time by default; use uFlipV if needed.
+					albedo = m_textureCache.GetOrLoad2D(inst.albedoTexturePath, false, input.useMipmaps);
 				}
+
+				// 2) Fallback: use mesh material texture (Assimp)
+				if (!albedo)
+				{
+					// Prefer PBR albedo when available
+					albedo = mesh->GetPBRAlbedoTexture();
+				}
+
+				// 3) Fallback: OBJ/MTL typically supplies aiTextureType_DIFFUSE (map_Kd)
+				if (!albedo)
+				{
+					albedo = mesh->GetDiffuseTexture();
+				}
+
+				m_viewportShader.Bind();
+				m_viewportShader.SetInt("uAlbedoTexture", 0);
+
+				if (albedo)
+				{
+					albedo->Bind(GL_TEXTURE0);
+					m_viewportShader.SetInt("uHasAlbedoTexture", 1);
+				}
+				else
+				{
+					m_viewportShader.SetInt("uHasAlbedoTexture", 0);
+				}
+
+				// Enable preview mode by default for editor viewport
+				m_viewportShader.SetInt("uRenderMode", 1);
+
+				m_viewportShader.SetMat4("uMVP", mvp);
+				m_viewportShader.SetMat4("uModel", model);
+
+				m_viewportShader.SetVec3("u_Tint", inst.tint);
+				m_viewportShader.SetVec3("uCameraPos", input.camera.position);
+
+				m_viewportShader.SetFloat("uAmbientStrength", input.ambientStrength);
+				m_viewportShader.SetFloat("uExposure", input.exposure);
+
+				m_viewportShader.SetInt("uMaterialPreset", 0);
+
+				const int lightCount = std::min(static_cast<int>(input.pointLights.size()), 16);
+				m_viewportShader.SetInt("uPointLightCount", lightCount);
+				for (int i = 0; i < lightCount; ++i)
+				{
+					const auto& l = input.pointLights[static_cast<size_t>(i)];
+					m_viewportShader.SetVec3(std::string("uPointLightPos[" + std::to_string(i) + "]"), l.position);
+					m_viewportShader.SetVec3(std::string("uPointLightColor[" + std::to_string(i) + "]"), l.color);
+					m_viewportShader.SetFloat(std::string("uPointLightIntensity[" + std::to_string(i) + "]"), l.intensity);
+					m_viewportShader.SetFloat(std::string("uPointLightRadius[" + std::to_string(i) + "]"), l.radius);
+				}
+
+				ViewportRenderCallbacks callbacks(m_viewportShader, albedo, (albedo != nullptr));
+				mesh->Render(&callbacks);
+
+				glCullFace(static_cast<GLenum>(oldCullFaceMode));
+				glFrontFace(static_cast<GLenum>(oldFrontFace));
+
+				if (!cullWasEnabled)
+					glDisable(GL_CULL_FACE);
+				else
+					glEnable(GL_CULL_FACE);
 			}
 			else
 			{
@@ -159,7 +296,6 @@ namespace Ark::Rendering
 				m_skinningTech.Enable();
 				m_skinningTech.SetWVP(WVP);
 				m_skinningTech.SetWorldMatrix(WorldM);
-				// NOTE: SkinningTechnique doesn't expose SetEyeWorldPos in this codebase.
 
 				const unsigned int animIndex = (inst.animationIndex < 0) ? 0u : static_cast<unsigned int>(inst.animationIndex);
 
@@ -173,8 +309,9 @@ namespace Ark::Rendering
 			}
 		}
 
-		glBindVertexArray(0);
+		m_lastTriangleCount = triangleCount;
 
+		glBindVertexArray(0);
 		m_viewportFbo.UnbindWriting();
 	}
 
