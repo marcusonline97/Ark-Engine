@@ -52,7 +52,9 @@ It's a pisser to plan and structure this mess but surely it will workout fine.
 
 Sky Rendering: https://www.youtube.com/watch?v=zZzLlRyOnZ8
 
-Structure: HellEngine https://www.youtube.com/watch?v=4s2M-e39nBM
+API Entry point and utility libraries: HellEngine https://www.youtube.com/watch?v=4s2M-e39nBM
+
+Overall good resource repository to learn from: https://github.com/emeiri/ogldev
 
 File Compression Optimization: https://www.youtube.com/watch?v=-9VlEtCUN0I
 
