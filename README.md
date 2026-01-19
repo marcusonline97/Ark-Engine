@@ -10,6 +10,15 @@
 The Main Files starts by Enabling the logger, then it checks for which graphics API that you wanna use, you can simply edit it in the main if you wanna utilize OpenGL or Vulkan. (Note: Still in development) 
 It's a pisser to plan and structure this mess but surely it will workout fine. 
 ---
++------------------------------------------------------+
+|                    Application Layer                 |
+|  (main.cpp, Editor UI, Scene Controls, Input)        |
++---------------------------+--------------------------+
+|         Engine Core       |      Rendering Engine    |
+|  (Scene, ECS, Assets)     |  (OpenGL, Shaders, Grid) |
++---------------------------+--------------------------+
+|                Platform Layer (GLFW, GLAD)           |
++------------------------------------------------------+
 
 ## 🔧 Core Technologies
 - **Language:** C++20  
@@ -24,7 +33,20 @@ It's a pisser to plan and structure this mess but surely it will workout fine.
 - [GLFW](https://github.com/glfw/glfw) — window and input handling  
 - [Assimp](https://github.com/assimp/assimp) — asset import library  
 - [stb_image](https://github.com/nothings/stb) — image loading  
-
+- [Compressonator](https://github.com/GPUOpen-Tools/compressonator) - Compressor tool
+- [FMod](https://fmod.com) - Audio Manager / Audio Player
+- [ImGui](https://github.com/ocornut/imgui) - Edito[rUI Library
+- [ImGuizmo](https://github.com/CedricGuillemet/ImGuizmo) - Gizmo model
+- [MeshOptimizer](https://github.com/zeux/meshoptimizer) - MeshOptimizer
+- [PhysX](https://github.com/NVIDIA-Omniverse/PhysX) - PHysics system (Not utilized yet)
+- [SDL3](https://github.com/libsdl-org/SDL) - Optional Window creator/handler
+- [Vulkan](https://www.vulkan.org/) - Vulkan Graphical Library (Not in use yet - not enough time to implement)
+- [ZLib](https://github.com/madler/zlib) - Zip library
+- [MagicEnum](https://github.com/Neargye/magic_enum) - Magic Enum Utility
+- [FreeType2](https://github.com/aseprite/freetype2) - FontHandler
+- [ENTT](https://github.com/skypjack/entt) - Entity Component Registy System
+- [TinyExr](https://github.com/syoyo/tinyexr) - support for .exr files
+- [Nlohmann](https://github.com/nlohmann/json) - Json parser 
 ---
 ## Engine Resources and Research Notes
 
@@ -50,6 +72,3 @@ Assimp: https://www.youtube.com/watch?v=r4MfFTDj0VU&t=30s
 ## 📖 Getting Started
 > CMake integration is planned. Once available, you’ll be able to fetch and build Ark-Engine directly with:
 More commands and preprocessor calls to be added:
-```bash
-cmake -B build
-cmake --build build
