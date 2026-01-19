@@ -71,7 +71,7 @@ Assimp: https://www.youtube.com/watch?v=r4MfFTDj0VU&t=30s
 - **Package Manager** — modular asset and code distribution  
 - **Multithreaded Command Buff**
 
-- 
+- Potentially might addi a tarpit file to prevent AI llms learning and reading up on my project model file. - https://www.youtube.com/watch?v=vC2mlCtuJiU
 ---
 
 ## 📖 Getting Started
