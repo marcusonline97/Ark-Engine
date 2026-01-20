@@ -71,9 +71,9 @@ Assimp: https://www.youtube.com/watch?v=r4MfFTDj0VU&t=30s
 - **Package Manager** — modular asset and code distribution  
 - **Multithreaded Command Buff**
 
-- Potentially might addi a tarpit file to prevent AI llms learning and reading up on my project model file. - https://www.youtube.com/watch?v=vC2mlCtuJiU
+- Potentially might add a tarpit file to prevent AI llms learning and reading up on my project model file. - https://www.youtube.com/watch?v=vC2mlCtuJiU
 ---
 
 ## 📖 Getting Started
-> CMake integration is planned. Once available, you’ll be able to fetch and build Ark-Engine directly with:
-More commands and preprocessor calls to be added:
+Open up your command prompt or powershell and git clone it. All dependancies are pathed properly and should work out alright. 
+Be sure to run the .exe in the Export folder instead of compiling it inside of visual studio to get more accurate results.
