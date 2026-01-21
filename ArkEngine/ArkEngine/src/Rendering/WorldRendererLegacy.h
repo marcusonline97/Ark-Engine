@@ -35,12 +35,15 @@ namespace Ark::Rendering
 
 		uint32_t GetOutputTextureId() const { return static_cast<uint32_t>(m_viewportFbo.GetTexture()); }
 		uint32_t GetLastTriangleCount() const { return m_lastTriangleCount; }
-		
+
 	private:
 		BasicMesh* GetOrLoadStaticMesh(const std::string& meshPath);
 		SkinnedMesh* GetOrLoadSkeletalMesh(const std::string& meshPath);
 
 		static Matrix4f ToMatrix4f(const glm::mat4& m);
+
+		void EnsureWhiteFallbackTexture();
+		void DestroyWhiteFallbackTexture();
 
 	private:
 		uint32_t m_width = 1;
@@ -69,6 +72,8 @@ namespace Ark::Rendering
 
 		Shader m_viewportShader;
 		TextureCache m_textureCache{ nullptr };
+
+		GLuint m_whiteFallbackTex = 0;
 
 		uint32_t m_lastTriangleCount = 0;
 	};

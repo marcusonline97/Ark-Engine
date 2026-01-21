@@ -14,6 +14,9 @@
 #include "Input/Input.h"
 #include "Input/KeyCodes.h"
 
+#include "Rendering/Material/MtlMaterial.h"
+#include "AssetManager.h"
+
 #include <Utility/Utility.h>
 
 namespace
@@ -1310,9 +1313,98 @@ void EditorUI::RenderInspector(std::vector<EditorObject>& objects, int& selected
             ImGui::InputText("Mesh Path", &obj.staticMesh->meshPath);
             acceptMeshDropToString(obj.staticMesh->meshPath);
 
-            ImGui::InputText("Material Path", &obj.staticMesh->materialPath);
+            ImGui::InputText("Material Path (.mtl)", &obj.staticMesh->materialPath);
 
-            ImGui::InputText("Texture Path", &obj.staticMesh->texturePath);
+            auto acceptMtlDropToString = [&](std::string& dst)
+	{
+		if (!ImGui::BeginDragDropTarget())
+			return false;
+
+		bool changed = false;
+
+		if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(kPayloadAssetPath))
+		{
+			const char* dropped = static_cast<const char*>(payload->Data);
+			if (dropped && dropped[0] != '\0')
+			{
+				const std::filesystem::path p(dropped);
+				std::string ext = p.has_extension() ? p.extension().string() : std::string();
+				std::transform(ext.begin(), ext.end(), ext.begin(),
+					[](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+
+				if (ext == ".mtl")
+				{
+					dst = dropped;
+					changed = true;
+				}
+			}
+		}
+
+		ImGui::EndDragDropTarget();
+		return changed;
+	};
+
+const auto rebuildMtlTextureSlots = [&]()
+	{
+		obj.staticMesh->textures.clear();
+
+		if (obj.staticMesh->materialPath.empty())
+			return;
+
+		const std::string resolved = AssetManager::Instance().ResolveAssetPath(obj.staticMesh->materialPath);
+
+		Ark::Rendering::MtlMaterial mtl{};
+		if (!Ark::Rendering::TryLoadMtlMaterial(resolved, mtl))
+			return;
+
+		const auto addAll = [&](const char* name, Ark::Rendering::MtlTextureSemantic sem)
+			{
+				auto it = mtl.textures.find(sem);
+				if (it == mtl.textures.end() || it->second.empty())
+					return;
+
+				for (const auto& path : it->second)
+				{
+					if (path.empty())
+						continue;
+
+					StaticMeshEditorComponent::TextureSlot slot{};
+					slot.name = name;
+					slot.path = path;
+					obj.staticMesh->textures.push_back(std::move(slot));
+				}
+			};
+
+		addAll("Diffuse", Ark::Rendering::MtlTextureSemantic::Diffuse);
+		addAll("Specular", Ark::Rendering::MtlTextureSemantic::Specular);
+		addAll("Normal", Ark::Rendering::MtlTextureSemantic::Normal);
+		addAll("Opacity", Ark::Rendering::MtlTextureSemantic::Opacity);
+	};
+
+const bool mtlDropped = acceptMtlDropToString(obj.staticMesh->materialPath);
+
+// If user typed a new value or dropped a new .mtl, rebuild slots automatically.
+if (mtlDropped || ImGui::IsItemDeactivatedAfterEdit())
+	rebuildMtlTextureSlots();
+
+ImGui::SameLine();
+if (ImGui::Button("Parse .mtl"))
+	rebuildMtlTextureSlots();
+
+            if (!obj.staticMesh->textures.empty())
+            {
+                ImGui::SeparatorText("MTL Textures");
+                for (size_t i = 0; i < obj.staticMesh->textures.size(); ++i)
+                {
+                    auto& s = obj.staticMesh->textures[i];
+                    ImGui::PushID(static_cast<int>(i));
+                    ImGui::InputText("Name", &s.name);
+                    ImGui::InputText("Path", &s.path);
+                    ImGui::PopID();
+                }
+            }
+
+            ImGui::InputText("Texture", &obj.staticMesh->texturePath);
             acceptImageDropToString(obj.staticMesh->texturePath);
 
             ImGui::TextDisabled("Tip: drag-drop a mesh/texture from Content Browser onto this section or the Mesh/Texture Path fields.");
@@ -1382,5 +1474,6 @@ void EditorUI::ValidateSceneState(std::vector<EditorObject>& objects, int& selec
     if (selectedObjectIndex >= static_cast<int>(objects.size()))
         selectedObjectIndex = static_cast<int>(objects.size() - 1);
 }
+
 
 

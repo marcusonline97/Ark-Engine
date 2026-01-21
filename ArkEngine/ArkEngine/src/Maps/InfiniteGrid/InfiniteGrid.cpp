@@ -1,5 +1,6 @@
-
 #include "InfiniteGrid.h"
+
+#include <cmath>
 
 
 InfiniteGrid::InfiniteGrid()

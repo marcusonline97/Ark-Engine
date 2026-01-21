@@ -253,6 +253,7 @@
     <ClCompile Include="ArkEngine\src\Rendering\Framebuffer\Framebuffer.cpp" />
     <ClCompile Include="ArkEngine\src\Rendering\Framebuffer\Framebuffer_Object.cpp" />
     <ClCompile Include="ArkEngine\src\Rendering\Lightning\Lightning.cpp" />
+    <ClCompile Include="ArkEngine\src\Rendering\Material\MtlMaterial.cpp" />
     <ClCompile Include="ArkEngine\src\Rendering\Mesh\ObjGPUMesh.cpp" />
     <ClCompile Include="ArkEngine\src\Rendering\Phong\Phong_Renderer.cpp" />
     <ClCompile Include="ArkEngine\src\Rendering\Texture\Cubemap_Texture.cpp" />
@@ -346,6 +347,7 @@
     <ClInclude Include="ArkEngine\src\Rendering\Framebuffer\Framebuffer_Object.h" />
     <ClInclude Include="ArkEngine\src\Rendering\Lightning\Lightning.h" />
     <ClInclude Include="ArkEngine\src\Rendering\Material\Material.h" />
+    <ClInclude Include="ArkEngine\src\Rendering\Material\MtlMaterial.h" />
     <ClInclude Include="ArkEngine\src\Rendering\Mesh\ObjGPUMesh.h" />
     <ClInclude Include="ArkEngine\src\Rendering\Phong\Phong_Renderer.h" />
     <ClInclude Include="ArkEngine\src\Rendering\Texture\bitmap.h" />

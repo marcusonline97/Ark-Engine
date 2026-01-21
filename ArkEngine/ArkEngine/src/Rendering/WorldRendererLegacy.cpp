@@ -19,32 +19,33 @@ namespace Ark::Rendering
 		class ViewportRenderCallbacks final : public IRenderCallbacks
 		{
 		public:
-			ViewportRenderCallbacks(Shader& shader, Texture* albedoTexture, bool hasAlbedoTexture)
+			ViewportRenderCallbacks(Shader& shader, Texture* albedoTexture, GLuint fallbackWhiteTex)
 				: m_shader(shader),
 				m_albedoTexture(albedoTexture),
-				m_hasAlbedoTexture(hasAlbedoTexture)
+				m_fallbackWhiteTex(fallbackWhiteTex)
 			{
 			}
 
 			void DisableDiffuseTexture() override
 			{
-				m_hasAlbedoTexture = false;
 				m_albedoTexture = nullptr;
 			}
 
 			void DrawStartCB(uint DrawIndex) override
 			{
 				(void)DrawIndex;
-				Logging::ToDo() << "DrawStartCB called, hasTex=" << m_hasAlbedoTexture << "\n";
 
+				m_shader.SetInt("uAlbedoTexture", 0);
 
-				if (m_hasAlbedoTexture && m_albedoTexture)
+				if (m_albedoTexture)
 				{
 					m_albedoTexture->Bind(GL_TEXTURE0);
 					m_shader.SetInt("uHasAlbedoTexture", 1);
 				}
 				else
 				{
+					glActiveTexture(GL_TEXTURE0);
+					glBindTexture(GL_TEXTURE_2D, m_fallbackWhiteTex);
 					m_shader.SetInt("uHasAlbedoTexture", 0);
 				}
 			}
@@ -52,7 +53,7 @@ namespace Ark::Rendering
 		private:
 			Shader& m_shader;
 			Texture* m_albedoTexture = nullptr;
-			bool m_hasAlbedoTexture = false;
+			GLuint m_fallbackWhiteTex = 0;
 		};
 	}
 
@@ -60,11 +61,51 @@ namespace Ark::Rendering
 
 	WorldRendererLegacy::~WorldRendererLegacy()
 	{
+		DestroyWhiteFallbackTexture();
+
 		if (m_dummyVao != 0)
 		{
 			glDeleteVertexArrays(1, &m_dummyVao);
 			m_dummyVao = 0;
 		}
+	}
+
+	void WorldRendererLegacy::EnsureWhiteFallbackTexture()
+	{
+		if (m_whiteFallbackTex != 0)
+			return;
+
+		glGenTextures(1, &m_whiteFallbackTex);
+		glBindTexture(GL_TEXTURE_2D, m_whiteFallbackTex);
+
+		const unsigned char pixel[4] = { 255, 255, 255, 255 };
+
+		glTexImage2D(
+			GL_TEXTURE_2D,
+			0,
+			GL_RGBA8,
+			1,
+			1,
+			0,
+			GL_RGBA,
+			GL_UNSIGNED_BYTE,
+			pixel);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+		glBindTexture(GL_TEXTURE_2D, 0);
+	}
+
+	void WorldRendererLegacy::DestroyWhiteFallbackTexture()
+	{
+		if (m_whiteFallbackTex == 0)
+			return;
+
+		glDeleteTextures(1, &m_whiteFallbackTex);
+		m_whiteFallbackTex = 0;
 	}
 
 	bool WorldRendererLegacy::Initialize()
@@ -74,6 +115,8 @@ namespace Ark::Rendering
 
 		if (m_dummyVao == 0)
 			glGenVertexArrays(1, &m_dummyVao);
+
+		EnsureWhiteFallbackTexture();
 
 		m_grid.Init();
 
@@ -92,8 +135,8 @@ namespace Ark::Rendering
 		try
 		{
 			m_viewportShader.LoadFromFiles(
-				"ArkEngine/Resources/Shaders/viewport_textured.vert",
-				"ArkEngine/Resources/Shaders/viewport_textured.frag");
+				"Resources/Shaders/viewport_textured.vert",
+				"Resources/Shaders/viewport_textured.frag");
 		}
 		catch (const std::exception& e)
 		{
@@ -140,8 +183,7 @@ namespace Ark::Rendering
 		proj.zNear = input.camera.nearPlane;
 		proj.zFar = input.camera.farPlane;
 		m_pipeline.SetPerspectiveProj(proj);
-
-		// Build GLM view/proj once per frame (avoid Matrix4f -> glm::mat4 reinterpretation).
+			
 		const float pitch = input.camera.pitchYawDeg.x;
 		const float yaw = input.camera.pitchYawDeg.y;
 
@@ -166,9 +208,7 @@ namespace Ark::Rendering
 		const glm::mat4 viewGlm = glm::lookAtLH(camPosGlm, camTargetGlm, camUpGlm);
 		const glm::mat4 vpGlm = projGlm * viewGlm;
 
-		// Keep Pipeline camera for the grid (it uses Matrix4f internally).
 		const Vector3f camPos(input.camera.position);
-
 		m_pipeline.SetCamera(camPos, Vector3f(front), Vector3f(camUpGlm));
 
 		m_viewportFbo.BindForWriting();
@@ -194,9 +234,6 @@ namespace Ark::Rendering
 			const glm::mat4 model = inst.model;
 			const glm::mat4 mvp = vpGlm * model;
 
-			const Matrix4f WorldM = ToMatrix4f(model);
-			const Matrix4f WVP = ToMatrix4f(mvp);
-
 			if (inst.meshType == RenderMeshType::Static)
 			{
 				BasicMesh* mesh = GetOrLoadStaticMesh(inst.meshPath);
@@ -212,46 +249,23 @@ namespace Ark::Rendering
 				glGetIntegerv(GL_CULL_FACE_MODE, &oldCullFaceMode);
 				glGetIntegerv(GL_FRONT_FACE, &oldFrontFace);
 
-				glEnable(GL_CULL_FACE);
+				glDisable(GL_CULL_FACE);
 				glCullFace(GL_BACK);
 				glFrontFace(GL_CW);
 
 				Texture* albedo = nullptr;
 
-				// 1) Prefer explicit editor-provided texture (inst.albedoTexturePath)
 				if (!inst.albedoTexturePath.empty())
-				{
-					// Do not flip at load time by default; use uFlipV if needed.
 					albedo = m_textureCache.GetOrLoad2D(inst.albedoTexturePath, false, input.useMipmaps);
-				}
 
-				// 2) Fallback: use mesh material texture (Assimp)
 				if (!albedo)
-				{
-					// Prefer PBR albedo when available
 					albedo = mesh->GetPBRAlbedoTexture();
-				}
 
-				// 3) Fallback: OBJ/MTL typically supplies aiTextureType_DIFFUSE (map_Kd)
 				if (!albedo)
-				{
 					albedo = mesh->GetDiffuseTexture();
-				}
 
 				m_viewportShader.Bind();
-				m_viewportShader.SetInt("uAlbedoTexture", 0);
 
-				if (albedo)
-				{
-					albedo->Bind(GL_TEXTURE0);
-					m_viewportShader.SetInt("uHasAlbedoTexture", 1);
-				}
-				else
-				{
-					m_viewportShader.SetInt("uHasAlbedoTexture", 0);
-				}
-
-				// Enable preview mode by default for editor viewport
 				m_viewportShader.SetInt("uRenderMode", 1);
 
 				m_viewportShader.SetMat4("uMVP", mvp);
@@ -276,7 +290,8 @@ namespace Ark::Rendering
 					m_viewportShader.SetFloat(std::string("uPointLightRadius[" + std::to_string(i) + "]"), l.radius);
 				}
 
-				ViewportRenderCallbacks callbacks(m_viewportShader, albedo, (albedo != nullptr));
+				EnsureWhiteFallbackTexture();
+				ViewportRenderCallbacks callbacks(m_viewportShader, albedo, m_whiteFallbackTex);
 				mesh->Render(&callbacks);
 
 				glCullFace(static_cast<GLenum>(oldCullFaceMode));
@@ -289,6 +304,9 @@ namespace Ark::Rendering
 			}
 			else
 			{
+				const Matrix4f WorldM = ToMatrix4f(model);
+				const Matrix4f WVP = ToMatrix4f(mvp);
+
 				SkinnedMesh* m = GetOrLoadSkeletalMesh(inst.meshPath);
 				if (!m)
 					continue;

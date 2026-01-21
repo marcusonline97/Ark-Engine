@@ -15,13 +15,13 @@
       "name": "Camera",
       "parentId": 0,
       "position": [
-        2.884490489959717,
-        5.162692546844482,
-        16.322711944580078
+        9.454437255859375,
+        1.8942508697509766,
+        6.74851655960083
       ],
       "rotationDeg": [
-        -7.320090293884277,
-        -112.19972229003906,
+        6.359960556030273,
+        -150.71829223632813,
         0.0
       ],
       "scale": [
@@ -99,7 +99,8 @@
         "displayName": "Static Mesh",
         "materialPath": "",
         "meshPath": "ArkEngine/Resources/Models/OBJ/Lamp.obj",
-        "texturePath": ""
+        "texturePath": "",
+        "textures": []
       },
       "tint": [
         1.0,
@@ -133,7 +134,8 @@
         "displayName": "Static Mesh",
         "materialPath": "",
         "meshPath": "ArkEngine/Resources/Models/OBJ/MetalGreymon/MetalGreymonPS1.obj",
-        "texturePath": "ArkEngine/Resources/Models/OBJ/MetalGreymon/textures/Image_0.png"
+        "texturePath": "ArkEngine/Resources/Models/OBJ/MetalGreymon/textures/Image_0.png",
+        "textures": []
       },
       "tint": [
         1.0,
@@ -167,7 +169,8 @@
         "displayName": "Static Mesh",
         "materialPath": "",
         "meshPath": "ArkEngine/Resources/Models/OBJ/ImperialDramon/ImperialDramon.OBJ",
-        "texturePath": "ArkEngine/Resources/Models/OBJ/ImperialDramon/internal_ground_ao_texture.jpeg"
+        "texturePath": "ArkEngine/Resources/Models/OBJ/ImperialDramon/internal_ground_ao_texture.jpeg",
+        "textures": []
       },
       "tint": [
         1.0,
@@ -201,7 +204,8 @@
         "displayName": "Static Mesh",
         "materialPath": "",
         "meshPath": "ArkEngine/Resources/Models/OBJ/Kabuterimon/MegaKabuterimon.OBJ",
-        "texturePath": ""
+        "texturePath": "",
+        "textures": []
       },
       "tint": [
         1.0,
@@ -235,7 +239,8 @@
         "displayName": "Static Mesh",
         "materialPath": "",
         "meshPath": "ArkEngine/Resources/Models/OBJ/SM_Ammobox.obj",
-        "texturePath": ""
+        "texturePath": "",
+        "textures": []
       },
       "tint": [
         1.0,

@@ -6,6 +6,7 @@
 #include <string>
 #include <string_view>
 #include <vector>
+#include <utility>
 
 #include <glm/glm.hpp>
 
@@ -18,10 +19,23 @@
 
 struct StaticMeshEditorComponent
 {
+    struct TextureSlot
+    {
+        std::string name; // e.g. "Diffuse", "Normal"
+        std::string path; // project-relative
+    };
+
     std::string meshPath;
     std::string displayName = "Static Mesh";
+
+    // For OBJ: user can specify an explicit .mtl to override/augment imported material info.
     std::string materialPath;
+
+    // Back-compatability: used as "albedo override" and for older scenes/UI.
     std::string texturePath;
+
+    // Generated from .mtl
+    std::vector<TextureSlot> textures;
 };
 
 struct SkeletalMeshEditorComponent

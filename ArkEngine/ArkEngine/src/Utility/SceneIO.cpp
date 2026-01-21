@@ -79,6 +79,15 @@ namespace Ark::Editor
 			{ "materialPath", SanitizeAssetPath(c.materialPath) },
 			{ "texturePath", SanitizeAssetPath(c.texturePath) },
 		};
+
+		j["textures"] = json::array();
+		for (const auto& t : c.textures)
+		{
+			j["textures"].push_back(json{
+				{ "name", t.name },
+				{ "path", SanitizeAssetPath(t.path) },
+			});
+		}
 	}
 
 	static void FromJson(const json& j, StaticMeshEditorComponent& c)
@@ -87,6 +96,22 @@ namespace Ark::Editor
 		c.displayName = j.value("displayName", "Static Mesh");
 		c.materialPath = SanitizeAssetPath(j.value("materialPath", ""));
 		c.texturePath = SanitizeAssetPath(j.value("texturePath", ""));
+
+		c.textures.clear();
+		if (j.contains("textures") && j["textures"].is_array())
+		{
+			for (const auto& it : j["textures"])
+			{
+				if (!it.is_object())
+					continue;
+
+				StaticMeshEditorComponent::TextureSlot slot{};
+				slot.name = it.value("name", "");
+				slot.path = SanitizeAssetPath(it.value("path", ""));
+				if (!slot.name.empty() || !slot.path.empty())
+					c.textures.push_back(std::move(slot));
+			}
+		}
 	}
 
 	static void ToJson(json& j, const SkeletalMeshEditorComponent& c)
