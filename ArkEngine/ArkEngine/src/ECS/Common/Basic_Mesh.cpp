@@ -723,6 +723,7 @@ void BasicMesh::SetupRenderMaterialsPhong(unsigned int MeshIndex, unsigned int M
     }
 
     if (pRenderCallbacks) {
+        pRenderCallbacks->SetMaterialTexture(m_Materials[MaterialIndex].pTextures[TEX_TYPE_BASE]);
         pRenderCallbacks->DrawStartCB(MeshIndex);
 
         if (m_Materials[MaterialIndex].pTextures[TEX_TYPE_BASE]) {
