@@ -723,12 +723,10 @@ void BasicMesh::SetupRenderMaterialsPhong(unsigned int MeshIndex, unsigned int M
     }
 
     if (pRenderCallbacks) {
+        pRenderCallbacks->DrawStartCB(MeshIndex);
+
         if (m_Materials[MaterialIndex].pTextures[TEX_TYPE_BASE]) {
-            pRenderCallbacks->DrawStartCB(MeshIndex);
             pRenderCallbacks->SetMaterial(m_Materials[MaterialIndex]);
-        }
-        else {
-            pRenderCallbacks->DisableDiffuseTexture();
         }
     }
 }
