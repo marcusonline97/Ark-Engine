@@ -16,6 +16,21 @@ namespace Ark::Rendering
 {
 	namespace
 	{
+		std::string NormalizeMeshPath(const std::string& meshPath)
+		{
+			if (meshPath.empty())
+				return {};
+
+			try
+			{
+				return std::filesystem::path(meshPath).lexically_normal().string();
+			}
+			catch (const std::exception&)
+			{
+				return meshPath;
+			}
+		}
+
 		class ViewportRenderCallbacks final : public IRenderCallbacks
 		{
 		public:
@@ -344,43 +359,45 @@ namespace Ark::Rendering
 
 	BasicMesh* WorldRendererLegacy::GetOrLoadStaticMesh(const std::string& meshPath)
 	{
-		if (meshPath.empty())
+		const std::string normalizedPath = NormalizeMeshPath(meshPath);
+		if (normalizedPath.empty())
 			return nullptr;
 
-		auto it = m_staticMeshes.find(meshPath);
+		auto it = m_staticMeshes.find(normalizedPath);
 		if (it != m_staticMeshes.end())
 			return it->second.get();
 
 		auto mesh = std::make_unique<BasicMesh>();
-		if (!mesh->LoadMesh(meshPath))
+		if (!mesh->LoadMesh(normalizedPath))
 		{
-			Logging::Error() << "WorldRendererLegacy: failed to load static mesh '" << meshPath << "'\n";
+			Logging::Error() << "WorldRendererLegacy: failed to load static mesh '" << normalizedPath << "'\n";
 			return nullptr;
 		}
 
-		BasicMesh* raw = mesh.get();
-		m_staticMeshes.emplace(meshPath, std::move(mesh));
-		return raw;
+		auto [insertIt, inserted] = m_staticMeshes.emplace(normalizedPath, std::move(mesh));
+		(void)inserted;
+		return insertIt->second.get();
 	}
 
 	SkinnedMesh* WorldRendererLegacy::GetOrLoadSkeletalMesh(const std::string& meshPath)
 	{
-		if (meshPath.empty())
+		const std::string normalizedPath = NormalizeMeshPath(meshPath);
+		if (normalizedPath.empty())
 			return nullptr;
 
-		auto it = m_skeletalMeshes.find(meshPath);
+		auto it = m_skeletalMeshes.find(normalizedPath);
 		if (it != m_skeletalMeshes.end())
 			return it->second.get();
 
 		auto mesh = std::make_unique<SkinnedMesh>();
-		if (!mesh->LoadMesh(meshPath))
+		if (!mesh->LoadMesh(normalizedPath))
 		{
-			Logging::Error() << "WorldRendererLegacy: failed to load skinned mesh '" << meshPath << "'\n";
+			Logging::Error() << "WorldRendererLegacy: failed to load skinned mesh '" << normalizedPath << "'\n";
 			return nullptr;
 		}
 
-		SkinnedMesh* raw = mesh.get();
-		m_skeletalMeshes.emplace(meshPath, std::move(mesh));
-		return raw;
+		auto [insertIt, inserted] = m_skeletalMeshes.emplace(normalizedPath, std::move(mesh));
+		(void)inserted;
+		return insertIt->second.get();
 	}
 }
