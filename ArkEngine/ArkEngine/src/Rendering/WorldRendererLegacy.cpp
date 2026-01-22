@@ -352,7 +352,7 @@ namespace Ark::Rendering
 			return it->second.get();
 
 		auto mesh = std::make_unique<BasicMesh>();
-		if (!mesh->LoadMesh(meshPath, 0))
+		if (!mesh->LoadMesh(meshPath))
 		{
 			Logging::Error() << "WorldRendererLegacy: failed to load static mesh '" << meshPath << "'\n";
 			return nullptr;
