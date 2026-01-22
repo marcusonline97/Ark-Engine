@@ -19,27 +19,47 @@ namespace Ark::Rendering
 		class ViewportRenderCallbacks final : public IRenderCallbacks
 		{
 		public:
-			ViewportRenderCallbacks(Shader& shader, Texture* albedoTexture, GLuint fallbackWhiteTex)
+			ViewportRenderCallbacks(Shader& shader, Texture* overrideTexture, Texture* meshFallbackTexture, GLuint fallbackWhiteTex)
 				: m_shader(shader),
-				m_albedoTexture(albedoTexture),
+				m_overrideTexture(overrideTexture),
+				m_meshFallbackTexture(meshFallbackTexture),
 				m_fallbackWhiteTex(fallbackWhiteTex)
 			{
 			}
 
 			void DisableDiffuseTexture() override
 			{
-				m_albedoTexture = nullptr;
+				m_materialTexture = nullptr;
 			}
 
+			void SetMaterialTexture(Texture* texture) override
+			{
+				m_materialTexture = texture;
+			}
 			void DrawStartCB(uint DrawIndex) override
 			{
 				(void)DrawIndex;
 
 				m_shader.SetInt("uAlbedoTexture", 0);
 
-				if (m_albedoTexture)
+					Texture* textureToBind = nullptr;
+
+				if (m_overrideTexture)
 				{
-					m_albedoTexture->Bind(GL_TEXTURE0);
+					textureToBind = m_overrideTexture;
+				}
+				else if (m_materialTexture)
+				{
+					textureToBind = m_materialTexture;
+				}
+				else if (m_meshFallbackTexture)
+				{
+					textureToBind = m_meshFallbackTexture;
+				}
+
+				if (textureToBind)
+				{
+					textureToBind->Bind(GL_TEXTURE0);
 					m_shader.SetInt("uHasAlbedoTexture", 1);
 				}
 				else
@@ -52,7 +72,9 @@ namespace Ark::Rendering
 
 		private:
 			Shader& m_shader;
-			Texture* m_albedoTexture = nullptr;
+			Texture* m_overrideTexture = nullptr;
+			Texture* m_materialTexture = nullptr;
+			Texture* m_meshFallbackTexture = nullptr;
 			GLuint m_fallbackWhiteTex = 0;
 		};
 	}
@@ -253,16 +275,14 @@ namespace Ark::Rendering
 				glCullFace(GL_BACK);
 				glFrontFace(GL_CW);
 
-				Texture* albedo = nullptr;
+				Texture* overrideTexture = nullptr;
 
 				if (!inst.albedoTexturePath.empty())
-					albedo = m_textureCache.GetOrLoad2D(inst.albedoTexturePath, false, input.useMipmaps);
+					overrideTexture = m_textureCache.GetOrLoad2D(inst.albedoTexturePath, false, input.useMipmaps);
 
-				if (!albedo)
-					albedo = mesh->GetPBRAlbedoTexture();
-
-				if (!albedo)
-					albedo = mesh->GetDiffuseTexture();
+				Texture* meshFallback = mesh->GetPBRAlbedoTexture();
+				if (!meshFallback)
+					meshFallback = mesh->GetDiffuseTexture();
 
 				m_viewportShader.Bind();
 
@@ -291,7 +311,7 @@ namespace Ark::Rendering
 				}
 
 				EnsureWhiteFallbackTexture();
-				ViewportRenderCallbacks callbacks(m_viewportShader, albedo, m_whiteFallbackTex);
+				ViewportRenderCallbacks callbacks(m_viewportShader, overrideTexture, meshFallback, m_whiteFallbackTex);
 				mesh->Render(&callbacks);
 
 				glCullFace(static_cast<GLenum>(oldCullFaceMode));

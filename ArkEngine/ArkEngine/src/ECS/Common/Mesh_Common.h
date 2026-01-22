@@ -15,6 +15,8 @@ public:
 
     virtual void SetMaterial(const Material& material) {}
 
+	virtual void SetMaterialTexture(Texture* texture) {}
+
     virtual void DisableDiffuseTexture() {}
 };
 

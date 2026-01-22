@@ -15,13 +15,13 @@
       "name": "Camera",
       "parentId": 0,
       "position": [
-        5.203302383422852,
-        4.2735371589660645,
-        6.457271575927734
+        0.204875648021698,
+        4.611573696136475,
+        13.507526397705078
       ],
       "rotationDeg": [
-        -3.000061511993408,
-        -148.07852172851563,
+        -1.8000621795654297,
+        -433.1953125,
         0.0
       ],
       "scale": [
@@ -239,6 +239,41 @@
         "displayName": "Static Mesh",
         "materialPath": "",
         "meshPath": "ArkEngine/Resources/Models/OBJ/SM_Ammobox.obj",
+        "texturePath": "",
+        "textures": []
+      },
+      "tint": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "enabled": true,
+      "flipUvV": false,
+      "id": 10,
+      "materialPreset": 0,
+      "name": "StaticMesh 8",
+      "parentId": 0,
+      "position": [
+        3.0,
+        3.0,
+        10.0
+      ],
+      "rotationDeg": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "staticMesh": {
+        "displayName": "Static Mesh",
+        "materialPath": "",
+        "meshPath": "ArkEngine/Resources/Models/OBJ/Gachi-Rio/source/11.obj",
         "texturePath": "",
         "textures": []
       },
