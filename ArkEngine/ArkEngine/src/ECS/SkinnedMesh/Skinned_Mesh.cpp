@@ -54,6 +54,10 @@ void SkinnedMesh::InitSingleMesh(uint MeshIndex, const aiMesh* paiMesh)
     // Populate the index buffer
     for (unsigned int i = 0; i < paiMesh->mNumFaces; i++) {
         const aiFace& Face = paiMesh->mFaces[i];
+        if (Face.mNumIndices != 3) {
+            continue;
+        }
+
         m_Indices.push_back(Face.mIndices[0]);
         m_Indices.push_back(Face.mIndices[1]);
         m_Indices.push_back(Face.mIndices[2]);
@@ -96,17 +100,19 @@ void SkinnedMesh::InitSingleMeshOpt(uint MeshIndex, const aiMesh* paiMesh)
     m_Meshes[MeshIndex].BaseVertex = (uint)m_SkinnedVertices.size();
     m_Meshes[MeshIndex].BaseIndex = (uint)m_Indices.size();
 
-    int NumIndices = paiMesh->mNumFaces * 3;
-
     std::vector<uint> Indices;
-    Indices.resize(NumIndices);
+    Indices.reserve(paiMesh->mNumFaces * 3);
 
     // Populate the index buffer
     for (unsigned int i = 0; i < paiMesh->mNumFaces; i++) {
         const aiFace& Face = paiMesh->mFaces[i];
-        Indices[i * 3 + 0] = Face.mIndices[0];
-        Indices[i * 3 + 1] = Face.mIndices[1];
-        Indices[i * 3 + 2] = Face.mIndices[2];
+        if (Face.mNumIndices != 3) {
+            continue;
+        }
+
+        Indices.push_back(Face.mIndices[0]);
+        Indices.push_back(Face.mIndices[1]);
+        Indices.push_back(Face.mIndices[2]);
     }
 
     LoadMeshBones(MeshIndex, paiMesh, SkinnedVertices, 0);
