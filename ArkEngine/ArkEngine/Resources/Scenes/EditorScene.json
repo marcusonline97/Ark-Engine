@@ -15,7 +15,6 @@
       "name": "Camera",
       "parentId": 0,
       "position": [
-<<<<<<< Updated upstream
         0.204875648021698,
         4.611573696136475,
         13.507526397705078
@@ -23,15 +22,6 @@
       "rotationDeg": [
         -1.8000621795654297,
         -433.1953125,
-=======
-        -1.4073551893234253,
-        4.300256252288818,
-        13.299284934997559
-      ],
-      "rotationDeg": [
-        -6.960046768188477,
-        -119.51934814453125,
->>>>>>> Stashed changes
         0.0
       ],
       "scale": [
@@ -191,7 +181,6 @@
     {
       "enabled": true,
       "flipUvV": false,
-<<<<<<< Updated upstream
       "id": 8,
       "materialPreset": 0,
       "name": "StaticMesh 6",
@@ -227,8 +216,6 @@
     {
       "enabled": true,
       "flipUvV": false,
-=======
->>>>>>> Stashed changes
       "id": 9,
       "materialPreset": 0,
       "name": "Ammo Box",
