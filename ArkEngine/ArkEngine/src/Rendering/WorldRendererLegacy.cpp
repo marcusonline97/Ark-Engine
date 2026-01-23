@@ -176,14 +176,6 @@ namespace Ark::Rendering
 		if (input.width != m_width || input.height != m_height)
 			Resize(input.width, input.height);
 
-		PersProjInfo proj{};
-		proj.FOV = input.camera.fovDeg;
-		proj.Width = static_cast<float>(m_width);
-		proj.Height = static_cast<float>(m_height);
-		proj.zNear = input.camera.nearPlane;
-		proj.zFar = input.camera.farPlane;
-		m_pipeline.SetPerspectiveProj(proj);
-			
 		const float pitch = input.camera.pitchYawDeg.x;
 		const float yaw = input.camera.pitchYawDeg.y;
 
@@ -209,7 +201,6 @@ namespace Ark::Rendering
 		const glm::mat4 vpGlm = projGlm * viewGlm;
 
 		const Vector3f camPos(input.camera.position);
-		m_pipeline.SetCamera(camPos, Vector3f(front), Vector3f(camUpGlm));
 
 		m_viewportFbo.BindForWriting();
 		m_viewportFbo.Clear();
@@ -223,8 +214,8 @@ namespace Ark::Rendering
 
 		if (input.showGrid)
 		{
-			const Matrix4f VP = m_pipeline.GetVPTrans();
-			m_grid.Render(m_gridCfg, VP, camPos);
+			const Matrix4f gridVP = ToMatrix4f(vpGlm);
+			m_grid.Render(m_gridCfg, gridVP, camPos);
 		}
 
 		uint32_t triangleCount = 0;
