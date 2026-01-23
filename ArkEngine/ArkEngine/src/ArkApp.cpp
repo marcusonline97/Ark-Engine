@@ -8,6 +8,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include <algorithm>
+#include <filesystem>
 #include <iostream>
 #include <stdexcept>
 
@@ -17,6 +18,41 @@
 #include "Input/Input.h"
 
 static constexpr const char* kImGuiGLSLVersion = "#version 450";
+
+namespace
+{
+	std::filesystem::path ResolveEditorScenePath()
+	{
+		static std::filesystem::path cached = []()
+			{
+				const std::filesystem::path rel = std::filesystem::path("ArkEngine") / "Resources" / "Scenes" / "EditorScene.json";
+				const std::filesystem::path altRel = std::filesystem::path("Resources") / "Scenes" / "EditorScene.json";
+
+				std::error_code ec;
+				std::filesystem::path cur = std::filesystem::current_path(ec);
+				if (ec)
+					return rel;
+
+				for (std::filesystem::path p = cur; ; p = p.parent_path())
+				{
+					const auto candidate = p / rel;
+					if (std::filesystem::exists(candidate, ec))
+						return candidate;
+
+					const auto alt = p / altRel;
+					if (std::filesystem::exists(alt, ec))
+						return alt;
+
+					if (p == p.root_path())
+						break;
+				}
+
+				return cur / rel;
+			}();
+
+		return cached;
+	}
+}
 
 GLFWwindow* App::GetWindowHandle() const
 {
@@ -61,8 +97,7 @@ App::App()
 		m_Objects.clear();
 		m_SelectedObject = -1;
 
-		const std::filesystem::path scenePath =
-			std::filesystem::current_path() / "ArkEngine" / "Resources" / "Scenes" / "EditorScene.json";
+		const std::filesystem::path scenePath = ResolveEditorScenePath();
 
 		if (!Ark::Editor::LoadEditorScene(scenePath, m_Objects))
 		{
@@ -356,8 +391,7 @@ void App::Run()
 			m_EditorUI.SetViewportTriangleCount(m_WorldRenderer ? m_WorldRenderer->GetLatestTriangleCount() : 0);
 			m_EditorUI.Render(m_Objects, m_SelectedObject);
 
-			const std::filesystem::path scenePath =
-				std::filesystem::current_path() / "ArkEngine" / "Resources" / "Scenes" / "EditorScene.json";
+			const std::filesystem::path scenePath = ResolveEditorScenePath();
 
 			if (m_EditorUI.ConsumeSaveSceneRequested())
 			{
