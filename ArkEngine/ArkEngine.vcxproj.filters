@@ -79,7 +79,11 @@
     <ClCompile Include="ArkEngine\src\ImGuizmo\ImGuizmo.cpp" />
     <ClCompile Include="ArkEngine\src\ImGuizmo\ImSequencer.cpp" />
     <ClCompile Include="ArkEngine\src\glad\glad.c" />
+<<<<<<< Updated upstream
     <ClCompile Include="ArkEngine\src\Rendering\Material\MtlMaterial.cpp" />
+=======
+    <ClCompile Include="ArkEngine\src\AssetManager\FileLoader\ObjLoader.cpp" />
+>>>>>>> Stashed changes
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ArkEngine\src\AssetManager\ResourceLoader.h" />
@@ -179,7 +183,11 @@
     <ClInclude Include="ArkEngine\src\ImGuizmo\ImLightRig.h" />
     <ClInclude Include="ArkEngine\src\ImGuizmo\ImSequencer.h" />
     <ClInclude Include="ArkEngine\src\ImGuizmo\ImZoomSlider.h" />
+<<<<<<< Updated upstream
     <ClInclude Include="ArkEngine\src\Rendering\Material\MtlMaterial.h" />
+=======
+    <ClInclude Include="ArkEngine\src\AssetManager\FileLoader\ObjLoader.h" />
+>>>>>>> Stashed changes
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="..\lib\x64\SDL3.dll" />

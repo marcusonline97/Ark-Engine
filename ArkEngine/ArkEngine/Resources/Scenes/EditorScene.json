@@ -15,6 +15,7 @@
       "name": "Camera",
       "parentId": 0,
       "position": [
+<<<<<<< Updated upstream
         0.204875648021698,
         4.611573696136475,
         13.507526397705078
@@ -22,6 +23,15 @@
       "rotationDeg": [
         -1.8000621795654297,
         -433.1953125,
+=======
+        -1.4073551893234253,
+        4.300256252288818,
+        13.299284934997559
+      ],
+      "rotationDeg": [
+        -6.960046768188477,
+        -119.51934814453125,
+>>>>>>> Stashed changes
         0.0
       ],
       "scale": [
@@ -151,9 +161,9 @@
       "name": "StaticMesh 5",
       "parentId": 0,
       "position": [
-        3.0,
+        3.4000000953674316,
         4.550000190734863,
-        0.0
+        0.10000000149011612
       ],
       "rotationDeg": [
         0.0,
@@ -181,6 +191,7 @@
     {
       "enabled": true,
       "flipUvV": false,
+<<<<<<< Updated upstream
       "id": 8,
       "materialPreset": 0,
       "name": "StaticMesh 6",
@@ -216,6 +227,8 @@
     {
       "enabled": true,
       "flipUvV": false,
+=======
+>>>>>>> Stashed changes
       "id": 9,
       "materialPreset": 0,
       "name": "Ammo Box",
@@ -276,6 +289,40 @@
         "meshPath": "ArkEngine/Resources/Models/OBJ/Gachi-Rio/source/11.obj",
         "texturePath": "",
         "textures": []
+      },
+      "tint": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "enabled": true,
+      "flipUvV": false,
+      "id": 10,
+      "materialPreset": 0,
+      "name": "StaticMesh 8",
+      "parentId": 0,
+      "position": [
+        -9.75,
+        0.550000011920929,
+        3.950000047683716
+      ],
+      "rotationDeg": [
+        0.0,
+        63.25,
+        0.0
+      ],
+      "scale": [
+        0.30000001192092896,
+        0.30000001192092896,
+        0.30000001192092896
+      ],
+      "staticMesh": {
+        "displayName": "Static Mesh",
+        "materialPath": "",
+        "meshPath": "ArkEngine/Resources/Models/OBJ/Imperialdramon PM/Imperialdramon PM.obj",
+        "texturePath": ""
       },
       "tint": [
         1.0,
