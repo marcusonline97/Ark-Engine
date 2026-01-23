@@ -71,6 +71,9 @@ namespace Ark::Rendering
 		GLuint m_dummyVao = 0;
 
 		Shader m_viewportShader;
+		Shader m_uvDebugShader;
+		bool m_hasUvDebugShader = false;
+
 		TextureCache m_textureCache{ nullptr };
 
 		GLuint m_whiteFallbackTex = 0;

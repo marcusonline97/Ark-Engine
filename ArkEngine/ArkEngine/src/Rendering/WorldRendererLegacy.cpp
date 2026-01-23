@@ -132,6 +132,7 @@ namespace Ark::Rendering
 			return false;
 		}
 
+		// Required shader: fail hard if missing.
 		try
 		{
 			m_viewportShader.LoadFromFiles(
@@ -142,6 +143,22 @@ namespace Ark::Rendering
 		{
 			Logging::Error() << "WorldRendererLegacy: Failed to load viewport shader: " << e.what() << "\n";
 			return false;
+		}
+
+		// Optional shader: warn and keep running.
+		m_hasUvDebugShader = false;
+		try
+		{
+			m_uvDebugShader.LoadFromFiles(
+				"Resources/Shaders/debug_uv.vert",
+				"Resources/Shaders/debug_uv.frag");
+			m_hasUvDebugShader = true;
+		}
+		catch (const std::exception& e)
+		{
+			Logging::Warning()
+				<< "WorldRendererLegacy: UV debug shader not available (feature disabled): "
+				<< e.what() << "\n";
 		}
 
 		constexpr unsigned int kShadowMapSize = 2048;
@@ -256,35 +273,48 @@ namespace Ark::Rendering
 				if (!albedo)
 					albedo = mesh->GetDiffuseTexture();
 
-				m_viewportShader.Bind();
+				const bool uvDebug = input.debugUv && m_hasUvDebugShader;
 
-				m_viewportShader.SetInt("uRenderMode", 1);
-
-				m_viewportShader.SetMat4("uMVP", mvp);
-				m_viewportShader.SetMat4("uModel", model);
-
-				m_viewportShader.SetVec3("u_Tint", inst.tint);
-				m_viewportShader.SetVec3("uCameraPos", input.camera.position);
-
-				m_viewportShader.SetFloat("uAmbientStrength", input.ambientStrength);
-				m_viewportShader.SetFloat("uExposure", input.exposure);
-
-				m_viewportShader.SetInt("uMaterialPreset", 0);
-
-				const int lightCount = std::min(static_cast<int>(input.pointLights.size()), 16);
-				m_viewportShader.SetInt("uPointLightCount", lightCount);
-				for (int i = 0; i < lightCount; ++i)
+				if (uvDebug)
 				{
-					const auto& l = input.pointLights[static_cast<size_t>(i)];
-					m_viewportShader.SetVec3(std::string("uPointLightPos[" + std::to_string(i) + "]"), l.position);
-					m_viewportShader.SetVec3(std::string("uPointLightColor[" + std::to_string(i) + "]"), l.color);
-					m_viewportShader.SetFloat(std::string("uPointLightIntensity[" + std::to_string(i) + "]"), l.intensity);
-					m_viewportShader.SetFloat(std::string("uPointLightRadius[" + std::to_string(i) + "]"), l.radius);
-				}
+					m_uvDebugShader.Bind();
+					m_uvDebugShader.SetMat4("gWVP", mvp);
 
-				EnsureWhiteFallbackTexture();
-				ViewportRenderCallbacks callbacks(m_viewportShader, albedo, m_whiteFallbackTex);
-				mesh->Render(&callbacks);
+					// No callbacks: skip binding albedo textures/material uniforms.
+					mesh->Render(nullptr);
+				}
+				else
+				{
+					m_viewportShader.Bind();
+
+					m_viewportShader.SetInt("uRenderMode", 1);
+
+					m_viewportShader.SetMat4("uMVP", mvp);
+					m_viewportShader.SetMat4("uModel", model);
+
+					m_viewportShader.SetVec3("u_Tint", inst.tint);
+					m_viewportShader.SetVec3("uCameraPos", input.camera.position);
+
+					m_viewportShader.SetFloat("uAmbientStrength", input.ambientStrength);
+					m_viewportShader.SetFloat("uExposure", input.exposure);
+
+					m_viewportShader.SetInt("uMaterialPreset", 0);
+
+					const int lightCount = std::min(static_cast<int>(input.pointLights.size()), 16);
+					m_viewportShader.SetInt("uPointLightCount", lightCount);
+					for (int i = 0; i < lightCount; ++i)
+					{
+						const auto& l = input.pointLights[static_cast<size_t>(i)];
+						m_viewportShader.SetVec3(std::string("uPointLightPos[" + std::to_string(i) + "]"), l.position);
+						m_viewportShader.SetVec3(std::string("uPointLightColor[" + std::to_string(i) + "]"), l.color);
+						m_viewportShader.SetFloat(std::string("uPointLightIntensity[" + std::to_string(i) + "]"), l.intensity);
+						m_viewportShader.SetFloat(std::string("uPointLightRadius[" + std::to_string(i) + "]"), l.radius);
+					}
+
+					EnsureWhiteFallbackTexture();
+					ViewportRenderCallbacks callbacks(m_viewportShader, albedo, m_whiteFallbackTex);
+					mesh->Render(&callbacks);
+				}
 
 				glCullFace(static_cast<GLenum>(oldCullFaceMode));
 				glFrontFace(static_cast<GLenum>(oldFrontFace));

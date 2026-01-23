@@ -102,6 +102,7 @@ void App::Run()
 	double lastMouseY = 0.0;
 
 	bool showGrid = true;
+	bool debugUv = false;
 
 	{
 		std::uint32_t nextId = 1;
@@ -125,11 +126,15 @@ void App::Run()
 		if (Ark::Input::IsKeyPressed(ARK_KEY_G))
 		{
 			showGrid = !showGrid;
+			if (!showGrid) Logging::Debug() << "Grid cleared (hidden).\n";
+			else           Logging::Debug() << "Grid enabled.\n";
+		}
 
-			if (!showGrid)
-				Logging::Debug() << "Grid cleared (hidden).\n";
-			else
-				Logging::Debug() << "Grid enabled.\n";
+		if (Ark::Input::IsKeyPressed(ARK_KEY_J))
+		{
+			debugUv = !debugUv;
+			if (debugUv) Logging::Debug() << "UV debug enabled.\n";
+			else         Logging::Debug() << "UV debug disabled.\n";
 		}
 
 		// CPU iterative resource loading: do a small bounded amount per frame.
@@ -232,6 +237,7 @@ void App::Run()
 			input.wireframe = m_EditorUI.GetWireframeEnabled();
 			input.useMipmaps = m_EditorUI.GetUseMipmaps();
 			input.showGrid = m_EditorUI.GetShowGrid();
+			input.debugUv = debugUv;
 
 			const auto toModel = [](const EditorObject& obj)
 				{

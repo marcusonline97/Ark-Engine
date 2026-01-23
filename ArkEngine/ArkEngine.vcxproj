@@ -392,6 +392,8 @@
     </CopyFileToFolders>
   </ItemGroup>
   <ItemGroup>
+    <None Include="ArkEngine\Resources\Shaders\debug_uv.frag" />
+    <None Include="ArkEngine\Resources\Shaders\debug_uv.vert" />
     <None Include="ArkEngine\Resources\Shaders\empty.frag" />
     <None Include="ArkEngine\Resources\Shaders\infinite_grid.frag" />
     <None Include="ArkEngine\Resources\Shaders\Infinite_grid.vert" />

@@ -83,6 +83,8 @@ namespace Ark::Rendering
 		bool useMipmaps = true;
 
 		bool showGrid = true;
+
+		bool debugUv = false;
 	};
 
 	class WorldRenderThread

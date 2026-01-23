@@ -723,13 +723,9 @@ void BasicMesh::SetupRenderMaterialsPhong(unsigned int MeshIndex, unsigned int M
     }
 
     if (pRenderCallbacks) {
-        if (m_Materials[MaterialIndex].pTextures[TEX_TYPE_BASE]) {
-            pRenderCallbacks->DrawStartCB(MeshIndex);
-            pRenderCallbacks->SetMaterial(m_Materials[MaterialIndex]);
-        }
-        else {
-            pRenderCallbacks->DisableDiffuseTexture();
-        }
+        // Always let callbacks bind their own textures (even if the mesh has none).
+        pRenderCallbacks->DrawStartCB(MeshIndex);
+        pRenderCallbacks->SetMaterial(m_Materials[MaterialIndex]);
     }
 }
 

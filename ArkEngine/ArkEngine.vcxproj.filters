@@ -203,5 +203,7 @@
     <None Include="ArkEngine\Resources\Shaders\shadow_map_point_light.frag" />
     <None Include="ArkEngine\Resources\Shaders\viewport_textured.vert" />
     <None Include="ArkEngine\Resources\Shaders\viewport_textured.frag" />
+    <None Include="ArkEngine\Resources\Shaders\debug_uv.vert" />
+    <None Include="ArkEngine\Resources\Shaders\debug_uv.frag" />
   </ItemGroup>
 </Project>

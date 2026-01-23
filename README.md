@@ -26,6 +26,13 @@ It's a pisser to plan and structure this mess but surely it will workout fine.
 - **Build System:** Just a Git Clone. CMake did't feel practical, i am more used to installing a thing and having it be done.  
 - **Compiler:** MSVC  
 
+** KeyBinds
+G - Toggles the grid
+H - Toggles wireframe mode
+
+Navigation movement with ASWD
+Rotational movement with Mouse X and Y
+Ascend Descend with Q and E.
 ---
 
 ## 📦 Dependencies
