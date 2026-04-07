@@ -1,85 +1,12 @@
 {
   "objects": [
     {
-      "camera": {
-        "displayName": "Camera",
-        "farPlane": 100.0,
-        "fovDeg": 45.0,
-        "nearPlane": 0.10000000149011612,
-        "primary": true
-      },
       "enabled": true,
       "flipUvV": false,
-      "id": 3,
+      "id": 1,
       "materialPreset": 0,
-      "name": "Camera",
-      "parentId": 0,
-      "position": [
-        0.204875648021698,
-        4.611573696136475,
-        13.507526397705078
-      ],
-      "rotationDeg": [
-        -6.960046768188477,
-        -119.51934814453125,
-        0.0
-      ],
-      "scale": [
-        1.0,
-        1.0,
-        1.0
-      ],
-      "tint": [
-        1.0,
-        1.0,
-        1.0
-      ]
-    },
-    {
-      "enabled": true,
-      "flipUvV": false,
-      "id": 4,
-      "materialPreset": 0,
-      "name": "PointLight",
-      "parentId": 0,
-      "pointLight": {
-        "color": [
-          1.0,
-          1.0,
-          1.0
-        ],
-        "displayName": "Point Light",
-        "intensity": 1.0,
-        "radius": 1.0
-      },
-      "position": [
-        0.05000000074505806,
-        0.30000001192092896,
-        0.0
-      ],
-      "rotationDeg": [
-        0.0,
-        0.0,
-        0.0
-      ],
-      "scale": [
-        0.20000000298023224,
-        0.20000000298023224,
-        0.20000000298023224
-      ],
-      "tint": [
-        1.0,
-        1.0,
-        1.0
-      ]
-    },
-    {
-      "enabled": true,
-      "flipUvV": false,
-      "id": 5,
-      "materialPreset": 0,
-      "name": "Lamp",
-      "parentId": 0,
+      "name": "Floor",
+      "parentId": 2,
       "position": [
         0.0,
         0.0,
@@ -98,7 +25,7 @@
       "staticMesh": {
         "displayName": "Static Mesh",
         "materialPath": "",
-        "meshPath": "ArkEngine/Resources/Models/OBJ/Lamp.obj",
+        "meshPath": "",
         "texturePath": "",
         "textures": []
       },
@@ -111,42 +38,14 @@
     {
       "enabled": true,
       "flipUvV": false,
-      "id": 6,
+      "id": 2,
       "materialPreset": 0,
-      "name": "MetalGreymon",
+      "name": "GameObjects",
       "parentId": 0,
       "position": [
-        -5.25,
-        0.3499999940395355,
+        0.0,
+        0.0,
         0.0
-      ],
-      "rotationDeg": [
-        -3.0,
-        36.25,
-        0.0
-      ],
-      "scale": [
-        0.009999999776482582,
-        0.009999999776482582,
-        0.009999999776482582
-      ],
-      "tint": [
-        1.0,
-        1.0,
-        1.0
-      ]
-    },
-    {
-      "enabled": true,
-      "flipUvV": false,
-      "id": 7,
-      "materialPreset": 0,
-      "name": "StaticMesh 5",
-      "parentId": 0,
-      "position": [
-        3.4000000953674316,
-        4.550000190734863,
-        0.10000000149011612
       ],
       "rotationDeg": [
         0.0,
@@ -158,125 +57,6 @@
         1.0,
         1.0
       ],
-      "tint": [
-        1.0,
-        1.0,
-        1.0
-      ]
-    },
-    {
-      "enabled": true,
-      "flipUvV": false,
-      "id": 8,
-      "materialPreset": 0,
-      "name": "StaticMesh 6",
-      "parentId": 0,
-      "position": [
-        -7.800000190734863,
-        3.75,
-        7.949999809265137
-      ],
-      "rotationDeg": [
-        0.0,
-        62.0,
-        0.0
-      ],
-      "scale": [
-        1.0,
-        1.0,
-        1.0
-      ],
-      "tint": [
-        1.0,
-        1.0,
-        1.0
-      ]
-    },
-    {
-      "enabled": true,
-      "flipUvV": false,
-      "id": 9,
-      "materialPreset": 0,
-      "name": "Ammo Box",
-      "parentId": 0,
-      "position": [
-        0.10000000149011612,
-        1.649999976158142,
-        7.25
-      ],
-      "rotationDeg": [
-        -59.75,
-        0.0,
-        0.0
-      ],
-      "scale": [
-        1.0,
-        1.0,
-        1.0
-      ],
-      "tint": [
-        1.0,
-        1.0,
-        1.0
-      ]
-    },
-    {
-      "enabled": true,
-      "flipUvV": false,
-      "id": 10,
-      "materialPreset": 0,
-      "name": "StaticMesh 8",
-      "parentId": 0,
-      "position": [
-        3.0,
-        3.0,
-        10.0
-      ],
-      "rotationDeg": [
-        0.0,
-        0.0,
-        0.0
-      ],
-      "scale": [
-        1.0,
-        1.0,
-        1.0
-      ],
-      "tint": [
-        1.0,
-        1.0,
-        1.0
-      ]
-    },
-    {
-      "enabled": true,
-      "flipUvV": false,
-      "id": 10,
-      "materialPreset": 0,
-      "name": "StaticMesh 8",
-      "parentId": 0,
-      "position": [
-        -9.75,
-        0.550000011920929,
-        3.950000047683716
-      ],
-      "rotationDeg": [
-        0.0,
-        63.25,
-        0.0
-      ],
-      "scale": [
-        0.30000001192092896,
-        0.30000001192092896,
-        0.30000001192092896
-      ],
-      "staticMesh": {
-        "displayName": "Static Mesh",
-        "materialPath": "",
-        "meshPath": "ArkEngine/Resources/Models/OBJ/Imperialdramon PM/Imperialdramon PM.obj",
-        "texturePath": "",
-        "textures": []
-      },
       "tint": [
         1.0,
         1.0,

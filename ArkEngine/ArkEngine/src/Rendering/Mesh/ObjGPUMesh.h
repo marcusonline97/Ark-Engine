@@ -20,7 +20,7 @@ namespace Ark::Rendering
 		ObjGpuMesh(ObjGpuMesh&& other) noexcept;
 		ObjGpuMesh& operator=(ObjGpuMesh&& other) noexcept;
 
-		bool LoadFromObj(const std::filesystem::path& path);
+		bool LoadFromObj(const std::filesystem::path& path, bool normalizeScale = false);
 		void Draw() const;
 
 	private:

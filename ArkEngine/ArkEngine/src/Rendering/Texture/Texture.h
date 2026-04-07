@@ -29,7 +29,7 @@ public:
 
     void SetFlipY(bool flipY) { m_flipY = flipY; }
 
-    void Load(const std::string& Filename, bool IsSRGB = false);
+    bool Load(const std::string& Filename, bool IsSRGB = false);
     void Load(unsigned int BufferSize, void* pImageData, bool IsSRGB);
     void LoadRaw(int Width, int Height, int BPP, const unsigned char* pImageData, bool IsSRGB);
     void LoadF32(int Width, int Height, const float* pImageData);

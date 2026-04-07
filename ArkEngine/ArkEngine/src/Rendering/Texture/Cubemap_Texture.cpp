@@ -64,24 +64,42 @@ void CubemapTexture::Load()
 
         if (!image_data) {
             printf("Can't load texture from '%s' - %s\n", m_fileNames[i].c_str(), stbi_failure_reason());
-            exit(0);
+            exit(1);
         }
 
         printf("Width %d, height %d, bpp %d\n", Width, Height, BPP);
 
-        pData = image_data;
+        GLenum fmt = GL_RGB;
+        GLenum internalFmt = GL_RGB8;
 
-        glTexImage2D(types[i], 0, GL_RGB, Width, Height, 0, GL_RGB, GL_UNSIGNED_BYTE, pData);
+        if (BPP == 4) {
+            fmt = GL_RGBA;
+            internalFmt = GL_RGBA8;
+        }
+        else if (BPP == 3) {
+            fmt = GL_RGB;
+            internalFmt = GL_RGB8;
+        }
+        else if (BPP == 1) {
+            fmt = GL_RED;
+            internalFmt = GL_R8;
+        }
+        else {
+            printf("Unsupported cubemap face format (BPP=%d) for '%s'\n", BPP, m_fileNames[i].c_str());
+            stbi_image_free(image_data);
+            exit(0);
+        }
 
-        // TODO: can be done outside the loop
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+        glTexImage2D(types[i], 0, internalFmt, Width, Height, 0, fmt, GL_UNSIGNED_BYTE, image_data);
 
         stbi_image_free(image_data);
     }
+
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 }
 
 
@@ -173,7 +191,6 @@ void CubemapEctTexture::LoadCubemapData(const std::vector<Bitmap>& Cubemap)
     glTextureParameteri(m_textureObj, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTextureParameteri(m_textureObj, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
     glTextureParameteri(m_textureObj, GL_TEXTURE_BASE_LEVEL, 0);
-    glTextureParameteri(m_textureObj, GL_TEXTURE_MAX_LEVEL, 0);
     glTextureParameteri(m_textureObj, GL_TEXTURE_MAX_LEVEL, 0);
     glTextureParameteri(m_textureObj, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTextureParameteri(m_textureObj, GL_TEXTURE_MAG_FILTER, GL_LINEAR);

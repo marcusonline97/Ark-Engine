@@ -84,13 +84,11 @@ bool Texture::Load(bool IsSRGB)
 }
 
 
-void Texture::Load(const std::string& Filename, bool IsSRGB)
+bool Texture::Load(const std::string& Filename, bool IsSRGB)
 {
     m_fileName = Filename;
 
-    if (!Load(IsSRGB)) {
-        exit(0);
-    }
+    return Load(IsSRGB);
 }
 
 
@@ -169,7 +167,7 @@ void Texture::LoadInternalDSA(const void* pImageData, bool IsSRGB)
 {
     glCreateTextures(m_textureTarget, 1, &m_textureObj);
 
-    int Levels = std::min(5, (int)log2f((float)std::max(m_imageWidth, m_imageHeight)));
+	int Levels = GetNumMipMapLevels2D(m_imageWidth, m_imageHeight);
     Levels = std::max(1, Levels);   // must be 1 or greater else the GL call will fail
 
     GLenum InternalFormat = GL_NONE;
@@ -224,8 +222,7 @@ void Texture::LoadInternalDSA(const void* pImageData, bool IsSRGB)
     glTextureParameteri(m_textureObj, GL_TEXTURE_MAX_LEVEL, Levels - 1);
     glTextureParameteri(m_textureObj, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTextureParameteri(m_textureObj, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTextureParameteri(m_textureObj, GL_TEXTURE_MAX_ANISOTROPY, 16);
-
+    glTextureParameterf(m_textureObj, GL_TEXTURE_MAX_ANISOTROPY, 16.0f);
     glGenerateTextureMipmap(m_textureObj);
 
     m_bindlessHandle = glGetTextureHandleARB(m_textureObj);

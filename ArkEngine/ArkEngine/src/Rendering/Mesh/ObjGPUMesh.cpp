@@ -87,7 +87,7 @@ namespace Ark::Rendering
 		return -1;
 	}
 
-	bool ObjGpuMesh::LoadFromObj(const std::filesystem::path& path)
+	bool ObjGpuMesh::LoadFromObj(const std::filesystem::path& path, bool normalizeScale = false)
 	{
 		std::ifstream f(path);
 		if (!f.is_open())
