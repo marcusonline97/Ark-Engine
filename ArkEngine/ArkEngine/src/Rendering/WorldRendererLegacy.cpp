@@ -11,6 +11,7 @@
 #include "ECS/Common/Mesh_Common.h"
 #include "ECS/SkinnedMesh/Skinned_Mesh.h"
 #include "Logger.h"
+#include "AssetManager.h"
 
 namespace Ark::Rendering
 {
@@ -367,19 +368,21 @@ namespace Ark::Rendering
 		if (meshPath.empty())
 			return nullptr;
 
-		auto it = m_staticMeshes.find(meshPath);
+		const std::string resolvedPath = AssetManager::Instance().ResolveAssetPath(meshPath);
+		auto it = m_staticMeshes.find(resolvedPath);
 		if (it != m_staticMeshes.end())
 			return it->second.get();
 
 		auto mesh = std::make_unique<BasicMesh>();
-		if (!mesh->LoadMesh(meshPath))
+		if (!mesh->LoadMesh(resolvedPath))
 		{
-			Logging::Error() << "WorldRendererLegacy: failed to load static mesh '" << meshPath << "'\n";
+			Logging::Error() << "WorldRendererLegacy: failed to load static mesh '" << meshPath
+				<< "' (resolved: '" << resolvedPath << "')\n";
 			return nullptr;
 		}
 
 		BasicMesh* raw = mesh.get();
-		m_staticMeshes.emplace(meshPath, std::move(mesh));
+		m_staticMeshes.emplace(resolvedPath, std::move(mesh));
 		return raw;
 	}
 
@@ -388,19 +391,21 @@ namespace Ark::Rendering
 		if (meshPath.empty())
 			return nullptr;
 
-		auto it = m_skeletalMeshes.find(meshPath);
+		const std::string resolvedPath = AssetManager::Instance().ResolveAssetPath(meshPath);
+		auto it = m_skeletalMeshes.find(resolvedPath);
 		if (it != m_skeletalMeshes.end())
 			return it->second.get();
 
 		auto mesh = std::make_unique<SkinnedMesh>();
-		if (!mesh->LoadMesh(meshPath))
+		if (!mesh->LoadMesh(resolvedPath))
 		{
-			Logging::Error() << "WorldRendererLegacy: failed to load skinned mesh '" << meshPath << "'\n";
+			Logging::Error() << "WorldRendererLegacy: failed to load skinned mesh '" << meshPath
+				<< "' (resolved: '" << resolvedPath << "')\n";
 			return nullptr;
 		}
 
 		SkinnedMesh* raw = mesh.get();
-		m_skeletalMeshes.emplace(meshPath, std::move(mesh));
+		m_skeletalMeshes.emplace(resolvedPath, std::move(mesh));
 		return raw;
 	}
 }
