@@ -26,6 +26,8 @@ namespace Init {
         }
         catch (const std::exception& e) {
             Logging::Fatal() << "Initializer has failed: " << e.what();
+            delete s_app;
+			s_app = nullptr;
             return false;
         }
         return true;

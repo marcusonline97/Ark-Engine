@@ -15,23 +15,13 @@
       "name": "Camera",
       "parentId": 0,
       "position": [
-<<<<<<< Updated upstream
         0.204875648021698,
         4.611573696136475,
         13.507526397705078
       ],
       "rotationDeg": [
-        -1.8000621795654297,
-        -433.1953125,
-=======
-        -1.4073551893234253,
-        4.300256252288818,
-        13.299284934997559
-      ],
-      "rotationDeg": [
         -6.960046768188477,
         -119.51934814453125,
->>>>>>> Stashed changes
         0.0
       ],
       "scale": [
@@ -140,13 +130,6 @@
         0.009999999776482582,
         0.009999999776482582
       ],
-      "staticMesh": {
-        "displayName": "Static Mesh",
-        "materialPath": "",
-        "meshPath": "ArkEngine/Resources/Models/OBJ/MetalGreymon/MetalGreymonPS1.obj",
-        "texturePath": "ArkEngine/Resources/Models/OBJ/MetalGreymon/textures/Image_0.png",
-        "textures": []
-      },
       "tint": [
         1.0,
         1.0,
@@ -175,13 +158,6 @@
         1.0,
         1.0
       ],
-      "staticMesh": {
-        "displayName": "Static Mesh",
-        "materialPath": "",
-        "meshPath": "ArkEngine/Resources/Models/OBJ/ImperialDramon/ImperialDramon.OBJ",
-        "texturePath": "ArkEngine/Resources/Models/OBJ/ImperialDramon/internal_ground_ao_texture.jpeg",
-        "textures": []
-      },
       "tint": [
         1.0,
         1.0,
@@ -191,7 +167,6 @@
     {
       "enabled": true,
       "flipUvV": false,
-<<<<<<< Updated upstream
       "id": 8,
       "materialPreset": 0,
       "name": "StaticMesh 6",
@@ -211,13 +186,6 @@
         1.0,
         1.0
       ],
-      "staticMesh": {
-        "displayName": "Static Mesh",
-        "materialPath": "",
-        "meshPath": "ArkEngine/Resources/Models/OBJ/Kabuterimon/MegaKabuterimon.OBJ",
-        "texturePath": "",
-        "textures": []
-      },
       "tint": [
         1.0,
         1.0,
@@ -227,8 +195,6 @@
     {
       "enabled": true,
       "flipUvV": false,
-=======
->>>>>>> Stashed changes
       "id": 9,
       "materialPreset": 0,
       "name": "Ammo Box",
@@ -248,13 +214,6 @@
         1.0,
         1.0
       ],
-      "staticMesh": {
-        "displayName": "Static Mesh",
-        "materialPath": "",
-        "meshPath": "ArkEngine/Resources/Models/OBJ/SM_Ammobox.obj",
-        "texturePath": "",
-        "textures": []
-      },
       "tint": [
         1.0,
         1.0,
@@ -283,13 +242,6 @@
         1.0,
         1.0
       ],
-      "staticMesh": {
-        "displayName": "Static Mesh",
-        "materialPath": "",
-        "meshPath": "ArkEngine/Resources/Models/OBJ/Gachi-Rio/source/11.obj",
-        "texturePath": "",
-        "textures": []
-      },
       "tint": [
         1.0,
         1.0,
@@ -322,7 +274,8 @@
         "displayName": "Static Mesh",
         "materialPath": "",
         "meshPath": "ArkEngine/Resources/Models/OBJ/Imperialdramon PM/Imperialdramon PM.obj",
-        "texturePath": ""
+        "texturePath": "",
+        "textures": []
       },
       "tint": [
         1.0,

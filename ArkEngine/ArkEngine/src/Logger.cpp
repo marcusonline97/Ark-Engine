@@ -100,7 +100,7 @@ namespace Logging {
 
     const char* Color(Level level) {
         switch (level) {
-        case Level::INIT:     return "\x1b[33m";
+        case Level::INIT:     return "\x1b[35m";
         case Level::DEBUG:    return "\x1b[36m";
         case Level::_ERROR:    return "\x1b[38;5;160m";
         case Level::WARNING:  return "\x1b[33m";
@@ -151,7 +151,7 @@ namespace Logging {
 				std::cout << '\n';
         }
 
-		DispatchToSinks(m_level, msg);
+		DispatchToSinks(m_level, msg); // races with other threads in the consolue output, but that's generally fine for logging
     }
 
     MessageStream::MessageStream(MessageStream&& rhs) noexcept

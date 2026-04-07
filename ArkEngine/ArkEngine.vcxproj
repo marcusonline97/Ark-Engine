@@ -70,7 +70,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(SolutionDir)lib/include/;$(SolutionDir)ArkEngine\ArkEngine\src;$(SolutionDir)ArkEngine\ArkEngine\src\imgui\;$(SolutionDir)lib/include/SDL3/;$(SolutionDir)lib/include/freetype2/</IncludePath>
+    <IncludePath>$(ProjectDir)src\imgui;$(SolutionDir)lib/include/;$(SolutionDir)ArkEngine\ArkEngine\src;$(SolutionDir)ArkEngine\ArkEngine\src\imgui\;$(SolutionDir)lib/include/SDL3/;$(SolutionDir)lib/include/freetype2/;D:\GameEngine\Ark-Engine\ArkEngine\ArkEngine\src\imgui\</IncludePath>
     <LibraryPath>$(SolutionDir)lib\x64\;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)[Export]/$(ProjectName)/$(PlatformArchitecture)B-Windows-$(Configuration)/</OutDir>
     <IntDir>$(SolutionDir)[Temp]/$(ProjectName)/$(PlatformArchitecture)B-Windows-$(Configuration)/</IntDir>
@@ -195,7 +195,6 @@
     <ClCompile Include="ArkEngine\src\ArkEngine.cpp" />
     <ClCompile Include="ArkEngine\src\ArkWindow.cpp" />
     <ClCompile Include="ArkEngine\src\AssetManager.cpp" />
-    <ClCompile Include="ArkEngine\src\AssetManager\FileLoader\ObjLoader.cpp" />
     <ClCompile Include="ArkEngine\src\AssetManager\ResourceLoader.cpp" />
     <ClCompile Include="ArkEngine\src\Camera\BasicCamera.cpp" />
     <ClCompile Include="ArkEngine\src\Camera\Camera.cpp" />
@@ -275,7 +274,6 @@
     <ClInclude Include="ArkEngine\src\ArkEnum.h" />
     <ClInclude Include="ArkEngine\src\ArkWindow.h" />
     <ClInclude Include="ArkEngine\src\AssetManager.h" />
-    <ClInclude Include="ArkEngine\src\AssetManager\FileLoader\ObjLoader.h" />
     <ClInclude Include="ArkEngine\src\AssetManager\ResourceLoader.h" />
     <ClInclude Include="ArkEngine\src\Camera\BasicCamera.h" />
     <ClInclude Include="ArkEngine\src\Camera\Camera.h" />
