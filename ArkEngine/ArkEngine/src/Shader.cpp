@@ -9,8 +9,8 @@
 
 namespace
 {
-    // Single-threaded render loop: avoid redundant glUseProgram calls.
-    static GLuint g_BoundProgram = 0;
+    // Track bound program per thread/context to avoid cross-thread GL state desync.
+    static thread_local GLuint g_BoundProgram = 0;
 }
 
 

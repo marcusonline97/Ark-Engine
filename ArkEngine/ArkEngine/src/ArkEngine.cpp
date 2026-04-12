@@ -57,3 +57,8 @@ void ArkEngine::Run()
 #endif
 	}
 }
+
+void ArkEngine::Quit()
+{
+	m_IsRunning = false;
+}

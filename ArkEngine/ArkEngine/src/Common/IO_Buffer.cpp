@@ -34,7 +34,8 @@ bool IOBuffer::Init(uint WindowWidth, uint WindowHeight, bool WithDepth, GLenum 
 {
     m_internalType = InternalType;
 
-    GLenum Format, Type;
+    GLenum Format = GL_NONE;
+    GLenum Type = GL_NONE;
 
     switch (InternalType) {
     case GL_RGB32F:
@@ -49,6 +50,7 @@ bool IOBuffer::Init(uint WindowWidth, uint WindowHeight, bool WithDepth, GLenum 
         break;
     default:
         OGLDEV_ERROR0("Invalid internal type");
+        return false;
     }
 
     // Create the FBO

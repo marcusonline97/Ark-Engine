@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <iostream>
 #include <stdexcept>
+#include <limits>
 
 #include "Logger.h"
 #include "Utility/Utility.h"
@@ -17,6 +18,20 @@
 #include "Input/Input.h"
 
 static constexpr const char* kImGuiGLSLVersion = "#version 450";
+namespace
+{
+	// Keep CPU-side resource uploads incremental to avoid frame spikes.
+	constexpr int kResourcesPerFrame = 2;
+
+	glm::mat4 BuildModelMatrix(const EditorObject& obj)
+	{
+		const glm::mat4 rotX = glm::rotate(glm::mat4(1.0f), glm::radians(obj.rotationDeg.x), glm::vec3(1, 0, 0));
+		const glm::mat4 rotY = glm::rotate(glm::mat4(1.0f), glm::radians(obj.rotationDeg.y), glm::vec3(0, 1, 0));
+		const glm::mat4 rotZ = glm::rotate(glm::mat4(1.0f), glm::radians(obj.rotationDeg.z), glm::vec3(0, 0, 1));
+		const glm::mat4 rot = rotZ * rotY * rotX;
+		return glm::translate(glm::mat4(1.0f), obj.position) * rot * glm::scale(glm::mat4(1.0f), obj.scale);
+	}
+}
 
 GLFWwindow* App::GetWindowHandle() const
 {
@@ -114,6 +129,40 @@ void App::Run()
 		}
 	}
 
+	m_cachedObjectTransforms.clear();
+	m_cachedObjectTransforms.resize(m_Objects.size());
+	m_cachedObjectModels.clear();
+	m_cachedObjectModels.resize(m_Objects.size(), glm::mat4(1.0f));
+	for (size_t i = 0; i < m_Objects.size(); ++i)
+	{
+		m_cachedObjectTransforms[i].position = m_Objects[i].position;
+		m_cachedObjectTransforms[i].rotation = m_Objects[i].rotationDeg;
+		m_cachedObjectTransforms[i].scale = m_Objects[i].scale;
+		m_cachedObjectModels[i] = BuildModelMatrix(m_Objects[i]);
+	}
+	m_renderInput.instances.reserve(m_Objects.size());
+	m_renderInput.pointLights.reserve(m_Objects.size());
+	auto refreshPrimaryCameraIndex = [&]()
+	{
+		m_primaryCameraIndex = std::numeric_limits<size_t>::max();
+		m_hasExplicitPrimaryCamera = false;
+		for (size_t i = 0; i < m_Objects.size(); ++i)
+		{
+			const auto& o = m_Objects[i];
+			if (!o.enabled || !o.camera)
+				continue;
+			if (o.camera->primary)
+			{
+				m_primaryCameraIndex = i;
+				m_hasExplicitPrimaryCamera = true;
+				break;
+			}
+			if (m_primaryCameraIndex == std::numeric_limits<size_t>::max())
+				m_primaryCameraIndex = i;
+		}
+	};
+	refreshPrimaryCameraIndex();
+
 	while (!m_Window->ShouldClose())
 	{
 		const double now = glfwGetTime();
@@ -133,26 +182,64 @@ void App::Run()
 		}
 
 		// CPU iterative resource loading: do a small bounded amount per frame.
-		m_cpuResourceLoader.Pump(2);
+		m_cpuResourceLoader.Pump(kResourcesPerFrame);
+
+		if (m_cachedObjectTransforms.size() < m_Objects.size())
+			m_cachedObjectTransforms.resize(m_Objects.size());
+		if (m_cachedObjectModels.size() < m_Objects.size())
+			m_cachedObjectModels.resize(m_Objects.size(), glm::mat4(1.0f));
+
+		const auto getModelMatrix = [&](size_t objectIndex) -> const glm::mat4&
+			{
+				if (objectIndex >= m_Objects.size())
+				{
+					static const glm::mat4 identity(1.0f);
+					return identity;
+				}
+
+				const EditorObject& obj = m_Objects[objectIndex];
+				auto& cached = m_cachedObjectTransforms[objectIndex];
+
+				const bool dirty =
+					cached.position != obj.position ||
+					cached.rotation != obj.rotationDeg ||
+					cached.scale != obj.scale;
+
+				if (dirty)
+				{
+					cached.position = obj.position;
+					cached.rotation = obj.rotationDeg;
+					cached.scale = obj.scale;
+					m_cachedObjectModels[objectIndex] = BuildModelMatrix(obj);
+				}
+
+				return m_cachedObjectModels[objectIndex];
+			};
+		const auto tryGetPrimaryCamera = [&]() -> EditorObject*
+			{
+				auto validCameraIndex = [&](size_t idx) -> bool
+				{
+					if (idx >= m_Objects.size())
+						return false;
+					if (!m_Objects[idx].camera.has_value())
+						return false;
+					if (m_hasExplicitPrimaryCamera && !m_Objects[idx].camera->primary)
+						return false;
+					return m_Objects[idx].enabled;
+				};
+
+				if (!validCameraIndex(m_primaryCameraIndex))
+					refreshPrimaryCameraIndex();
+				if (!validCameraIndex(m_primaryCameraIndex))
+					return nullptr;
+				return &m_Objects[m_primaryCameraIndex];
+			};
+		EditorObject* primaryCamera = tryGetPrimaryCamera();
 
 		// Play mode: possess the primary camera and drive it with basic FPS controls.
 		if (m_EditorUI.IsPlayMode())
 		{
-			EditorObject* camObj = nullptr;
-			for (auto& o : m_Objects)
-			{
-				if (!o.enabled || !o.camera) continue;
-				if (o.camera->primary) { camObj = &o; break; }
-			}
-			if (!camObj)
-			{
-				for (auto& o : m_Objects)
-				{
-					if (!o.enabled || !o.camera) continue;
-					camObj = &o;
-					break;
-				}
-			}
+			EditorObject* camObj = primaryCamera;
 
 			if (camObj)
 			{
@@ -225,22 +312,13 @@ void App::Run()
 
 		if (m_WorldRenderer)
 		{
-			Ark::Rendering::WorldRenderInput input{};
+			Ark::Rendering::WorldRenderInput& input = m_renderInput;
 			input.width = static_cast<uint32_t>(vpW);
 			input.height = static_cast<uint32_t>(vpH);
 
 			input.wireframe = m_EditorUI.GetWireframeEnabled();
 			input.useMipmaps = m_EditorUI.GetUseMipmaps();
 			input.showGrid = m_EditorUI.GetShowGrid();
-
-			const auto toModel = [](const EditorObject& obj)
-				{
-					const glm::mat4 rotX = glm::rotate(glm::mat4(1.0f), glm::radians(obj.rotationDeg.x), glm::vec3(1, 0, 0));
-					const glm::mat4 rotY = glm::rotate(glm::mat4(1.0f), glm::radians(obj.rotationDeg.y), glm::vec3(0, 1, 0));
-					const glm::mat4 rotZ = glm::rotate(glm::mat4(1.0f), glm::radians(obj.rotationDeg.z), glm::vec3(0, 0, 1));
-					const glm::mat4 rot = rotZ * rotY * rotX;
-					return glm::translate(glm::mat4(1.0f), obj.position) * rot * glm::scale(glm::mat4(1.0f), obj.scale);
-				};
 
 			// Camera selection:
 			// - EDIT mode: use the editor viewport camera (world-space).
@@ -251,13 +329,7 @@ void App::Run()
 			}
 			else
 			{
-				EditorObject* camObj = nullptr;
-				for (auto& o : m_Objects)
-				{
-					if (!o.enabled || !o.camera) continue;
-					if (o.camera->primary) { camObj = &o; break; }
-					if (!camObj) camObj = &o;
-				}
+				EditorObject* camObj = primaryCamera;
 
 				if (camObj && camObj->camera)
 				{
@@ -269,22 +341,27 @@ void App::Run()
 				}
 			}
 
-			input.instances.clear();
-			input.instances.reserve(m_Objects.size());
-			input.pointLights.clear();
-			input.pointLights.reserve(m_Objects.size());
+			if (input.instances.size() < m_Objects.size())
+				input.instances.resize(m_Objects.size());
+			if (input.pointLights.size() < m_Objects.size())
+				input.pointLights.resize(m_Objects.size());
 
-			for (const auto& o : m_Objects)
+			size_t instanceCount = 0;
+			size_t lightCount = 0;
+
+			for (size_t i = 0; i < m_Objects.size(); ++i)
 			{
+				const auto& o = m_Objects[i];
 				if (!o.enabled)
 					continue;
 
 				if (o.staticMesh || o.skeletalMesh)
 				{
-					Ark::Rendering::RenderInstance inst{};
+					Ark::Rendering::RenderInstance& inst = input.instances[instanceCount++];
+					inst = Ark::Rendering::RenderInstance{};
 					inst.objectId = o.id;
 
-					inst.model = toModel(o);
+					inst.model = getModelMatrix(i);
 					inst.tint = o.tint;
 
 					inst.hasMaterial = false;
@@ -320,22 +397,23 @@ void App::Run()
 						inst.animationIndex = o.skeletalMesh->animationIndex;
 					}
 
-					input.instances.push_back(inst);
 				}
 
 				// Scene light (affects shading)
 				if (o.pointLight)
 				{
-					Ark::Rendering::PointLightInput l{};
+					Ark::Rendering::PointLightInput& l = input.pointLights[lightCount++];
+					l = Ark::Rendering::PointLightInput{};
 					l.position = o.position;
 					l.color = o.pointLight->color;
 					l.intensity = o.pointLight->intensity;
 					l.radius = o.pointLight->radius;
-					input.pointLights.push_back(l);
 
 					// NOTE: Do NOT render point lights as proxy cubes. Gizmos are handled by ImGuizmo in the editor UI.
 				}
 			}
+			input.instances.resize(instanceCount);
+			input.pointLights.resize(lightCount);
 
 			m_WorldRenderer->Submit(input);
 		}
@@ -370,6 +448,18 @@ void App::Run()
 				if (Ark::Editor::LoadEditorScene(scenePath, m_Objects))
 				{
 					m_SelectedObject = m_Objects.empty() ? -1 : 0;
+					m_cachedObjectTransforms.clear();
+					m_cachedObjectTransforms.resize(m_Objects.size());
+					m_cachedObjectModels.clear();
+					m_cachedObjectModels.resize(m_Objects.size(), glm::mat4(1.0f));
+					for (size_t i = 0; i < m_Objects.size(); ++i)
+					{
+						m_cachedObjectTransforms[i].position = m_Objects[i].position;
+						m_cachedObjectTransforms[i].rotation = m_Objects[i].rotationDeg;
+						m_cachedObjectTransforms[i].scale = m_Objects[i].scale;
+						m_cachedObjectModels[i] = BuildModelMatrix(m_Objects[i]);
+					}
+					refreshPrimaryCameraIndex();
 					Logging::Debug() << "Scene loaded: " << scenePath.string() << "\n";
 				}
 			}
