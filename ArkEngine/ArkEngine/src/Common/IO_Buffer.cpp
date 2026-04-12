@@ -34,8 +34,8 @@ bool IOBuffer::Init(uint WindowWidth, uint WindowHeight, bool WithDepth, GLenum 
 {
     m_internalType = InternalType;
 
-    GLenum Format = GL_NONE;
-    GLenum Type = GL_NONE;
+    GLenum Format = GL_RGBA;
+    GLenum Type = GL_UNSIGNED_BYTE;
 
     switch (InternalType) {
     case GL_RGB32F:

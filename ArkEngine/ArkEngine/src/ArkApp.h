@@ -46,7 +46,7 @@ private:
 		glm::vec3 rotation{ 0.0f, 0.0f, 0.0f };
 		glm::vec3 scale{ 1.0f, 1.0f, 1.0f };
 	};
-	//Reused render input storage avoids per-frame fector reallocations.
+	// Reused render input storage avoids per-frame vector reallocations.
 	Ark::Rendering::WorldRenderInput m_renderInput{};
 
 	// Per-object transform cache keyed by object index in m_Objects.
@@ -56,5 +56,11 @@ private:
 	// Cached primary camera index, refreshed when scene topology/components change.
 	size_t m_primaryCameraIndex = std::numeric_limits<size_t>::max();
 	bool m_hasExplicitPrimaryCamera = false;
+	size_t m_cachedCameraObjectCount = 0;
+
+	void ResetRenderCaches();
+	void RefreshPrimaryCameraCache();
+	EditorObject* GetCachedPrimaryCameraObject();
+	const glm::mat4& GetCachedModelMatrix(size_t objectIndex, const EditorObject& object);
 };
 

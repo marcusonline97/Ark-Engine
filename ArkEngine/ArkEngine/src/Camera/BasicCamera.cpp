@@ -1,8 +1,9 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-
+#include <algorithm>
 
 #include "BasicCamera.h"
+#include "Logger.h"
 
 #include "Input/KeyCodes.h"
 static int MARGIN = 40;
@@ -368,9 +369,11 @@ Matrix4f BasicCamera::GetViewportMatrix() const
 void BasicCamera::SetSpeed(float Speed)
 {
     if (Speed <= 0.0f) {
-        printf("Invalid camera speed %f\n", Speed);
-        exit(0);
+        constexpr float kMinSpeed = 0.1f;
+        Logging::Warning() << "Invalid camera speed " << Speed << ", clamping to " << kMinSpeed << "\n";
+        m_speed = kMinSpeed;
+        return;
     }
 
-    m_speed = Speed;
+    m_speed = std::max(0.1f, Speed);
 }

@@ -3,9 +3,10 @@
 #include "Logger.h"
 #include "AssetManager.h"
 #include "Utility/Utility.h"
+#include <memory>
 
 namespace Init {
-    static App* s_app = nullptr;
+    static std::unique_ptr<App> s_app;
 
     bool StartUp() {
         Logging::EnableLevel(Logging::Level::INIT);
@@ -19,15 +20,15 @@ namespace Init {
 
         try {
             Logging::ToDo() << "Initializer::StartUp";
-            s_app = new App();
+            auto app = std::make_unique<App>();
 
             const std::string iconAbs = AssetManager::Instance().ResolveAssetPath("Resources/Icon/Ark.png");
-            Util::SetWindowIcon(s_app->GetWindowHandle(), iconAbs);
+            Util::SetWindowIcon(app->GetWindowHandle(), iconAbs);
+            s_app = std::move(app);
         }
         catch (const std::exception& e) {
             Logging::Fatal() << "Initializer has failed: " << e.what();
-            delete s_app;
-			s_app = nullptr;
+            s_app.reset();
             return false;
         }
         return true;
@@ -42,8 +43,7 @@ namespace Init {
 
     void ShutDown() {
         Logging::Init() << "Shutting Down App";
-        delete s_app;
-        s_app = nullptr;
+        s_app.reset();
         Logging::Shutdown();
     }
 }

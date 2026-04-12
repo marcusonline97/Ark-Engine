@@ -1,6 +1,6 @@
 
 #ifndef ARK_VIEWPORT_CAMERA_H
-#define	CAMERA_H
+#define ARK_VIEWPORT_CAMERA_H
 
 #include "Math/3DMath_util.h"
 #include "Input/KeyCodes.h"
@@ -59,4 +59,4 @@ private:
     Vector2i m_mousePos;
 };
 
-#endif // ARK_VIEWPORT_CAMERA_H */
+#endif // ARK_VIEWPORT_CAMERA_H

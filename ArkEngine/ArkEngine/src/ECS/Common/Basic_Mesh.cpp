@@ -1,6 +1,7 @@
 #include "Basic_Mesh.h"
 #include "Utility/Common.h"
 
+#include <memory>
 #include <meshoptimizer/meshoptimizer.h>
 
 #define POSITION_LOCATION  0
@@ -344,10 +345,12 @@ void BasicMesh::LoadDiffuseTexture(const string& Dir, const aiMaterial* pMateria
 void BasicMesh::LoadDiffuseTextureEmbedded(const aiTexture* paiTexture, int MaterialIndex)
 {
     printf("Embeddeded diffuse texture type '%s'\n", paiTexture->achFormatHint);
-    m_Materials[MaterialIndex].pTextures[TEX_TYPE_BASE] = new Texture(GL_TEXTURE_2D);
+    auto texture = std::make_unique<Texture>(GL_TEXTURE_2D);
     int buffer_size = paiTexture->mWidth;
     bool IsSRGB = true;
-    m_Materials[MaterialIndex].pTextures[TEX_TYPE_BASE]->Load(buffer_size, paiTexture->pcData, IsSRGB);
+    texture->Load(buffer_size, paiTexture->pcData, IsSRGB);
+    m_Materials[MaterialIndex].pTextures[TEX_TYPE_BASE] = texture.release();
+    m_Materials[MaterialIndex].SyncPBRTextureAliases();
 }
 
 
@@ -355,19 +358,22 @@ void BasicMesh::LoadDiffuseTextureFromFile(const string& Dir, const aiString& Pa
 {
     string FullPath = GetFullPath(Dir, Path);
 
-    m_Materials[MaterialIndex].pTextures[TEX_TYPE_BASE] = new Texture(GL_TEXTURE_2D, FullPath.c_str());
+    auto texture = std::make_unique<Texture>(GL_TEXTURE_2D, FullPath.c_str());
 
     bool IsSRGB = true;
 
-    if (!m_Materials[MaterialIndex].pTextures[TEX_TYPE_BASE]->Load(IsSRGB)) {
+    if (!texture->Load(IsSRGB)) {
         printf("Error loading diffuse texture '%s'\n", FullPath.c_str());
-        delete m_Materials[MaterialIndex].pTextures[TEX_TYPE_BASE];
         m_Materials[MaterialIndex].pTextures[TEX_TYPE_BASE] = NULL;
+        m_Materials[MaterialIndex].SyncPBRTextureAliases();
         return;
     }
     else {
         printf("Loaded diffuse texture '%s' at index %d\n", FullPath.c_str(), MaterialIndex);
     }
+
+    m_Materials[MaterialIndex].pTextures[TEX_TYPE_BASE] = texture.release();
+    m_Materials[MaterialIndex].SyncPBRTextureAliases();
 }
 
 
@@ -395,10 +401,12 @@ void BasicMesh::LoadSpecularTexture(const string& Dir, const aiMaterial* pMateri
 void BasicMesh::LoadSpecularTextureEmbedded(const aiTexture* paiTexture, int MaterialIndex)
 {
     printf("Embeddeded specular texture type '%s'\n", paiTexture->achFormatHint);
-    m_Materials[MaterialIndex].pTextures[TEX_TYPE_SPECULAR] = new Texture(GL_TEXTURE_2D);
+    auto texture = std::make_unique<Texture>(GL_TEXTURE_2D);
     int buffer_size = paiTexture->mWidth;
     bool IsSRGB = false;
-    m_Materials[MaterialIndex].pTextures[TEX_TYPE_SPECULAR]->Load(buffer_size, paiTexture->pcData, IsSRGB);
+    texture->Load(buffer_size, paiTexture->pcData, IsSRGB);
+    m_Materials[MaterialIndex].pTextures[TEX_TYPE_SPECULAR] = texture.release();
+    m_Materials[MaterialIndex].SyncPBRTextureAliases();
 }
 
 
@@ -406,17 +414,22 @@ void BasicMesh::LoadSpecularTextureFromFile(const string& Dir, const aiString& P
 {
     string FullPath = GetFullPath(Dir, Path);
 
-    m_Materials[MaterialIndex].pTextures[TEX_TYPE_SPECULAR] = new Texture(GL_TEXTURE_2D, FullPath.c_str());
+    auto texture = std::make_unique<Texture>(GL_TEXTURE_2D, FullPath.c_str());
 
     bool IsSRGB = false;
 
-    if (!m_Materials[MaterialIndex].pTextures[TEX_TYPE_SPECULAR]->Load(IsSRGB)) {
+    if (!texture->Load(IsSRGB)) {
         printf("Error loading specular texture '%s'\n", FullPath.c_str());
-        exit(0);
+        m_Materials[MaterialIndex].pTextures[TEX_TYPE_SPECULAR] = NULL;
+        m_Materials[MaterialIndex].SyncPBRTextureAliases();
+        return;
     }
     else {
         printf("Loaded specular texture '%s'\n", FullPath.c_str());
     }
+
+    m_Materials[MaterialIndex].pTextures[TEX_TYPE_SPECULAR] = texture.release();
+    m_Materials[MaterialIndex].SyncPBRTextureAliases();
 }
 
 
@@ -444,10 +457,12 @@ void BasicMesh::LoadAlbedoTexture(const string& Dir, const aiMaterial* pMaterial
 void BasicMesh::LoadAlbedoTextureEmbedded(const aiTexture* paiTexture, int MaterialIndex)
 {
     printf("Embeddeded albedo texture type '%s'\n", paiTexture->achFormatHint);
-    m_Materials[MaterialIndex].PBRmaterial.pAlbedo = new Texture(GL_TEXTURE_2D);
+    auto texture = std::make_unique<Texture>(GL_TEXTURE_2D);
     int buffer_size = paiTexture->mWidth;
     bool IsSRGB = true;
-    m_Materials[MaterialIndex].PBRmaterial.pAlbedo->Load(buffer_size, paiTexture->pcData, IsSRGB);
+    texture->Load(buffer_size, paiTexture->pcData, IsSRGB);
+    m_Materials[MaterialIndex].pTextures[TEX_TYPE_BASE] = texture.release();
+    m_Materials[MaterialIndex].SyncPBRTextureAliases();
 }
 
 
@@ -455,17 +470,22 @@ void BasicMesh::LoadAlbedoTextureFromFile(const string& Dir, const aiString& Pat
 {
     string FullPath = GetFullPath(Dir, Path);
 
-    m_Materials[MaterialIndex].PBRmaterial.pAlbedo = new Texture(GL_TEXTURE_2D, FullPath.c_str());
+    auto texture = std::make_unique<Texture>(GL_TEXTURE_2D, FullPath.c_str());
 
     bool IsSRGB = true;
 
-    if (!m_Materials[MaterialIndex].PBRmaterial.pAlbedo->Load(IsSRGB)) {
+    if (!texture->Load(IsSRGB)) {
         printf("Error loading albedo texture '%s'\n", FullPath.c_str());
-        exit(0);
+        m_Materials[MaterialIndex].pTextures[TEX_TYPE_BASE] = NULL;
+        m_Materials[MaterialIndex].SyncPBRTextureAliases();
+        return;
     }
     else {
         printf("Loaded albedo texture '%s'\n", FullPath.c_str());
     }
+
+    m_Materials[MaterialIndex].pTextures[TEX_TYPE_BASE] = texture.release();
+    m_Materials[MaterialIndex].SyncPBRTextureAliases();
 }
 
 
@@ -497,10 +517,12 @@ void BasicMesh::LoadMetalnessTexture(const string& Dir, const aiMaterial* pMater
 void BasicMesh::LoadMetalnessTextureEmbedded(const aiTexture* paiTexture, int MaterialIndex)
 {
     printf("Embeddeded metalness texture type '%s'\n", paiTexture->achFormatHint);
-    m_Materials[MaterialIndex].PBRmaterial.pMetallic = new Texture(GL_TEXTURE_2D);
+    auto texture = std::make_unique<Texture>(GL_TEXTURE_2D);
     int buffer_size = paiTexture->mWidth;
     bool IsSRGB = false;
-    m_Materials[MaterialIndex].PBRmaterial.pMetallic->Load(buffer_size, paiTexture->pcData, IsSRGB);
+    texture->Load(buffer_size, paiTexture->pcData, IsSRGB);
+    m_Materials[MaterialIndex].pTextures[TEX_TYPE_METALNESS] = texture.release();
+    m_Materials[MaterialIndex].SyncPBRTextureAliases();
 }
 
 
@@ -508,17 +530,22 @@ void BasicMesh::LoadMetalnessTextureFromFile(const string& Dir, const aiString& 
 {
     string FullPath = GetFullPath(Dir, Path);
 
-    m_Materials[MaterialIndex].PBRmaterial.pMetallic = new Texture(GL_TEXTURE_2D, FullPath.c_str());
+    auto texture = std::make_unique<Texture>(GL_TEXTURE_2D, FullPath.c_str());
 
     bool IsSRGB = false;
 
-    if (!m_Materials[MaterialIndex].PBRmaterial.pMetallic->Load(IsSRGB)) {
+    if (!texture->Load(IsSRGB)) {
         printf("Error loading metalness texture '%s'\n", FullPath.c_str());
-        exit(0);
+        m_Materials[MaterialIndex].pTextures[TEX_TYPE_METALNESS] = NULL;
+        m_Materials[MaterialIndex].SyncPBRTextureAliases();
+        return;
     }
     else {
         printf("Loaded metalness texture '%s'\n", FullPath.c_str());
     }
+
+    m_Materials[MaterialIndex].pTextures[TEX_TYPE_METALNESS] = texture.release();
+    m_Materials[MaterialIndex].SyncPBRTextureAliases();
 }
 
 
@@ -550,10 +577,12 @@ void BasicMesh::LoadRoughnessTexture(const string& Dir, const aiMaterial* pMater
 void BasicMesh::LoadRoughnessTextureEmbedded(const aiTexture* paiTexture, int MaterialIndex)
 {
     printf("Embeddeded roughness texture type '%s'\n", paiTexture->achFormatHint);
-    m_Materials[MaterialIndex].PBRmaterial.pRoughness = new Texture(GL_TEXTURE_2D);
+    auto texture = std::make_unique<Texture>(GL_TEXTURE_2D);
     int buffer_size = paiTexture->mWidth;
     bool IsSRGB = false;
-    m_Materials[MaterialIndex].PBRmaterial.pRoughness->Load(buffer_size, paiTexture->pcData, IsSRGB);
+    texture->Load(buffer_size, paiTexture->pcData, IsSRGB);
+    m_Materials[MaterialIndex].pTextures[TEX_TYPE_ROUGHNESS] = texture.release();
+    m_Materials[MaterialIndex].SyncPBRTextureAliases();
 }
 
 
@@ -561,16 +590,21 @@ void BasicMesh::LoadRoughnessTextureFromFile(const string& Dir, const aiString& 
 {
     string FullPath = GetFullPath(Dir, Path);
 
-    m_Materials[MaterialIndex].PBRmaterial.pRoughness = new Texture(GL_TEXTURE_2D, FullPath.c_str());
+    auto texture = std::make_unique<Texture>(GL_TEXTURE_2D, FullPath.c_str());
     bool IsSRGB = false;
 
-    if (!m_Materials[MaterialIndex].PBRmaterial.pRoughness->Load(IsSRGB)) {
+    if (!texture->Load(IsSRGB)) {
         printf("Error loading roughness texture '%s'\n", FullPath.c_str());
-        exit(0);
+        m_Materials[MaterialIndex].pTextures[TEX_TYPE_ROUGHNESS] = NULL;
+        m_Materials[MaterialIndex].SyncPBRTextureAliases();
+        return;
     }
     else {
         printf("Loaded roughness texture '%s'\n", FullPath.c_str());
     }
+
+    m_Materials[MaterialIndex].pTextures[TEX_TYPE_ROUGHNESS] = texture.release();
+    m_Materials[MaterialIndex].SyncPBRTextureAliases();
 }
 
 
@@ -821,6 +855,8 @@ void BasicMesh::Render(unsigned int NumInstances, const Matrix4f* WVPMats, const
 
 const Material& BasicMesh::GetMaterial()
 {
+    static Material s_DefaultMaterial;
+
     for (unsigned int i = 0; i < m_Materials.size(); i++) {
         if (m_Materials[i].AmbientColor != Vector4f(0.0f)) {
             return m_Materials[i];
@@ -829,7 +865,7 @@ const Material& BasicMesh::GetMaterial()
 
     if (m_Materials.size() == 0) {
         printf("No materials\n");
-        exit(0);
+        return s_DefaultMaterial;
     }
 
     return m_Materials[0];

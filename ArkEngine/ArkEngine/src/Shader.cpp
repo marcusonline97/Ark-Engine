@@ -3,14 +3,15 @@
 #include <fstream>
 #include <sstream>
 #include <stdexcept>
+#include <string_view>
 #include <utility>
 
 #include "AssetManager.h"
 
 namespace
 {
-    // Single-threaded render loop: avoid redundant glUseProgram calls.
-    static GLuint g_BoundProgram = 0;
+    // Keep bound program tracking per-thread (editor + world render thread).
+    thread_local GLuint g_BoundProgram = 0;
 }
 
 
@@ -142,7 +143,27 @@ int Shader::GetLocation(const char* name) const
     return loc;
 }
 
+int Shader::GetLocation(std::string_view name) const
+{
+    if (name.empty() || m_program == 0)
+        return -1;
+
+    const std::string key(name);
+    const auto it = m_uniformLocationCache.find(key);
+    if (it != m_uniformLocationCache.end())
+        return it->second;
+
+    const int loc = glGetUniformLocation(m_program, key.c_str());
+    m_uniformLocationCache.emplace(key, loc);
+    return loc;
+}
+
 void Shader::SetInt(const char* name, int v) const { glUniform1i(GetLocation(name), v); }
 void Shader::SetFloat(const char* name, float v) const { glUniform1f(GetLocation(name), v); }
 void Shader::SetVec3(const char* name, const glm::vec3& v) const { glUniform3fv(GetLocation(name), 1, &v.x); }
 void Shader::SetMat4(const char* name, const glm::mat4& m) const { glUniformMatrix4fv(GetLocation(name), 1, GL_FALSE, &m[0][0]); }
+
+void Shader::SetInt(std::string_view name, int v) const { glUniform1i(GetLocation(name), v); }
+void Shader::SetFloat(std::string_view name, float v) const { glUniform1f(GetLocation(name), v); }
+void Shader::SetVec3(std::string_view name, const glm::vec3& v) const { glUniform3fv(GetLocation(name), 1, &v.x); }
+void Shader::SetMat4(std::string_view name, const glm::mat4& m) const { glUniformMatrix4fv(GetLocation(name), 1, GL_FALSE, &m[0][0]); }

@@ -54,6 +54,7 @@ namespace Logging {
 
     void EnableLevel(Level level);
     void DisableLevel(Level level);
+    bool IsEnabled(Level level);
 
     MessageStream Message(Level level);
 

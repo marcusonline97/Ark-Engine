@@ -2,6 +2,7 @@
 #include <glm/glm.hpp>
 
 #include <string>
+#include <string_view>
 #include <unordered_map>
 
 class Shader
@@ -21,13 +22,14 @@ public:
     void SetVec3(const char* name, const glm::vec3& v) const;
     void SetMat4(const char* name, const glm::mat4& m) const;
 
-    void SetInt(std::string_view name, int v) const { SetInt(std::string(name).c_str(), v); }
-    void SetFloat(std::string_view name, float v) const { SetFloat(std::string(name).c_str(), v); }
-    void SetVec3(std::string_view name, const glm::vec3& v) const { SetVec3(std::string(name).c_str(), v); }
-    void SetMat4(std::string_view name, const glm::mat4& m) const { SetMat4(std::string(name).c_str(), m); }
+    void SetInt(std::string_view name, int v) const;
+    void SetFloat(std::string_view name, float v) const;
+    void SetVec3(std::string_view name, const glm::vec3& v) const;
+    void SetMat4(std::string_view name, const glm::mat4& m) const;
 
 private:
     int GetLocation(const char* name) const;
+    int GetLocation(std::string_view name) const;
 
 private:
     unsigned int m_program = 0;

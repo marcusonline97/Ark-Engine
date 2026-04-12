@@ -1,6 +1,8 @@
 #include "Utility/Common.h"
 #include "Skinned_Mesh.h"
 
+#include <algorithm>
+
 #include "meshoptimizer/meshoptimizer.h"
 
 #define POSITION_LOCATION    0
@@ -20,6 +22,35 @@ void SkinnedMesh::ReserveSpace(unsigned int NumVertices, unsigned int NumIndices
 {
     BasicMesh::ReserveSpace(NumVertices, NumIndices);
     InitializeRequiredNodeMap(m_pScene->mRootNode);
+
+    m_animationNodeMap.clear();
+    m_animationToIndex.clear();
+
+    if (!m_pScene) {
+        return;
+    }
+
+    m_animationNodeMap.resize(m_pScene->mNumAnimations);
+
+    for (uint32_t animationIndex = 0; animationIndex < m_pScene->mNumAnimations; animationIndex++) {
+        const aiAnimation* pAnimation = m_pScene->mAnimations[animationIndex];
+        if (!pAnimation) {
+            continue;
+        }
+
+        m_animationToIndex.emplace(pAnimation, animationIndex);
+        auto& nodeMap = m_animationNodeMap[animationIndex];
+        nodeMap.reserve(pAnimation->mNumChannels);
+
+        for (uint channelIndex = 0; channelIndex < pAnimation->mNumChannels; channelIndex++) {
+            const aiNodeAnim* pNodeAnim = pAnimation->mChannels[channelIndex];
+            if (!pNodeAnim) {
+                continue;
+            }
+
+            nodeMap.emplace(std::string(pNodeAnim->mNodeName.C_Str()), pNodeAnim);
+        }
+    }
 }
 
 
@@ -199,7 +230,7 @@ void SkinnedMesh::MarkRequiredNodesForBone(const aiBone* pBone)
     const aiNode* pParent = NULL;
 
     do {
-        map<string, NodeInfo>::iterator it = m_requiredNodeMap.find(NodeName);
+        auto it = m_requiredNodeMap.find(NodeName);
 
         if (it == m_requiredNodeMap.end()) {
             printf("Cannot find bone %s in the hierarchy\n", NodeName.c_str());
@@ -234,19 +265,13 @@ void SkinnedMesh::InitializeRequiredNodeMap(const aiNode* pNode)
 
 int SkinnedMesh::GetBoneId(const aiBone* pBone)
 {
-    int BoneIndex = 0;
     string BoneName(pBone->mName.C_Str());
-
-    if (m_BoneNameToIndexMap.find(BoneName) == m_BoneNameToIndexMap.end()) {
-        // Allocate an index for a new bone
-        BoneIndex = (int)m_BoneNameToIndexMap.size();
-        m_BoneNameToIndexMap[BoneName] = BoneIndex;
-    }
-    else {
-        BoneIndex = m_BoneNameToIndexMap[BoneName];
+    const auto [it, inserted] = m_BoneNameToIndexMap.emplace(BoneName, (uint)m_BoneNameToIndexMap.size());
+    if (!inserted) {
+        return (int)it->second;
     }
 
-    return BoneIndex;
+    return (int)it->second;
 }
 
 
@@ -332,14 +357,22 @@ void SkinnedMesh::PopulateBuffersDSA()
 
 uint SkinnedMesh::FindPosition(float AnimationTimeTicks, const aiNodeAnim* pNodeAnim)
 {
-    for (uint i = 0; i < pNodeAnim->mNumPositionKeys - 1; i++) {
-        float t = (float)pNodeAnim->mPositionKeys[i + 1].mTime;
-        if (AnimationTimeTicks < t) {
-            return i;
-        }
+    if (pNodeAnim->mNumPositionKeys <= 1) {
+        return 0;
     }
 
-    return 0;
+    const aiVectorKey* first = pNodeAnim->mPositionKeys;
+    const aiVectorKey* begin = first + 1;
+    const aiVectorKey* end = first + pNodeAnim->mNumPositionKeys;
+
+    const auto it = std::lower_bound(begin, end, static_cast<double>(AnimationTimeTicks),
+        [](const aiVectorKey& key, double value) { return key.mTime < value; });
+
+    if (it == end) {
+        return pNodeAnim->mNumPositionKeys - 2;
+    }
+
+    return (uint)((it - first) - 1);
 }
 
 
@@ -375,14 +408,22 @@ uint SkinnedMesh::FindRotation(float AnimationTimeTicks, const aiNodeAnim* pNode
 {
     assert(pNodeAnim->mNumRotationKeys > 0);
 
-    for (uint i = 0; i < pNodeAnim->mNumRotationKeys - 1; i++) {
-        float t = (float)pNodeAnim->mRotationKeys[i + 1].mTime;
-        if (AnimationTimeTicks < t) {
-            return i;
-        }
+    if (pNodeAnim->mNumRotationKeys <= 1) {
+        return 0;
     }
 
-    return 0;
+    const aiQuatKey* first = pNodeAnim->mRotationKeys;
+    const aiQuatKey* begin = first + 1;
+    const aiQuatKey* end = first + pNodeAnim->mNumRotationKeys;
+
+    const auto it = std::lower_bound(begin, end, static_cast<double>(AnimationTimeTicks),
+        [](const aiQuatKey& key, double value) { return key.mTime < value; });
+
+    if (it == end) {
+        return pNodeAnim->mNumRotationKeys - 2;
+    }
+
+    return (uint)((it - first) - 1);
 }
 
 
@@ -419,14 +460,22 @@ uint SkinnedMesh::FindScaling(float AnimationTimeTicks, const aiNodeAnim* pNodeA
 {
     assert(pNodeAnim->mNumScalingKeys > 0);
 
-    for (uint i = 0; i < pNodeAnim->mNumScalingKeys - 1; i++) {
-        float t = (float)pNodeAnim->mScalingKeys[i + 1].mTime;
-        if (AnimationTimeTicks < t) {
-            return i;
-        }
+    if (pNodeAnim->mNumScalingKeys <= 1) {
+        return 0;
     }
 
-    return 0;
+    const aiVectorKey* first = pNodeAnim->mScalingKeys;
+    const aiVectorKey* begin = first + 1;
+    const aiVectorKey* end = first + pNodeAnim->mNumScalingKeys;
+
+    const auto it = std::lower_bound(begin, end, static_cast<double>(AnimationTimeTicks),
+        [](const aiVectorKey& key, double value) { return key.mTime < value; });
+
+    if (it == end) {
+        return pNodeAnim->mNumScalingKeys - 2;
+    }
+
+    return (uint)((it - first) - 1);
 }
 
 
@@ -486,15 +535,16 @@ void SkinnedMesh::ReadNodeHierarchy(float AnimationTimeTicks, const aiNode* pNod
 
     Matrix4f GlobalTransformation = ParentTransform * NodeTransformation;
 
-    if (m_BoneNameToIndexMap.find(NodeName) != m_BoneNameToIndexMap.end()) {
-        uint BoneIndex = m_BoneNameToIndexMap[NodeName];
+    const auto boneIt = m_BoneNameToIndexMap.find(NodeName);
+    if (boneIt != m_BoneNameToIndexMap.end()) {
+        const uint BoneIndex = boneIt->second;
         m_BoneInfo[BoneIndex].FinalTransformation = m_GlobalInverseTransform * GlobalTransformation * m_BoneInfo[BoneIndex].OffsetMatrix;
     }
 
     for (uint i = 0; i < pNode->mNumChildren; i++) {
         string ChildName(pNode->mChildren[i]->mName.data);
 
-        map<string, NodeInfo>::iterator it = m_requiredNodeMap.find(ChildName);
+        auto it = m_requiredNodeMap.find(ChildName);
 
         if (it == m_requiredNodeMap.end()) {
             printf("Child %s cannot be found in the required node map\n", ChildName.c_str());
@@ -565,15 +615,16 @@ void SkinnedMesh::ReadNodeHierarchyBlended(float StartAnimationTimeTicks, float 
 
     Matrix4f GlobalTransformation = ParentTransform * NodeTransformation;
 
-    if (m_BoneNameToIndexMap.find(NodeName) != m_BoneNameToIndexMap.end()) {
-        uint BoneIndex = m_BoneNameToIndexMap[NodeName];
+    const auto boneIt = m_BoneNameToIndexMap.find(NodeName);
+    if (boneIt != m_BoneNameToIndexMap.end()) {
+        const uint BoneIndex = boneIt->second;
         m_BoneInfo[BoneIndex].FinalTransformation = m_GlobalInverseTransform * GlobalTransformation * m_BoneInfo[BoneIndex].OffsetMatrix;
     }
 
     for (uint i = 0; i < pNode->mNumChildren; i++) {
         string ChildName(pNode->mChildren[i]->mName.data);
 
-        map<string, NodeInfo>::iterator it = m_requiredNodeMap.find(ChildName);
+        auto it = m_requiredNodeMap.find(ChildName);
 
         if (it == m_requiredNodeMap.end()) {
             printf("Child %s cannot be found in the required node map\n", ChildName.c_str());
@@ -673,6 +724,15 @@ float SkinnedMesh::CalcAnimationTimeTicks(float TimeInSeconds, unsigned int Anim
 const aiNodeAnim* SkinnedMesh::FindNodeAnim(const aiAnimation&
     Animation, const string& NodeName)
 {
+    const auto animationIndexIt = m_animationToIndex.find(&Animation);
+    if (animationIndexIt != m_animationToIndex.end()) {
+        const auto& nodeMap = m_animationNodeMap[animationIndexIt->second];
+        const auto nodeIt = nodeMap.find(NodeName);
+        if (nodeIt != nodeMap.end()) {
+            return nodeIt->second;
+        }
+    }
+
     for (uint i = 0; i < Animation.mNumChannels; i++) {
         const aiNodeAnim* pNodeAnim = Animation.mChannels[i];
 

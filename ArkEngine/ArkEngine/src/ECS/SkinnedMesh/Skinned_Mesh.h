@@ -1,4 +1,4 @@
-#include <map>
+#include <unordered_map>
 #include <vector>
 #include <glad/glad.h>
 
@@ -70,9 +70,22 @@ private:
             // printf("Adding bone %d weight %f at index %i\n", BoneID, Weight, index);
 
             if (index == MAX_NUM_BONES_PER_VERTEX) {
+                // Preserve the most significant influences instead of silently dropping
+                // one when a vertex has more than MAX_NUM_BONES_PER_VERTEX weights.
+                int minWeightIndex = 0;
+                for (int i = 1; i < MAX_NUM_BONES_PER_VERTEX; i++) {
+                    if (Weights[i] < Weights[minWeightIndex]) {
+                        minWeightIndex = i;
+                    }
+                }
+
+                if (Weight > Weights[minWeightIndex]) {
+                    BoneIDs[minWeightIndex] = BoneID;
+                    Weights[minWeightIndex] = Weight;
+                }
+
                 assert(0);
                 return;
-
             }
 
             BoneIDs[index] = BoneID;
@@ -125,7 +138,7 @@ private:
 
     GLuint m_boneBuffer = 0;
 
-    map<string, uint> m_BoneNameToIndexMap;
+    std::unordered_map<string, uint> m_BoneNameToIndexMap;
 
     struct BoneInfo
     {
@@ -151,5 +164,9 @@ private:
         bool isRequired = false;
     };
 
-    map<string, NodeInfo> m_requiredNodeMap;
+    std::unordered_map<string, NodeInfo> m_requiredNodeMap;
+
+    // Per-animation lookup to avoid O(numChannels) string scan for each queried node.
+    std::vector<std::unordered_map<std::string, const aiNodeAnim*>> m_animationNodeMap;
+    std::unordered_map<const aiAnimation*, uint32_t> m_animationToIndex;
 };
