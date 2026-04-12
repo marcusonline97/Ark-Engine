@@ -1148,6 +1148,26 @@ void EditorUI::RenderHierarchy(std::vector<EditorObject>& objects, int& selected
             const std::uint32_t childId = *static_cast<const std::uint32_t*>(payload->Data);
             ReparentObject(objects, childId, 0);
         }
+        if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(kPayloadAssetPath))
+        {
+            const char* dropped = static_cast<const char*>(payload->Data);
+            if (dropped && dropped[0] != '\0')
+            {
+                const std::filesystem::path assetPath(dropped);
+                if (isMesh(assetPath))
+                {
+                    EditorObject obj{};
+                    obj.id = AllocateObjectId();
+                    obj.parentId = 0;
+                    obj.name = assetPath.stem().empty() ? "StaticMesh" : assetPath.stem().string();
+                    obj.staticMesh = StaticMeshEditorComponent{};
+                    obj.staticMesh->meshPath = dropped;
+                    objects.push_back(std::move(obj));
+                    selectedObjectIndex = static_cast<int>(objects.size() - 1);
+                }
+            }
+        }
+
         ImGui::EndDragDropTarget();
     }
     ImGui::End();

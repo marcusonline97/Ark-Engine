@@ -11,6 +11,7 @@
 #include "ECS/Common/Mesh_Common.h"
 #include "ECS/SkinnedMesh/Skinned_Mesh.h"
 #include "Logger.h"
+#include "AssetManager.h"
 
 namespace Ark::Rendering
 {
