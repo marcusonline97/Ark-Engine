@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <iostream>
 #include <stdexcept>
+#include <limits>
 
 #include "Logger.h"
 #include "Utility/Utility.h"
@@ -18,9 +19,24 @@
 
 static constexpr const char* kImGuiGLSLVersion = "#version 450";
 
+namespace
+{
+	constexpr int kResourcesPerFrame = 2;
+	glm::mat4 BuildModelMatrix(const EditorObject& obj)
+	{
+		const glm::mat4 rotX = glm::rotate(glm::mat4(1.0f), glm::radians(obj.rotationDeg.x), glm::vec3(1, 0, 0));
+		const glm::mat4 rotY = glm::rotate(glm::mat4(1.0f), glm::radians(obj.rotationDeg.y), glm::vec3(0, 1, 0));
+		const glm::mat4 rotZ = glm::rotate(glm::mat4(1.0f), glm::radians(obj.rotationDeg.z), glm::vec3(0, 0, 1));
+		const glm::mat4 rot = rotZ * rotY * rotX;
+		return glm::translate(glm::mat4(1.0f), obj.position) * rot * glm::scale(glm::mat4(1.0f), obj.scale);
+	}
+
+}
+
 GLFWwindow* App::GetWindowHandle() const
 {
 	return m_Window ? m_Window->GetNativeHandle() : nullptr;
+
 }
 
 App::App()

@@ -61,15 +61,6 @@ enum class TextureWrapMode {
 	UNDEFINED
 };
 
-
-enum class TextureWrapMode
-{
-	Repeat,
-	MirroredRepeat,
-	ClampToEdge,
-	ClampToBorder
-};
-
 enum class Axis {
 	X,
 	Y,

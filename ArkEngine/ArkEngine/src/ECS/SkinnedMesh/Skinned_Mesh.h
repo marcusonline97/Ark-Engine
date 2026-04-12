@@ -70,8 +70,9 @@ private:
             // printf("Adding bone %d weight %f at index %i\n", BoneID, Weight, index);
 
             if (index == MAX_NUM_BONES_PER_VERTEX) {
-                return;
                 assert(0);
+                return;
+
             }
 
             BoneIDs[index] = BoneID;
