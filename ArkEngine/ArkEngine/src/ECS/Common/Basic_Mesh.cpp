@@ -270,13 +270,6 @@ void BasicMesh::OptimizeMesh(int MeshIndex, std::vector<uint>& Indices, std::vec
     size_t OptIndexCount = meshopt_simplify(SimplifiedIndices.data(), OptIndices.data(), NumIndices,
         &OptVertices[0].Position.x, OptVertexCount, sizeof(Vertex), TargetIndexCount, TargetError);
 
-    static int num_indices = 0;
-    num_indices += (int)NumIndices;
-    static int opt_indices = 0;
-    opt_indices += (int)OptIndexCount;
-    printf("Num indices %d\n", num_indices);
-    //printf("Target num indices %d\n", TargetIndexCount);
-    printf("Optimized number of indices %d\n", opt_indices);
     SimplifiedIndices.resize(OptIndexCount);
 
     // Concatenate the local arrays into the class attributes arrays

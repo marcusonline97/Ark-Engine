@@ -170,7 +170,7 @@ void SkinnedMesh::OptimizeMesh(int MeshIndex, std::vector<uint>& Indices, std::v
 
     float Threshold = 1.0f;
     size_t TargetIndexCount = (size_t)(NumIndices * Threshold);
-    float TargetError = 1.0f;
+    float TargetError = 0.0f;
     std::vector<unsigned int> IndicesLod(OptIndices.size());
     size_t OptIndexCount = meshopt_simplify(&IndicesLod[0], OptIndices.data(), OptIndices.size(),
         &OptVertices[0].Position.x, OptVertexCount, sizeof(SkinnedVertex), TargetIndexCount, TargetError);

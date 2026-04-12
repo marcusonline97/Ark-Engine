@@ -1,6 +1,8 @@
 #include "Mesh.h"
 #include "Utility/Common.h"
 
+#include <memory>
+
 using namespace std;
 
 #define POSITION_LOCATION 0
@@ -198,16 +200,16 @@ bool Mesh::InitMaterials(const aiScene* pScene, const string& Filename)
 
                 string FullPath = Dir + "/" + p;
 
-                m_Textures[i] = new Texture(GL_TEXTURE_2D, FullPath.c_str());
+                auto texture = std::make_unique<Texture>(GL_TEXTURE_2D, FullPath.c_str());
 
-                if (!m_Textures[i]->Load()) {
+                if (!texture->Load()) {
                     printf("Error loading texture '%s'\n", FullPath.c_str());
-                    delete m_Textures[i];
                     m_Textures[i] = NULL;
                     //  Ret = false;
                 }
                 else {
                     printf("Loaded texture '%s'\n", FullPath.c_str());
+                    m_Textures[i] = texture.release();
                 }
             }
         }
