@@ -10,6 +10,7 @@
 
 #include <glm/glm.hpp>
 
+#include "Camera/CameraController.h"
 #include "Logger.h"
 #include "MusicPlayer/MusicPlayer.h"
 #include "Editor/DirectoryScanner.h"
@@ -148,6 +149,9 @@ private:
     std::string MakeProjectRelativePath(const std::filesystem::path& p) const;
 
     void ValidateSceneState(std::vector<EditorObject>& objects, int& selectedObjectIndex);
+    void SetViewportCursorCapture(bool captured);
+    bool BeginPossession(const std::vector<EditorObject>& objects, std::uint32_t targetObjectId);
+    void EndPossession();
 
 private:
     bool m_layoutBuilt = false;
@@ -196,16 +200,18 @@ private:
     unsigned int m_viewportTextureId = 0;
     glm::vec2 m_viewportSize{ 0.0f, 0.0f };
 
-    // Editor viewport camera (used in EDIT mode)
-    glm::vec3 m_editorCamPos{ 0.0f, 0.0f, 3.0f };
-    float m_editorCamPitchDeg = 0.0f;
-    float m_editorCamYawDeg = -90.0f;
+    // Editor/possessed viewport camera state (used in EDIT mode)
+    Ark::CameraController m_editorCamera{ { 0.0f, 0.0f, 3.0f }, 0.0f, -90.0f, 3.5f, 0.12f };
+    Ark::CameraController m_possessedCamera{ { 0.0f, 0.0f, 3.0f }, 0.0f, -90.0f, 3.5f, 0.12f };
     float m_editorCamFovDeg = 45.0f;
     float m_editorCamNear = 0.1f;
     float m_editorCamFar = 100.0f;
+    bool m_isPossessing = false;
+    std::uint32_t m_possessedObjectId = 0;
 
-    // Input bookkeeping for RMB look
+    // Input bookkeeping for viewport look/capture
     bool m_viewportRmbLooking = false;
+    bool m_viewportCursorCaptured = false;
     ImVec2 m_viewportLastMouse{ 0.0f, 0.0f };
 
     uint32_t m_viewportTriangleCount = 0;

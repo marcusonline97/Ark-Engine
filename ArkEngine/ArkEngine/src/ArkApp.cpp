@@ -15,6 +15,7 @@
 #include "Logger.h"
 #include "Utility/Utility.h"
 #include "Utility/SceneIO.h"
+#include "Camera/CameraController.h"
 #include "Input/Input.h"
 
 static constexpr const char* kImGuiGLSLVersion = "#version 450";
@@ -22,6 +23,19 @@ static constexpr const char* kImGuiGLSLVersion = "#version 450";
 namespace
 {
 	constexpr int kResourcesPerFrame = 2;
+	Ark::CameraInput BuildCameraInputFromKeyboard()
+	{
+		Ark::CameraInput input{};
+		input.forward = Ark::Input::IsKeyDown(ARK_KEY_W);
+		input.back = Ark::Input::IsKeyDown(ARK_KEY_S);
+		input.left = Ark::Input::IsKeyDown(ARK_KEY_A);
+		input.right = Ark::Input::IsKeyDown(ARK_KEY_D);
+		input.up = Ark::Input::IsKeyDown(ARK_KEY_E);
+		input.down = Ark::Input::IsKeyDown(ARK_KEY_Q);
+		input.fast = Ark::Input::IsKeyDown(ARK_KEY_LEFT_SHIFT);
+		return input;
+	}
+
 	glm::mat4 BuildModelMatrix(const EditorObject& obj)
 	{
 		const glm::mat4 rotX = glm::rotate(glm::mat4(1.0f), glm::radians(obj.rotationDeg.x), glm::vec3(1, 0, 0));
@@ -32,6 +46,9 @@ namespace
 	}
 
 }
+
+// TODO(camera-legacy): BasicCamera and ViewportCamera still exist in the tree but
+// runtime control now goes through CameraController-based possession/editor logic.
 
 GLFWwindow* App::GetWindowHandle() const
 {
@@ -117,8 +134,6 @@ void App::Run()
 	double lastMouseX = 0.0;
 	double lastMouseY = 0.0;
 
-	bool showGrid = true;
-
 	{
 		std::uint32_t nextId = 1;
 		for (auto& o : m_Objects)
@@ -137,16 +152,6 @@ void App::Run()
 		lastTime = now;
 
 		Ark::Input::NewFrame();
-
-		if (Ark::Input::IsKeyPressed(ARK_KEY_G))
-		{
-			showGrid = !showGrid;
-
-			if (!showGrid)
-				Logging::Debug() << "Grid cleared (hidden).\n";
-			else
-				Logging::Debug() << "Grid enabled.\n";
-		}
 
 		// CPU iterative resource loading: do a small bounded amount per frame.
 		m_cpuResourceLoader.Pump(2);
@@ -172,29 +177,13 @@ void App::Run()
 
 			if (camObj)
 			{
-				const float pitch = camObj->rotationDeg.x;
-				const float yaw = camObj->rotationDeg.y;
-
-				glm::vec3 front;
-				front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-				front.y = sin(glm::radians(pitch));
-				front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-				front = glm::normalize(front);
-
-				const glm::vec3 up(0.0f, 1.0f, 0.0f);
-				const glm::vec3 right = glm::normalize(glm::cross(up, front));
-
-				const float speed = 3.5f;
-				const float move = speed * dt;
-
-				if (Ark::Input::IsKeyDown(ARK_KEY_W)) camObj->position += front * move;
-				if (Ark::Input::IsKeyDown(ARK_KEY_S)) camObj->position -= front * move;
-
-				if (Ark::Input::IsKeyDown(ARK_KEY_A)) camObj->position -= right * move; // left
-				if (Ark::Input::IsKeyDown(ARK_KEY_D)) camObj->position += right * move; // right
-
-				if (Ark::Input::IsKeyDown(ARK_KEY_E)) camObj->position += up * move;
-				if (Ark::Input::IsKeyDown(ARK_KEY_Q)) camObj->position -= up * move;
+				Ark::CameraController controller{};
+				controller.position = camObj->position;
+				controller.pitchDeg = camObj->rotationDeg.x;
+				controller.yawDeg = camObj->rotationDeg.y;
+				controller.moveSpeed = 3.5f;
+				controller.lookSensitivity = 0.12f;
+				controller.ProcessKeyboard(dt, BuildCameraInputFromKeyboard());
 
 				// Hold RMB to rotate the camera.
 				if (Ark::Input::IsMouseDown(ARK_MOUSE_RIGHT))
@@ -214,19 +203,17 @@ void App::Run()
 						lastMouseX = mx;
 						lastMouseY = my;
 
-						constexpr float sensitivity = 0.12f;
-						camObj->rotationDeg.y += static_cast<float>(dx) * sensitivity;
-						camObj->rotationDeg.x -= static_cast<float>(dy) * sensitivity;
-
-						// Clamp pitch to avoid gimbal flip.
-						if (camObj->rotationDeg.x > 89.0f) camObj->rotationDeg.x = 89.0f;
-						if (camObj->rotationDeg.x < -89.0f) camObj->rotationDeg.x = -89.0f;
+						controller.ProcessMouseDelta(static_cast<float>(dx), static_cast<float>(dy));
 					}
 				}
 				else
 				{
 					rotating = false;
 				}
+
+				camObj->position = controller.position;
+				camObj->rotationDeg.x = controller.pitchDeg;
+				camObj->rotationDeg.y = controller.yawDeg;
 			}
 		}
 
@@ -248,15 +235,6 @@ void App::Run()
 			input.wireframe = m_EditorUI.GetWireframeEnabled();
 			input.useMipmaps = m_EditorUI.GetUseMipmaps();
 			input.showGrid = m_EditorUI.GetShowGrid();
-
-			const auto toModel = [](const EditorObject& obj)
-				{
-					const glm::mat4 rotX = glm::rotate(glm::mat4(1.0f), glm::radians(obj.rotationDeg.x), glm::vec3(1, 0, 0));
-					const glm::mat4 rotY = glm::rotate(glm::mat4(1.0f), glm::radians(obj.rotationDeg.y), glm::vec3(0, 1, 0));
-					const glm::mat4 rotZ = glm::rotate(glm::mat4(1.0f), glm::radians(obj.rotationDeg.z), glm::vec3(0, 0, 1));
-					const glm::mat4 rot = rotZ * rotY * rotX;
-					return glm::translate(glm::mat4(1.0f), obj.position) * rot * glm::scale(glm::mat4(1.0f), obj.scale);
-				};
 
 			// Camera selection:
 			// - EDIT mode: use the editor viewport camera (world-space).
@@ -300,7 +278,7 @@ void App::Run()
 					Ark::Rendering::RenderInstance inst{};
 					inst.objectId = o.id;
 
-					inst.model = toModel(o);
+					inst.model = BuildModelMatrix(o);
 					inst.tint = o.tint;
 
 					inst.hasMaterial = false;

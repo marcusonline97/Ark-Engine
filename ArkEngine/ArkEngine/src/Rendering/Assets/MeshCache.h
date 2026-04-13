@@ -6,17 +6,18 @@
 
 namespace Ark::Rendering
 {
-	class ObjGpuMesh;
+	class BasicMesh;
 
 	class MeshCache
 	{
 	public:
-		const ObjGpuMesh* GetOrLoadObj(const std::string& absoluteObjPath);
+		const BasicMesh* GetOrLoadMesh(const std::string& absoluteMeshPath);
+		const BasicMesh* GetOrLoadObj(const std::string& absoluteObjPath); // legacy callsite shim
 
 	private:
 		struct Entry
 		{
-			std::unique_ptr<ObjGpuMesh> mesh;
+			std::unique_ptr<BasicMesh> mesh;
 			bool failed = false;
 		};
 

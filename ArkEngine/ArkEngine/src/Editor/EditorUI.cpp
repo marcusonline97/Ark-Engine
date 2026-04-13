@@ -4,6 +4,7 @@
 #include <cstdio>
 #include <unordered_map>
 
+#include <GLFW/glfw3.h>
 #include <glm/gtc/matrix_transform.hpp>
 
 #include <imgui/imgui.h>
@@ -23,18 +24,6 @@ namespace
 {
     constexpr const char* kPayloadEditorObject = "ARK_EDITOR_OBJECT_ID";
     constexpr const char* kPayloadAssetPath = "ARK_EDITOR_ASSET_PATH";
-    static glm::vec3 ComputeForward(float pitchDeg, float yawDeg)
-    {
-        glm::vec3 front;
-        const float pitch = glm::radians(pitchDeg);
-        const float yaw = glm::radians(yawDeg);
-
-        front.x = cos(yaw) * cos(pitch);
-        front.y = sin(pitch);
-        front.z = -sin(yaw) * cos(pitch);
-
-        return glm::normalize(front);
-    }
 }
 
 std::uint32_t EditorUI::AllocateObjectId()
@@ -87,11 +76,13 @@ bool EditorUI::WouldCreateCycle(const std::vector<EditorObject>& objects, std::u
 
 Ark::Rendering::WorldCameraInput EditorUI::GetEditorViewportCamera() const
 {
-    Ark::Rendering::WorldCameraInput cam{};
-    cam.position = m_editorCamPos;
+    const Ark::CameraController& activeCamera = m_isPossessing ? m_possessedCamera : m_editorCamera;
 
-    // Editor camera is now also left-handed; no conversion here.
-    cam.pitchYawDeg = glm::vec2(m_editorCamPitchDeg, m_editorCamYawDeg);
+    Ark::Rendering::WorldCameraInput cam{};
+    cam.position = activeCamera.position;
+
+    // Editor camera is also left-handed; no conversion here.
+    cam.pitchYawDeg = glm::vec2(activeCamera.pitchDeg, activeCamera.yawDeg);
 
     cam.fovDeg = m_editorCamFovDeg;
     cam.nearPlane = m_editorCamNear;
@@ -149,6 +140,54 @@ std::filesystem::path EditorUI::FindResourcesRoot(const std::filesystem::path& p
     return projectRoot;
 }
 
+void EditorUI::SetViewportCursorCapture(bool captured)
+{
+    if (m_viewportCursorCaptured == captured)
+        return;
+
+    if (!Ark::Input::g_Window)
+        return;
+
+    glfwSetInputMode(Ark::Input::g_Window, GLFW_CURSOR, captured ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
+    m_viewportCursorCaptured = captured;
+
+    double mx = 0.0;
+    double my = 0.0;
+    glfwGetCursorPos(Ark::Input::g_Window, &mx, &my);
+    m_viewportLastMouse = ImVec2(static_cast<float>(mx), static_cast<float>(my));
+}
+
+bool EditorUI::BeginPossession(const std::vector<EditorObject>& objects, std::uint32_t targetObjectId)
+{
+    if (targetObjectId == 0)
+        return false;
+
+    const int targetIndex = FindObjectIndexById(objects, targetObjectId);
+    if (targetIndex < 0)
+        return false;
+
+    const EditorObject& obj = objects[static_cast<size_t>(targetIndex)];
+    if (!obj.camera)
+        return false;
+
+    m_possessedObjectId = obj.id;
+    m_possessedCamera.position = obj.position;
+    m_possessedCamera.pitchDeg = obj.rotationDeg.x;
+    m_possessedCamera.yawDeg = obj.rotationDeg.y;
+    m_isPossessing = true;
+    m_viewportRmbLooking = false;
+    SetViewportCursorCapture(true);
+    return true;
+}
+
+void EditorUI::EndPossession()
+{
+    m_isPossessing = false;
+    m_possessedObjectId = 0;
+    m_viewportRmbLooking = false;
+    SetViewportCursorCapture(false);
+}
+
 void EditorUI::Init()
 {
     m_projectRoot = FindProjectRoot();
@@ -182,9 +221,9 @@ void EditorUI::Init()
 void EditorUI::Shutdown()
 {
     // nothing to add here since the panels are in intermediate mode
+    EndPossession();
     m_music.Shutdown();
     m_dirScanner.Stop();
-
 }
 
 
@@ -508,7 +547,11 @@ void EditorUI::RenderMenuBar()
     if (ImGui::BeginMenu("Run"))
     {
         if (ImGui::MenuItem(m_playMode ? "Stop" : "Play", "F5"))
+        {
             m_playMode = !m_playMode;
+            if (m_playMode && m_isPossessing)
+                EndPossession();
+        }
         ImGui::EndMenu();
     }
 
@@ -548,14 +591,17 @@ void EditorUI::RenderViewport(std::vector<EditorObject>& objects, int& selectedO
             const ImVec2 availableSize = ImGui::GetContentRegionAvail();
             m_viewportSize = glm::vec2(availableSize.x, availableSize.y);
 
+            const bool hasSelection = (selectedObjectIndex >= 0 && selectedObjectIndex < static_cast<int>(objects.size()));
+            const bool canPossessSelected = hasSelection &&
+                objects[static_cast<size_t>(selectedObjectIndex)].camera.has_value();
+
             // Toolbar
             {
-
                 const bool canEdit = !m_playMode;
                 ImGui::TextDisabled("Gizmo:");
                 ImGui::SameLine();
 
-                ImGui::BeginDisabled(!canEdit);
+                ImGui::BeginDisabled(!canEdit || m_isPossessing);
                 if (ImGui::SmallButton("Translate (W)")) m_gizmoMode = 0;
                 ImGui::SameLine();
                 if (ImGui::SmallButton("Rotate (E)")) m_gizmoMode = 1;
@@ -564,12 +610,30 @@ void EditorUI::RenderViewport(std::vector<EditorObject>& objects, int& selectedO
                 ImGui::EndDisabled();
 
                 ImGui::SameLine();
-                ImGui::SeparatorText(m_playMode ? "PLAYING" : "EDIT");
+                ImGui::SeparatorText(m_playMode ? "PLAYING" : (m_isPossessing ? "POSSESSING" : "EDIT"));
                 ImGui::SameLine();
                 if (ImGui::SmallButton(m_playMode ? "Stop (F5)" : "Play (F5)"))
+                {
                     m_playMode = !m_playMode;
+                    if (m_playMode && m_isPossessing)
+                        EndPossession();
+                }
 
-                // inside EditorUI::RenderViewport, where you have the tab bar
+                if (!m_playMode)
+                {
+                    ImGui::SameLine();
+                    if (!m_isPossessing)
+                    {
+                        ImGui::BeginDisabled(!canPossessSelected);
+                        if (ImGui::SmallButton("Possess (P)") && canPossessSelected)
+                            BeginPossession(objects, objects[static_cast<size_t>(selectedObjectIndex)].id);
+                        ImGui::EndDisabled();
+                    }
+                    else if (ImGui::SmallButton("Release (Esc)"))
+                    {
+                        EndPossession();
+                    }
+                }
 
                 if (ImGui::BeginTabItem("Rendering"))
                 {
@@ -601,13 +665,20 @@ void EditorUI::RenderViewport(std::vector<EditorObject>& objects, int& selectedO
                 const bool imgHovered = ImGui::IsItemHovered();
                 ImGuiIO& io = ImGui::GetIO();
 
-                // Hotkeys only when viewport is hovered
                 if (imgHovered)
                 {
-                    if (ImGui::IsKeyPressed(ImGuiKey_W)) m_gizmoMode = 0;
-                    if (ImGui::IsKeyPressed(ImGuiKey_E)) m_gizmoMode = 1;
-                    if (ImGui::IsKeyPressed(ImGuiKey_R)) m_gizmoMode = 2;
-                    if (ImGui::IsKeyPressed(ImGuiKey_F5)) m_playMode = !m_playMode;
+                    if (!m_isPossessing)
+                    {
+                        if (ImGui::IsKeyPressed(ImGuiKey_W)) m_gizmoMode = 0;
+                        if (ImGui::IsKeyPressed(ImGuiKey_E)) m_gizmoMode = 1;
+                        if (ImGui::IsKeyPressed(ImGuiKey_R)) m_gizmoMode = 2;
+                    }
+                    if (ImGui::IsKeyPressed(ImGuiKey_F5))
+                    {
+                        m_playMode = !m_playMode;
+                        if (m_playMode && m_isPossessing)
+                            EndPossession();
+                    }
 
                     if (ImGui::IsKeyPressed(ImGuiKey_G))
                     {
@@ -619,52 +690,98 @@ void EditorUI::RenderViewport(std::vector<EditorObject>& objects, int& selectedO
                         m_wireframeEnabled = !m_wireframeEnabled;
                         Logging::Debug() << (m_wireframeEnabled ? "Wireframe enabled.\n" : "Wireframe disabled.\n");
                     }
+                    if (!m_playMode && !m_isPossessing && canPossessSelected && ImGui::IsKeyPressed(ImGuiKey_P))
+                    {
+                        BeginPossession(objects, objects[static_cast<size_t>(selectedObjectIndex)].id);
+                    }
+                    if (m_isPossessing && ImGui::IsKeyPressed(ImGuiKey_Escape))
+                    {
+                        EndPossession();
+                    }
                 }
 
-                // EDIT MODE CAMERA CONTROLS (WASD + RMB look) only when hovered and not using gizmo.
                 const bool allowViewportCameraInput = imgHovered && !m_playMode && !ImGuizmo::IsUsing();
 
                 if (allowViewportCameraInput)
                 {
-                    const float dt = io.DeltaTime;
-                    const float baseSpeed = 3.5f;
-                    const float fastMul = Ark::Input::IsKeyDown(ARK_KEY_LEFT_SHIFT) ? 3.0f : 1.0f;
-                    const float move = baseSpeed * fastMul * dt;
+                    Ark::CameraController& activeCamera = m_isPossessing ? m_possessedCamera : m_editorCamera;
 
-                    const glm::vec3 forward = ComputeForward(m_editorCamPitchDeg, m_editorCamYawDeg);
-                    const glm::vec3 up(0.0f, 1.0f, 0.0f);
-                    const glm::vec3 right = glm::normalize(glm::cross(up, forward));
+                    Ark::CameraInput input{};
+                    input.forward = Ark::Input::IsKeyDown(ARK_KEY_W);
+                    input.back = Ark::Input::IsKeyDown(ARK_KEY_S);
+                    input.left = Ark::Input::IsKeyDown(ARK_KEY_A);
+                    input.right = Ark::Input::IsKeyDown(ARK_KEY_D);
+                    input.up = Ark::Input::IsKeyDown(ARK_KEY_E);
+                    input.down = Ark::Input::IsKeyDown(ARK_KEY_Q);
+                    input.fast = Ark::Input::IsKeyDown(ARK_KEY_LEFT_SHIFT);
+                    activeCamera.ProcessKeyboard(io.DeltaTime, input);
 
-                    // forward/back (as you currently have it)
-                    if (Ark::Input::IsKeyDown(ARK_KEY_W)) m_editorCamPos -= forward * move;
-                    if (Ark::Input::IsKeyDown(ARK_KEY_S)) m_editorCamPos += forward * move;
+                    const bool rmbDown = Ark::Input::IsMouseDown(ARK_MOUSE_RIGHT);
+                    const bool shouldLook = m_isPossessing || rmbDown;
+                    const bool shouldCaptureCursor = (m_isPossessing || rmbDown) && Ark::Input::g_Window;
+                    SetViewportCursorCapture(shouldCaptureCursor);
 
-                    // left/right (as you currently have it)
-                    if (Ark::Input::IsKeyDown(ARK_KEY_A)) m_editorCamPos += right * move;
-                    if (Ark::Input::IsKeyDown(ARK_KEY_D)) m_editorCamPos -= right * move;
+                    if (shouldLook)
+                    {
+                        double mx = 0.0;
+                        double my = 0.0;
+                        glfwGetCursorPos(Ark::Input::g_Window, &mx, &my);
 
-                    if (Ark::Input::IsKeyDown(ARK_KEY_E)) m_editorCamPos += up * move;
-                    if (Ark::Input::IsKeyDown(ARK_KEY_Q)) m_editorCamPos -= up * move;
+                        if (!m_viewportRmbLooking)
+                        {
+                            m_viewportRmbLooking = true;
+                            m_viewportLastMouse = ImVec2(static_cast<float>(mx), static_cast<float>(my));
+                        }
+                        else
+                        {
+                            const float dx = static_cast<float>(mx) - m_viewportLastMouse.x;
+                            const float dy = static_cast<float>(my) - m_viewportLastMouse.y;
+                            m_viewportLastMouse = ImVec2(static_cast<float>(mx), static_cast<float>(my));
+                            activeCamera.ProcessMouseDelta(dx, dy);
+                        }
+                    }
+                    else
+                    {
+                        m_viewportRmbLooking = false;
+                    }
                 }
                 else
                 {
-                    // Stop look state when leaving viewport / starting gizmo drag.
                     m_viewportRmbLooking = false;
+                    if (!m_isPossessing)
+                        SetViewportCursorCapture(false);
                 }
 
-                const bool hasSelection = (selectedObjectIndex >= 0 && selectedObjectIndex < static_cast<int>(objects.size()));
+                if (m_isPossessing)
+                {
+                    const int possessedIndex = FindObjectIndexById(objects, m_possessedObjectId);
+                    if (possessedIndex >= 0)
+                    {
+                        EditorObject& possessedObj = objects[static_cast<size_t>(possessedIndex)];
+                        if (possessedObj.camera)
+                        {
+                            possessedObj.position = m_possessedCamera.position;
+                            possessedObj.rotationDeg.x = m_possessedCamera.pitchDeg;
+                            possessedObj.rotationDeg.y = m_possessedCamera.yawDeg;
+                        }
+                        else
+                        {
+                            EndPossession();
+                        }
+                    }
+                    else
+                    {
+                        EndPossession();
+                    }
+                }
 
-                if (!m_playMode && hasSelection)
+                if (!m_playMode && !m_isPossessing && hasSelection)
                 {
                     EditorObject& obj = objects[static_cast<size_t>(selectedObjectIndex)];
-
-                    // Use editor camera (NOT a fixed lookAt) for gizmo matrices
-                    const glm::vec3 camPos = m_editorCamPos;
-                    const glm::vec3 camForward = ComputeForward(m_editorCamPitchDeg, m_editorCamYawDeg);
-                    const glm::mat4 view = glm::lookAt(camPos, camPos + camForward, glm::vec3(0, 1, 0));
-
                     const float aspect = (availableSize.y > 1.0f) ? (availableSize.x / availableSize.y) : 1.0f;
-                    const glm::mat4 projection = glm::perspective(glm::radians(m_editorCamFovDeg), aspect, m_editorCamNear, m_editorCamFar);
+
+                    const glm::mat4 view = m_editorCamera.GetViewMatrix();
+                    const glm::mat4 projection = m_editorCamera.GetProjMatrix(aspect, m_editorCamFovDeg, m_editorCamNear, m_editorCamFar);
 
                     glm::mat4 model(1.0f);
                     {
@@ -675,7 +792,6 @@ void EditorUI::RenderViewport(std::vector<EditorObject>& objects, int& selectedO
                         model = glm::translate(glm::mat4(1.0f), obj.position) * rot * glm::scale(glm::mat4(1.0f), obj.scale);
                     }
 
-                    // Important: draw gizmo in viewport rect
                     ImGuizmo::SetDrawlist(ImGui::GetWindowDrawList());
                     ImGuizmo::SetRect(imageMin.x, imageMin.y, availableSize.x, availableSize.y);
 
@@ -686,8 +802,6 @@ void EditorUI::RenderViewport(std::vector<EditorObject>& objects, int& selectedO
                     ImGuizmo::MODE mode = (op == ImGuizmo::TRANSLATE) ? ImGuizmo::WORLD : ImGuizmo::LOCAL;
 
                     glm::mat4 modelCopy = model;
-
-                    // This is what enables "press gizmo inside viewport and drag it"
                     ImGuizmo::Manipulate(
                         &view[0][0],
                         &projection[0][0],
