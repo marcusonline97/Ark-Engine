@@ -7,6 +7,7 @@
 #include "Math/3DMath_util.h"
 #include "Maps/Ect_Cubemap.h"
 #include "Cubemap_Texture.h"
+#include "Logger.h"
 #include "Utility/util.h"
 
 static const GLenum types[6] = { GL_TEXTURE_CUBE_MAP_POSITIVE_X,
@@ -48,7 +49,7 @@ CubemapTexture::~CubemapTexture()
 }
 
 
-void CubemapTexture::Load()
+bool CubemapTexture::Load()
 {
     stbi_set_flip_vertically_on_load(0);
 
@@ -63,8 +64,14 @@ void CubemapTexture::Load()
         unsigned char* image_data = stbi_load(m_fileNames[i].c_str(), &Width, &Height, &BPP, 0);
 
         if (!image_data) {
-            printf("Can't load texture from '%s' - %s\n", m_fileNames[i].c_str(), stbi_failure_reason());
-            exit(1);
+            Logging::Error() << "Can't load texture from '" << m_fileNames[i]
+                << "' - " << (stbi_failure_reason() ? stbi_failure_reason() : "unknown reason") << "\n";
+            glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+            if (m_textureObj != 0) {
+                glDeleteTextures(1, &m_textureObj);
+                m_textureObj = 0;
+            }
+            return false;
         }
 
         printf("Width %d, height %d, bpp %d\n", Width, Height, BPP);
@@ -85,9 +92,15 @@ void CubemapTexture::Load()
             internalFmt = GL_R8;
         }
         else {
-            printf("Unsupported cubemap face format (BPP=%d) for '%s'\n", BPP, m_fileNames[i].c_str());
+            Logging::Error() << "Unsupported cubemap face format (BPP=" << BPP
+                << ") for '" << m_fileNames[i] << "'\n";
             stbi_image_free(image_data);
-            exit(0);
+            glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+            if (m_textureObj != 0) {
+                glDeleteTextures(1, &m_textureObj);
+                m_textureObj = 0;
+            }
+            return false;
         }
 
         glTexImage2D(types[i], 0, internalFmt, Width, Height, 0, fmt, GL_UNSIGNED_BYTE, image_data);
@@ -100,6 +113,7 @@ void CubemapTexture::Load()
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    return true;
 }
 
 
@@ -161,7 +175,7 @@ CubemapEctTexture::CubemapEctTexture(const std::string& Filename)
 }
 
 
-void CubemapEctTexture::Load()
+bool CubemapEctTexture::Load()
 {
     int Width, Height, Comp;
 
@@ -170,8 +184,8 @@ void CubemapEctTexture::Load()
     const float* pImg = stbi_loadf(m_filename.c_str(), &Width, &Height, &Comp, 3);
 
     if (!pImg) {
-        printf("Error loading '%s'\n", m_filename.c_str());
-        exit(1);
+        Logging::Error() << "Error loading '" << m_filename << "'\n";
+        return false;
     }
 
     Bitmap In(Width, Height, Comp, eBitmapFormat_Float, (void*)pImg);
@@ -181,6 +195,7 @@ void CubemapEctTexture::Load()
     stbi_image_free((void*)pImg);
 
     LoadCubemapData(Cubemap);
+    return true;
 }
 
 

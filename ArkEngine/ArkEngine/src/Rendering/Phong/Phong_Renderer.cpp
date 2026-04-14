@@ -24,6 +24,7 @@ void PhongRenderer::InitPhongRenderer(int SubTech)
     }
 
     m_lightingTech.Enable();
+    m_activeProgram = m_lightingTech.GetProgram();
     m_lightingTech.SetTextureUnit(COLOR_TEXTURE_UNIT_INDEX);
     m_lightingTech.SetAlbedoTextureUnit(ALBEDO_TEXTURE_UNIT_INDEX);
     m_lightingTech.SetRoughnessTextureUnit(ROUGHNESS_TEXTURE_UNIT_INDEX);
@@ -37,6 +38,7 @@ void PhongRenderer::InitPhongRenderer(int SubTech)
     }
 
     m_skinningTech.Enable();
+    m_activeProgram = m_skinningTech.GetProgram();
     m_skinningTech.SetTextureUnit(COLOR_TEXTURE_UNIT_INDEX);
     m_skinningTech.SetAlbedoTextureUnit(ALBEDO_TEXTURE_UNIT_INDEX);
     m_skinningTech.SetRoughnessTextureUnit(ROUGHNESS_TEXTURE_UNIT_INDEX);
@@ -50,33 +52,31 @@ void PhongRenderer::InitPhongRenderer(int SubTech)
     }
 
     glUseProgram(0);
+    m_activeProgram = 0;
 }
 
 
 void PhongRenderer::StartShadowPass()
 {
     m_shadowMapTech.Enable();
+    m_activeProgram = m_shadowMapTech.GetProgram();
 }
 
 
 void PhongRenderer::SwitchToLightingTech()
 {
-    GLint cur_prog = 0;
-    glGetIntegerv(GL_CURRENT_PROGRAM, &cur_prog);
-
-    if (cur_prog != m_lightingTech.GetProgram()) {
+    if (m_activeProgram != m_lightingTech.GetProgram()) {
         m_lightingTech.Enable();
+        m_activeProgram = m_lightingTech.GetProgram();
     }
 }
 
 
 void PhongRenderer::SwitchToSkinningTech()
 {
-    GLint cur_prog = 0;
-    glGetIntegerv(GL_CURRENT_PROGRAM, &cur_prog);
-
-    if (cur_prog != m_skinningTech.GetProgram()) {
+    if (m_activeProgram != m_skinningTech.GetProgram()) {
         m_skinningTech.Enable();
+        m_activeProgram = m_skinningTech.GetProgram();
     }
 }
 
@@ -89,6 +89,7 @@ void PhongRenderer::SetDirLight(const DirectionalLight& DirLight)
     m_lightingTech.SetDirectionalLight(m_dirLight, false);
 
     m_skinningTech.Enable();
+    m_activeProgram = m_skinningTech.GetProgram();
     m_skinningTech.SetDirectionalLight(m_dirLight, false);
 }
 
@@ -115,6 +116,7 @@ void PhongRenderer::SetPointLights(uint NumLights, const PointLight* pPointLight
     m_lightingTech.SetPointLights(NumLights, pPointLights, false);
 
     m_skinningTech.Enable();
+    m_activeProgram = m_skinningTech.GetProgram();
     m_skinningTech.SetPointLights(NumLights, pPointLights, false);
 }
 
@@ -141,6 +143,7 @@ void PhongRenderer::SetSpotLights(uint NumLights, const SpotLight* pSpotLights)
     m_lightingTech.SetSpotLights(NumLights, pSpotLights, false);
 
     m_skinningTech.Enable();
+    m_activeProgram = m_skinningTech.GetProgram();
     m_skinningTech.SetSpotLights(NumLights, pSpotLights, false);
 }
 
@@ -380,6 +383,7 @@ void PhongRenderer::ControlRimLight(bool IsEnabled)
     m_lightingTech.ControlRimLight(IsEnabled);
 
     m_skinningTech.Enable();
+    m_activeProgram = m_skinningTech.GetProgram();
     m_skinningTech.ControlRimLight(IsEnabled);
 }
 
@@ -390,6 +394,7 @@ void PhongRenderer::ControlCellShading(bool IsEnabled)
     m_lightingTech.ControlCellShading(IsEnabled);
 
     m_skinningTech.Enable();
+    m_activeProgram = m_skinningTech.GetProgram();
     m_skinningTech.ControlCellShading(IsEnabled);
 }
 

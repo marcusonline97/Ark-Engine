@@ -44,6 +44,8 @@ namespace Ark::Rendering
 
 		void EnsureWhiteFallbackTexture();
 		void DestroyWhiteFallbackTexture();
+		void ApplyStaticMeshRasterState();
+		void RestoreStaticMeshRasterState();
 
 	private:
 		uint32_t m_width = 1;
@@ -76,5 +78,9 @@ namespace Ark::Rendering
 		GLuint m_whiteFallbackTex = 0;
 
 		uint32_t m_lastTriangleCount = 0;
+		bool m_staticMeshCullStateActive = false;
+		bool m_isCullFaceEnabled = true;
+		GLenum m_currentCullFaceMode = GL_BACK;
+		GLenum m_currentFrontFace = GL_CCW;
 	};
 }

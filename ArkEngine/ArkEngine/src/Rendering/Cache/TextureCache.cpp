@@ -21,7 +21,7 @@ namespace Ark::Rendering
 		auto& cache = generateMipmaps ? m_cacheWithMipmaps : m_cacheNoMipmaps;
 		auto& entry = cache[resolved];
 
-		if (entry.failed)
+		if (entry.failed.load(std::memory_order_acquire))
 			return nullptr;
 
 		if (Texture* already = entry.texture.load(std::memory_order_acquire))
@@ -37,7 +37,7 @@ namespace Ark::Rendering
 			entry.texture.store(AssetManager::Instance().LoadTexture2D(texturePath, flipY, generateMipmaps), std::memory_order_release);
 			if (!entry.texture.load(std::memory_order_acquire))
 			{
-				entry.failed = true;
+				entry.failed.store(true, std::memory_order_release);
 				Logging::Warning() << "TextureCache: Failed to load texture: " << resolved << "\n";
 			}
 			return entry.texture.load(std::memory_order_acquire);
@@ -49,7 +49,7 @@ namespace Ark::Rendering
 				entry.texture.store(t, std::memory_order_release);
 				if (!t)
 				{
-					entry.failed = true;
+					entry.failed.store(true, std::memory_order_release);
 					Logging::Warning() << "TextureCache: Failed to load texture: " << resolved << "\n";
 				}
 			});

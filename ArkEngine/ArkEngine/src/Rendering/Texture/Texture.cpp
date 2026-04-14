@@ -225,8 +225,10 @@ void Texture::LoadInternalDSA(const void* pImageData, bool IsSRGB)
     glTextureParameterf(m_textureObj, GL_TEXTURE_MAX_ANISOTROPY, 16.0f);
     glGenerateTextureMipmap(m_textureObj);
 
-    m_bindlessHandle = glGetTextureHandleARB(m_textureObj);
-    glMakeTextureHandleResidentARB(m_bindlessHandle);
+    if (GLAD_GL_ARB_bindless_texture) {
+        m_bindlessHandle = glGetTextureHandleARB(m_textureObj);
+        glMakeTextureHandleResidentARB(m_bindlessHandle);
+    }
 }
 
 

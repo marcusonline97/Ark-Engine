@@ -67,7 +67,10 @@ void SkyBox::InitTechnique()
 
 void SkyBox::LoadTextureAndMesh()
 {
-    m_pCubemapTex->Load();
+    if (!m_pCubemapTex->Load()) {
+        printf("Failed to load skybox cubemap texture\n");
+        return;
+    }
 
     m_pMesh = new BasicMesh();
 
