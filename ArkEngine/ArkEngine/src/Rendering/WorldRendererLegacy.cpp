@@ -265,16 +265,7 @@ namespace Ark::Rendering
 
 				triangleCount += mesh->GetTriangleCount();
 
-				const GLboolean cullWasEnabled = glIsEnabled(GL_CULL_FACE);
-				GLint oldCullFaceMode = GL_BACK;
-				GLint oldFrontFace = GL_CCW;
-
-				glGetIntegerv(GL_CULL_FACE_MODE, &oldCullFaceMode);
-				glGetIntegerv(GL_FRONT_FACE, &oldFrontFace);
-
-				glDisable(GL_CULL_FACE);
-				glCullFace(GL_BACK);
-				glFrontFace(GL_CW);
+				ApplyStaticMeshRasterState();
 
 				Texture* overrideTexture = nullptr;
 
@@ -315,13 +306,7 @@ namespace Ark::Rendering
 				ViewportRenderCallbacks callbacks(m_viewportShader, overrideTexture, meshFallback, m_whiteFallbackTex);
 				mesh->Render(&callbacks);
 
-				glCullFace(static_cast<GLenum>(oldCullFaceMode));
-				glFrontFace(static_cast<GLenum>(oldFrontFace));
-
-				if (!cullWasEnabled)
-					glDisable(GL_CULL_FACE);
-				else
-					glEnable(GL_CULL_FACE);
+				RestoreStaticMeshRasterState();
 			}
 			else
 			{
@@ -352,6 +337,28 @@ namespace Ark::Rendering
 
 		glBindVertexArray(0);
 		m_viewportFbo.UnbindWriting();
+	}
+
+	void WorldRendererLegacy::ApplyStaticMeshRasterState()
+	{
+		if (m_staticMeshCullStateActive)
+			return;
+
+		glDisable(GL_CULL_FACE);
+		glCullFace(GL_BACK);
+		glFrontFace(GL_CW);
+		m_staticMeshCullStateActive = true;
+	}
+
+	void WorldRendererLegacy::RestoreStaticMeshRasterState()
+	{
+		if (!m_staticMeshCullStateActive)
+			return;
+
+		glDisable(GL_CULL_FACE);
+		glCullFace(GL_BACK);
+		glFrontFace(GL_CCW);
+		m_staticMeshCullStateActive = false;
 	}
 
 	bool WorldRendererLegacy::Resize(uint32_t width, uint32_t height)

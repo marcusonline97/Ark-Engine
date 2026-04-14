@@ -53,11 +53,13 @@ private:
 
     void GenerateDepthBuffer(int Width, int Height);
 
+    void Destroy();
+
     int m_width = 0;
     int m_height = 0;
-    GLuint m_fbo = -1;
-    GLuint m_colorBuffer = -1;
-    GLuint m_depthBuffer = -1;
-    GLuint m_normalBuffer = -1;
+    GLuint m_fbo = 0;
+    GLuint m_colorBuffer = 0;
+    GLuint m_depthBuffer = 0;
+    GLuint m_normalBuffer = 0;
     SaveViewport m_saveViewport;
 };

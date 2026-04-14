@@ -1,6 +1,5 @@
 #include "MeshCache.h"
 
-#include <filesystem>
 
 #include "Logger.h"
 #include "ECS/Common/Basic_Mesh.h"
@@ -19,7 +18,7 @@ namespace Ark::Rendering
 		if (!entry.mesh)
 		{
 			auto mesh = std::make_unique<BasicMesh>();
-			if (!mesh->LoadMesh(std::filesystem::path(absoluteMeshPath).string()))sh(std::filesystem::path(absoluteMeshPath).string()))
+			if (!mesh->LoadMesh(absoluteMeshPath))
 			{
 				entry.failed = true;
 				Logging::Warning() << "Failed to load mesh: " << absoluteMeshPath << "\n";

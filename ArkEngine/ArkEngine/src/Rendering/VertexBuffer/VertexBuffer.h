@@ -67,10 +67,10 @@ public:
     }
 
 private:
-    GLuint m_vbo = -1;
-    GLuint m_vao = -1;
+    GLuint m_vbo = 0;
+    GLuint m_vao = 0;
     int m_numVertices = 0;
-    GLuint m_topologyType = -1;
+    GLuint m_topologyType = 0;
 };
 
 

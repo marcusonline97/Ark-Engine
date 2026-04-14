@@ -26,7 +26,8 @@ namespace Ark::Rendering
 			std::atomic<Texture*> texture{ nullptr }; // owned by AssetManager cache
 
 			bool requested = false;
-			bool failed = false;
+
+			std::atomic<bool> failed{ false };
 		};
 
 		ResourceLoader* m_loader = nullptr;

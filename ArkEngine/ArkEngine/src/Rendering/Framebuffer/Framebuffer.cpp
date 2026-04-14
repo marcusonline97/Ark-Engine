@@ -8,24 +8,39 @@
 Framebuffer::Framebuffer() {}
 
 
+
 Framebuffer::~Framebuffer()
+{
+    Destroy();
+}
+
+void Framebuffer::Destroy()
 {
     if (m_fbo != 0) {
         glDeleteFramebuffers(1, &m_fbo);
+        m_fbo = 0;
     }
 
     if (m_colorBuffer != 0) {
         glDeleteTextures(1, &m_colorBuffer);
+        m_colorBuffer = 0;
     }
 
     if (m_depthBuffer != 0) {
         glDeleteTextures(1, &m_depthBuffer);
+        m_depthBuffer = 0;
+    }
+
+    if (m_normalBuffer != 0) {
+        glDeleteTextures(1, &m_normalBuffer);
+        m_normalBuffer = 0;
     }
 }
 
-
 void Framebuffer::Init(int Width, int Height, int NumFormatComponents, bool IsFloat, bool DepthEnabled, bool NormalEnabled)
 {
+    Destroy();
+
     if (IsGLVersionHigher(4, 5)) {
         InitDSA(Width, Height, NumFormatComponents, IsFloat, DepthEnabled, NormalEnabled);
     }
@@ -98,10 +113,11 @@ void Framebuffer::InitNonDSA(int Width, int Height, int NumFormatComponents, boo
     std::vector<GLenum> DrawBuffers;
     DrawBuffers.push_back(GL_COLOR_ATTACHMENT0);
 
-    if (NormalEnabled) {
-        glDrawBuffers((GLsizei)DrawBuffers.size(), DrawBuffers.data());
+    if (NormalEnabled) 
+    {
+		DrawBuffers.push_back(GL_COLOR_ATTACHMENT1);
     }
-
+	glDrawBuffers((GLsizei)DrawBuffers.size(), DrawBuffers.data());
     glReadBuffer(GL_COLOR_ATTACHMENT0);
 
     GLenum Status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
@@ -253,7 +269,7 @@ void Framebuffer::BindNormalForReading(GLenum TextureUnit)
 
 void Framebuffer::BindDepthForReading(GLenum TextureUnit)
 {
-    if (m_depthBuffer == -1) {
+    if (m_depthBuffer == 0) {
         printf("Trying to bind depth for reading in a FBO without depth buffer\n");
         exit(1);
     }
@@ -269,15 +285,15 @@ void Framebuffer::Clear()
     float Depth = 1.0f;
 
     if (IsGLVersionHigher(4, 5)) {
-        if (m_colorBuffer != -1) {
+        if (m_colorBuffer != 0) {
             glClearNamedFramebufferfv(m_fbo, GL_COLOR, 0, (GLfloat*)Color.data());
         }
 
-        if (m_depthBuffer != -1) {
+        if (m_depthBuffer != 0) {
             glClearNamedFramebufferfv(m_fbo, GL_DEPTH, 0, &Depth);
         }
 
-        if (m_normalBuffer != -1) {
+        if (m_normalBuffer != 0) {
             glClearNamedFramebufferfv(m_fbo, GL_COLOR, 1, (GLfloat*)Color.data());
         }
     }
@@ -286,11 +302,11 @@ void Framebuffer::Clear()
             glClearBufferfv(GL_COLOR, 0, (GLfloat*)Color.data());
         }
 
-        if (m_depthBuffer != -1) {
+        if (m_depthBuffer != 0) {
             glClearBufferfv(GL_DEPTH, 0, &Depth);
         }
 
-        if (m_normalBuffer != -1) {
+        if (m_normalBuffer != 0) {
             glClearBufferfv(GL_COLOR, 1, (GLfloat*)Color.data());
         }
     }

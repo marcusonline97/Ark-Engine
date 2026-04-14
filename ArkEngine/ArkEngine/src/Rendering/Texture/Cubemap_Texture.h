@@ -8,7 +8,7 @@
 class BaseCubmapTexture : public BaseTexture {
 public:
 
-    virtual void Load() = 0;
+    virtual bool Load() = 0;
 
     virtual void Bind(GLenum TextureUnit) = 0;
 };
@@ -29,7 +29,7 @@ public:
 
     ~CubemapTexture();
 
-    virtual void Load();
+    virtual bool Load();
 
     void LoadKTX(const std::string& Filename);
 
@@ -50,7 +50,7 @@ public:
 
     ~CubemapEctTexture() {};
 
-    virtual void Load();
+    virtual bool Load();
 
     virtual void Bind(GLenum TextureUnit);
 
