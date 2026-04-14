@@ -1,6 +1,10 @@
 #include "Basic_Mesh.h"
 #include "Utility/Common.h"
 
+#include <algorithm>
+#include <cctype>
+#include <filesystem>
+
 #include <meshoptimizer/meshoptimizer.h>
 
 #define POSITION_LOCATION  0
@@ -22,6 +26,39 @@ std::string GetFullPath(const string& Dir, const aiString& Path)
     string FullPath = Dir + "/" + p;
 
     return FullPath;
+}
+
+namespace
+{
+    bool IsFbxFile(const std::string& filename)
+    {
+        std::filesystem::path p(filename);
+        std::string ext = p.has_extension() ? p.extension().string() : std::string();
+        std::transform(ext.begin(), ext.end(), ext.begin(),
+            [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+        return ext == ".fbx";
+    }
+    int ResolveAssimpFlagsForFile(const std::string& filename, int requestedFlags)
+    {
+        if (!IsFbxFile(filename))
+            return requestedFlags;
+
+        constexpr int kFBXFlags =
+            aiProcess_Triangulate |
+            aiProcess_GenSmoothNormals |
+            aiProcess_CalcTangentSpace |
+            aiProcess_JoinIdenticalVertices |
+            aiProcess_ImproveCacheLocality |
+            aiProcess_FlipUVs;
+
+        int flags = requestedFlags | kFBXFlags;
+
+        // Assimp disallows generating flat and smooth normals together.
+        if ((flags & aiProcess_GenSmoothNormals) != 0)
+            flags &= ~aiProcess_GenNormals;
+
+        return flags;
+    }
 }
 
 
@@ -62,7 +99,9 @@ bool BasicMesh::LoadMesh(const string& Filename, int AssimpFlags)
 
     bool Ret = false;
 
-    m_pScene = m_Importer.ReadFile(Filename.c_str(), AssimpFlags);
+    const int resolvedAssimpFlags = ResolveAssimpFlagsForFile(Filename, AssimpFlags);
+
+	m_pScene = m_Importer.ReadFile(Filename.c_str(), resolvedAssimpFlags);
 
     if (m_pScene) {
         m_GlobalInverseTransform = m_pScene->mRootNode->mTransformation;

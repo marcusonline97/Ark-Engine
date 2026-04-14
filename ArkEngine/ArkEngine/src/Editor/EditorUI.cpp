@@ -23,18 +23,6 @@ namespace
 {
     constexpr const char* kPayloadEditorObject = "ARK_EDITOR_OBJECT_ID";
     constexpr const char* kPayloadAssetPath = "ARK_EDITOR_ASSET_PATH";
-    static glm::vec3 ComputeForward(float pitchDeg, float yawDeg)
-    {
-        glm::vec3 front;
-        const float pitch = glm::radians(pitchDeg);
-        const float yaw = glm::radians(yawDeg);
-
-        front.x = cos(yaw) * cos(pitch);
-        front.y = sin(pitch);
-        front.z = -sin(yaw) * cos(pitch);
-
-        return glm::normalize(front);
-    }
 }
 
 std::uint32_t EditorUI::AllocateObjectId()
@@ -87,11 +75,13 @@ bool EditorUI::WouldCreateCycle(const std::vector<EditorObject>& objects, std::u
 
 Ark::Rendering::WorldCameraInput EditorUI::GetEditorViewportCamera() const
 {
+	const Ark::CameraController& activeCamera = m_isPossessing ? m_possessedCamera : m_editorCamera;
+
     Ark::Rendering::WorldCameraInput cam{};
-    cam.position = m_editorCamPos;
+	cam.position = activeCamera.position;
 
     // Editor camera is now also left-handed; no conversion here.
-    cam.pitchYawDeg = glm::vec2(m_editorCamPitchDeg, m_editorCamYawDeg);
+    cam.pitchYawDeg = glm::vec2(activeCamera.pitchDeg, activeCamera.yawDeg);
 
     cam.fovDeg = m_editorCamFovDeg;
     cam.nearPlane = m_editorCamNear;
@@ -149,6 +139,55 @@ std::filesystem::path EditorUI::FindResourcesRoot(const std::filesystem::path& p
     return projectRoot;
 }
 
+void EditorUI::SetViewportCursorCapture(bool captured)
+{
+    if (m_viewportCursorCaptured == captured)
+        return;
+
+    if (!Ark::Input::g_Window)
+        return;
+
+    glfwSetInputMode(Ark::Input::g_Window, GLFW_CURSOR, captured ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
+    m_viewportCursorCaptured = captured;
+
+    double mx = 0.0;
+    double my = 0.0;
+    glfwGetCursorPos(Ark::Input::g_Window, &mx, &my);
+    m_viewportLastMouse = ImVec2(static_cast<float>(mx), static_cast<float>(my));
+}
+
+bool EditorUI::BeginPossession(const std::vector<EditorObject>& objects, std::uint32_t targetObjectId)
+{
+    if (targetObjectId == 0)
+        return false;
+
+    const int targetIndex = FindObjectIndexById(objects, targetObjectId);
+    if (targetIndex < 0)
+        return false;
+
+    const EditorObject& obj = objects[static_cast<size_t>(targetIndex)];
+    if (!obj.camera)
+        return false;
+
+    m_possessedObjectId = obj.id;
+    m_possessedCamera.position = obj.position;
+    m_possessedCamera.pitchDeg = obj.rotationDeg.x;
+    m_possessedCamera.yawDeg = obj.rotationDeg.y;
+    m_isPossessing = true;
+    m_viewportRmbLooking = false;
+    SetViewportCursorCapture(true);
+    return true;
+}
+
+void EditorUI::EndPossession()
+{
+    m_isPossessing = false;
+    m_possessedObjectId = 0;
+    m_viewportRmbLooking = false;
+    SetViewportCursorCapture(false);
+}
+
+
 void EditorUI::Init()
 {
     m_projectRoot = FindProjectRoot();
@@ -182,9 +221,9 @@ void EditorUI::Init()
 void EditorUI::Shutdown()
 {
     // nothing to add here since the panels are in intermediate mode
+	EndPossession();
     m_music.Shutdown();
     m_dirScanner.Stop();
-
 }
 
 
@@ -507,31 +546,38 @@ void EditorUI::RenderMenuBar()
 
     if (ImGui::BeginMenu("Run"))
     {
-        if (ImGui::MenuItem(m_playMode ? "Stop" : "Play", "F5"))
-            m_playMode = !m_playMode;
-        ImGui::EndMenu();
+        {
+            if (ImGui::MenuItem(m_playMode ? "Stop" : "Play", "F5"))
+            {
+                m_playMode = !m_playMode;
+                if (m_playMode && m_isPossessing)
+                    EndPossession();
+            }
+            ImGui::EndMenu();
+        }
+
+        ImGui::TextDisabled("Project: %s", m_projectRoot.string().c_str());
+        // Right-aligned viewport FPS.
+        {
+            const float fps = Utilities::GetViewportFPS();
+            const uint32_t tris = m_viewportTriangleCount;
+
+            char buf[96]{};
+            std::snprintf(buf, sizeof(buf), "FPS: %.1f | Tris: %u", fps, tris);
+
+            const float textWidth = ImGui::CalcTextSize(buf).x;
+            const float avail = ImGui::GetContentRegionAvail().x;
+            if (avail > textWidth + ImGui::GetStyle().ItemSpacing.x)
+                ImGui::SameLine(ImGui::GetCursorPosX() + avail - textWidth);
+            else
+                ImGui::SameLine();
+            ImGui::TextDisabled("%s", buf);
+        }
+
+        ImGui::EndMenuBar();
     }
-
-    ImGui::TextDisabled("Project: %s", m_projectRoot.string().c_str());
-    // Right-aligned viewport FPS.
-    {
-        const float fps = Utilities::GetViewportFPS();
-        const uint32_t tris = m_viewportTriangleCount;
-
-        char buf[96]{};
-        std::snprintf(buf, sizeof(buf), "FPS: %.1f | Tris: %u", fps, tris);
-
-        const float textWidth = ImGui::CalcTextSize(buf).x;
-        const float avail = ImGui::GetContentRegionAvail().x;
-        if (avail > textWidth + ImGui::GetStyle().ItemSpacing.x)
-            ImGui::SameLine(ImGui::GetCursorPosX() + avail - textWidth);
-        else
-            ImGui::SameLine();
-        ImGui::TextDisabled("%s", buf);
-    }
-
-    ImGui::EndMenuBar();
 }
+
 
 void EditorUI::RenderViewport(std::vector<EditorObject>& objects, int& selectedObjectIndex)
 {
@@ -548,6 +594,9 @@ void EditorUI::RenderViewport(std::vector<EditorObject>& objects, int& selectedO
             const ImVec2 availableSize = ImGui::GetContentRegionAvail();
             m_viewportSize = glm::vec2(availableSize.x, availableSize.y);
 
+            const bool hasSelection = (selectedObjectIndex >= 0 && selectedObjectIndex < static_cast<int>(objects.size()));
+            const bool canPossessSelected = hasSelection &&
+                objects[static_cast<size_t>(selectedObjectIndex)].camera.has_value();
             // Toolbar
             {
 
@@ -555,7 +604,7 @@ void EditorUI::RenderViewport(std::vector<EditorObject>& objects, int& selectedO
                 ImGui::TextDisabled("Gizmo:");
                 ImGui::SameLine();
 
-                ImGui::BeginDisabled(!canEdit);
+                ImGui::BeginDisabled(!canEdit || m_isPossessing);
                 if (ImGui::SmallButton("Translate (W)")) m_gizmoMode = 0;
                 ImGui::SameLine();
                 if (ImGui::SmallButton("Rotate (E)")) m_gizmoMode = 1;
@@ -564,12 +613,32 @@ void EditorUI::RenderViewport(std::vector<EditorObject>& objects, int& selectedO
                 ImGui::EndDisabled();
 
                 ImGui::SameLine();
-                ImGui::SeparatorText(m_playMode ? "PLAYING" : "EDIT");
+                ImGui::SeparatorText(m_playMode ? "PLAYING" : (m_isPossessing ? "POSSESSING" : "EDIT"));
                 ImGui::SameLine();
                 if (ImGui::SmallButton(m_playMode ? "Stop (F5)" : "Play (F5)"))
+                {
                     m_playMode = !m_playMode;
+                    if (m_playMode && m_isPossessing)
+                        EndPossession();
+                }
 
                 // inside EditorUI::RenderViewport, where you have the tab bar
+
+                if (!m_playMode)
+                {
+                    ImGui::SameLine();
+                    if (!m_isPossessing)
+                    {
+                        ImGui::BeginDisabled(!canPossessSelected);
+                        if (ImGui::SmallButton("Possess (P)") && canPossessSelected)
+                            BeginPossession(objects, objects[static_cast<size_t>(selectedObjectIndex)].id);
+                        ImGui::EndDisabled();
+                    }
+                    else if (ImGui::SmallButton("Release (Esc)"))
+                    {
+                        EndPossession();
+                    }
+                }
 
                 if (ImGui::BeginTabItem("Rendering"))
                 {
@@ -601,13 +670,20 @@ void EditorUI::RenderViewport(std::vector<EditorObject>& objects, int& selectedO
                 const bool imgHovered = ImGui::IsItemHovered();
                 ImGuiIO& io = ImGui::GetIO();
 
-                // Hotkeys only when viewport is hovered
                 if (imgHovered)
                 {
-                    if (ImGui::IsKeyPressed(ImGuiKey_W)) m_gizmoMode = 0;
-                    if (ImGui::IsKeyPressed(ImGuiKey_E)) m_gizmoMode = 1;
-                    if (ImGui::IsKeyPressed(ImGuiKey_R)) m_gizmoMode = 2;
-                    if (ImGui::IsKeyPressed(ImGuiKey_F5)) m_playMode = !m_playMode;
+                    if (!m_isPossessing)
+                    {
+                        if (ImGui::IsKeyPressed(ImGuiKey_W)) m_gizmoMode = 0;
+                        if (ImGui::IsKeyPressed(ImGuiKey_E)) m_gizmoMode = 1;
+                        if (ImGui::IsKeyPressed(ImGuiKey_R)) m_gizmoMode = 2;
+                    }
+                    if (ImGui::IsKeyPressed(ImGuiKey_F5))
+                    {
+                        m_playMode = !m_playMode;
+                        if (m_playMode && m_isPossessing)
+                            EndPossession();
+                    }
 
                     if (ImGui::IsKeyPressed(ImGuiKey_G))
                     {
@@ -1494,6 +1570,3 @@ void EditorUI::ValidateSceneState(std::vector<EditorObject>& objects, int& selec
     if (selectedObjectIndex >= static_cast<int>(objects.size()))
         selectedObjectIndex = static_cast<int>(objects.size() - 1);
 }
-
-
-

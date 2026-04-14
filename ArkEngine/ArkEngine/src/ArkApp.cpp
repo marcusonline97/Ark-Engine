@@ -15,6 +15,7 @@
 #include "Logger.h"
 #include "Utility/Utility.h"
 #include "Utility/SceneIO.h"
+#include "Camera/CameraController.h"
 #include "Input/Input.h"
 
 static constexpr const char* kImGuiGLSLVersion = "#version 450";
@@ -22,6 +23,19 @@ static constexpr const char* kImGuiGLSLVersion = "#version 450";
 namespace
 {
 	constexpr int kResourcesPerFrame = 2;
+	Ark::CameraInput BuildCameraInputFromKeyboard()
+	{
+		Ark::CameraInput input{};
+		input.forward = Ark::Input::IsKeyDown(ARK_KEY_W);
+		input.back = Ark::Input::IsKeyDown(ARK_KEY_S);
+		input.left = Ark::Input::IsKeyDown(ARK_KEY_A);
+		input.right = Ark::Input::IsKeyDown(ARK_KEY_D);
+		input.up = Ark::Input::IsKeyDown(ARK_KEY_E);
+		input.down = Ark::Input::IsKeyDown(ARK_KEY_Q);
+		input.fast = Ark::Input::IsKeyDown(ARK_KEY_LEFT_SHIFT);
+		return input;
+	}
+
 	glm::mat4 BuildModelMatrix(const EditorObject& obj)
 	{
 		const glm::mat4 rotX = glm::rotate(glm::mat4(1.0f), glm::radians(obj.rotationDeg.x), glm::vec3(1, 0, 0));
@@ -32,6 +46,9 @@ namespace
 	}
 
 }
+
+// TODO(camera-legacy): BasicCamera and ViewportCamera still exist in the tree but
+// runtime control now goes through CameraController-based possession/editor logic.
 
 GLFWwindow* App::GetWindowHandle() const
 {
