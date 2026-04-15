@@ -1,6 +1,7 @@
 #include "Camera/BasicCamera.h"
 #include "Maps/Techniques/Skybox_Technique.h"
 #include "Rendering/Texture/Cubemap_Texture.h"
+#include <memory>
 
 class BasicMesh;
 
@@ -29,7 +30,7 @@ private:
     void InitTechnique();
     void LoadTextureAndMesh();
 
-    SkyboxTechnique* m_pSkyboxTechnique = NULL;
-    BaseCubmapTexture* m_pCubemapTex = NULL;
-    BasicMesh* m_pMesh = NULL;
+    std::unique_ptr<SkyboxTechnique> m_pSkyboxTechnique;
+    std::unique_ptr<BaseCubmapTexture> m_pCubemapTex;
+    std::unique_ptr<BasicMesh> m_pMesh;
 };

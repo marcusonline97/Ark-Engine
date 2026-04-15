@@ -1,5 +1,4 @@
 #include "ArkEngine.h"
-#include "ArkWindow.h"
 
 #if defined(_WIN32)
 #define WIN32_LEAN_AND_MEAN
@@ -11,7 +10,6 @@
 
 ArkEngine::ArkEngine()
 {
-	m_Window = std::make_unique<ArkWindow>(800, 600, "Ark Engine");
 }
 
 ArkEngine::~ArkEngine()
@@ -44,15 +42,7 @@ void ArkEngine::Run()
 			Sleep(1);
 		}
 #else
-		if (!m_Window || m_Window->ShouldClose())
-		{
-			m_IsRunning = false;
-			break;
-		}
-
-		// GLFW-based pump (ArkWindow wraps GLFW on non-Windows targets)
-		m_Window->PollEvents();
-		m_Window->SwapBuffers();
+		// Legacy fallback loop: ArkEngine is no longer responsible for owning a GLFW window.
 		std::this_thread::sleep_for(std::chrono::milliseconds(1));
 #endif
 	}

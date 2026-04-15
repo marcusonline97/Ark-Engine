@@ -23,6 +23,8 @@ static constexpr const char* kImGuiGLSLVersion = "#version 450";
 namespace
 {
 	constexpr int kResourcesPerFrame = 2;
+	constexpr size_t kInvalidCameraIndex = std::numeric_limits<size_t>::max();
+
 	Ark::CameraInput BuildCameraInputFromKeyboard()
 	{
 		Ark::CameraInput input{};
@@ -43,6 +45,11 @@ namespace
 		const glm::mat4 rotZ = glm::rotate(glm::mat4(1.0f), glm::radians(obj.rotationDeg.z), glm::vec3(0, 0, 1));
 		const glm::mat4 rot = rotZ * rotY * rotX;
 		return glm::translate(glm::mat4(1.0f), obj.position) * rot * glm::scale(glm::mat4(1.0f), obj.scale);
+	}
+
+	bool IsSameVec3(const glm::vec3& a, const glm::vec3& b)
+	{
+		return a.x == b.x && a.y == b.y && a.z == b.z;
 	}
 
 }
@@ -155,6 +162,43 @@ void App::Run()
 
 		Ark::Input::NewFrame();
 
+		auto isValidCameraIndex = [this](size_t index)
+			{
+				return index < m_Objects.size() &&
+					m_Objects[index].enabled &&
+					m_Objects[index].camera.has_value();
+			};
+
+		auto refreshPrimaryCameraIndex = [this, &isValidCameraIndex]()
+			{
+				size_t firstCamera = kInvalidCameraIndex;
+				size_t primaryCamera = kInvalidCameraIndex;
+
+				for (size_t i = 0; i < m_Objects.size(); ++i)
+				{
+					const EditorObject& o = m_Objects[i];
+					if (!o.enabled || !o.camera)
+						continue;
+
+					if (firstCamera == kInvalidCameraIndex)
+						firstCamera = i;
+
+					if (o.camera->primary)
+					{
+						primaryCamera = i;
+						break;
+					}
+				}
+
+				m_hasExplicitPrimaryCamera = primaryCamera != kInvalidCameraIndex;
+				m_primaryCameraIndex = m_hasExplicitPrimaryCamera ? primaryCamera : firstCamera;
+
+				if (!isValidCameraIndex(m_primaryCameraIndex))
+					m_primaryCameraIndex = kInvalidCameraIndex;
+			};
+
+		refreshPrimaryCameraIndex();
+
 		if (Ark::Input::IsKeyPressed(ARK_KEY_G))
 		{
 			showGrid = !showGrid;
@@ -166,52 +210,21 @@ void App::Run()
 		}
 
 		// CPU iterative resource loading: do a small bounded amount per frame.
-		m_cpuResourceLoader.Pump(2);
+		m_cpuResourceLoader.Pump(kResourcesPerFrame);
 
 		// Play mode: possess the primary camera and drive it with basic FPS controls.
 		if (m_EditorUI.IsPlayMode())
 		{
-			EditorObject* camObj = nullptr;
-			for (auto& o : m_Objects)
+			if (isValidCameraIndex(m_primaryCameraIndex))
 			{
-				if (!o.enabled || !o.camera) continue;
-				if (o.camera->primary) { camObj = &o; break; }
-			}
-			if (!camObj)
-			{
-				for (auto& o : m_Objects)
-				{
-					if (!o.enabled || !o.camera) continue;
-					camObj = &o;
-					break;
-				}
-			}
-
-			if (camObj)
-			{
-				const float pitch = camObj->rotationDeg.x;
-				const float yaw = camObj->rotationDeg.y;
-
-				glm::vec3 front;
-				front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-				front.y = sin(glm::radians(pitch));
-				front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-				front = glm::normalize(front);
-
-				const glm::vec3 up(0.0f, 1.0f, 0.0f);
-				const glm::vec3 right = glm::normalize(glm::cross(up, front));
-
-				const float speed = 3.5f;
-				const float move = speed * dt;
-
-				if (Ark::Input::IsKeyDown(ARK_KEY_W)) camObj->position += front * move;
-				if (Ark::Input::IsKeyDown(ARK_KEY_S)) camObj->position -= front * move;
-
-				if (Ark::Input::IsKeyDown(ARK_KEY_A)) camObj->position -= right * move; // left
-				if (Ark::Input::IsKeyDown(ARK_KEY_D)) camObj->position += right * move; // right
-
-				if (Ark::Input::IsKeyDown(ARK_KEY_E)) camObj->position += up * move;
-				if (Ark::Input::IsKeyDown(ARK_KEY_Q)) camObj->position -= up * move;
+				EditorObject& camObj = m_Objects[m_primaryCameraIndex];
+				Ark::CameraController cameraController{};
+				cameraController.position = camObj.position;
+				cameraController.pitchDeg = camObj.rotationDeg.x;
+				cameraController.yawDeg = camObj.rotationDeg.y;
+				cameraController.moveSpeed = 3.5f;
+				cameraController.lookSensitivity = 0.12f;
+				cameraController.ProcessKeyboard(dt, BuildCameraInputFromKeyboard());
 
 				// Hold RMB to rotate the camera.
 				if (Ark::Input::IsMouseDown(ARK_MOUSE_RIGHT))
@@ -231,19 +244,21 @@ void App::Run()
 						lastMouseX = mx;
 						lastMouseY = my;
 
-						constexpr float sensitivity = 0.12f;
-						camObj->rotationDeg.y += static_cast<float>(dx) * sensitivity;
-						camObj->rotationDeg.x -= static_cast<float>(dy) * sensitivity;
-
-						// Clamp pitch to avoid gimbal flip.
-						if (camObj->rotationDeg.x > 89.0f) camObj->rotationDeg.x = 89.0f;
-						if (camObj->rotationDeg.x < -89.0f) camObj->rotationDeg.x = -89.0f;
+						cameraController.ProcessMouseDelta(static_cast<float>(dx), static_cast<float>(dy));
 					}
 				}
 				else
 				{
 					rotating = false;
 				}
+
+				camObj.position = cameraController.position;
+				camObj.rotationDeg.x = cameraController.pitchDeg;
+				camObj.rotationDeg.y = cameraController.yawDeg;
+			}
+			else
+			{
+				rotating = false;
 			}
 		}
 
@@ -258,22 +273,13 @@ void App::Run()
 
 		if (m_WorldRenderer)
 		{
-			Ark::Rendering::WorldRenderInput input{};
+			Ark::Rendering::WorldRenderInput& input = m_renderInput;
 			input.width = static_cast<uint32_t>(vpW);
 			input.height = static_cast<uint32_t>(vpH);
 
 			input.wireframe = m_EditorUI.GetWireframeEnabled();
 			input.useMipmaps = m_EditorUI.GetUseMipmaps();
 			input.showGrid = m_EditorUI.GetShowGrid();
-
-			const auto toModel = [](const EditorObject& obj)
-				{
-					const glm::mat4 rotX = glm::rotate(glm::mat4(1.0f), glm::radians(obj.rotationDeg.x), glm::vec3(1, 0, 0));
-					const glm::mat4 rotY = glm::rotate(glm::mat4(1.0f), glm::radians(obj.rotationDeg.y), glm::vec3(0, 1, 0));
-					const glm::mat4 rotZ = glm::rotate(glm::mat4(1.0f), glm::radians(obj.rotationDeg.z), glm::vec3(0, 0, 1));
-					const glm::mat4 rot = rotZ * rotY * rotX;
-					return glm::translate(glm::mat4(1.0f), obj.position) * rot * glm::scale(glm::mat4(1.0f), obj.scale);
-				};
 
 			// Camera selection:
 			// - EDIT mode: use the editor viewport camera (world-space).
@@ -284,21 +290,14 @@ void App::Run()
 			}
 			else
 			{
-				EditorObject* camObj = nullptr;
-				for (auto& o : m_Objects)
+				if (isValidCameraIndex(m_primaryCameraIndex))
 				{
-					if (!o.enabled || !o.camera) continue;
-					if (o.camera->primary) { camObj = &o; break; }
-					if (!camObj) camObj = &o;
-				}
-
-				if (camObj && camObj->camera)
-				{
-					input.camera.position = camObj->position;
-					input.camera.pitchYawDeg = glm::vec2(camObj->rotationDeg.x, camObj->rotationDeg.y);
-					input.camera.fovDeg = camObj->camera->fovDeg;
-					input.camera.nearPlane = camObj->camera->nearPlane;
-					input.camera.farPlane = camObj->camera->farPlane;
+					const EditorObject& camObj = m_Objects[m_primaryCameraIndex];
+					input.camera.position = camObj.position;
+					input.camera.pitchYawDeg = glm::vec2(camObj.rotationDeg.x, camObj.rotationDeg.y);
+					input.camera.fovDeg = camObj.camera->fovDeg;
+					input.camera.nearPlane = camObj.camera->nearPlane;
+					input.camera.farPlane = camObj.camera->farPlane;
 				}
 			}
 
@@ -307,8 +306,14 @@ void App::Run()
 			input.pointLights.clear();
 			input.pointLights.reserve(m_Objects.size());
 
-			for (const auto& o : m_Objects)
+			if (m_cachedObjectTransforms.size() != m_Objects.size())
+				m_cachedObjectTransforms.resize(m_Objects.size());
+			if (m_cachedObjectModels.size() != m_Objects.size())
+				m_cachedObjectModels.resize(m_Objects.size(), glm::mat4(1.0f));
+
+			for (size_t objectIndex = 0; objectIndex < m_Objects.size(); ++objectIndex)
 			{
+				const auto& o = m_Objects[objectIndex];
 				if (!o.enabled)
 					continue;
 
@@ -317,7 +322,23 @@ void App::Run()
 					Ark::Rendering::RenderInstance inst{};
 					inst.objectId = o.id;
 
-					inst.model = toModel(o);
+					CachedTransformState& cachedState = m_cachedObjectTransforms[objectIndex];
+					const bool transformChanged =
+						cachedState.objectId != o.id ||
+						!IsSameVec3(cachedState.position, o.position) ||
+						!IsSameVec3(cachedState.rotation, o.rotationDeg) ||
+						!IsSameVec3(cachedState.scale, o.scale);
+
+					if (transformChanged)
+					{
+						cachedState.objectId = o.id;
+						cachedState.position = o.position;
+						cachedState.rotation = o.rotationDeg;
+						cachedState.scale = o.scale;
+						m_cachedObjectModels[objectIndex] = BuildModelMatrix(o);
+					}
+
+					inst.model = m_cachedObjectModels[objectIndex];
 					inst.tint = o.tint;
 
 					inst.hasMaterial = false;

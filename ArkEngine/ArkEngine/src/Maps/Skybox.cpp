@@ -2,20 +2,33 @@
 #include "Common/Pipeline.h"
 #include "Utility/Util.h"
 #include "ECS/Common/Basic_Mesh.h"
+#include <memory>
+
+namespace
+{
+    struct SkyboxStateGuard
+    {
+        SkyboxStateGuard()
+        {
+            glCullFace(GL_FRONT);
+            glDepthFunc(GL_LEQUAL);
+        }
+
+        ~SkyboxStateGuard()
+        {
+            glCullFace(GL_BACK);
+            glDepthFunc(GL_LESS);
+        }
+    };
+}
 
 SkyBox::SkyBox()
 {
-    m_pSkyboxTechnique = NULL;
-    m_pCubemapTex = NULL;
-    m_pMesh = NULL;
 }
 
 
 SkyBox::~SkyBox()
 {
-    SAFE_DELETE(m_pSkyboxTechnique);
-    SAFE_DELETE(m_pCubemapTex);
-    SAFE_DELETE(m_pMesh);
 }
 
 
@@ -29,7 +42,7 @@ void SkyBox::Init(const string& Directory,
 {
     InitTechnique();
 
-    m_pCubemapTex = new CubemapTexture(Directory,
+    m_pCubemapTex = std::make_unique<CubemapTexture>(Directory,
         PosXFilename,
         NegXFilename,
         PosYFilename,
@@ -45,7 +58,7 @@ void SkyBox::Init(const std::string& EctTextureFilename)
 {
     InitTechnique();
 
-    m_pCubemapTex = new CubemapEctTexture(EctTextureFilename);
+    m_pCubemapTex = std::make_unique<CubemapEctTexture>(EctTextureFilename);
 
     LoadTextureAndMesh();
 }
@@ -53,7 +66,7 @@ void SkyBox::Init(const std::string& EctTextureFilename)
 
 void SkyBox::InitTechnique()
 {
-    m_pSkyboxTechnique = new SkyboxTechnique();
+    m_pSkyboxTechnique = std::make_unique<SkyboxTechnique>();
 
     if (!m_pSkyboxTechnique->Init()) {
         printf("Error initializing the skybox technique\n");
@@ -67,30 +80,24 @@ void SkyBox::InitTechnique()
 
 void SkyBox::LoadTextureAndMesh()
 {
-    if(!m_pCubemapTex->Load()) {
+    if (!m_pCubemapTex || !m_pCubemapTex->Load()) {
         printf("Error loading the skybox cubemap texture\n");
         return;
 	}
 
-    m_pMesh = new BasicMesh();
-
-    m_pMesh->LoadMesh("../Content/box.obj");
+    auto mesh = std::make_unique<BasicMesh>();
+    mesh->LoadMesh("../Content/box.obj");
+    m_pMesh = std::move(mesh);
 }
 
 
 void SkyBox::Render(const BasicCamera& Camera)
 {
+    if (!m_pSkyboxTechnique || !m_pCubemapTex || !m_pMesh)
+        return;
+
     m_pSkyboxTechnique->Enable();
-
-    GLint OldCullFaceMode;
-    glGetIntegerv(GL_CULL_FACE_MODE, &OldCullFaceMode);
-
-    GLint OldDepthFuncMode;
-    glGetIntegerv(GL_DEPTH_FUNC, &OldDepthFuncMode);
-
-    glCullFace(GL_FRONT);
-
-    glDepthFunc(GL_LEQUAL);
+    SkyboxStateGuard stateGuard;
 
     static float r = 0.0f;
     Matrix4f Rotation;
@@ -105,26 +112,16 @@ void SkyBox::Render(const BasicCamera& Camera)
     m_pSkyboxTechnique->SetWVP(WVP);
     m_pCubemapTex->Bind(GL_TEXTURE0);
     m_pMesh->Render();
-
-    glCullFace(OldCullFaceMode);
-
-    glDepthFunc(OldDepthFuncMode);
 }
 
 
 void SkyBox::Render(const Matrix4f& VP)
 {
+    if (!m_pSkyboxTechnique || !m_pCubemapTex || !m_pMesh)
+        return;
+
     m_pSkyboxTechnique->Enable();
-
-    GLint OldCullFaceMode;
-    glGetIntegerv(GL_CULL_FACE_MODE, &OldCullFaceMode);
-
-    GLint OldDepthFuncMode;
-    glGetIntegerv(GL_DEPTH_FUNC, &OldDepthFuncMode);
-
-    glCullFace(GL_FRONT);
-
-    glDepthFunc(GL_LEQUAL);
+    SkyboxStateGuard stateGuard;
 
     static float r = 0.0f;
     Matrix4f Rotation;
@@ -135,8 +132,4 @@ void SkyBox::Render(const Matrix4f& VP)
     m_pSkyboxTechnique->SetWVP(WVP);
     m_pCubemapTex->Bind(GL_TEXTURE0);
     m_pMesh->Render();
-
-    glCullFace(OldCullFaceMode);
-
-    glDepthFunc(OldDepthFuncMode);
 }

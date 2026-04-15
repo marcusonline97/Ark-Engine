@@ -1,8 +1,4 @@
 #pragma once
-
-#include <memory>
-
-class ArkWindow;
 class ArkEngine
 {
 	public:
@@ -13,5 +9,4 @@ class ArkEngine
 
 protected:
 	bool m_IsRunning = true;
-	std::unique_ptr<ArkWindow> m_Window;
 };

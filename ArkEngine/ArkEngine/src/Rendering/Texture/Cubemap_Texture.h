@@ -7,6 +7,7 @@
 
 class BaseCubmapTexture : public BaseTexture {
 public:
+    virtual ~BaseCubmapTexture() = default;
 
     virtual bool Load() = 0;
 
