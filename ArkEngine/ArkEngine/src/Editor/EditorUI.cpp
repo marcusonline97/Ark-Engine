@@ -549,36 +549,34 @@ void EditorUI::RenderMenuBar()
 
     if (ImGui::BeginMenu("Run"))
     {
+        if (ImGui::MenuItem(m_playMode ? "Stop" : "Play", "F5"))
         {
-            if (ImGui::MenuItem(m_playMode ? "Stop" : "Play", "F5"))
-            {
-                m_playMode = !m_playMode;
-                if (m_playMode && m_isPossessing)
-                    EndPossession();
-            }
-            ImGui::EndMenu();
+            m_playMode = !m_playMode;
+            if (m_playMode && m_isPossessing)
+                EndPossession();
         }
-
-        ImGui::TextDisabled("Project: %s", m_projectRoot.string().c_str());
-        // Right-aligned viewport FPS.
-        {
-            const float fps = Utilities::GetViewportFPS();
-            const uint32_t tris = m_viewportTriangleCount;
-
-            char buf[96]{};
-            std::snprintf(buf, sizeof(buf), "FPS: %.1f | Tris: %u", fps, tris);
-
-            const float textWidth = ImGui::CalcTextSize(buf).x;
-            const float avail = ImGui::GetContentRegionAvail().x;
-            if (avail > textWidth + ImGui::GetStyle().ItemSpacing.x)
-                ImGui::SameLine(ImGui::GetCursorPosX() + avail - textWidth);
-            else
-                ImGui::SameLine();
-            ImGui::TextDisabled("%s", buf);
-        }
-
-        ImGui::EndMenuBar();
+        ImGui::EndMenu();
     }
+
+    ImGui::TextDisabled("Project: %s", m_projectRoot.string().c_str());
+    // Right-aligned viewport FPS.
+    {
+        const float fps = Utilities::GetViewportFPS();
+        const uint32_t tris = m_viewportTriangleCount;
+
+        char buf[96]{};
+        std::snprintf(buf, sizeof(buf), "FPS: %.1f | Tris: %u", fps, tris);
+
+        const float textWidth = ImGui::CalcTextSize(buf).x;
+        const float avail = ImGui::GetContentRegionAvail().x;
+        if (avail > textWidth + ImGui::GetStyle().ItemSpacing.x)
+            ImGui::SameLine(ImGui::GetCursorPosX() + avail - textWidth);
+        else
+            ImGui::SameLine();
+        ImGui::TextDisabled("%s", buf);
+    }
+
+    ImGui::EndMenuBar();
 }
 
 
