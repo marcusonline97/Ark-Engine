@@ -193,6 +193,7 @@
   <ItemGroup>
     <ClCompile Include="ArkEngine\src\ArkApp.cpp" />
     <ClCompile Include="ArkEngine\src\ArkEngine.cpp" />
+    <ClCompile Include="ArkEngine\src\ArkPhysics.cpp" />
     <ClCompile Include="ArkEngine\src\ArkWindow.cpp" />
     <ClCompile Include="ArkEngine\src\AssetManager.cpp" />
     <ClCompile Include="ArkEngine\src\AssetManager\ResourceLoader.cpp" />
@@ -272,6 +273,7 @@
     <ClInclude Include="ArkEngine\src\ArkApp.h" />
     <ClInclude Include="ArkEngine\src\ArkEngine.h" />
     <ClInclude Include="ArkEngine\src\ArkEnum.h" />
+    <ClInclude Include="ArkEngine\src\ArkPhysics.h" />
     <ClInclude Include="ArkEngine\src\ArkWindow.h" />
     <ClInclude Include="ArkEngine\src\AssetManager.h" />
     <ClInclude Include="ArkEngine\src\AssetManager\ResourceLoader.h" />

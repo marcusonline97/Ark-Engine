@@ -77,6 +77,7 @@
     <ClCompile Include="ArkEngine\src\Utility\Util.cpp" />
     <ClCompile Include="ArkEngine\src\Utility\Utility.cpp" />
     <ClCompile Include="ArkEngine\src\Camera\CameraController.cpp" />
+    <ClCompile Include="ArkEngine\src\ArkPhysics.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ArkEngine\src\ArkApp.h" />
@@ -177,6 +178,7 @@
     <ClInclude Include="ArkEngine\src\Utility\Utility.h" />
     <ClInclude Include="ArkEngine\src\Viewport\Viewport.h" />
     <ClInclude Include="ArkEngine\src\Camera\CameraController.h" />
+    <ClInclude Include="ArkEngine\src\ArkPhysics.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="ArkEngine\Resources\Textures\BathroomFloor_ALB.png" />
