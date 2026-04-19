@@ -6,7 +6,7 @@
 
 namespace Ark::Rendering
 {
-	const BasicMesh* MeshCache::GetOrLoadMesh(const std::string& absoluteMeshPath) 
+	const ::BasicMesh* MeshCache::GetOrLoadMesh(const std::string& absoluteMeshPath) 
 	{
 		if (absoluteMeshPath.empty())
 			return nullptr;
@@ -17,7 +17,7 @@ namespace Ark::Rendering
 
 		if (!entry.mesh)
 		{
-			auto mesh = std::make_unique<BasicMesh>();
+			auto mesh = std::make_unique<::BasicMesh>();
 			if (!mesh->LoadMesh(absoluteMeshPath))
 			{
 				entry.failed = true;
@@ -30,7 +30,7 @@ namespace Ark::Rendering
 		return entry.mesh.get();
 	}
 
-	const BasicMesh* MeshCache::GetOrLoadObj(const std::string& absoluteObjPath)
+	const ::BasicMesh* MeshCache::GetOrLoadObj(const std::string& absoluteObjPath)
 	{
 		return GetOrLoadMesh(absoluteObjPath);
 	}

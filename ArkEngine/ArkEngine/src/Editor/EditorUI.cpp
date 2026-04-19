@@ -1,9 +1,12 @@
 #include "EditorUI.h"
 
 #include <algorithm>
+#include <cmath>
 #include <cstdio>
 #include <unordered_map>
 
+#include <glm/ext/matrix_clip_space.hpp>
+#include <glm/ext/matrix_transform.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
 #include <imgui/imgui.h>
@@ -702,30 +705,54 @@ void EditorUI::RenderViewport(std::vector<EditorObject>& objects, int& selectedO
 
                 if (allowViewportCameraInput)
                 {
-                    const float dt = io.DeltaTime;
-                    const float baseSpeed = 3.5f;
-                    const float fastMul = Ark::Input::IsKeyDown(ARK_KEY_LEFT_SHIFT) ? 3.0f : 1.0f;
-                    const float move = baseSpeed * fastMul * dt;
+                    Ark::CameraController& activeCamera = m_isPossessing ? m_possessedCamera : m_editorCamera;
 
-                    const glm::vec3 forward = m_editorCamera.GetForward();
-                    const glm::vec3 up(0.0f, 1.0f, 0.0f);
-                    const glm::vec3 right = glm::normalize(glm::cross(up, forward));
+                    Ark::CameraInput cameraInput{};
+                    cameraInput.forward = Ark::Input::IsKeyDown(ARK_KEY_W);
+                    cameraInput.back = Ark::Input::IsKeyDown(ARK_KEY_S);
+                    cameraInput.left = Ark::Input::IsKeyDown(ARK_KEY_A);
+                    cameraInput.right = Ark::Input::IsKeyDown(ARK_KEY_D);
+                    cameraInput.up = Ark::Input::IsKeyDown(ARK_KEY_E);
+                    cameraInput.down = Ark::Input::IsKeyDown(ARK_KEY_Q);
+                    cameraInput.fast = Ark::Input::IsKeyDown(ARK_KEY_LEFT_SHIFT);
+                    activeCamera.ProcessKeyboard(io.DeltaTime, cameraInput);
 
-                    // forward/back (as you currently have it)
-                    if (Ark::Input::IsKeyDown(ARK_KEY_W)) m_editorCamPos -= forward * move;
-                    if (Ark::Input::IsKeyDown(ARK_KEY_S)) m_editorCamPos += forward * move;
+                    const bool rmbDown = Ark::Input::IsMouseDown(ARK_MOUSE_RIGHT);
+                    if (rmbDown)
+                    {
+                        SetViewportCursorCapture(true);
 
-                    // left/right (as you currently have it)
-                    if (Ark::Input::IsKeyDown(ARK_KEY_A)) m_editorCamPos += right * move;
-                    if (Ark::Input::IsKeyDown(ARK_KEY_D)) m_editorCamPos -= right * move;
+                        double mx = 0.0;
+                        double my = 0.0;
+                        glfwGetCursorPos(Ark::Input::g_Window, &mx, &my);
 
-                    if (Ark::Input::IsKeyDown(ARK_KEY_E)) m_editorCamPos += up * move;
-                    if (Ark::Input::IsKeyDown(ARK_KEY_Q)) m_editorCamPos -= up * move;
+                        const ImVec2 mousePos(static_cast<float>(mx), static_cast<float>(my));
+                        if (!m_viewportRmbLooking)
+                        {
+                            m_viewportRmbLooking = true;
+                            m_viewportLastMouse = mousePos;
+                        }
+                        else
+                        {
+                            const float dx = mousePos.x - m_viewportLastMouse.x;
+                            const float dy = mousePos.y - m_viewportLastMouse.y;
+                            activeCamera.ProcessMouseDelta(dx, dy);
+                            m_viewportLastMouse = mousePos;
+                        }
+                    }
+                    else
+                    {
+                        m_viewportRmbLooking = false;
+                        if (!m_isPossessing)
+                            SetViewportCursorCapture(false);
+                    }
                 }
                 else
                 {
                     // Stop look state when leaving viewport / starting gizmo drag.
                     m_viewportRmbLooking = false;
+                    if (!m_isPossessing)
+                        SetViewportCursorCapture(false);
                 }
 
                 const bool hasSelection = (selectedObjectIndex >= 0 && selectedObjectIndex < static_cast<int>(objects.size()));
@@ -733,10 +760,11 @@ void EditorUI::RenderViewport(std::vector<EditorObject>& objects, int& selectedO
                 if (!m_playMode && hasSelection)
                 {
                     EditorObject& obj = objects[static_cast<size_t>(selectedObjectIndex)];
+                    const Ark::CameraController& activeCamera = m_isPossessing ? m_possessedCamera : m_editorCamera;
 
                     // Use editor camera (NOT a fixed lookAt) for gizmo matrices
-                    const glm::vec3 camPos = m_editorCamPos;
-                    const glm::vec3 camForward = ComputeForward(m_editorCamPitchDeg, m_editorCamYawDeg);
+                    const glm::vec3 camPos = activeCamera.position;
+                    const glm::vec3 camForward = activeCamera.GetForward();
                     const glm::mat4 view = glm::lookAt(camPos, camPos + camForward, glm::vec3(0, 1, 0));
 
                     const float aspect = (availableSize.y > 1.0f) ? (availableSize.x / availableSize.y) : 1.0f;
@@ -780,6 +808,8 @@ void EditorUI::RenderViewport(std::vector<EditorObject>& objects, int& selectedO
                         obj.scale = glm::vec3(s[0], s[1], s[2]);
                     }
                 }
+
+                RenderViewportTextOverlays(objects, m_viewportRenderCamera, imageMin, availableSize);
             }
             else
             {
@@ -801,6 +831,90 @@ void EditorUI::RenderViewport(std::vector<EditorObject>& objects, int& selectedO
     }
 
     ImGui::End();
+}
+
+void EditorUI::RenderViewportTextOverlays(
+    const std::vector<EditorObject>& objects,
+    const Ark::Rendering::WorldCameraInput& camera,
+    const ImVec2& imageMin,
+    const ImVec2& viewportSize)
+{
+    if (viewportSize.x <= 1.0f || viewportSize.y <= 1.0f)
+        return;
+
+    const float aspect = viewportSize.x / viewportSize.y;
+    const glm::mat4 projection = glm::perspectiveLH_ZO(
+        glm::radians(camera.fovDeg),
+        aspect,
+        camera.nearPlane,
+        camera.farPlane);
+
+    const float pitchRad = glm::radians(camera.pitchYawDeg.x);
+    const float yawRad = glm::radians(camera.pitchYawDeg.y);
+    glm::vec3 forward;
+    forward.x = std::cos(yawRad) * std::cos(pitchRad);
+    forward.y = std::sin(pitchRad);
+    forward.z = std::sin(yawRad) * std::cos(pitchRad);
+    forward = glm::normalize(forward);
+
+    const glm::vec3 up(0.0f, 1.0f, 0.0f);
+    const glm::vec3 right = glm::normalize(glm::cross(up, forward));
+    const glm::mat4 view = glm::lookAtLH(camera.position, camera.position + forward, up);
+    const glm::mat4 viewProj = projection * view;
+
+    ImDrawList* drawList = ImGui::GetWindowDrawList();
+    if (!drawList)
+        return;
+
+    for (const auto& obj : objects)
+    {
+        if (!obj.enabled || !obj.textRender || obj.textRender->text.empty())
+            continue;
+
+        const TextRenderEditorComponent& txt = *obj.textRender;
+
+        glm::vec3 worldPos = obj.position + txt.worldOffset;
+        if (txt.cameraBound)
+        {
+            worldPos = camera.position +
+                right * txt.cameraOffset.x +
+                up * txt.cameraOffset.y +
+                forward * txt.cameraOffset.z;
+        }
+
+        const glm::vec4 clip = viewProj * glm::vec4(worldPos, 1.0f);
+        if (clip.w <= 0.0001f)
+            continue;
+
+        const glm::vec3 ndc = glm::vec3(clip) / clip.w;
+        if (ndc.z < 0.0f || ndc.z > 1.0f)
+            continue;
+
+        const float screenX = imageMin.x + ((ndc.x + 1.0f) * 0.5f) * viewportSize.x;
+        const float screenY = imageMin.y + ((1.0f - ndc.y) * 0.5f) * viewportSize.y;
+
+        const ImVec2 textSize = ImGui::CalcTextSize(txt.text.c_str());
+        ImVec2 drawPos(screenX, screenY);
+        if (txt.centerOnAnchor)
+        {
+            drawPos.x -= textSize.x * 0.5f;
+            drawPos.y -= textSize.y * 0.5f;
+        }
+
+        const float alpha = std::clamp(txt.alpha, 0.0f, 1.0f);
+        const ImU32 color = IM_COL32(
+            static_cast<int>(std::clamp(txt.color.r, 0.0f, 1.0f) * 255.0f),
+            static_cast<int>(std::clamp(txt.color.g, 0.0f, 1.0f) * 255.0f),
+            static_cast<int>(std::clamp(txt.color.b, 0.0f, 1.0f) * 255.0f),
+            static_cast<int>(alpha * 255.0f));
+
+        drawList->AddText(
+            ImGui::GetFont(),
+            std::max(8.0f, txt.pixelSize),
+            drawPos,
+            color,
+            txt.text.c_str());
+    }
 }
 
 void EditorUI::RenderMusicPlayer()
@@ -987,6 +1101,9 @@ void EditorUI::RenderHierarchy(std::vector<EditorObject>& objects, int& selected
                 doCreate("PointLight", [](EditorObject& o) { o.pointLight = PointLightEditorComponent{}; });
             ImGui::EndMenu();
         }
+
+        if (ImGui::MenuItem("Text Render"))
+            doCreate("Text", [](EditorObject& o) { o.textRender = TextRenderEditorComponent{}; });
 
         ImGui::EndPopup();
     }
@@ -1179,6 +1296,7 @@ void EditorUI::RenderHierarchy(std::vector<EditorObject>& objects, int& selected
                     if (!obj.skeletalMesh && ImGui::MenuItem("Skeletal Mesh")) obj.skeletalMesh = SkeletalMeshEditorComponent{};
                     if (!obj.camera && ImGui::MenuItem("Camera")) obj.camera = CameraEditorComponent{};
                     if (!obj.pointLight && ImGui::MenuItem("Point Light")) obj.pointLight = PointLightEditorComponent{};
+                    if (!obj.textRender && ImGui::MenuItem("Text Render")) obj.textRender = TextRenderEditorComponent{};
                     ImGui::EndMenu();
                 }
 
@@ -1188,6 +1306,7 @@ void EditorUI::RenderHierarchy(std::vector<EditorObject>& objects, int& selected
                     if (obj.skeletalMesh && ImGui::MenuItem("Skeletal Mesh")) obj.skeletalMesh.reset();
                     if (obj.camera && ImGui::MenuItem("Camera")) obj.camera.reset();
                     if (obj.pointLight && ImGui::MenuItem("Point Light")) obj.pointLight.reset();
+                    if (obj.textRender && ImGui::MenuItem("Text Render")) obj.textRender.reset();
                     ImGui::EndMenu();
                 }
 
@@ -1412,80 +1531,80 @@ void EditorUI::RenderInspector(std::vector<EditorObject>& objects, int& selected
             ImGui::InputText("Material Path (.mtl)", &obj.staticMesh->materialPath);
 
             auto acceptMtlDropToString = [&](std::string& dst)
-	{
-		if (!ImGui::BeginDragDropTarget())
-			return false;
+            {
+                if (!ImGui::BeginDragDropTarget())
+                    return false;
 
-		bool changed = false;
+                bool changed = false;
 
-		if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(kPayloadAssetPath))
-		{
-			const char* dropped = static_cast<const char*>(payload->Data);
-			if (dropped && dropped[0] != '\0')
-			{
-				const std::filesystem::path p(dropped);
-				std::string ext = p.has_extension() ? p.extension().string() : std::string();
-				std::transform(ext.begin(), ext.end(), ext.begin(),
-					[](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+                if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(kPayloadAssetPath))
+                {
+                    const char* dropped = static_cast<const char*>(payload->Data);
+                    if (dropped && dropped[0] != '\0')
+                    {
+                        const std::filesystem::path p(dropped);
+                        std::string ext = p.has_extension() ? p.extension().string() : std::string();
+                        std::transform(ext.begin(), ext.end(), ext.begin(),
+                            [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
 
-				if (ext == ".mtl")
-				{
-					dst = dropped;
-					changed = true;
-				}
-			}
-		}
+                        if (ext == ".mtl")
+                        {
+                            dst = dropped;
+                            changed = true;
+                        }
+                    }
+                }
 
-		ImGui::EndDragDropTarget();
-		return changed;
-	};
+                ImGui::EndDragDropTarget();
+                return changed;
+            };
 
-const auto rebuildMtlTextureSlots = [&]()
-	{
-		obj.staticMesh->textures.clear();
+            const auto rebuildMtlTextureSlots = [&]()
+            {
+                obj.staticMesh->textures.clear();
 
-		if (obj.staticMesh->materialPath.empty())
-			return;
+                if (obj.staticMesh->materialPath.empty())
+                    return;
 
-		const std::string resolved = AssetManager::Instance().ResolveAssetPath(obj.staticMesh->materialPath);
+                const std::string resolved = AssetManager::Instance().ResolveAssetPath(obj.staticMesh->materialPath);
 
-		Ark::Rendering::MtlMaterial mtl{};
-		if (!Ark::Rendering::TryLoadMtlMaterial(resolved, mtl))
-			return;
+                Ark::Rendering::MtlMaterial mtl{};
+                if (!Ark::Rendering::TryLoadMtlMaterial(resolved, mtl))
+                    return;
 
-		const auto addAll = [&](const char* name, Ark::Rendering::MtlTextureSemantic sem)
-			{
-				auto it = mtl.textures.find(sem);
-				if (it == mtl.textures.end() || it->second.empty())
-					return;
+                const auto addAll = [&](const char* name, Ark::Rendering::MtlTextureSemantic sem)
+                {
+                    auto it = mtl.textures.find(sem);
+                    if (it == mtl.textures.end() || it->second.empty())
+                        return;
 
-				for (const auto& path : it->second)
-				{
-					if (path.empty())
-						continue;
+                    for (const auto& path : it->second)
+                    {
+                        if (path.empty())
+                            continue;
 
-					StaticMeshEditorComponent::TextureSlot slot{};
-					slot.name = name;
-					slot.path = path;
-					obj.staticMesh->textures.push_back(std::move(slot));
-				}
-			};
+                        StaticMeshEditorComponent::TextureSlot slot{};
+                        slot.name = name;
+                        slot.path = path;
+                        obj.staticMesh->textures.push_back(std::move(slot));
+                    }
+                };
 
-		addAll("Diffuse", Ark::Rendering::MtlTextureSemantic::Diffuse);
-		addAll("Specular", Ark::Rendering::MtlTextureSemantic::Specular);
-		addAll("Normal", Ark::Rendering::MtlTextureSemantic::Normal);
-		addAll("Opacity", Ark::Rendering::MtlTextureSemantic::Opacity);
-	};
+                addAll("Diffuse", Ark::Rendering::MtlTextureSemantic::Diffuse);
+                addAll("Specular", Ark::Rendering::MtlTextureSemantic::Specular);
+                addAll("Normal", Ark::Rendering::MtlTextureSemantic::Normal);
+                addAll("Opacity", Ark::Rendering::MtlTextureSemantic::Opacity);
+            };
 
-const bool mtlDropped = acceptMtlDropToString(obj.staticMesh->materialPath);
+            const bool mtlDropped = acceptMtlDropToString(obj.staticMesh->materialPath);
 
-// If user typed a new value or dropped a new .mtl, rebuild slots automatically.
-if (mtlDropped || ImGui::IsItemDeactivatedAfterEdit())
-	rebuildMtlTextureSlots();
+            // If user typed a new value or dropped a new .mtl, rebuild slots automatically.
+            if (mtlDropped || ImGui::IsItemDeactivatedAfterEdit())
+                rebuildMtlTextureSlots();
 
-ImGui::SameLine();
-if (ImGui::Button("Parse .mtl"))
-	rebuildMtlTextureSlots();
+            ImGui::SameLine();
+            if (ImGui::Button("Parse .mtl"))
+                rebuildMtlTextureSlots();
 
             if (!obj.staticMesh->textures.empty())
             {
@@ -1550,6 +1669,37 @@ if (ImGui::Button("Parse .mtl"))
     else
     {
         ImGui::TextDisabled("No mesh component. Add one from the Hierarchy context menu.");
+    }
+
+    ImGui::Separator();
+    ImGui::TextUnformatted("Text Render");
+    if (obj.textRender)
+    {
+        ImGui::InputText("Text", &obj.textRender->text);
+        ImGui::ColorEdit3("Text Color", &obj.textRender->color.x);
+        ImGui::SliderFloat("Text Alpha", &obj.textRender->alpha, 0.0f, 1.0f, "%.2f");
+        ImGui::DragFloat("Pixel Size", &obj.textRender->pixelSize, 0.25f, 8.0f, 96.0f, "%.1f");
+        ImGui::Checkbox("Center On Anchor", &obj.textRender->centerOnAnchor);
+        ImGui::Checkbox("Camera Bound", &obj.textRender->cameraBound);
+        if (obj.textRender->cameraBound)
+        {
+            ImGui::DragFloat3("Camera Offset", &obj.textRender->cameraOffset.x, 0.02f);
+            ImGui::TextDisabled("Offset axes are camera-right / camera-up / camera-forward.");
+        }
+        else
+        {
+            ImGui::DragFloat3("World Offset", &obj.textRender->worldOffset.x, 0.02f);
+            ImGui::TextDisabled("World text anchor = object position + world offset.");
+        }
+
+        if (ImGui::Button("Remove Text Render"))
+            obj.textRender.reset();
+    }
+    else
+    {
+        ImGui::TextDisabled("No text component.");
+        if (ImGui::Button("Add Text Render"))
+            obj.textRender = TextRenderEditorComponent{};
     }
 
     ImGui::End();
