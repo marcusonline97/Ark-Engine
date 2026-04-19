@@ -707,7 +707,7 @@ void EditorUI::RenderViewport(std::vector<EditorObject>& objects, int& selectedO
                     const float fastMul = Ark::Input::IsKeyDown(ARK_KEY_LEFT_SHIFT) ? 3.0f : 1.0f;
                     const float move = baseSpeed * fastMul * dt;
 
-                    const glm::vec3 forward = ComputeForward(m_editorCamPitchDeg, m_editorCamYawDeg);
+                    const glm::vec3 forward = m_editorCamera.GetForward();
                     const glm::vec3 up(0.0f, 1.0f, 0.0f);
                     const glm::vec3 right = glm::normalize(glm::cross(up, forward));
 
