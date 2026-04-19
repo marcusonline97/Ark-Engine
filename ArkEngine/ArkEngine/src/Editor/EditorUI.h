@@ -66,6 +66,21 @@ struct PointLightEditorComponent
     float radius = 1.0f;
 };
 
+struct TextRenderEditorComponent
+{
+    std::string displayName = "Text Render";
+    std::string text = "New Text";
+    glm::vec3 color{ 1.0f, 1.0f, 1.0f };
+    float alpha = 1.0f;
+    float pixelSize = 18.0f;
+    bool centerOnAnchor = false;
+
+    // false = world-space anchored to object transform, true = follows active camera.
+    bool cameraBound = false;
+    glm::vec3 worldOffset{ 0.0f, 0.0f, 0.0f };
+    glm::vec3 cameraOffset{ 0.0f, 0.0f, 2.0f };
+};
+
 struct EditorObject
 {
     std::uint32_t id = 0;
@@ -86,6 +101,7 @@ struct EditorObject
     std::optional<SkeletalMeshEditorComponent> skeletalMesh;
     std::optional<CameraEditorComponent> camera;
     std::optional<PointLightEditorComponent> pointLight;
+    std::optional<TextRenderEditorComponent> textRender;
 };
 
 class EditorUI
@@ -103,6 +119,7 @@ public:
     bool IsPlayMode() const { return m_playMode; }
 
     Ark::Rendering::WorldCameraInput GetEditorViewportCamera() const;
+    void SetViewportRenderCamera(const Ark::Rendering::WorldCameraInput& camera) { m_viewportRenderCamera = camera; }
 
     bool GetWireframeEnabled() const { return m_wireframeEnabled; }
 
@@ -123,6 +140,7 @@ private:
     void RenderMenuBar();
 
     void RenderViewport(std::vector<EditorObject>& objects, int& selectedObjectIndex);
+    void RenderViewportTextOverlays(const std::vector<EditorObject>& objects, const Ark::Rendering::WorldCameraInput& camera, const ImVec2& imageMin, const ImVec2& viewportSize);
 
     void RenderMusicPlayer();
 
@@ -193,7 +211,7 @@ private:
     std::uint32_t m_nextObjectId = 1;
 
     std::uint32_t m_renamingObjectId = 0;
-    enum class RenameTarget { None, Object, StaticMesh, SkeletalMesh, Camera, PointLight };
+    enum class RenameTarget { None, Object, StaticMesh, SkeletalMesh, Camera, PointLight, TextRender };
     RenameTarget m_renameTarget = RenameTarget::None;
     std::string m_renameBuffer;
     bool m_focusRename = false;
@@ -217,4 +235,5 @@ private:
     ImVec2 m_viewportLastMouse{ 0.0f, 0.0f };
 
     uint32_t m_viewportTriangleCount = 0;
+    Ark::Rendering::WorldCameraInput m_viewportRenderCamera{};
 };

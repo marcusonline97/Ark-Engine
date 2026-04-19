@@ -281,6 +281,7 @@ void App::Run()
 			if (!m_EditorUI.IsPlayMode())
 			{
 				input.camera = m_EditorUI.GetEditorViewportCamera();
+				m_EditorUI.SetViewportRenderCamera(input.camera);
 			}
 			else
 			{
@@ -300,6 +301,8 @@ void App::Run()
 					input.camera.nearPlane = camObj->camera->nearPlane;
 					input.camera.farPlane = camObj->camera->farPlane;
 				}
+
+				m_EditorUI.SetViewportRenderCamera(input.camera);
 			}
 
 			input.instances.clear();

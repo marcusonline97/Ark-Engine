@@ -175,6 +175,34 @@ namespace Ark::Editor
 		c.radius = j.value("radius", 1.0f);
 	}
 
+	static void ToJson(json& j, const TextRenderEditorComponent& c)
+	{
+		j = json{
+			{ "displayName", c.displayName },
+			{ "text", c.text },
+			{ "color", Vec3ToJson(c.color) },
+			{ "alpha", c.alpha },
+			{ "pixelSize", c.pixelSize },
+			{ "centerOnAnchor", c.centerOnAnchor },
+			{ "cameraBound", c.cameraBound },
+			{ "worldOffset", Vec3ToJson(c.worldOffset) },
+			{ "cameraOffset", Vec3ToJson(c.cameraOffset) },
+		};
+	}
+
+	static void FromJson(const json& j, TextRenderEditorComponent& c)
+	{
+		c.displayName = j.value("displayName", "Text Render");
+		c.text = j.value("text", "New Text");
+		(void)JsonToVec3(j.value("color", json::array({ 1.0f, 1.0f, 1.0f })), c.color);
+		c.alpha = j.value("alpha", 1.0f);
+		c.pixelSize = j.value("pixelSize", 18.0f);
+		c.centerOnAnchor = j.value("centerOnAnchor", false);
+		c.cameraBound = j.value("cameraBound", false);
+		(void)JsonToVec3(j.value("worldOffset", json::array({ 0.0f, 0.0f, 0.0f })), c.worldOffset);
+		(void)JsonToVec3(j.value("cameraOffset", json::array({ 0.0f, 0.0f, 2.0f })), c.cameraOffset);
+	}
+
 	static void ToJson(json& j, const EditorObject& o)
 	{
 		j = json{
@@ -194,6 +222,7 @@ namespace Ark::Editor
 		if (o.skeletalMesh) { json c; ToJson(c, *o.skeletalMesh); j["skeletalMesh"] = c; }
 		if (o.camera) { json c; ToJson(c, *o.camera); j["camera"] = c; }
 		if (o.pointLight) { json c; ToJson(c, *o.pointLight); j["pointLight"] = c; }
+		if (o.textRender) { json c; ToJson(c, *o.textRender); j["textRender"] = c; }
 	}
 
 	static void FromJson(const json& j, EditorObject& o)
@@ -215,6 +244,7 @@ namespace Ark::Editor
 		o.skeletalMesh.reset();
 		o.camera.reset();
 		o.pointLight.reset();
+		o.textRender.reset();
 
 		if (j.contains("staticMesh") && j["staticMesh"].is_object())
 		{
@@ -242,6 +272,13 @@ namespace Ark::Editor
 			PointLightEditorComponent c{};
 			FromJson(j["pointLight"], c);
 			o.pointLight = c;
+		}
+
+		if (j.contains("textRender") && j["textRender"].is_object())
+		{
+			TextRenderEditorComponent c{};
+			FromJson(j["textRender"], c);
+			o.textRender = c;
 		}
 	}
 
