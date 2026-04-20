@@ -415,9 +415,11 @@ namespace Ark::Editor
 			return false;
 		}
 
-		std::string jsonContent(
+		std::string jsonContent
+		{
 			std::istreambuf_iterator<char>(in),
-			std::istreambuf_iterator<char>());
+			std::istreambuf_iterator<char>()
+		};
 
 		if (jsonContent.size() >= 3 &&
 			static_cast<unsigned char>(jsonContent[0]) == 0xEF &&

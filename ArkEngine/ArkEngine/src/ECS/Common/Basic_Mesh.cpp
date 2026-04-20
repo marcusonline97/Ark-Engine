@@ -96,7 +96,18 @@ std::string GetFullPath(const string& Dir, const aiString& Path)
                     continue;
                 }
 
-                const std::string candidateName = entry.path().filename().string();
+                // Protect against paths with characters that fail narrow-string conversion
+                std::string candidateName;
+                try
+                {
+                    candidateName = entry.path().filename().string();
+                }
+                catch (const std::system_error&)
+                {
+                    // Skip files whose names can't be converted to narrow string
+                    continue;
+                }
+
                 if (equalsCaseInsensitive(candidateName, fileName))
                     return entry.path();
             }
@@ -111,8 +122,16 @@ std::string GetFullPath(const string& Dir, const aiString& Path)
 
     std::replace(raw.begin(), raw.end(), '\\', '/');
 
-    if (raw == "C:/" || raw == "C:\\")
+    // Strip bare drive roots ("C:/", "D:/", etc.) that carry no useful filename.
+    // A valid absolute texture path like "D:/Project/tex.png" is left intact and
+    // handled by makeExistingAbsolute below.
+    if (raw.size() >= 2 &&
+        std::isalpha(static_cast<unsigned char>(raw[0])) &&
+        raw[1] == ':' &&
+        raw.size() <= 3) // bare "D:" or "D:/" with no filename component
+    {
         raw.clear();
+    }
     else if (raw.size() >= 2 && raw[0] == '.' && (raw[1] == '/' || raw[1] == '\\'))
         raw = raw.substr(2);
 
@@ -178,7 +197,7 @@ std::string GetFullPath(const string& Dir, const aiString& Path)
             if (const fs::path foundNearParent = findByFilename(parent, fileName); !foundNearParent.empty())
                 return foundNearParent.string();
         }
- 
+
     }
     if (!candidates.empty())
         return candidates.front().string();
@@ -274,6 +293,7 @@ bool BasicMesh::LoadMesh(const string& Filename, int AssimpFlags)
 {
     // Release the previously loaded mesh (if it exists)
     Clear();
+    m_pScene = nullptr; // guard against stale pointer if ReadFile below fails or re-enters
 
     // Create the VAO
     if (IsGLVersionHigher(4, 5)) {
@@ -290,7 +310,7 @@ bool BasicMesh::LoadMesh(const string& Filename, int AssimpFlags)
 
     const int resolvedAssimpFlags = ResolveAssimpFlagsForFile(Filename, AssimpFlags);
 
-	m_pScene = m_Importer.ReadFile(Filename.c_str(), resolvedAssimpFlags);
+    m_pScene = m_Importer.ReadFile(Filename.c_str(), resolvedAssimpFlags);
 
     if (m_pScene) {
         m_GlobalInverseTransform = m_pScene->mRootNode->mTransformation;
@@ -299,6 +319,7 @@ bool BasicMesh::LoadMesh(const string& Filename, int AssimpFlags)
     }
     else {
         printf("Error parsing '%s': '%s'\n", Filename.c_str(), m_Importer.GetErrorString());
+        printf("  (Tip: if path starts with a drive letter, check that the file exists on that drive)\n");
     }
 
     // Make sure the VAO is not changed from the outside
@@ -959,7 +980,7 @@ void BasicMesh::SetupRenderMaterialsPhong(unsigned int MeshIndex, unsigned int M
     }
 
     if (pRenderCallbacks) {
-        if (m_Materials[MaterialIndex].pTextures[TEX_TYPE_BASE]) 
+        if (m_Materials[MaterialIndex].pTextures[TEX_TYPE_BASE])
         {
             pRenderCallbacks->SetMaterial(m_Materials[MaterialIndex]);
         }
