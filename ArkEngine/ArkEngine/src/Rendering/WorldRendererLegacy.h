@@ -44,6 +44,7 @@ namespace Ark::Rendering
 
 		void EnsureWhiteFallbackTexture();
 		void DestroyWhiteFallbackTexture();
+		void RenderBackgroundGradient();
 		void ApplyStaticMeshRasterState();
 		void RestoreStaticMeshRasterState();
 
@@ -72,6 +73,7 @@ namespace Ark::Rendering
 
 		GLuint m_dummyVao = 0;
 
+		Shader m_backgroundShader;
 		Shader m_viewportShader;
 		TextureCache m_textureCache{ nullptr };
 
