@@ -96,18 +96,7 @@ std::string GetFullPath(const string& Dir, const aiString& Path)
                     continue;
                 }
 
-                // Protect against paths with characters that fail narrow-string conversion
-                std::string candidateName;
-                try
-                {
-                    candidateName = entry.path().filename().string();
-                }
-                catch (const std::system_error&)
-                {
-                    // Skip files whose names can't be converted to narrow string
-                    continue;
-                }
-
+                const std::string candidateName = entry.path().filename().string();
                 if (equalsCaseInsensitive(candidateName, fileName))
                     return entry.path();
             }
