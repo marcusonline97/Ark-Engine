@@ -167,6 +167,20 @@ namespace Ark::Rendering
 			return false;
 		}
 
+		try
+		{
+			m_backgroundShader.LoadFromFiles(
+				"Resources/Shaders/world_background.vert",
+				"Resources/Shaders/world_background.frag");
+			m_backgroundShaderReady = true;
+		}
+		catch (const std::exception& e)
+		{
+			m_backgroundShaderReady = false;
+			Logging::Warning() << "WorldRendererLegacy: Failed to load world background shader. "
+				"Falling back to solid clear color. Reason: " << e.what() << "\n";
+		}
+
 		constexpr unsigned int kShadowMapSize = 2048;
 		if (!m_shadowFbo.Init(kShadowMapSize, kShadowMapSize, true))
 		{
@@ -237,12 +251,20 @@ namespace Ark::Rendering
 		m_viewportFbo.BindForWriting();
 		m_viewportFbo.Clear();
 
+		glBindVertexArray(m_dummyVao);
+		if (m_backgroundShaderReady)
+		{
+			RenderBackgroundGradient();
+		}
+		else
+		{
+			m_viewportFbo.ClearColorBuffer(Vector4f(0.14f, 0.16f, 0.20f, 1.0f));
+		}
+
 		if (input.wireframe)
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		else
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-		glBindVertexArray(m_dummyVao);
 
 		if (input.showGrid)
 		{
@@ -337,6 +359,45 @@ namespace Ark::Rendering
 
 		glBindVertexArray(0);
 		m_viewportFbo.UnbindWriting();
+	}
+
+	void WorldRendererLegacy::RenderBackgroundGradient()
+	{
+		GLboolean depthEnabled = glIsEnabled(GL_DEPTH_TEST);
+		GLboolean cullEnabled = glIsEnabled(GL_CULL_FACE);
+		GLboolean blendEnabled = glIsEnabled(GL_BLEND);
+		GLint oldPolygonMode[2] = { GL_FILL, GL_FILL };
+		glGetIntegerv(GL_POLYGON_MODE, oldPolygonMode);
+
+		glDisable(GL_DEPTH_TEST);
+		glDisable(GL_CULL_FACE);
+		glDisable(GL_BLEND);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+		m_backgroundShader.Bind();
+		m_backgroundShader.SetVec3("uTopColor", glm::vec3(0.66f, 0.74f, 0.92f));
+		m_backgroundShader.SetVec3("uHorizonColor", glm::vec3(0.85f, 0.89f, 0.97f));
+		m_backgroundShader.SetVec3("uBottomColor", glm::vec3(0.94f, 0.95f, 0.98f));
+		m_backgroundShader.SetFloat("uViewportHeight", static_cast<float>(m_height));
+		glDrawArrays(GL_TRIANGLES, 0, 3);
+
+		if (depthEnabled)
+			glEnable(GL_DEPTH_TEST);
+		else
+			glDisable(GL_DEPTH_TEST);
+
+		if (cullEnabled)
+			glEnable(GL_CULL_FACE);
+		else
+			glDisable(GL_CULL_FACE);
+
+		if (blendEnabled)
+			glEnable(GL_BLEND);
+		else
+			glDisable(GL_BLEND);
+
+		glPolygonMode(GL_FRONT, oldPolygonMode[0]);
+		glPolygonMode(GL_BACK, oldPolygonMode[1]);
 	}
 
 	void WorldRendererLegacy::ApplyStaticMeshRasterState()
