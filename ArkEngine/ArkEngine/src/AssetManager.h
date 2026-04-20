@@ -34,4 +34,13 @@ private:
     mutable std::mutex m_Mutex;
     std::unordered_map<std::string, std::unique_ptr<Texture>> m_TextureCache;
 
+    // Resolved path cache: maps raw input string -> absolute resolved path string.
+    // Avoids repeated filesystem probing for the same path every frame.
+    // Invalidated by ClearPathCache() or Clear().
+    mutable std::unordered_map<std::string, std::string> m_PathCache;
+
+public:
+    // Call this if assets move on disk at runtime (e.g. hot-reload).
+    void ClearPathCache();
+
 };

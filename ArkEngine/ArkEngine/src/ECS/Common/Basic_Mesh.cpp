@@ -1,5 +1,6 @@
 #include "Basic_Mesh.h"
 #include "Utility/Common.h"
+#include "Logger.h"
 
 #include <algorithm>
 #include <cctype>
@@ -131,7 +132,7 @@ std::string GetFullPath(const string& Dir, const aiString& Path)
     const fs::path referenced = fs::path(raw).lexically_normal();
     if (const fs::path existingAbsolute = makeExistingAbsolute(referenced);
         !existingAbsolute.empty())
-        return existingAbsolute.string();
+        return existingAbsolute.string();  // Returns the path
 
     std::vector<fs::path> candidates;
     candidates.reserve(10);
@@ -896,6 +897,11 @@ void BasicMesh::PopulateBuffersNonDSA()
 
 void BasicMesh::PopulateBuffersDSA()
 {
+    if (m_Vertices.empty() || m_Indices.empty()) {
+        printf("Warning: attempting to populate buffers with empty vertex/index data\n");
+        return;
+    }
+    
     glNamedBufferStorage(m_Buffers[VERTEX_BUFFER], sizeof(m_Vertices[0]) * m_Vertices.size(), m_Vertices.data(), 0);
     glNamedBufferStorage(m_Buffers[INDEX_BUFFER], sizeof(m_Indices[0]) * m_Indices.size(), m_Indices.data(), 0);
 
@@ -1107,3 +1113,115 @@ void BasicMesh::GetLeadingVertex(uint DrawIndex, uint PrimID, Vector3f& Vertex)
     Vertex.y = Pos.y;
     Vertex.z = Pos.z;
 }
+bool BasicMesh::LoadMesh(const string& Filename, int AssimpFlags)
+{
+        // Release the previously loaded mesh (if it exists)
+        Clear();
+        m_pScene = nullptr; // guard against stale pointer if ReadFile below fails or re-enters
+
+        // Create the VAO
+        if (IsGLVersionHigher(4, 5)) {
+            glCreateVertexArrays(1, &m_VAO);
+            glCreateBuffers(ARRAY_SIZE_IN_ELEMENTS(m_Buffers), m_Buffers);
+        }
+        else {
+            glGenVertexArrays(1, &m_VAO);
+            glBindVertexArray(m_VAO);
+            glGenBuffers(ARRAY_SIZE_IN_ELEMENTS(m_Buffers), m_Buffers);
+        }
+
+        bool Ret = false;
+
+        const int resolvedAssimpFlags = ResolveAssimpFlagsForFile(Filename, AssimpFlags);
+
+        Logging::Debug() << "Loading mesh: " << Filename << "\n";
+        Logging::Debug() << "Assimp flags: 0x" << std::hex << resolvedAssimpFlags << std::dec << "\n";
+
+        m_pScene = m_Importer.ReadFile(Filename.c_str(), resolvedAssimpFlags);
+
+        if (m_pScene) {
+            Logging::Debug() << "Assimp successfully loaded: " << Filename << "\n";
+            Logging::Debug() << "  Meshes: " << m_pScene->mNumMeshes 
+                            << ", Materials: " << m_pScene->mNumMaterials << "\n";
+            
+            m_GlobalInverseTransform = m_pScene->mRootNode->mTransformation;
+            m_GlobalInverseTransform = m_GlobalInverseTransform.Inverse();
+            Ret = InitFromScene(m_pScene, Filename);
+        }
+        else {
+            Logging::Error() << "Assimp failed to parse '" << Filename << "': " 
+                            << m_Importer.GetErrorString() << "\n";
+            Logging::Error() << "  (Tip: if path starts with a drive letter, check that the file exists on that drive)\n";
+        }
+
+        // Make sure the VAO is not changed from the outside
+        if (!IsGLVersionHigher(4, 5)) {
+            glBindVertexArray(0);
+        }
+
+        if (Ret) {
+            Logging::Debug() << "Successfully loaded mesh: " << Filename << "\n";
+        } else {
+            Logging::Error() << "Failed to initialize mesh from scene: " << Filename << "\n";
+        }
+
+        return Ret;
+    }
+
+    bool BasicMesh::InitFromScene(const aiScene* pScene, const string& Filename)
+    {
+        m_Meshes.resize(pScene->mNumMeshes);
+        m_Materials.resize(pScene->mNumMaterials);
+
+        unsigned int NumVertices = 0;
+        unsigned int NumIndices = 0;
+
+        CountVerticesAndIndices(pScene, NumVertices, NumIndices);
+
+        Logging::Debug() << "Mesh '" << Filename << "' geometry:\n"
+                        << "  Total vertices: " << NumVertices << "\n"
+                        << "  Total indices: " << NumIndices << "\n"
+                        << "  Submeshes: " << pScene->mNumMeshes << "\n";
+
+        if (NumVertices == 0) {
+            Logging::Error() << "Mesh '" << Filename << "' has ZERO vertices!\n";
+            return false;
+        }
+
+        if (NumIndices == 0) {
+            Logging::Error() << "Mesh '" << Filename << "' has ZERO indices!\n";
+            return false;
+        }
+
+        ReserveSpace(NumVertices, NumIndices);
+
+        InitAllMeshes(pScene);
+
+        Logging::Debug() << "After InitAllMeshes: m_Vertices.size() = " << m_Vertices.size() 
+                        << ", m_Indices.size() = " << m_Indices.size() << "\n";
+
+        if (m_Vertices.empty()) {
+            Logging::Error() << "Mesh '" << Filename << "' - m_Vertices is EMPTY after InitAllMeshes!\n";
+            return false;
+        }
+
+        if (m_Indices.empty()) {
+            Logging::Error() << "Mesh '" << Filename << "' - m_Indices is EMPTY after InitAllMeshes!\n";
+            return false;
+        }
+
+        if (!InitMaterials(pScene, Filename)) {
+            Logging::Warning() << "Failed to initialize materials for: " << Filename << "\n";
+            // Don't return false - mesh can still render without materials
+        }
+
+        Logging::Debug() << "Populating GPU buffers for: " << Filename << "\n";
+        PopulateBuffers();
+
+        const bool glSuccess = GLCheckError();
+        if (!glSuccess) {
+            Logging::Error() << "OpenGL error detected after PopulateBuffers for: " << Filename << "\n";
+        }
+
+        return glSuccess;
+    }

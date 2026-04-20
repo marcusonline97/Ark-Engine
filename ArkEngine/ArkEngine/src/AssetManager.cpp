@@ -171,23 +171,51 @@ std::filesystem::path AssetManager::ResolveAgainstLayouts(const std::filesystem:
 
 std::string AssetManager::ResolveAssetPath(const std::string& relativePath) const
 {
-    return ResolveAgainstLayouts(relativePath).string();
+    if (relativePath.empty())
+        return {};
+
+    // Fast path: cache hit (lock only long enough to read the map).
+    {
+        const std::lock_guard<std::mutex> lock(m_Mutex);
+        const auto it = m_PathCache.find(relativePath);
+        if (it != m_PathCache.end())
+            return it->second;
+    }
+
+    // Slow path: probe the filesystem without holding the lock.
+    const std::string resolved = ResolveAgainstLayouts(relativePath).string();
+
+    // Store result (re-acquire lock for the write).
+    {
+        const std::lock_guard<std::mutex> lock(m_Mutex);
+        m_PathCache.emplace(relativePath, resolved);
+    }
+
+    return resolved;
 }
 
 Texture* AssetManager::LoadTexture2D(const std::string& relativePath, bool flipY, bool generateMipmaps)
 {
-    const std::lock_guard<std::mutex> lock(m_Mutex);
-
+    // Resolve the path outside the lock — ResolveAssetPath has its own locking
+    // and may hit the filesystem on a cache miss. Holding m_Mutex across that
+    // would block every other AssetManager call for the duration of disk I/O.
     const std::string resolved = ResolveAssetPath(relativePath);
+    if (resolved.empty())
+        return nullptr;
 
     (void)generateMipmaps;
 
-    const std::string cacheKey = resolved;
+    // Cache key includes flipY so the same image loaded both ways coexists.
+    const std::string cacheKey = resolved + (flipY ? ":flip" : "");
 
-    auto it = m_TextureCache.find(cacheKey);
-    if (it != m_TextureCache.end())
-        return it->second.get();
+    {
+        const std::lock_guard<std::mutex> lock(m_Mutex);
+        const auto it = m_TextureCache.find(cacheKey);
+        if (it != m_TextureCache.end())
+            return it->second.get();
+    }
 
+    // Load the texture outside the lock — this is the slow stb_image decode + GPU upload.
     auto tex = std::make_unique<Texture>(GL_TEXTURE_2D, resolved);
     tex->SetFlipY(flipY);
 
@@ -197,13 +225,21 @@ Texture* AssetManager::LoadTexture2D(const std::string& relativePath, bool flipY
         return nullptr;
     }
 
-    Texture* raw = tex.get();
-    m_TextureCache.emplace(cacheKey, std::move(tex));
-    return raw;
+    // Insert under lock. Check again in case another thread loaded it concurrently.
+    const std::lock_guard<std::mutex> lock(m_Mutex);
+    const auto [it, inserted] = m_TextureCache.emplace(cacheKey, std::move(tex));
+    return it->second.get();
 }
 
 void AssetManager::Clear()
 {
     const std::lock_guard<std::mutex> lock(m_Mutex);
     m_TextureCache.clear();
+    m_PathCache.clear();
+}
+
+void AssetManager::ClearPathCache()
+{
+    const std::lock_guard<std::mutex> lock(m_Mutex);
+    m_PathCache.clear();
 }

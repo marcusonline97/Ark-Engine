@@ -403,27 +403,37 @@ void App::Run()
 					if (o.skeletalMesh && !o.skeletalMesh->texturePath.empty())
 						inst.hasMaterial = true;
 
+					// Always resolve paths through AssetManager so that project-relative
+					// paths (e.g. "ArkEngine\Resources\...") become absolute before
+					// being handed to the renderer / Assimp / stb_image.
+					auto resolve = [](const std::string& p) -> std::string
+						{
+							if (p.empty()) return {};
+							return AssetManager::Instance().ResolveAssetPath(p);
+						};
+
 					if (o.staticMesh)
 					{
 						inst.meshType = Ark::Rendering::RenderMeshType::Static;
 
 						if (!o.staticMesh->meshPath.empty())
-							inst.meshPath = o.staticMesh->meshPath;
+							inst.meshPath = resolve(o.staticMesh->meshPath);
 
 						if (!o.staticMesh->texturePath.empty())
-							inst.albedoTexturePath = o.staticMesh->texturePath;
+							inst.albedoTexturePath = resolve(o.staticMesh->texturePath);
 					}
 					else if (o.skeletalMesh)
 					{
 						inst.meshType = Ark::Rendering::RenderMeshType::Skeletal;
 
 						if (!o.skeletalMesh->meshPath.empty())
-							inst.meshPath = o.skeletalMesh->meshPath;
+							inst.meshPath = resolve(o.skeletalMesh->meshPath);
 
 						if (!o.skeletalMesh->texturePath.empty())
-							inst.albedoTexturePath = o.skeletalMesh->texturePath;
+							inst.albedoTexturePath = resolve(o.skeletalMesh->texturePath);
 
-						inst.animationPath = o.skeletalMesh->animationPath;
+						if (!o.skeletalMesh->animationPath.empty())
+							inst.animationPath = resolve(o.skeletalMesh->animationPath);
 						inst.animationIndex = o.skeletalMesh->animationIndex;
 					}
 
