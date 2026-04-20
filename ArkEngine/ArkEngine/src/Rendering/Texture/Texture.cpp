@@ -222,7 +222,19 @@ void Texture::LoadInternalDSA(const void* pImageData, bool IsSRGB)
     glTextureParameteri(m_textureObj, GL_TEXTURE_MAX_LEVEL, Levels - 1);
     glTextureParameteri(m_textureObj, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTextureParameteri(m_textureObj, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTextureParameterf(m_textureObj, GL_TEXTURE_MAX_ANISOTROPY, 16.0f);
+
+    // Guard anisotropy setup for GPUs/drivers that don't advertise support.
+    if (GLAD_GL_ARB_texture_filter_anisotropic || GLAD_GL_EXT_texture_filter_anisotropic)
+    {
+        GLfloat requestedAnisotropy = 16.0f;
+        GLfloat maxAnisotropy = 1.0f;
+        glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY, &maxAnisotropy);
+        if (maxAnisotropy > 1.0f && requestedAnisotropy > maxAnisotropy)
+            requestedAnisotropy = maxAnisotropy;
+
+        if (requestedAnisotropy > 1.0f)
+            glTextureParameterf(m_textureObj, GL_TEXTURE_MAX_ANISOTROPY, requestedAnisotropy);
+    }
     glGenerateTextureMipmap(m_textureObj);
 
 
