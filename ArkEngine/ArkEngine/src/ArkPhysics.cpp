@@ -1,254 +1,430 @@
 #include "ArkPhysics.h"
 
 #include <algorithm>
+#include <chrono>
 #include <cmath>
-#include <limits>
+#include <thread>
+
+#include <Jolt/Jolt.h>
+#include <Jolt/Core/Factory.h>
+#include <Jolt/Core/JobSystemThreadPool.h>
+#include <Jolt/Core/TempAllocator.h>
+#include <Jolt/Math/Quat.h>
+#include <Jolt/Physics/Body/BodyCreationSettings.h>
+#include <Jolt/Physics/Body/BodyInterface.h>
+#include <Jolt/Physics/Collision/Shape/BoxShape.h>
+#include <Jolt/Physics/Collision/Shape/Shape.h>
+#include <Jolt/Physics/PhysicsSettings.h>
+#include <Jolt/Physics/PhysicsSystem.h>
+#include <Jolt/Physics/Collision/ObjectLayer.h>
+#include <Jolt/Physics/Collision/BroadPhase/BroadPhaseLayer.h>
+#include <Jolt/RegisterTypes.h>
 
 namespace Ark::Physics
 {
-    // -------------------------------------------------------------------------
-    // Body management
-    // -------------------------------------------------------------------------
+	namespace
+	{
+		using namespace JPH;
 
-    void PhysicsWorld::AddOrUpdateBody(const PhysicsBody& body)
-    {
-        for (auto& b : m_bodies)
-        {
-            if (b.objectId == body.objectId)
-            {
-                // Preserve runtime velocity / onGround when updating shape/type.
-                const glm::vec3 vel = b.velocity;
-                const bool      grnd = b.onGround;
-                b = body;
-                b.velocity = vel;
-                b.onGround = grnd;
-                return;
-            }
-        }
-        m_bodies.push_back(body);
-    }
+		namespace Layers
+		{
+			static constexpr ObjectLayer NonMoving = 0;
+			static constexpr ObjectLayer Moving = 1;
+			static constexpr ObjectLayer NumLayers = 2;
+		}
 
-    void PhysicsWorld::RemoveBody(uint32_t objectId)
-    {
-        m_bodies.erase(
-            std::remove_if(m_bodies.begin(), m_bodies.end(),
-                [objectId](const PhysicsBody& b) { return b.objectId == objectId; }),
-            m_bodies.end());
-    }
+		namespace BroadPhaseLayers
+		{
+			static constexpr BroadPhaseLayer NonMoving(0);
+			static constexpr BroadPhaseLayer Moving(1);
+			static constexpr uint NumLayers = 2;
+		}
 
-    PhysicsBody* PhysicsWorld::GetBody(uint32_t objectId)
-    {
-        for (auto& b : m_bodies)
-            if (b.objectId == objectId) return &b;
-        return nullptr;
-    }
+		class BPLayerInterfaceImpl final : public BroadPhaseLayerInterface
+		{
+		public:
+			BPLayerInterfaceImpl()
+			{
+				mObjectToBroadPhase[Layers::NonMoving] = BroadPhaseLayers::NonMoving;
+				mObjectToBroadPhase[Layers::Moving] = BroadPhaseLayers::Moving;
+			}
 
-    const PhysicsBody* PhysicsWorld::GetBody(uint32_t objectId) const
-    {
-        for (const auto& b : m_bodies)
-            if (b.objectId == objectId) return &b;
-        return nullptr;
-    }
+			uint GetNumBroadPhaseLayers() const override { return BroadPhaseLayers::NumLayers; }
 
-    void PhysicsWorld::ApplyImpulse(uint32_t objectId, const glm::vec3& impulse)
-    {
-        if (PhysicsBody* b = GetBody(objectId))
-            if (b->type == BodyType::Dynamic || b->type == BodyType::Kinematic)
-                b->velocity += impulse;
-    }
+			BroadPhaseLayer GetBroadPhaseLayer(ObjectLayer inLayer) const override
+			{
+				return mObjectToBroadPhase[inLayer];
+			}
 
-    // -------------------------------------------------------------------------
-    // Broadphase  (brute-force O(n^2) — fine for < ~200 objects)
-    // -------------------------------------------------------------------------
+#if defined(JPH_EXTERNAL_PROFILE) || defined(JPH_PROFILE_ENABLED)
+			const char* GetBroadPhaseLayerName(BroadPhaseLayer inLayer) const override
+			{
+				switch ((BroadPhaseLayer::Type)inLayer)
+				{
+				case (BroadPhaseLayer::Type)BroadPhaseLayers::NonMoving: return "NON_MOVING";
+				case (BroadPhaseLayer::Type)BroadPhaseLayers::Moving: return "MOVING";
+				default: return "UNKNOWN";
+				}
+			}
+#endif
 
-    void PhysicsWorld::BroadPhase(std::vector<std::pair<size_t, size_t>>& outPairs) const
-    {
-        for (size_t i = 0; i < m_bodies.size(); ++i)
-        {
-            for (size_t j = i + 1; j < m_bodies.size(); ++j)
-            {
-                // Static vs Static never needs collision response.
-                if (m_bodies[i].type == BodyType::Static &&
-                    m_bodies[j].type == BodyType::Static)
-                    continue;
+		private:
+			BroadPhaseLayer mObjectToBroadPhase[Layers::NumLayers];
+		};
 
-                outPairs.emplace_back(i, j);
-            }
-        }
-    }
+		class ObjectLayerPairFilterImpl : public ObjectLayerPairFilter
+		{
+		public:
+			bool ShouldCollide(ObjectLayer inObject1, ObjectLayer inObject2) const override
+			{
+				if (inObject1 == Layers::NonMoving)
+					return inObject2 == Layers::Moving;
+				return true;
+			}
+		};
 
-    // -------------------------------------------------------------------------
-    // Step
-    // -------------------------------------------------------------------------
+		class ObjectVsBroadPhaseLayerFilterImpl : public ObjectVsBroadPhaseLayerFilter
+		{
+		public:
+			bool ShouldCollide(ObjectLayer inLayer1, BroadPhaseLayer inLayer2) const override
+			{
+				if (inLayer1 == Layers::NonMoving)
+					return inLayer2 == BroadPhaseLayers::Moving;
+				return true;
+			}
+		};
 
-    void PhysicsWorld::Step(
-        float                                                dt,
-        std::vector<std::pair<uint32_t, glm::vec3>>& outPositions,
-        std::vector<CollisionEvent>& outEvents)
-    {
-        outEvents.clear();
+		class JoltBootstrap
+		{
+		public:
+			JoltBootstrap()
+			{
+				RegisterDefaultAllocator();
+				Factory::sInstance = new Factory();
+				RegisterTypes();
+			}
 
-        // --- 1. Integrate velocity for dynamic bodies ---
-        for (auto& body : m_bodies)
-        {
-            if (body.type != BodyType::Dynamic)
-                continue;
+			~JoltBootstrap()
+			{
+				UnregisterTypes();
+				delete Factory::sInstance;
+				Factory::sInstance = nullptr;
+			}
+		};
 
-            // Gravity
-            body.velocity.y += kGravity * dt;
+		static JoltBootstrap g_joltBootstrap;
 
-            // Find current world position from outPositions map
-            // (caller maintains authoritative positions; physics applies deltas).
-            for (auto& [id, pos] : outPositions)
-            {
-                if (id != body.objectId) continue;
-                pos += body.velocity * dt;
-                break;
-            }
+		static constexpr float kFixedDt = 1.0f / 60.0f;
+		static constexpr int kCollisionSteps = 1;
+		static constexpr uint32_t kMaxBodies = 4096;
+		static constexpr uint32_t kMaxBodyPairs = 8192;
+		static constexpr uint32_t kMaxContactConstraints = 8192;
+		static constexpr uint32_t kTempAllocatorBytes = 10 * 1024 * 1024;
+	}
 
-            body.onGround = false;
-        }
+	class PhysicsWorldImpl
+	{
+	public:
+		PhysicsWorldImpl()
+			: mTempAllocator(kTempAllocatorBytes),
+			mJobSystem(cMaxPhysicsJobs, cMaxPhysicsBarriers, std::max(1u, std::thread::hardware_concurrency() - 1))
+		{
+			mPhysicsSystem.Init(
+				kMaxBodies,
+				0,
+				kMaxBodyPairs,
+				kMaxContactConstraints,
+				mBroadPhaseLayers,
+				mObjectVsBroadPhaseLayerFilter,
+				mObjectLayerPairFilter);
+		}
 
-        // --- 2. Broadphase ---
-        std::vector<std::pair<size_t, size_t>> pairs;
-        BroadPhase(pairs);
+		void ApplyScene(const std::vector<BodyConfig>& bodies, bool simulationEnabled)
+		{
+			BodyInterface& bodyInterface = mPhysicsSystem.GetBodyInterface();
 
-        // --- 3. Narrowphase AABB vs AABB + response ---
-        for (const auto& [iA, iB] : pairs)
-        {
-            PhysicsBody& bodyA = m_bodies[iA];
-            PhysicsBody& bodyB = m_bodies[iB];
+			std::unordered_map<uint32_t, BodyConfig> incoming;
+			incoming.reserve(bodies.size());
+			for (const BodyConfig& body : bodies)
+			{
+				if (body.objectId == 0)
+					continue;
+				incoming[body.objectId] = body;
+			}
 
-            // Resolve world-space positions for each body.
-            glm::vec3 posA{ 0.0f }, posB{ 0.0f };
-            for (const auto& [id, pos] : outPositions)
-            {
-                if (id == bodyA.objectId) posA = pos;
-                if (id == bodyB.objectId) posB = pos;
-            }
+			for (auto it = mBodiesByObjectId.begin(); it != mBodiesByObjectId.end(); )
+			{
+				if (incoming.find(it->first) == incoming.end())
+				{
+					if (bodyInterface.IsAdded(it->second))
+						bodyInterface.RemoveBody(it->second);
+					bodyInterface.DestroyBody(it->second);
+					mBodyConfigByObjectId.erase(it->first);
+					it = mBodiesByObjectId.erase(it);
+				}
+				else
+				{
+					++it;
+				}
+			}
 
-            const AABB worldA = bodyA.localAABB.Translated(posA);
-            const AABB worldB = bodyB.localAABB.Translated(posB);
+			for (const auto& [objectId, cfg] : incoming)
+			{
+				const auto existing = mBodiesByObjectId.find(objectId);
+				if (existing == mBodiesByObjectId.end())
+				{
+					CreateBody(cfg);
+				}
+				else
+				{
+					const auto prevCfgIt = mBodyConfigByObjectId.find(objectId);
+					if (prevCfgIt != mBodyConfigByObjectId.end() && ShouldRecreateBody(prevCfgIt->second, cfg))
+					{
+						if (bodyInterface.IsAdded(existing->second))
+							bodyInterface.RemoveBody(existing->second);
+						bodyInterface.DestroyBody(existing->second);
+						CreateBody(cfg);
+					}
+					else
+					{
+						UpdateBody(existing->second, cfg, simulationEnabled);
+					}
+				}
 
-            glm::vec3 depth{ 0.0f };
-            if (!worldA.Penetration(worldB, depth))
-                continue;
+				mBodyConfigByObjectId[objectId] = cfg;
+			}
+		}
 
-            // Emit event regardless of trigger state.
-            CollisionEvent ev{};
-            ev.bodyAId = bodyA.objectId;
-            ev.bodyBId = bodyB.objectId;
-            ev.depth = depth;
-            outEvents.push_back(ev);
+		void Step(float dt)
+		{
+			mPhysicsSystem.Update(dt, kCollisionSteps, &mTempAllocator, &mJobSystem);
+		}
 
-            // No physical response for triggers.
-            if (bodyA.isTrigger || bodyB.isTrigger)
-                continue;
+		std::vector<BodyTransform> ReadTransforms() const
+		{
+			std::vector<BodyTransform> out;
+			out.reserve(mBodiesByObjectId.size());
 
-            // --- MTV resolution ---
-            // Push dynamic body out; static bodies don't move.
-            const bool aIsDynamic = bodyA.type == BodyType::Dynamic || bodyA.type == BodyType::Kinematic;
-            const bool bIsDynamic = bodyB.type == BodyType::Dynamic || bodyB.type == BodyType::Kinematic;
+			const BodyInterface& bodyInterface = mPhysicsSystem.GetBodyInterface();
+			for (const auto& [objectId, bodyId] : mBodiesByObjectId)
+			{
+				RVec3 pos;
+				Quat rot;
+				bodyInterface.GetPositionAndRotation(bodyId, pos, rot);
 
-            auto applyResolution = [&](PhysicsBody& dynBody, const glm::vec3& pushVec)
-                {
-                    for (auto& [id, pos] : outPositions)
-                    {
-                        if (id != dynBody.objectId) continue;
-                        pos += pushVec;
+				const Vec3 eulerRad = rot.GetEulerAngles();
 
-                        // Cancel velocity component along the push axis.
-                        if (pushVec.x != 0.0f) dynBody.velocity.x = 0.0f;
-                        if (pushVec.z != 0.0f) dynBody.velocity.z = 0.0f;
-                        if (pushVec.y > 0.0f)
-                        {
-                            // Landed on something.
-                            dynBody.velocity.y = 0.0f;
-                            dynBody.onGround = true;
-                        }
-                        else if (pushVec.y < 0.0f)
-                        {
-                            // Hit a ceiling.
-                            dynBody.velocity.y = 0.0f;
-                        }
-                        break;
-                    }
-                };
+				BodyTransform t{};
+				t.objectId = objectId;
+				t.position = glm::vec3(
+					static_cast<float>(pos.GetX()),
+					static_cast<float>(pos.GetY()),
+					static_cast<float>(pos.GetZ()));
+				t.rotationDeg = glm::degrees(glm::vec3(eulerRad.GetX(), eulerRad.GetY(), eulerRad.GetZ()));
+				out.push_back(t);
+			}
 
-            if (aIsDynamic && !bIsDynamic)
-                applyResolution(bodyA, depth);
-            else if (!aIsDynamic && bIsDynamic)
-                applyResolution(bodyB, -depth);
-            else if (aIsDynamic && bIsDynamic)
-            {
-                // Both dynamic: split equally.
-                applyResolution(bodyA, depth * 0.5f);
-                applyResolution(bodyB, -depth * 0.5f);
-            }
-        }
-    }
+			return out;
+		}
 
-    // -------------------------------------------------------------------------
-    // Line trace
-    // -------------------------------------------------------------------------
+	private:
+		static EMotionType ToJoltMotionType(MotionType type)
+		{
+			switch (type)
+			{
+			case MotionType::Static: return EMotionType::Static;
+			case MotionType::Kinematic: return EMotionType::Kinematic;
+			case MotionType::Dynamic:
+			default: return EMotionType::Dynamic;
+			}
+		}
 
-    LineTraceHit PhysicsWorld::LineTrace(
-        const glm::vec3& origin,
-        const glm::vec3& directionNorm,
-        float            maxDistance,
-        const std::vector<std::pair<uint32_t, glm::vec3>>& bodyPositions,
-        uint32_t         ignoreObjectId) const
-    {
-        LineTraceHit best{};
-        best.distance = std::numeric_limits<float>::max();
+		static ObjectLayer ToObjectLayer(MotionType type)
+		{
+			return type == MotionType::Static ? Layers::NonMoving : Layers::Moving;
+		}
 
-        for (const auto& body : m_bodies)
-        {
-            if (body.objectId == ignoreObjectId)
-                continue;
+		static bool ShouldRecreateBody(const BodyConfig& prev, const BodyConfig& next)
+		{
+			if (prev.motionType != next.motionType)
+				return true;
 
-            // Find world position for this body.
-            glm::vec3 pos{ 0.0f };
-            bool found = false;
-            for (const auto& [id, p] : bodyPositions)
-            {
-                if (id == body.objectId) { pos = p; found = true; break; }
-            }
-            if (!found) continue;
+			const glm::vec3 diff = glm::abs(prev.halfExtents - next.halfExtents);
+			return diff.x > 0.001f || diff.y > 0.001f || diff.z > 0.001f;
+		}
 
-            const AABB worldBox = body.localAABB.Translated(pos);
+		void CreateBody(const BodyConfig& cfg)
+		{
+			BodyInterface& bodyInterface = mPhysicsSystem.GetBodyInterface();
 
-            float t = 0.0f;
-            if (!RayVsAABB(origin, directionNorm, worldBox, maxDistance, t))
-                continue;
+			const Vec3 halfExtents(
+				std::max(0.01f, cfg.halfExtents.x),
+				std::max(0.01f, cfg.halfExtents.y),
+				std::max(0.01f, cfg.halfExtents.z));
+			RefConst<Shape> shape = new BoxShape(halfExtents);
 
-            if (t >= best.distance)
-                continue;
+			const glm::vec3 rotRad = glm::radians(cfg.rotationDeg);
+			const Quat rot = Quat::sEulerAngles(Vec3(rotRad.x, rotRad.y, rotRad.z));
 
-            // Compute face normal from which face the ray entered.
-            const glm::vec3 hitPt = origin + directionNorm * t;
-            const glm::vec3 localPt = hitPt - worldBox.Centre();
-            const glm::vec3 he = worldBox.HalfExtents();
+			BodyCreationSettings settings(
+				shape,
+				RVec3(cfg.position.x, cfg.position.y, cfg.position.z),
+				rot,
+				ToJoltMotionType(cfg.motionType),
+				ToObjectLayer(cfg.motionType));
 
-            // The dominant axis of localPt / halfExtents is the hit face.
-            const glm::vec3 ratio = glm::abs(localPt) / he;
-            glm::vec3 normal{ 0.0f };
+			settings.mAllowDynamicOrKinematic = true;
 
-            if (ratio.x >= ratio.y && ratio.x >= ratio.z)
-                normal = glm::vec3(glm::sign(localPt.x), 0.0f, 0.0f);
-            else if (ratio.y >= ratio.z)
-                normal = glm::vec3(0.0f, glm::sign(localPt.y), 0.0f);
-            else
-                normal = glm::vec3(0.0f, 0.0f, glm::sign(localPt.z));
+			BodyID bodyId = bodyInterface.CreateAndAddBody(settings, EActivation::Activate);
+			if (bodyId.IsInvalid())
+				return;
 
-            best.hit = true;
-            best.distance = t;
-            best.point = hitPt;
-            best.normal = normal;
-            best.objectId = body.objectId;
-        }
+			bodyInterface.SetGravityFactor(bodyId, cfg.useGravity ? 1.0f : 0.0f);
+			mBodiesByObjectId[cfg.objectId] = bodyId;
+		}
 
-        return best;
-    }
+		void UpdateBody(BodyID bodyId, const BodyConfig& cfg, bool simulationEnabled)
+		{
+			BodyInterface& bodyInterface = mPhysicsSystem.GetBodyInterface();
 
+			const bool canTeleportBody =
+				cfg.motionType == MotionType::Static ||
+				cfg.motionType == MotionType::Kinematic ||
+				!simulationEnabled;
+
+			if (canTeleportBody)
+			{
+				const glm::vec3 rotRad = glm::radians(cfg.rotationDeg);
+				const Quat rot = Quat::sEulerAngles(Vec3(rotRad.x, rotRad.y, rotRad.z));
+				bodyInterface.SetPositionAndRotation(
+					bodyId,
+					RVec3(cfg.position.x, cfg.position.y, cfg.position.z),
+					rot,
+					EActivation::Activate);
+			}
+
+			if (cfg.motionType != MotionType::Dynamic || !simulationEnabled)
+				bodyInterface.SetLinearVelocity(bodyId, Vec3::sZero());
+
+			bodyInterface.SetGravityFactor(bodyId, cfg.useGravity ? 1.0f : 0.0f);
+		}
+
+	private:
+		BPLayerInterfaceImpl mBroadPhaseLayers;
+		ObjectVsBroadPhaseLayerFilterImpl mObjectVsBroadPhaseLayerFilter;
+		ObjectLayerPairFilterImpl mObjectLayerPairFilter;
+
+		PhysicsSystem mPhysicsSystem;
+		TempAllocatorImpl mTempAllocator;
+		JobSystemThreadPool mJobSystem;
+
+		std::unordered_map<uint32_t, BodyID> mBodiesByObjectId;
+		std::unordered_map<uint32_t, BodyConfig> mBodyConfigByObjectId;
+	};
+
+	PhysicsThreadedWorld::PhysicsThreadedWorld()
+	{
+		m_thread = std::thread([this]() { ThreadMain(); });
+	}
+
+	PhysicsThreadedWorld::~PhysicsThreadedWorld()
+	{
+		RequestStop();
+		if (m_thread.joinable())
+			m_thread.join();
+	}
+
+	void PhysicsThreadedWorld::RequestStop()
+	{
+		{
+			std::lock_guard<std::mutex> lock(m_mutex);
+			m_stop = true;
+			m_hasScene = true;
+		}
+		m_cv.notify_one();
+	}
+
+	void PhysicsThreadedWorld::SubmitScene(const std::vector<BodyConfig>& bodies)
+	{
+		{
+			std::lock_guard<std::mutex> lock(m_mutex);
+			m_pendingScene = bodies;
+			m_hasScene = true;
+		}
+		m_cv.notify_one();
+	}
+
+	void PhysicsThreadedWorld::SetSimulationEnabled(bool enabled)
+	{
+		{
+			std::lock_guard<std::mutex> lock(m_mutex);
+			m_simulationEnabled = enabled;
+		}
+		m_cv.notify_one();
+	}
+
+	std::vector<BodyTransform> PhysicsThreadedWorld::ConsumeLatestTransforms()
+	{
+		std::lock_guard<std::mutex> lock(m_mutex);
+		return m_latestTransforms;
+	}
+
+	void PhysicsThreadedWorld::ThreadMain()
+	{
+		PhysicsWorldImpl world;
+		m_initialized.store(true, std::memory_order_relaxed);
+
+		auto previousTick = std::chrono::steady_clock::now();
+		std::vector<BodyConfig> sceneSnapshot;
+
+		while (true)
+		{
+			bool simEnabled = false;
+			bool sceneUpdated = false;
+			{
+				std::unique_lock<std::mutex> lock(m_mutex);
+				if (!m_hasScene && !m_stop)
+				{
+					m_cv.wait_for(lock, std::chrono::milliseconds(4));
+				}
+
+				if (m_stop)
+					break;
+
+				if (m_hasScene)
+				{
+					sceneSnapshot = m_pendingScene;
+					m_hasScene = false;
+					sceneUpdated = true;
+				}
+				simEnabled = m_simulationEnabled;
+			}
+
+			if (sceneUpdated)
+				world.ApplyScene(sceneSnapshot, simEnabled);
+
+			const auto now = std::chrono::steady_clock::now();
+			const std::chrono::duration<float> elapsed = now - previousTick;
+			previousTick = now;
+
+			if (simEnabled)
+			{
+				float dt = elapsed.count();
+				if (dt < 0.0001f)
+					dt = kFixedDt;
+				if (dt > 0.05f)
+					dt = 0.05f;
+
+				world.Step(dt);
+			}
+
+			std::vector<BodyTransform> latest = world.ReadTransforms();
+			{
+				std::lock_guard<std::mutex> lock(m_mutex);
+				m_latestTransforms = std::move(latest);
+			}
+
+			std::this_thread::sleep_for(std::chrono::milliseconds(1));
+		}
+	}
 } // namespace Ark::Physics

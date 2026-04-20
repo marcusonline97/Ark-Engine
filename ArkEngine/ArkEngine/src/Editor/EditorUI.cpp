@@ -1103,6 +1103,9 @@ void EditorUI::RenderHierarchy(std::vector<EditorObject>& objects, int& selected
         if (ImGui::MenuItem("Text Render"))
             doCreate("Text", [](EditorObject& o) { o.textRender = TextRenderEditorComponent{}; });
 
+        if (ImGui::MenuItem("Physics Body"))
+            doCreate("PhysicsBody", [](EditorObject& o) { o.physicsBody = PhysicsBodyEditorComponent{}; });
+
         ImGui::EndPopup();
     }
     ImGui::SameLine();
@@ -1295,6 +1298,7 @@ void EditorUI::RenderHierarchy(std::vector<EditorObject>& objects, int& selected
                     if (!obj.camera && ImGui::MenuItem("Camera")) obj.camera = CameraEditorComponent{};
                     if (!obj.pointLight && ImGui::MenuItem("Point Light")) obj.pointLight = PointLightEditorComponent{};
                     if (!obj.textRender && ImGui::MenuItem("Text Render")) obj.textRender = TextRenderEditorComponent{};
+                    if (!obj.physicsBody && ImGui::MenuItem("Physics Body")) obj.physicsBody = PhysicsBodyEditorComponent{};
                     ImGui::EndMenu();
                 }
 
@@ -1305,6 +1309,7 @@ void EditorUI::RenderHierarchy(std::vector<EditorObject>& objects, int& selected
                     if (obj.camera && ImGui::MenuItem("Camera")) obj.camera.reset();
                     if (obj.pointLight && ImGui::MenuItem("Point Light")) obj.pointLight.reset();
                     if (obj.textRender && ImGui::MenuItem("Text Render")) obj.textRender.reset();
+                    if (obj.physicsBody && ImGui::MenuItem("Physics Body")) obj.physicsBody.reset();
                     ImGui::EndMenu();
                 }
 
@@ -1698,6 +1703,31 @@ void EditorUI::RenderInspector(std::vector<EditorObject>& objects, int& selected
         ImGui::TextDisabled("No text component.");
         if (ImGui::Button("Add Text Render"))
             obj.textRender = TextRenderEditorComponent{};
+    }
+
+    ImGui::Separator();
+    ImGui::TextUnformatted("Physics");
+    if (obj.physicsBody)
+    {
+        static const char* kMotionTypes[] =
+        {
+            "Static",
+            "Dynamic",
+            "Kinematic",
+        };
+
+        ImGui::Combo("Motion Type", &obj.physicsBody->motionType, kMotionTypes, static_cast<int>(IM_ARRAYSIZE(kMotionTypes)));
+        ImGui::Checkbox("Use Gravity", &obj.physicsBody->useGravity);
+        ImGui::DragFloat3("Half Extents", &obj.physicsBody->halfExtents.x, 0.02f, 0.01f, 100.0f, "%.2f");
+
+        if (ImGui::Button("Remove Physics Body"))
+            obj.physicsBody.reset();
+    }
+    else
+    {
+        ImGui::TextDisabled("No physics body component.");
+        if (ImGui::Button("Add Physics Body"))
+            obj.physicsBody = PhysicsBodyEditorComponent{};
     }
 
     ImGui::End();

@@ -12,6 +12,7 @@
 #include <Editor/ImGuiLayer.h>
 #include <Rendering/Threading/WorldRenderThread.h>
 #include <AssetManager/ResourceLoader.h>
+#include <ArkPhysics.h>
 
 struct GLFWwindow;
 
@@ -32,6 +33,7 @@ private:
 
 	Ark::Rendering::ResourceLoader m_cpuResourceLoader;
 	std::unique_ptr<Ark::Rendering::WorldRenderThread> m_WorldRenderer;
+	std::unique_ptr<Ark::Physics::PhysicsThreadedWorld> m_PhysicsWorld;
 
 	Ark::Editor::ImGuiLayer m_ImGui;
 	EditorUI m_EditorUI;

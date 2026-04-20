@@ -17,6 +17,7 @@
 #include "Utility/SceneIO.h"
 #include "Camera/CameraController.h"
 #include "Input/Input.h"
+#include "ArkPhysics.h"
 
 static constexpr const char* kImGuiGLSLVersion = "#version 450";
 
@@ -112,6 +113,7 @@ App::App()
 	m_WorldRenderer = std::make_unique<Ark::Rendering::WorldRenderThread>(
 		m_Window->GetNativeHandle(),
 		&m_cpuResourceLoader);
+	m_PhysicsWorld = std::make_unique<Ark::Physics::PhysicsThreadedWorld>();
 }
 
 App::~App()
@@ -125,6 +127,7 @@ App::~App()
 	m_EditorUI.Shutdown();
 	m_ImGui.Shutdown();
 	m_WorldRenderer.reset();
+	m_PhysicsWorld.reset();
 }
 
 void App::Run()
@@ -155,6 +158,37 @@ void App::Run()
 
 		Ark::Input::NewFrame();
 
+		if (m_PhysicsWorld && m_EditorUI.IsPlayMode())
+		{
+			std::vector<Ark::Physics::BodyTransform> physicsTransforms = m_PhysicsWorld->ConsumeLatestTransforms();
+			if (!physicsTransforms.empty())
+			{
+				for (const auto& t : physicsTransforms)
+				{
+					if (t.objectId == 0)
+						continue;
+
+					for (auto& o : m_Objects)
+					{
+						if (o.id != t.objectId)
+							continue;
+
+						if (!o.physicsBody || !o.enabled)
+							break;
+
+						const int motionType = std::clamp(o.physicsBody->motionType, 0, 2);
+						const bool isDynamic = motionType == 1;
+						if (isDynamic)
+						{
+							o.position = t.position;
+							o.rotationDeg = t.rotationDeg;
+						}
+						break;
+					}
+				}
+			}
+		}
+
 		if (Ark::Input::IsKeyPressed(ARK_KEY_G))
 		{
 			showGrid = !showGrid;
@@ -167,6 +201,36 @@ void App::Run()
 
 		// CPU iterative resource loading: do a small bounded amount per frame.
 		m_cpuResourceLoader.Pump(2);
+
+		if (m_PhysicsWorld)
+		{
+			std::vector<Ark::Physics::BodyConfig> physicsBodies;
+			physicsBodies.reserve(m_Objects.size());
+
+			for (const auto& o : m_Objects)
+			{
+				if (!o.enabled || !o.physicsBody || o.id == 0)
+					continue;
+
+				Ark::Physics::BodyConfig cfg{};
+				cfg.objectId = o.id;
+				cfg.motionType = static_cast<Ark::Physics::MotionType>(std::clamp(o.physicsBody->motionType, 0, 2));
+				cfg.useGravity = o.physicsBody->useGravity;
+				cfg.position = o.position;
+				cfg.rotationDeg = o.rotationDeg;
+
+				const glm::vec3 safeHalfExtents = glm::max(glm::abs(o.physicsBody->halfExtents), glm::vec3(0.01f));
+				cfg.halfExtents = glm::vec3(
+					safeHalfExtents.x * std::max(0.01f, std::abs(o.scale.x)),
+					safeHalfExtents.y * std::max(0.01f, std::abs(o.scale.y)),
+					safeHalfExtents.z * std::max(0.01f, std::abs(o.scale.z)));
+
+				physicsBodies.push_back(cfg);
+			}
+
+			m_PhysicsWorld->SetSimulationEnabled(m_EditorUI.IsPlayMode());
+			m_PhysicsWorld->SubmitScene(physicsBodies);
+		}
 
 		// Play mode: possess the primary camera and drive it with basic FPS controls.
 		if (m_EditorUI.IsPlayMode())
