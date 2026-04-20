@@ -422,6 +422,9 @@
     <None Include="ArkEngine\Resources\Shaders\world_background.vert" />
     <None Include="ArkEngine\Resources\Shaders\wireframe_on_mesh.gs" />
   </ItemGroup>
+  <Target Name="TerminateRunningArkEngineBeforeLink" BeforeTargets="Link" Condition="'$(OS)'=='Windows_NT' and '$(ConfigurationType)'=='Application'">
+    <Exec Command="taskkill /F /IM &quot;$(TargetFileName)&quot; /T &gt;nul 2&gt;&amp;1" IgnoreExitCode="true" />
+  </Target>
   <Target Name="CopyArkEngineResources" AfterTargets="Build">
     <ItemGroup>
       <_ArkEngineResources Include="$(ProjectDir)ArkEngine\Resources\**\*.*" />
