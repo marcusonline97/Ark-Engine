@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <cctype>
+#include <exception>
 #include <filesystem>
 #include <limits>
 
@@ -12,185 +13,223 @@
 #define TEX_COORD_LOCATION 1
 #define NORMAL_LOCATION    2
 
+namespace
+{
+    std::string PathToUtf8StringNoThrow(const std::filesystem::path& path)
+    {
+        try
+        {
+#if defined(__cpp_lib_char8_t)
+            const std::u8string utf8 = path.u8string();
+            return std::string(utf8.begin(), utf8.end());
+#else
+            return path.u8string();
+#endif
+        }
+        catch (const std::exception&)
+        {
+            try
+            {
+                return path.generic_string();
+            }
+            catch (const std::exception&)
+            {
+                return {};
+            }
+        }
+    }
+}
+
 
 std::string GetFullPath(const string& Dir, const aiString& Path)
 {
     namespace fs = std::filesystem;
 
-    auto trimQuotes = [](std::string& s)
-        {
-            while (!s.empty() && (s.front() == '"' || s.front() == '\''))
-                s.erase(s.begin());
-            while (!s.empty() && (s.back() == '"' || s.back() == '\''))
-                s.pop_back();
-        };
-
-    auto equalsCaseInsensitive = [](const std::string& a, const std::string& b)
-        {
-            if (a.size() != b.size())
-                return false;
-
-            for (size_t i = 0; i < a.size(); ++i)
+    try
+    {
+        auto trimQuotes = [](std::string& s)
             {
-                if (std::tolower(static_cast<unsigned char>(a[i])) !=
-                    std::tolower(static_cast<unsigned char>(b[i])))
-                {
+                while (!s.empty() && (s.front() == '"' || s.front() == '\''))
+                    s.erase(s.begin());
+                while (!s.empty() && (s.back() == '"' || s.back() == '\''))
+                    s.pop_back();
+            };
+
+        auto equalsCaseInsensitive = [](const std::string& a, const std::string& b)
+            {
+                if (a.size() != b.size())
                     return false;
+
+                for (size_t i = 0; i < a.size(); ++i)
+                {
+                    if (std::tolower(static_cast<unsigned char>(a[i])) !=
+                        std::tolower(static_cast<unsigned char>(b[i])))
+                    {
+                        return false;
+                    }
                 }
-            }
-            return true;
-        };
+                return true;
+            };
 
-    auto makeExistingAbsolute = [](const fs::path& p) -> fs::path
-        {
-            if (p.empty())
-                return {};
-
-            std::error_code ec;
-            fs::path abs = p;
-            if (!p.is_absolute())
-                abs = fs::absolute(p, ec);
-            if (ec)
-                return {};
-
-            abs = abs.lexically_normal();
-            if (!fs::exists(abs, ec) || ec)
-                return {};
-
-            return abs;
-        };
-
-    auto findByFilename = [&](const fs::path& root, const std::string& fileName) -> fs::path
-        {
-            if (root.empty() || fileName.empty())
-                return {};
-
-            std::error_code ec;
-            if (!fs::exists(root, ec) || ec || !fs::is_directory(root, ec))
-                return {};
-
-            fs::recursive_directory_iterator it(
-                root,
-                fs::directory_options::skip_permission_denied,
-                ec);
-            fs::recursive_directory_iterator end;
-
-            for (; it != end; it.increment(ec))
+        auto makeExistingAbsolute = [](const fs::path& p) -> fs::path
             {
+                if (p.empty())
+                    return {};
+
+                std::error_code ec;
+                fs::path abs = p;
+                if (!p.is_absolute())
+                    abs = fs::absolute(p, ec);
                 if (ec)
+                    return {};
+
+                abs = abs.lexically_normal();
+                if (!fs::exists(abs, ec) || ec)
+                    return {};
+
+                return abs;
+            };
+
+        auto findByFilename = [&](const fs::path& root, const std::string& fileName) -> fs::path
+            {
+                if (root.empty() || fileName.empty())
+                    return {};
+
+                std::error_code ec;
+                if (!fs::exists(root, ec) || ec || !fs::is_directory(root, ec))
+                    return {};
+
+                fs::recursive_directory_iterator it(
+                    root,
+                    fs::directory_options::skip_permission_denied,
+                    ec);
+                fs::recursive_directory_iterator end;
+
+                for (; it != end; it.increment(ec))
                 {
-                    ec.clear();
-                    continue;
+                    if (ec)
+                    {
+                        ec.clear();
+                        continue;
+                    }
+
+                    if (it.depth() > 4)
+                    {
+                        it.disable_recursion_pending();
+                        continue;
+                    }
+
+                    const auto& entry = *it;
+                    if (!entry.is_regular_file(ec) || ec)
+                    {
+                        ec.clear();
+                        continue;
+                    }
+
+                    const std::string candidateName = PathToUtf8StringNoThrow(entry.path().filename());
+                    if (!candidateName.empty() && equalsCaseInsensitive(candidateName, fileName))
+                        return entry.path();
                 }
 
-                if (it.depth() > 4)
-                {
-                    it.disable_recursion_pending();
-                    continue;
-                }
+                return {};
+            };
 
-                const auto& entry = *it;
-                if (!entry.is_regular_file(ec) || ec)
-                {
-                    ec.clear();
-                    continue;
-                }
+        const fs::path modelDir = fs::path(Dir).lexically_normal();
 
-                const std::string candidateName = entry.path().filename().string();
-                if (equalsCaseInsensitive(candidateName, fileName))
-                    return entry.path();
-            }
+        std::string raw(Path.C_Str());
+        trimQuotes(raw);
 
+        std::replace(raw.begin(), raw.end(), '\\', '/');
+
+        if (raw == "C:/" || raw == "C:\\")
+            raw.clear();
+        else if (raw.size() >= 2 && raw[0] == '.' && (raw[1] == '/' || raw[1] == '\\'))
+            raw = raw.substr(2);
+
+        if (raw.empty())
             return {};
-        };
-
-    const fs::path modelDir = fs::path(Dir).lexically_normal();
-
-    std::string raw(Path.C_Str());
-    trimQuotes(raw);
-
-    std::replace(raw.begin(), raw.end(), '\\', '/');
-
-    if (raw == "C:/" || raw == "C:\\")
-        raw.clear();
-    else if (raw.size() >= 2 && raw[0] == '.' && (raw[1] == '/' || raw[1] == '\\'))
-        raw = raw.substr(2);
-
-    if (raw.empty())
-        return {};
 
 
-    const fs::path referenced = fs::path(raw).lexically_normal();
-    if (const fs::path existingAbsolute = makeExistingAbsolute(referenced);
-        !existingAbsolute.empty())
-        return existingAbsolute.string();
-
-    std::vector<fs::path> candidates;
-    candidates.reserve(10);
-
-    auto addCandidate = [&](const fs::path& p)
-        {
-            const fs::path normalized = p.lexically_normal();
-            if (normalized.empty())
-                return;
-
-            if (std::find(candidates.begin(), candidates.end(), normalized) == candidates.end())
-                candidates.push_back(normalized);
-        };
-
-    addCandidate(modelDir / referenced);
-
-    if (referenced.has_filename())
-    {
-        addCandidate(modelDir / referenced.filename());
-        addCandidate(modelDir / "textures" / referenced.filename());
-        addCandidate(modelDir.parent_path() / referenced.filename());
-        addCandidate(modelDir.parent_path() / "textures" / referenced.filename());
-    }
-
-    const std::string refGeneric = referenced.generic_string();
-    const std::string texturesToken = "textures/";
-    const size_t texturesPos = refGeneric.find(texturesToken);
-
-    if (texturesPos != std::string::npos)
-    {
-        const fs::path tailFromTextures = fs::path(refGeneric.substr(texturesPos));
-        addCandidate(modelDir / tailFromTextures);
-
-    }
-
-    for (const fs::path& candidate : candidates)
-    {
-        if (const fs::path existingAbsolute = makeExistingAbsolute(candidate);
+        const fs::path referenced = fs::path(raw).lexically_normal();
+        if (const fs::path existingAbsolute = makeExistingAbsolute(referenced);
             !existingAbsolute.empty())
-            return existingAbsolute.string();
-    }
+            return PathToUtf8StringNoThrow(existingAbsolute);
 
-    if (referenced.has_filename())
-    {
-        const std::string fileName = referenced.filename().string();
-        if (const fs::path foundNearModel = findByFilename(modelDir, fileName); !foundNearModel.empty())
-            return foundNearModel.string();
+        std::vector<fs::path> candidates;
+        candidates.reserve(10);
 
-        const fs::path parent = modelDir.parent_path();
-        if (!parent.empty() && parent != modelDir)
+        auto addCandidate = [&](const fs::path& p)
+            {
+                const fs::path normalized = p.lexically_normal();
+                if (normalized.empty())
+                    return;
+
+                if (std::find(candidates.begin(), candidates.end(), normalized) == candidates.end())
+                    candidates.push_back(normalized);
+            };
+
+        addCandidate(modelDir / referenced);
+
+        if (referenced.has_filename())
         {
-            if (const fs::path foundNearParent = findByFilename(parent, fileName); !foundNearParent.empty())
-                return foundNearParent.string();
+            addCandidate(modelDir / referenced.filename());
+            addCandidate(modelDir / "textures" / referenced.filename());
+            addCandidate(modelDir.parent_path() / referenced.filename());
+            addCandidate(modelDir.parent_path() / "textures" / referenced.filename());
         }
- 
-    }
-    if (!candidates.empty())
-        return candidates.front().string();
 
-    return (modelDir / referenced).lexically_normal().string();
+        const std::string refGeneric = referenced.generic_string();
+        const std::string texturesToken = "textures/";
+        const size_t texturesPos = refGeneric.find(texturesToken);
+
+        if (texturesPos != std::string::npos)
+        {
+            const fs::path tailFromTextures = fs::path(refGeneric.substr(texturesPos));
+            addCandidate(modelDir / tailFromTextures);
+
+        }
+
+        for (const fs::path& candidate : candidates)
+        {
+            if (const fs::path existingAbsolute = makeExistingAbsolute(candidate);
+                !existingAbsolute.empty())
+                return PathToUtf8StringNoThrow(existingAbsolute);
+        }
+
+        if (referenced.has_filename())
+        {
+            const std::string fileName = PathToUtf8StringNoThrow(referenced.filename());
+            if (!fileName.empty())
+            {
+                if (const fs::path foundNearModel = findByFilename(modelDir, fileName); !foundNearModel.empty())
+                    return PathToUtf8StringNoThrow(foundNearModel);
+
+                const fs::path parent = modelDir.parent_path();
+                if (!parent.empty() && parent != modelDir)
+                {
+                    if (const fs::path foundNearParent = findByFilename(parent, fileName); !foundNearParent.empty())
+                        return PathToUtf8StringNoThrow(foundNearParent);
+                }
+            }
+        }
+
+        if (!candidates.empty())
+            return PathToUtf8StringNoThrow(candidates.front());
+
+        return PathToUtf8StringNoThrow((modelDir / referenced).lexically_normal());
+    }
+    catch (const std::exception& e)
+    {
+        printf("Warning (GetFullPath): failed to resolve texture path '%s': %s\n", Path.C_Str(), e.what());
+        return {};
+    }
 }
 namespace
 {
     bool IsFbxFile(const std::string& filename)
     {
         std::filesystem::path p(filename);
-        std::string ext = p.has_extension() ? p.extension().string() : std::string();
+        std::string ext = p.has_extension() ? PathToUtf8StringNoThrow(p.extension()) : std::string();
         std::transform(ext.begin(), ext.end(), ext.begin(),
             [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
         return ext == ".fbx";
@@ -582,6 +621,10 @@ void BasicMesh::LoadDiffuseTextureEmbedded(const aiTexture* paiTexture, int Mate
 void BasicMesh::LoadDiffuseTextureFromFile(const string& Dir, const aiString& Path, int MaterialIndex)
 {
     string FullPath = GetFullPath(Dir, Path);
+    if (FullPath.empty()) {
+        printf("Skipping diffuse texture: failed to resolve path '%s'\n", Path.C_Str());
+        return;
+    }
 
     m_Materials[MaterialIndex].pTextures[TEX_TYPE_BASE] = new Texture(GL_TEXTURE_2D, FullPath.c_str());
 
@@ -633,6 +676,10 @@ void BasicMesh::LoadSpecularTextureEmbedded(const aiTexture* paiTexture, int Mat
 void BasicMesh::LoadSpecularTextureFromFile(const string& Dir, const aiString& Path, int MaterialIndex)
 {
     string FullPath = GetFullPath(Dir, Path);
+    if (FullPath.empty()) {
+        printf("Skipping specular texture: failed to resolve path '%s'\n", Path.C_Str());
+        return;
+    }
 
     m_Materials[MaterialIndex].pTextures[TEX_TYPE_SPECULAR] = new Texture(GL_TEXTURE_2D, FullPath.c_str());
 
@@ -684,6 +731,10 @@ void BasicMesh::LoadAlbedoTextureEmbedded(const aiTexture* paiTexture, int Mater
 void BasicMesh::LoadAlbedoTextureFromFile(const string& Dir, const aiString& Path, int MaterialIndex)
 {
     string FullPath = GetFullPath(Dir, Path);
+    if (FullPath.empty()) {
+        printf("Skipping albedo texture: failed to resolve path '%s'\n", Path.C_Str());
+        return;
+    }
 
     m_Materials[MaterialIndex].PBRmaterial.pAlbedo = new Texture(GL_TEXTURE_2D, FullPath.c_str());
 
@@ -739,6 +790,10 @@ void BasicMesh::LoadMetalnessTextureEmbedded(const aiTexture* paiTexture, int Ma
 void BasicMesh::LoadMetalnessTextureFromFile(const string& Dir, const aiString& Path, int MaterialIndex)
 {
     string FullPath = GetFullPath(Dir, Path);
+    if (FullPath.empty()) {
+        printf("Skipping metalness texture: failed to resolve path '%s'\n", Path.C_Str());
+        return;
+    }
 
     m_Materials[MaterialIndex].PBRmaterial.pMetallic = new Texture(GL_TEXTURE_2D, FullPath.c_str());
 
@@ -794,6 +849,10 @@ void BasicMesh::LoadRoughnessTextureEmbedded(const aiTexture* paiTexture, int Ma
 void BasicMesh::LoadRoughnessTextureFromFile(const string& Dir, const aiString& Path, int MaterialIndex)
 {
     string FullPath = GetFullPath(Dir, Path);
+    if (FullPath.empty()) {
+        printf("Skipping roughness texture: failed to resolve path '%s'\n", Path.C_Str());
+        return;
+    }
 
     m_Materials[MaterialIndex].PBRmaterial.pRoughness = new Texture(GL_TEXTURE_2D, FullPath.c_str());
     bool IsSRGB = false;
