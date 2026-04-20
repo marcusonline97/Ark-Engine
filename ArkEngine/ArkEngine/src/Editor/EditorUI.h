@@ -81,6 +81,18 @@ struct TextRenderEditorComponent
     glm::vec3 cameraOffset{ 0.0f, 0.0f, 2.0f };
 };
 
+struct PhysicsBodyEditorComponent
+{
+    std::string displayName = "Physics Body";
+
+    // 0 = Static, 1 = Dynamic, 2 = Kinematic.
+    int motionType = 1;
+    bool useGravity = true;
+
+    // Local-space half extents for a simple box collider.
+    glm::vec3 halfExtents{ 0.5f, 0.5f, 0.5f };
+};
+
 struct EditorObject
 {
     std::uint32_t id = 0;
@@ -102,6 +114,7 @@ struct EditorObject
     std::optional<CameraEditorComponent> camera;
     std::optional<PointLightEditorComponent> pointLight;
     std::optional<TextRenderEditorComponent> textRender;
+    std::optional<PhysicsBodyEditorComponent> physicsBody;
 };
 
 class EditorUI

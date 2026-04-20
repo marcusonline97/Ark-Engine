@@ -70,26 +70,26 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(ProjectDir)src\imgui;$(SolutionDir)lib/include/;$(SolutionDir)ArkEngine\ArkEngine\src;$(SolutionDir)ArkEngine\ArkEngine\src\imgui\;$(SolutionDir)lib/include/SDL3/;$(SolutionDir)lib/include/freetype2/;D:\GameEngine\Ark-Engine\ArkEngine\ArkEngine\src\imgui\</IncludePath>
+    <IncludePath>$(ProjectDir)src\imgui;$(SolutionDir)lib/include/;$(SolutionDir)ArkEngine\ArkEngine\src;$(SolutionDir)ArkEngine\ArkEngine\src\imgui\;$(SolutionDir)lib/include/SDL3/;$(SolutionDir)lib/include/freetype2/;$(SolutionDir)ArkEngine\ArkEngine\Vendor\JoltPhysics-master;D:\GameEngine\Ark-Engine\ArkEngine\ArkEngine\src\imgui\</IncludePath>
     <LibraryPath>$(SolutionDir)lib\x64\;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)[Export]/$(ProjectName)/$(PlatformArchitecture)B-Windows-$(Configuration)/</OutDir>
     <IntDir>$(SolutionDir)[Temp]/$(ProjectName)/$(PlatformArchitecture)B-Windows-$(Configuration)/</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(SolutionDir)lib/include/;$(SolutionDir)ArkEngine\ArkEngine\src;;$(SolutionDir)lib/include/SDL/</IncludePath>
+    <IncludePath>$(SolutionDir)lib/include/;$(SolutionDir)ArkEngine\ArkEngine\src;$(SolutionDir)ArkEngine\ArkEngine\Vendor\JoltPhysics-master;$(SolutionDir)lib/include/SDL/</IncludePath>
     <LibraryPath>$(SolutionDir)lib\x64\;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)[Export]/$(ProjectName)/$(PlatformArchitecture)B-Windows-$(Configuration)/</OutDir>
     <IntDir>$(SolutionDir)[Temp]/$(ProjectName)/$(PlatformArchitecture)B-Windows-$(Configuration)/</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LibraryPath>$(SolutionDir)lib\x86\;$(LibraryPath)</LibraryPath>
-    <IncludePath>$(SolutionDir)lib/include/;$(SolutionDir)ArkEngine\ArkEngine\src;$(SolutionDir)ArkEngine\ArkEngine\src\imgui\;$(SolutionDir)lib/include/SDL3/</IncludePath>
+    <IncludePath>$(SolutionDir)lib/include/;$(SolutionDir)ArkEngine\ArkEngine\src;$(SolutionDir)ArkEngine\ArkEngine\src\imgui\;$(SolutionDir)lib/include/SDL3/;$(SolutionDir)ArkEngine\ArkEngine\Vendor\JoltPhysics-master</IncludePath>
     <OutDir>$(SolutionDir)[Export]/$(ProjectName)/$(PlatformArchitecture)B-Windows-$(Configuration)/</OutDir>
     <IntDir>$(SolutionDir)[Temp]/$(ProjectName)/$(PlatformArchitecture)B-Windows-$(Configuration)/</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LibraryPath>$(SolutionDir)lib\x86\;$(LibraryPath)</LibraryPath>
-    <IncludePath>$(SolutionDir)lib/include/;$(SolutionDir)ArkEngine\ArkEngine\src;;$(SolutionDir)lib/include/SDL/</IncludePath>
+    <IncludePath>$(SolutionDir)lib/include/;$(SolutionDir)ArkEngine\ArkEngine\src;$(SolutionDir)ArkEngine\ArkEngine\Vendor\JoltPhysics-master;$(SolutionDir)lib/include/SDL/</IncludePath>
     <OutDir>$(SolutionDir)[Export]/$(ProjectName)/$(PlatformArchitecture)B-Windows-$(Configuration)/</OutDir>
     <IntDir>$(SolutionDir)[Temp]/$(ProjectName)/$(PlatformArchitecture)B-Windows-$(Configuration)/</IntDir>
   </PropertyGroup>
@@ -194,6 +194,13 @@
     <ClCompile Include="ArkEngine\src\ArkApp.cpp" />
     <ClCompile Include="ArkEngine\src\ArkEngine.cpp" />
     <ClCompile Include="ArkEngine\src\ArkPhysics.cpp" />
+    <ClCompile Include="ArkEngine\Vendor\JoltPhysics-master\Jolt\AABBTree\*.cpp" />
+    <ClCompile Include="ArkEngine\Vendor\JoltPhysics-master\Jolt\Core\*.cpp" />
+    <ClCompile Include="ArkEngine\Vendor\JoltPhysics-master\Jolt\Geometry\*.cpp" />
+    <ClCompile Include="ArkEngine\Vendor\JoltPhysics-master\Jolt\Math\*.cpp" />
+    <ClCompile Include="ArkEngine\Vendor\JoltPhysics-master\Jolt\ObjectStream\*.cpp" />
+    <ClCompile Include="ArkEngine\Vendor\JoltPhysics-master\Jolt\Physics\**\*.cpp" />
+    <ClCompile Include="ArkEngine\Vendor\JoltPhysics-master\Jolt\RegisterTypes.cpp" />
     <ClCompile Include="ArkEngine\src\ArkWindow.cpp" />
     <ClCompile Include="ArkEngine\src\AssetManager.cpp" />
     <ClCompile Include="ArkEngine\src\AssetManager\ResourceLoader.cpp" />

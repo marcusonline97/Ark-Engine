@@ -203,6 +203,24 @@ namespace Ark::Editor
 		(void)JsonToVec3(j.value("cameraOffset", json::array({ 0.0f, 0.0f, 2.0f })), c.cameraOffset);
 	}
 
+	static void ToJson(json& j, const PhysicsBodyEditorComponent& c)
+	{
+		j = json{
+			{ "displayName", c.displayName },
+			{ "motionType", c.motionType },
+			{ "useGravity", c.useGravity },
+			{ "halfExtents", Vec3ToJson(c.halfExtents) },
+		};
+	}
+
+	static void FromJson(const json& j, PhysicsBodyEditorComponent& c)
+	{
+		c.displayName = j.value("displayName", "Physics Body");
+		c.motionType = j.value("motionType", 1);
+		c.useGravity = j.value("useGravity", true);
+		(void)JsonToVec3(j.value("halfExtents", json::array({ 0.5f, 0.5f, 0.5f })), c.halfExtents);
+	}
+
 	static void ToJson(json& j, const EditorObject& o)
 	{
 		j = json{
@@ -223,6 +241,7 @@ namespace Ark::Editor
 		if (o.camera) { json c; ToJson(c, *o.camera); j["camera"] = c; }
 		if (o.pointLight) { json c; ToJson(c, *o.pointLight); j["pointLight"] = c; }
 		if (o.textRender) { json c; ToJson(c, *o.textRender); j["textRender"] = c; }
+		if (o.physicsBody) { json c; ToJson(c, *o.physicsBody); j["physicsBody"] = c; }
 	}
 
 	static void FromJson(const json& j, EditorObject& o)
@@ -245,6 +264,7 @@ namespace Ark::Editor
 		o.camera.reset();
 		o.pointLight.reset();
 		o.textRender.reset();
+		o.physicsBody.reset();
 
 		if (j.contains("staticMesh") && j["staticMesh"].is_object())
 		{
@@ -279,6 +299,13 @@ namespace Ark::Editor
 			TextRenderEditorComponent c{};
 			FromJson(j["textRender"], c);
 			o.textRender = c;
+		}
+
+		if (j.contains("physicsBody") && j["physicsBody"].is_object())
+		{
+			PhysicsBodyEditorComponent c{};
+			FromJson(j["physicsBody"], c);
+			o.physicsBody = c;
 		}
 	}
 
