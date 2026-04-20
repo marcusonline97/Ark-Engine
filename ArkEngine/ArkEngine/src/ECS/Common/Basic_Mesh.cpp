@@ -267,6 +267,31 @@ namespace
         }
         return 0u;
     }
+
+    void DrainOpenGLErrorQueue(const char* context, bool logAsWarning)
+    {
+        GLenum error = GL_NO_ERROR;
+        while ((error = glGetError()) != GL_NO_ERROR)
+        {
+            if (logAsWarning)
+            {
+                printf("Warning (%s): ignoring pending OpenGL error 0x%x\n", context, error);
+            }
+        }
+    }
+
+    bool HasOpenGLErrors(const char* context)
+    {
+        bool hadError = false;
+        GLenum error = GL_NO_ERROR;
+        while ((error = glGetError()) != GL_NO_ERROR)
+        {
+            hadError = true;
+            printf("Error (%s): OpenGL error 0x%x\n", context, error);
+        }
+
+        return hadError;
+    }
 }
 
 
@@ -291,6 +316,9 @@ void BasicMesh::Clear()
 
 bool BasicMesh::LoadMesh(const string& Filename, int AssimpFlags)
 {
+    // Ignore pre-existing GL errors from prior frames/systems so load status reflects this call.
+    DrainOpenGLErrorQueue("BasicMesh::LoadMesh(begin)", false);
+
     // Release the previously loaded mesh (if it exists)
     Clear();
     m_pScene = nullptr; // guard against stale pointer if ReadFile below fails or re-enters
@@ -348,9 +376,13 @@ bool BasicMesh::InitFromScene(const aiScene* pScene, const string& Filename)
         return false;
     }
 
+    // Texture/material setup can hit optional GL paths (e.g. unsupported texture features).
+    // Keep mesh import resilient and only fail on geometry upload errors below.
+    DrainOpenGLErrorQueue("BasicMesh::InitFromScene(materials)", true);
+
     PopulateBuffers();
 
-    return GLCheckError();
+    return !HasOpenGLErrors("BasicMesh::InitFromScene(populate buffers)");
 }
 
 
