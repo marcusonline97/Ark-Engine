@@ -409,6 +409,8 @@
     <None Include="ArkEngine\Resources\Shaders\tex.vert" />
     <None Include="ArkEngine\Resources\Shaders\viewport_textured.frag" />
     <None Include="ArkEngine\Resources\Shaders\viewport_textured.vert" />
+    <None Include="ArkEngine\Resources\Shaders\world_background.frag" />
+    <None Include="ArkEngine\Resources\Shaders\world_background.vert" />
     <None Include="ArkEngine\Resources\Shaders\wireframe_on_mesh.gs" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

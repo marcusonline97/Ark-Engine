@@ -157,10 +157,6 @@ namespace Ark::Rendering
 
 		try
 		{
-			m_backgroundShader.LoadFromFiles(
-				"Resources/Shaders/world_background.vert",
-				"Resources/Shaders/world_background.frag");
-
 			m_viewportShader.LoadFromFiles(
 				"Resources/Shaders/viewport_textured.vert",
 				"Resources/Shaders/viewport_textured.frag");
@@ -169,6 +165,20 @@ namespace Ark::Rendering
 		{
 			Logging::Error() << "WorldRendererLegacy: Failed to load viewport shader: " << e.what() << "\n";
 			return false;
+		}
+
+		try
+		{
+			m_backgroundShader.LoadFromFiles(
+				"Resources/Shaders/world_background.vert",
+				"Resources/Shaders/world_background.frag");
+			m_backgroundShaderReady = true;
+		}
+		catch (const std::exception& e)
+		{
+			m_backgroundShaderReady = false;
+			Logging::Warning() << "WorldRendererLegacy: Failed to load world background shader. "
+				"Falling back to solid clear color. Reason: " << e.what() << "\n";
 		}
 
 		constexpr unsigned int kShadowMapSize = 2048;
@@ -242,7 +252,14 @@ namespace Ark::Rendering
 		m_viewportFbo.Clear();
 
 		glBindVertexArray(m_dummyVao);
-		RenderBackgroundGradient();
+		if (m_backgroundShaderReady)
+		{
+			RenderBackgroundGradient();
+		}
+		else
+		{
+			m_viewportFbo.ClearColorBuffer(Vector4f(0.14f, 0.16f, 0.20f, 1.0f));
+		}
 
 		if (input.wireframe)
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
