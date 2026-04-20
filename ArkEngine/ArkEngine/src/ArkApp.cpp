@@ -18,12 +18,20 @@
 #include "Camera/CameraController.h"
 #include "Input/Input.h"
 #include "ArkPhysics.h"
+#include "AssetManager.h"
 
 static constexpr const char* kImGuiGLSLVersion = "#version 450";
 
 namespace
 {
 	constexpr int kResourcesPerFrame = 2;
+
+	std::filesystem::path ResolveEditorScenePath()
+	{
+		// Keep scene resolution aligned with runtime asset lookup rules.
+		return AssetManager::Instance().ResolveAssetPath("Resources/Scenes/EditorScene.json");
+	}
+
 	Ark::CameraInput BuildCameraInputFromKeyboard()
 	{
 		Ark::CameraInput input{};
@@ -95,8 +103,7 @@ App::App()
 		m_Objects.clear();
 		m_SelectedObject = -1;
 
-		const std::filesystem::path scenePath =
-			std::filesystem::current_path() / "ArkEngine" / "Resources" / "Scenes" / "EditorScene.json";
+		const std::filesystem::path scenePath = ResolveEditorScenePath();
 
 		if (!Ark::Editor::LoadEditorScene(scenePath, m_Objects))
 		{
@@ -456,8 +463,7 @@ void App::Run()
 			m_EditorUI.SetViewportTriangleCount(m_WorldRenderer ? m_WorldRenderer->GetLatestTriangleCount() : 0);
 			m_EditorUI.Render(m_Objects, m_SelectedObject);
 
-			const std::filesystem::path scenePath =
-				std::filesystem::current_path() / "ArkEngine" / "Resources" / "Scenes" / "EditorScene.json";
+			const std::filesystem::path scenePath = ResolveEditorScenePath();
 
 			if (m_EditorUI.ConsumeSaveSceneRequested())
 			{
