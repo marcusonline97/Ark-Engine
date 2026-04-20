@@ -200,6 +200,8 @@
     <ClCompile Include="ArkEngine\Vendor\Jolt\Math\*.cpp" />
     <ClCompile Include="ArkEngine\Vendor\Jolt\ObjectStream\*.cpp" />
     <ClCompile Include="ArkEngine\Vendor\Jolt\Physics\**\*.cpp" />
+    <ClCompile Include="ArkEngine\Vendor\Jolt\Skeleton\*.cpp" />
+    <ClCompile Include="ArkEngine\Vendor\Jolt\TriangleSplitter\*.cpp" />
     <ClCompile Include="ArkEngine\Vendor\Jolt\RegisterTypes.cpp" />
     <ClCompile Include="ArkEngine\src\ArkWindow.cpp" />
     <ClCompile Include="ArkEngine\src\AssetManager.cpp" />
