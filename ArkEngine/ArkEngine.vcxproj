@@ -422,6 +422,12 @@
     <None Include="ArkEngine\Resources\Shaders\world_background.vert" />
     <None Include="ArkEngine\Resources\Shaders\wireframe_on_mesh.gs" />
   </ItemGroup>
+  <Target Name="CopyArkEngineResources" AfterTargets="Build">
+    <ItemGroup>
+      <_ArkEngineResources Include="$(ProjectDir)ArkEngine\Resources\**\*.*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(_ArkEngineResources)" DestinationFiles="@(_ArkEngineResources->'$(OutDir)Resources\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
+  </Target>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
