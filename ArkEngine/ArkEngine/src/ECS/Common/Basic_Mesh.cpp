@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <cctype>
 #include <filesystem>
+#include <vector>
 
 #include <meshoptimizer/meshoptimizer.h>
 
@@ -14,18 +15,170 @@
 
 std::string GetFullPath(const string& Dir, const aiString& Path)
 {
-    string p(Path.data);
+    namespace fs = std::filesystem;
 
-    if (p == "C:\\\\") {
-        p = "";
+    auto trimQuotes = [](std::string& s)
+        {
+            while (!s.empty() && (s.front() == '"' || s.front() == '\''))
+                s.erase(s.begin());
+            while (!s.empty() && (s.back() == '"' || s.back() == '\''))
+                s.pop_back();
+        };
+
+    auto equalsCaseInsensitive = [](const std::string& a, const std::string& b)
+        {
+            if (a.size() != b.size())
+                return false;
+
+            for (size_t i = 0; i < a.size(); ++i)
+            {
+                if (std::tolower(static_cast<unsigned char>(a[i])) !=
+                    std::tolower(static_cast<unsigned char>(b[i])))
+                {
+                    return false;
+                }
+            }
+            return true;
+        };
+
+    auto makeExistingAbsolute = [](const fs::path& p) -> fs::path
+        {
+            if (p.empty())
+                return {};
+
+            std::error_code ec;
+            fs::path abs = p;
+            if (!p.is_absolute())
+                abs = fs::absolute(p, ec);
+            if (ec)
+                return {};
+
+            abs = abs.lexically_normal();
+            if (!fs::exists(abs, ec) || ec)
+                return {};
+
+            return abs;
+        };
+
+    auto findByFilename = [&](const fs::path& root, const std::string& fileName) -> fs::path
+        {
+            if (root.empty() || fileName.empty())
+                return {};
+
+            std::error_code ec;
+            if (!fs::exists(root, ec) || ec || !fs::is_directory(root, ec))
+                return {};
+
+            fs::recursive_directory_iterator it(
+                root,
+                fs::directory_options::skip_permission_denied,
+                ec);
+            fs::recursive_directory_iterator end;
+
+            for (; it != end; it.increment(ec))
+            {
+                if (ec)
+                {
+                    ec.clear();
+                    continue;
+                }
+
+                if (it.depth() > 4)
+                {
+                    it.disable_recursion_pending();
+                    continue;
+                }
+
+                const auto& entry = *it;
+                if (!entry.is_regular_file(ec) || ec)
+                {
+                    ec.clear();
+                    continue;
+                }
+
+                const std::string candidateName = entry.path().filename().string();
+                if (equalsCaseInsensitive(candidateName, fileName))
+                    return entry.path();
+            }
+
+            return {};
+        };
+
+    const fs::path modelDir = fs::path(Dir).lexically_normal();
+
+    std::string raw(Path.C_Str());
+    trimQuotes(raw);
+    std::replace(raw.begin(), raw.end(), '\\', '/');
+
+    if (raw == "C:/" || raw == "C:\\\\")
+        raw.clear();
+    else if (raw.size() >= 2 && raw[0] == '.' && (raw[1] == '/' || raw[1] == '\\'))
+        raw = raw.substr(2);
+
+    if (raw.empty())
+        return {};
+
+    const fs::path referenced = fs::path(raw).lexically_normal();
+    if (const fs::path existingAbsolute = makeExistingAbsolute(referenced); !existingAbsolute.empty())
+        return existingAbsolute.string();
+
+    std::vector<fs::path> candidates;
+    candidates.reserve(10);
+
+    auto addCandidate = [&](const fs::path& p)
+        {
+            const fs::path normalized = p.lexically_normal();
+            if (normalized.empty())
+                return;
+
+            if (std::find(candidates.begin(), candidates.end(), normalized) == candidates.end())
+                candidates.push_back(normalized);
+        };
+
+    addCandidate(modelDir / referenced);
+
+    if (referenced.has_filename())
+    {
+        addCandidate(modelDir / referenced.filename());
+        addCandidate(modelDir / "textures" / referenced.filename());
+        addCandidate(modelDir.parent_path() / referenced.filename());
+        addCandidate(modelDir.parent_path() / "textures" / referenced.filename());
     }
-    else if (p.substr(0, 2) == ".\\") {
-        p = p.substr(2, p.size() - 2);
+
+    const std::string refGeneric = referenced.generic_string();
+    const std::string texturesToken = "textures/";
+    const size_t texturesPos = refGeneric.find(texturesToken);
+    if (texturesPos != std::string::npos)
+    {
+        const fs::path tailFromTextures = fs::path(refGeneric.substr(texturesPos));
+        addCandidate(modelDir / tailFromTextures);
+        addCandidate(modelDir.parent_path() / tailFromTextures);
     }
 
-    string FullPath = Dir + "/" + p;
+    for (const fs::path& candidate : candidates)
+    {
+        if (const fs::path existingAbsolute = makeExistingAbsolute(candidate); !existingAbsolute.empty())
+            return existingAbsolute.string();
+    }
 
-    return FullPath;
+    if (referenced.has_filename())
+    {
+        const std::string fileName = referenced.filename().string();
+        if (const fs::path foundNearModel = findByFilename(modelDir, fileName); !foundNearModel.empty())
+            return foundNearModel.string();
+
+        const fs::path parent = modelDir.parent_path();
+        if (!parent.empty() && parent != modelDir)
+        {
+            if (const fs::path foundNearParent = findByFilename(parent, fileName); !foundNearParent.empty())
+                return foundNearParent.string();
+        }
+    }
+
+    if (!candidates.empty())
+        return candidates.front().string();
+
+    return (modelDir / referenced).lexically_normal().string();
 }
 
 namespace
@@ -451,7 +604,9 @@ void BasicMesh::LoadSpecularTextureFromFile(const string& Dir, const aiString& P
 
     if (!m_Materials[MaterialIndex].pTextures[TEX_TYPE_SPECULAR]->Load(IsSRGB)) {
         printf("Error loading specular texture '%s'\n", FullPath.c_str());
-        exit(0);
+        delete m_Materials[MaterialIndex].pTextures[TEX_TYPE_SPECULAR];
+        m_Materials[MaterialIndex].pTextures[TEX_TYPE_SPECULAR] = NULL;
+        return;
     }
     else {
         printf("Loaded specular texture '%s'\n", FullPath.c_str());
@@ -500,7 +655,9 @@ void BasicMesh::LoadAlbedoTextureFromFile(const string& Dir, const aiString& Pat
 
     if (!m_Materials[MaterialIndex].PBRmaterial.pAlbedo->Load(IsSRGB)) {
         printf("Error loading albedo texture '%s'\n", FullPath.c_str());
-        exit(0);
+        delete m_Materials[MaterialIndex].PBRmaterial.pAlbedo;
+        m_Materials[MaterialIndex].PBRmaterial.pAlbedo = NULL;
+        return;
     }
     else {
         printf("Loaded albedo texture '%s'\n", FullPath.c_str());
@@ -553,7 +710,9 @@ void BasicMesh::LoadMetalnessTextureFromFile(const string& Dir, const aiString& 
 
     if (!m_Materials[MaterialIndex].PBRmaterial.pMetallic->Load(IsSRGB)) {
         printf("Error loading metalness texture '%s'\n", FullPath.c_str());
-        exit(0);
+        delete m_Materials[MaterialIndex].PBRmaterial.pMetallic;
+        m_Materials[MaterialIndex].PBRmaterial.pMetallic = NULL;
+        return;
     }
     else {
         printf("Loaded metalness texture '%s'\n", FullPath.c_str());
@@ -605,7 +764,9 @@ void BasicMesh::LoadRoughnessTextureFromFile(const string& Dir, const aiString& 
 
     if (!m_Materials[MaterialIndex].PBRmaterial.pRoughness->Load(IsSRGB)) {
         printf("Error loading roughness texture '%s'\n", FullPath.c_str());
-        exit(0);
+        delete m_Materials[MaterialIndex].PBRmaterial.pRoughness;
+        m_Materials[MaterialIndex].PBRmaterial.pRoughness = NULL;
+        return;
     }
     else {
         printf("Loaded roughness texture '%s'\n", FullPath.c_str());

@@ -133,7 +133,8 @@ bool LightingTechnique::InitCommon()
     GET_UNIFORM_AND_CHECK(AlbedoLoc, "gAlbedo");
     GET_UNIFORM_AND_CHECK(RoughnessLoc, "gRoughness");
     GET_UNIFORM_AND_CHECK(MetallicLoc, "gMetallic");
-    GET_UNIFORM_AND_CHECK(NormalMapLoc, "gNormalMap");
+    // Optional in the current lighting shader path; avoid warning spam when optimized out.
+    NormalMapLoc = glGetUniformLocation(m_shaderProg, "gNormalMap");
 
     if (WVPLoc == INVALID_UNIFORM_LOCATION ||
         WorldMatrixLoc == INVALID_UNIFORM_LOCATION ||

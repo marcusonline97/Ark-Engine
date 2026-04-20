@@ -1,6 +1,8 @@
 #include "AssetManager.h"
 #include <iostream>
 #include <filesystem>
+#include <algorithm>
+#include <vector>
 
 #if defined(_WIN32)
 #define WIN32_LEAN_AND_MEAN
@@ -63,26 +65,65 @@ std::filesystem::path AssetManager::ResolveAgainstLayouts(const std::filesystem:
     }
 #endif
 
-    // Try typical layouts
-    std::filesystem::path try1 = exeDir / sanitizedRel;                                           // next to exe
-    std::filesystem::path try2 = exeDir.parent_path().parent_path() / sanitizedRel;               // project root
-    std::filesystem::path try3 = exeDir.parent_path().parent_path().parent_path() / sanitizedRel; // solution root
+    std::vector<std::filesystem::path> roots;
+    roots.reserve(12);
 
-    std::filesystem::path asset = try1;
-    if (!std::filesystem::exists(asset)) asset = try2;
-    if (!std::filesystem::exists(asset)) asset = try3;
+    auto addRoot = [&](const std::filesystem::path& p)
+        {
+            const auto normalized = p.lexically_normal();
+            if (normalized.empty())
+                return;
+            if (std::find(roots.begin(), roots.end(), normalized) == roots.end())
+                roots.push_back(normalized);
+        };
 
-    if (!std::filesystem::exists(asset))
+    addRoot(exeDir);
+    addRoot(exeDir.parent_path());
+    addRoot(exeDir.parent_path().parent_path());
+    addRoot(exeDir.parent_path().parent_path().parent_path());
+
+    std::error_code cwdEc;
+    const std::filesystem::path cwd = std::filesystem::current_path(cwdEc);
+    if (!cwdEc)
+    {
+        addRoot(cwd);
+        addRoot(cwd.parent_path());
+        addRoot(cwd.parent_path().parent_path());
+    }
+
+    std::vector<std::filesystem::path> candidates;
+    candidates.reserve(roots.size() * 3);
+
+    auto addCandidate = [&](const std::filesystem::path& p)
+        {
+            const auto normalized = p.lexically_normal();
+            if (std::find(candidates.begin(), candidates.end(), normalized) == candidates.end())
+                candidates.push_back(normalized);
+        };
+
+    for (const auto& root : roots)
+    {
+        addCandidate(root / sanitizedRel);
+        addCandidate(root / "ArkEngine" / sanitizedRel);
+        addCandidate(root / "ArkEngine" / "ArkEngine" / sanitizedRel);
+    }
+
+    for (const auto& candidate : candidates)
+    {
+        if (std::filesystem::exists(candidate))
+            return candidate;
+    }
+
+    if (!candidates.empty())
     {
         std::cerr << "Asset not found at any of:\n";
-        std::cerr << " - " << try1.string() << "\n";
-        std::cerr << " - " << try2.string() << "\n";
-        std::cerr << " - " << try3.string() << "\n";
+        for (const auto& candidate : candidates)
+            std::cerr << " - " << candidate.string() << "\n";
         std::cerr << "Working directory: " << std::filesystem::current_path().string() << "\n";
         return sanitizedRel; // fallback
     }
 
-    return asset;
+    return sanitizedRel;
 }
 
 std::string AssetManager::ResolveAssetPath(const std::string& relativePath) const
