@@ -1,6 +1,10 @@
 #include "SceneIO.h"
 
+#include <algorithm>
+#include <cmath>
 #include <fstream>
+#include <iterator>
+#include <string_view>
 
 #include <glm/glm.hpp>
 #include <nlohmann/json.hpp>
@@ -55,9 +59,67 @@ namespace Ark::Editor
 		return s;
 	}
 
+	static bool WriteJsonAtomic(const std::filesystem::path& path, const json& root, std::string_view context)
+	{
+		std::error_code ec;
+		std::filesystem::create_directories(path.parent_path(), ec);
+
+		const std::filesystem::path tempPath = path.string() + ".tmp";
+		{
+			std::ofstream out(tempPath, std::ios::binary | std::ios::trunc);
+			if (!out.is_open())
+			{
+				Logging::Error() << context << ": failed to open temp file '" << tempPath.string() << "'\n";
+				return false;
+			}
+
+			out << root.dump(2);
+			out.flush();
+			if (!out.good())
+			{
+				Logging::Error() << context << ": failed to write JSON to '" << tempPath.string() << "'\n";
+				return false;
+			}
+		}
+
+		ec.clear();
+		std::filesystem::rename(tempPath, path, ec);
+		if (!ec)
+			return true;
+
+		// Cross-volume or rename race fallback.
+		std::error_code copyEc;
+		std::filesystem::copy_file(
+			tempPath,
+			path,
+			std::filesystem::copy_options::overwrite_existing,
+			copyEc);
+
+		std::error_code removeEc;
+		std::filesystem::remove(tempPath, removeEc);
+
+		if (copyEc)
+		{
+			Logging::Error() << context << ": failed to replace '" << path.string()
+				<< "': " << copyEc.message() << "\n";
+			return false;
+		}
+
+		return true;
+	}
+
 	static json Vec3ToJson(const glm::vec3& v)
 	{
-		return json::array({ v.x, v.y, v.z });
+		const auto finiteOrZero = [](float value)
+		{
+			return std::isfinite(value) ? value : 0.0f;
+		};
+
+		return json::array({
+			finiteOrZero(v.x),
+			finiteOrZero(v.y),
+			finiteOrZero(v.z),
+			});
 	}
 
 	static bool JsonToVec3(const json& j, glm::vec3& out)
@@ -65,9 +127,28 @@ namespace Ark::Editor
 		if (!j.is_array() || j.size() != 3)
 			return false;
 
-		out.x = j[0].get<float>();
-		out.y = j[1].get<float>();
-		out.z = j[2].get<float>();
+		const auto readFinite = [](const json& value, float& dst)
+		{
+			if (!value.is_number())
+				return false;
+
+			const double asDouble = value.get<double>();
+			if (!std::isfinite(asDouble))
+				return false;
+
+			dst = static_cast<float>(asDouble);
+			return true;
+		};
+
+		float x = 0.0f;
+		float y = 0.0f;
+		float z = 0.0f;
+		if (!readFinite(j[0], x) || !readFinite(j[1], y) || !readFinite(j[2], z))
+			return false;
+
+		out.x = x;
+		out.y = y;
+		out.z = z;
 		return true;
 	}
 
@@ -311,16 +392,6 @@ namespace Ark::Editor
 
 	bool SaveEditorScene(const std::filesystem::path& path, const std::vector<EditorObject>& objects)
 	{
-		std::error_code ec;
-		std::filesystem::create_directories(path.parent_path(), ec);
-
-		std::ofstream out(path, std::ios::binary);
-		if (!out.is_open())
-		{
-			Logging::Error() << "SaveEditorScene: failed to open '" << path.string() << "'\n";
-			return false;
-		}
-
 		json root;
 		root["version"] = 1;
 		root["objects"] = json::array();
@@ -332,8 +403,7 @@ namespace Ark::Editor
 			root["objects"].push_back(j);
 		}
 
-		out << root.dump(2);
-		return true;
+		return WriteJsonAtomic(path, root, "SaveEditorScene");
 	}
 
 	bool LoadEditorScene(const std::filesystem::path& path, std::vector<EditorObject>& outObjects)
@@ -345,15 +415,65 @@ namespace Ark::Editor
 			return false;
 		}
 
+		std::string content(
+			std::istreambuf_iterator<char>(in),
+			std::istreambuf_iterator<char>());
+
+		if (content.size() >= 3 &&
+			static_cast<unsigned char>(content[0]) == 0xEF &&
+			static_cast<unsigned char>(content[1]) == 0xBB &&
+			static_cast<unsigned char>(content[2]) == 0xBF)
+		{
+			content.erase(0, 3);
+		}
+
 		json root;
+		std::string parseError;
 		try
 		{
-			in >> root;
+			root = json::parse(content);
 		}
 		catch (const std::exception& e)
 		{
-			Logging::Error() << "LoadEditorScene: JSON parse error: " << e.what() << "\n";
+			parseError = e.what();
+		}
+
+		bool repairedDiscardedTokens = false;
+		if (!parseError.empty())
+		{
+			static constexpr std::string_view kDiscarded = "<discarded>";
+			if (content.find(kDiscarded) != std::string::npos)
+			{
+				repairedDiscardedTokens = true;
+				size_t pos = 0;
+				while ((pos = content.find(kDiscarded, pos)) != std::string::npos)
+				{
+					content.replace(pos, kDiscarded.size(), "null");
+					pos += 4;
+				}
+
+				try
+				{
+					root = json::parse(content);
+					parseError.clear();
+				}
+				catch (const std::exception& e)
+				{
+					parseError = e.what();
+				}
+			}
+		}
+
+		if (!parseError.empty())
+		{
+			Logging::Error() << "LoadEditorScene: JSON parse error: " << parseError << "\n";
 			return false;
+		}
+
+		if (repairedDiscardedTokens)
+		{
+			Logging::Warning() << "LoadEditorScene: repaired invalid '<discarded>' tokens in scene JSON.\n";
+			(void)WriteJsonAtomic(path, root, "LoadEditorScene(repair)");
 		}
 
 		if (!root.contains("objects") || !root["objects"].is_array())
