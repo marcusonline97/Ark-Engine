@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <cctype>
 #include <filesystem>
+#include <limits>
 
 #include <meshoptimizer/meshoptimizer.h>
 
@@ -214,6 +215,38 @@ namespace
             flags &= ~aiProcess_GenNormals;
 
         return flags;
+    }
+}
+
+namespace
+{
+    unsigned int ClampMaterialIndexForMesh(const std::vector<Material>& materials, unsigned int requestedIndex, const char* context)
+    {
+        if (materials.empty())
+        {
+            static bool warnedMissingMaterials = false;
+            if (!warnedMissingMaterials)
+            {
+                warnedMissingMaterials = true;
+                printf("Warning (%s): mesh has no materials; using default material state.\n", context);
+            }
+            return std::numeric_limits<unsigned int>::max();
+        }
+
+        if (requestedIndex < materials.size())
+            return requestedIndex;
+
+        static bool warnedInvalidIndex = false;
+        if (!warnedInvalidIndex)
+        {
+            warnedInvalidIndex = true;
+            printf(
+                "Warning (%s): material index %u is out of range (material count: %zu); clamping to 0.\n",
+                context,
+                requestedIndex,
+                materials.size());
+        }
+        return 0u;
     }
 }
 
@@ -888,9 +921,9 @@ void BasicMesh::Render(IRenderCallbacks* pRenderCallbacks)
 
     for (unsigned int MeshIndex = 0; MeshIndex < m_Meshes.size(); MeshIndex++) {
         unsigned int MaterialIndex = m_Meshes[MeshIndex].MaterialIndex;
-        assert(MaterialIndex < m_Materials.size());
+        MaterialIndex = ClampMaterialIndexForMesh(m_Materials, MaterialIndex, "BasicMesh::Render");
 
-        if (!m_isPBR) {
+        if (!m_isPBR && MaterialIndex != std::numeric_limits<unsigned int>::max()) {
             SetupRenderMaterialsPhong(MeshIndex, MaterialIndex, pRenderCallbacks);
         }
 
@@ -938,6 +971,8 @@ void BasicMesh::SetupRenderMaterialsPhong(unsigned int MeshIndex, unsigned int M
 void BasicMesh::SetupRenderMaterialsPBR()
 {
     int PBRMaterialIndex = 0;
+    if (m_Materials.empty())
+        return;
 
     if (m_Materials[PBRMaterialIndex].PBRmaterial.pAlbedo) {
         m_Materials[PBRMaterialIndex].PBRmaterial.pAlbedo->Bind(ALBEDO_TEXTURE_UNIT);
@@ -963,13 +998,15 @@ void BasicMesh::Render(unsigned int DrawIndex, unsigned int PrimID)
     glBindVertexArray(m_VAO);
 
     unsigned int MaterialIndex = m_Meshes[DrawIndex].MaterialIndex;
-    assert(MaterialIndex < m_Materials.size());
+    MaterialIndex = ClampMaterialIndexForMesh(m_Materials, MaterialIndex, "BasicMesh::Render(single)");
 
-    if (m_Materials[MaterialIndex].pTextures[TEX_TYPE_BASE]) {
+    if (MaterialIndex != std::numeric_limits<unsigned int>::max() &&
+        m_Materials[MaterialIndex].pTextures[TEX_TYPE_BASE]) {
         m_Materials[MaterialIndex].pTextures[TEX_TYPE_BASE]->Bind(COLOR_TEXTURE_UNIT);
     }
 
-    if (m_Materials[MaterialIndex].pTextures[TEX_TYPE_SPECULAR]) {
+    if (MaterialIndex != std::numeric_limits<unsigned int>::max() &&
+        m_Materials[MaterialIndex].pTextures[TEX_TYPE_SPECULAR]) {
         m_Materials[MaterialIndex].pTextures[TEX_TYPE_SPECULAR]->Bind(SPECULAR_EXPONENT_UNIT);
     }
 
@@ -997,15 +1034,16 @@ void BasicMesh::Render(unsigned int NumInstances, const Matrix4f* WVPMats, const
     glBindVertexArray(m_VAO);
 
     for (unsigned int i = 0; i < m_Meshes.size(); i++) {
-        const unsigned int MaterialIndex = m_Meshes[i].MaterialIndex;
+        unsigned int MaterialIndex = m_Meshes[i].MaterialIndex;
+        MaterialIndex = ClampMaterialIndexForMesh(m_Materials, MaterialIndex, "BasicMesh::Render(instanced)");
 
-        assert(MaterialIndex < m_Materials.size());
-
-        if (m_Materials[MaterialIndex].pTextures[TEX_TYPE_BASE]) {
+        if (MaterialIndex != std::numeric_limits<unsigned int>::max() &&
+            m_Materials[MaterialIndex].pTextures[TEX_TYPE_BASE]) {
             m_Materials[MaterialIndex].pTextures[TEX_TYPE_BASE]->Bind(COLOR_TEXTURE_UNIT);
         }
 
-        if (m_Materials[MaterialIndex].pTextures[TEX_TYPE_SPECULAR]) {
+        if (MaterialIndex != std::numeric_limits<unsigned int>::max() &&
+            m_Materials[MaterialIndex].pTextures[TEX_TYPE_SPECULAR]) {
             m_Materials[MaterialIndex].pTextures[TEX_TYPE_SPECULAR]->Bind(SPECULAR_EXPONENT_UNIT);
         }
 
@@ -1032,7 +1070,9 @@ const Material& BasicMesh::GetMaterial()
 
     if (m_Materials.size() == 0) {
         printf("No materials\n");
-        exit(0);
+        static Material s_defaultMaterial;
+        s_defaultMaterial.SyncPBRTextureAliases();
+        return s_defaultMaterial;
     }
 
     return m_Materials[0];
