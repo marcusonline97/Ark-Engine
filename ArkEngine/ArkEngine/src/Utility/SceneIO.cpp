@@ -415,23 +415,23 @@ namespace Ark::Editor
 			return false;
 		}
 
-		std::string content(
+		std::string jsonContent(
 			std::istreambuf_iterator<char>(in),
 			std::istreambuf_iterator<char>());
 
-		if (content.size() >= 3 &&
-			static_cast<unsigned char>(content[0]) == 0xEF &&
-			static_cast<unsigned char>(content[1]) == 0xBB &&
-			static_cast<unsigned char>(content[2]) == 0xBF)
+		if (jsonContent.size() >= 3 &&
+			static_cast<unsigned char>(jsonContent[0]) == 0xEF &&
+			static_cast<unsigned char>(jsonContent[1]) == 0xBB &&
+			static_cast<unsigned char>(jsonContent[2]) == 0xBF)
 		{
-			content.erase(0, 3);
+			jsonContent.erase(0, 3);
 		}
 
 		json root;
 		std::string parseError;
 		try
 		{
-			root = json::parse(content);
+			root = json::parse(jsonContent);
 		}
 		catch (const std::exception& e)
 		{
@@ -442,19 +442,19 @@ namespace Ark::Editor
 		if (!parseError.empty())
 		{
 			static constexpr std::string_view kDiscarded = "<discarded>";
-			if (content.find(kDiscarded) != std::string::npos)
+			if (jsonContent.find(kDiscarded) != std::string::npos)
 			{
 				repairedDiscardedTokens = true;
 				size_t pos = 0;
-				while ((pos = content.find(kDiscarded, pos)) != std::string::npos)
+				while ((pos = jsonContent.find(kDiscarded, pos)) != std::string::npos)
 				{
-					content.replace(pos, kDiscarded.size(), "null");
+					jsonContent.replace(pos, kDiscarded.size(), "null");
 					pos += 4;
 				}
 
 				try
 				{
-					root = json::parse(content);
+					root = json::parse(jsonContent);
 					parseError.clear();
 				}
 				catch (const std::exception& e)

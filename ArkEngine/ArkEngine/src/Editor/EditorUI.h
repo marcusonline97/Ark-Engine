@@ -183,6 +183,7 @@ private:
 
     void SetViewportCursorCapture(bool captured);
     bool BeginPossession(const std::vector<EditorObject>& objects, std::uint32_t targetObjectId);
+    void SyncPossessedObjectTransform(std::vector<EditorObject>& objects) const;
 
     void EndPossession();
 
@@ -197,7 +198,7 @@ private:
 
     bool m_showConsole = true;
     bool m_showContentBrowser = true;
-    bool m_showFileExplorer = true;
+    bool m_showFileExplorer = false;
     bool m_showImGuiDemo = false;
     bool m_showGrid = true;
 
@@ -235,8 +236,12 @@ private:
 
     // Editor/possessed viewport camera state (used in EDIT mode)
 
-    Ark::CameraController m_editorCamera{ { 0.0f, 0.0f, 3.0f }, 0.0f, -90.0f, 3.5f, 0.12f };    float m_editorCamFovDeg = 45.0f;
+    Ark::CameraController m_editorCamera{ { 0.0f, 0.0f, 3.0f }, 0.0f, -90.0f, 3.5f, 0.12f };
+    float m_editorCamFovDeg = 45.0f;
     Ark::CameraController m_possessedCamera{ { 0.0f, 0.0f, 3.0f }, 0.0f, -90.0f, 3.5f, 0.12f };
+    float m_possessedCamFovDeg = 45.0f;
+    float m_possessedCamNear = 0.1f;
+    float m_possessedCamFar = 100.0f;
     float m_editorCamNear = 0.1f;
     float m_editorCamFar = 100.0f;
 	bool m_isPossessing = false;
