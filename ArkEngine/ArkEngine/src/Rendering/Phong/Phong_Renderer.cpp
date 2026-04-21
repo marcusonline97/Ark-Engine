@@ -182,7 +182,7 @@ void PhongRenderer::UpdateSpotLightPosAndDir(uint Index, const Vector3f& WorldPo
 
 void PhongRenderer::Render(BasicMesh* pMesh)
 {
-    if (!m_pCamera) {
+    if (!m_hasCamera) {
         printf("PhongRenderer: camera not initialized\n");
         exit(0);
     }
@@ -218,16 +218,16 @@ void PhongRenderer::Render(BasicMesh* pMesh)
         m_lightingTech.SetPBR(false);
     }
 
-    Vector3f CameraLocalPos3f = pMesh->GetWorldTransform().WorldPosToLocalPos(m_pCamera->GetPos());
+    Vector3f CameraLocalPos3f = pMesh->GetWorldTransform().WorldPosToLocalPos(m_cameraPos);
     m_lightingTech.SetCameraLocalPos(CameraLocalPos3f);
 
-    m_lightingTech.SetCameraWorldPos(m_pCamera->GetPos());
+    m_lightingTech.SetCameraWorldPos(m_cameraPos);
 
     Matrix4f World = pMesh->GetWorldTransform().GetMatrix();
     m_lightingTech.SetWorldMatrix(World);
 
-    if (m_subTech == LightingTechnique::SUBTECH_WIREFRAME_ON_MESH) {
-        m_lightingTech.SetViewportMatrix(m_pCamera->GetViewportMatrix());
+    if (m_subTech == LightingTechnique::SUBTECH_WIREFRAME_ON_MESH && m_hasViewportMatrix) {
+        m_lightingTech.SetViewportMatrix(m_viewportMatrix);
     }
 
     pMesh->Render();
@@ -274,7 +274,7 @@ void PhongRenderer::RenderAnimationBlended(SkinnedMesh* pMesh,
 
 void PhongRenderer::RenderAnimationCommon(SkinnedMesh* pMesh)
 {
-    if (!m_pCamera) {
+    if (!m_hasCamera) {
         printf("PhongRenderer: camera not initialized\n");
         exit(0);
     }
@@ -309,10 +309,10 @@ void PhongRenderer::RenderAnimationCommon(SkinnedMesh* pMesh)
         m_skinningTech.SetPBR(false);
     }
 
-    Vector3f CameraLocalPos3f = pMesh->GetWorldTransform().WorldPosToLocalPos(m_pCamera->GetPos());
+    Vector3f CameraLocalPos3f = pMesh->GetWorldTransform().WorldPosToLocalPos(m_cameraPos);
     m_skinningTech.SetCameraLocalPos(CameraLocalPos3f);
 
-    m_skinningTech.SetCameraWorldPos(m_pCamera->GetPos());
+    m_skinningTech.SetCameraWorldPos(m_cameraPos);
 
     Matrix4f World = pMesh->GetWorldTransform().GetMatrix();
     m_skinningTech.SetWorldMatrix(World);
@@ -372,8 +372,8 @@ void PhongRenderer::GetWVP(BasicMesh* pMesh, Matrix4f& WVP)
     WorldTrans& meshWorldTransform = pMesh->GetWorldTransform();
 
     Matrix4f World = meshWorldTransform.GetMatrix();
-    Matrix4f View = m_pCamera->GetMatrix();
-    Matrix4f Projection = m_pCamera->GetProjectionMat();
+    Matrix4f View = m_viewMatrix;
+    Matrix4f Projection = m_projectionMatrix;
 
     WVP = Projection * View * World;
 }

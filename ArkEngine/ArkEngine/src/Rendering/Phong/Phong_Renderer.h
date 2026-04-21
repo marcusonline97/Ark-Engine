@@ -1,4 +1,3 @@
-#include "Camera/Camera_API.h"
 #include "Rendering/Lightning/Lightning.h"
 #include "Maps/Techniques/Skinning_Technique.h"
 #include "ECS/Common/Basic_Mesh.h"
@@ -17,7 +16,19 @@ public:
 
     void StartShadowPass();
 
-    void SetCamera(const CameraAPI* pCamera) { m_pCamera = pCamera; }
+    void SetCamera(const Vector3f& cameraPos, const Matrix4f& view, const Matrix4f& projection)
+    {
+        m_cameraPos = cameraPos;
+        m_viewMatrix = view;
+        m_projectionMatrix = projection;
+        m_hasCamera = true;
+    }
+
+    void SetViewportMatrix(const Matrix4f& viewport)
+    {
+        m_viewportMatrix = viewport;
+        m_hasViewportMatrix = true;
+    }
 
     void SetPBR(bool IsPBR);
 
@@ -82,7 +93,12 @@ private:
 
     void RenderAnimationCommon(SkinnedMesh* pMesh);
 
-    const CameraAPI* m_pCamera = NULL;
+    Vector3f m_cameraPos = Vector3f(0.0f, 0.0f, 0.0f);
+    Matrix4f m_viewMatrix;
+    Matrix4f m_projectionMatrix;
+    Matrix4f m_viewportMatrix;
+    bool m_hasCamera = false;
+    bool m_hasViewportMatrix = false;
     int m_subTech = LightingTechnique::SUBTECH_DEFAULT;
     LightingTechnique m_lightingTech;
     SkinningTechnique m_skinningTech;

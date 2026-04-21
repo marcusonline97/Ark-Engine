@@ -80,6 +80,26 @@ namespace Logging {
         return (g_levelMask.load(std::memory_order_relaxed) & Bit(level)) != 0;
     }
 
+    bool IsLevelEnabled(Level level) {
+        return IsEnabled(level);
+    }
+
+    void EnableAllLevels() {
+        constexpr uint32_t all =
+            Bit(Level::INIT) |
+            Bit(Level::_ERROR) |
+            Bit(Level::WARNING) |
+            Bit(Level::DEBUG) |
+            Bit(Level::FATAL) |
+            Bit(Level::TODO) |
+            Bit(Level::FUNCTION);
+        g_levelMask.store(all, std::memory_order_relaxed);
+    }
+
+    void DisableAllLevels() {
+        g_levelMask.store(0, std::memory_order_relaxed);
+    }
+
 #if defined(_WIN32)
     void EnableVT() {
         bool expected = false;
@@ -122,6 +142,10 @@ namespace Logging {
         case Level::FUNCTION: return "FUNCTION";
         }
         return "UNKNOWN";
+    }
+
+    const char* LevelName(Level level) {
+        return Name(level);
     }
 
     MessageStream Message(Level level) {

@@ -1,4 +1,3 @@
-#include "Camera/BasicCamera.h"
 #include "Maps/Techniques/Skybox_Technique.h"
 #include "Rendering/Texture/Cubemap_Texture.h"
 
@@ -20,8 +19,6 @@ public:
         const std::string& NegZFilename);
 
     void Init(const std::string& EctTextureFilename);
-
-    void Render(const BasicCamera& pCamera);
 
     void Render(const Matrix4f& VP);
 
