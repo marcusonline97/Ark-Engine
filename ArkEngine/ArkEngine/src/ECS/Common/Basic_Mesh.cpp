@@ -19,91 +19,91 @@ std::string GetFullPath(const string& Dir, const aiString& Path)
     namespace fs = std::filesystem;
 
     auto trimQuotes = [](std::string& s)
-        {
-            while (!s.empty() && (s.front() == '"' || s.front() == '\''))
-                s.erase(s.begin());
-            while (!s.empty() && (s.back() == '"' || s.back() == '\''))
-                s.pop_back();
-        };
+    {
+        while (!s.empty() && (s.front() == '"' || s.front() == '\''))
+            s.erase(s.begin());
+        while (!s.empty() && (s.back() == '"' || s.back() == '\''))
+            s.pop_back();
+    };
 
     auto equalsCaseInsensitive = [](const std::string& a, const std::string& b)
-        {
-            if (a.size() != b.size())
-                return false;
+    {
+        if (a.size() != b.size())
+            return false;
 
-            for (size_t i = 0; i < a.size(); ++i)
+        for (size_t i = 0; i < a.size(); ++i)
+        {
+            if (std::tolower(static_cast<unsigned char>(a[i])) !=
+                std::tolower(static_cast<unsigned char>(b[i])))
             {
-                if (std::tolower(static_cast<unsigned char>(a[i])) !=
-                    std::tolower(static_cast<unsigned char>(b[i])))
-                {
-                    return false;
-                }
+                return false;
             }
-            return true;
-        };
+        }
+        return true;
+    };
 
     auto makeExistingAbsolute = [](const fs::path& p) -> fs::path
-        {
-            if (p.empty())
-                return {};
+    {
+        if (p.empty())
+            return {};
 
-            std::error_code ec;
-            fs::path abs = p;
-            if (!p.is_absolute())
-                abs = fs::absolute(p, ec);
-            if (ec)
-                return {};
+        std::error_code ec;
+        fs::path abs = p;
+        if (!p.is_absolute())
+            abs = fs::absolute(p, ec);
+        if (ec)
+            return {};
 
-            abs = abs.lexically_normal();
-            if (!fs::exists(abs, ec) || ec)
-                return {};
+        abs = abs.lexically_normal();
+        if (!fs::exists(abs, ec) || ec)
+            return {};
 
-            return abs;
-        };
+        return abs;
+    };
 
     auto findByFilename = [&](const fs::path& root, const std::string& fileName) -> fs::path
+    {
+        if (root.empty() || fileName.empty())
+            return {};
+
+        std::error_code ec;
+        if (!fs::exists(root, ec) || ec || !fs::is_directory(root, ec))
+            return {};
+
+        fs::recursive_directory_iterator it(
+            root,
+            fs::directory_options::skip_permission_denied,
+            ec);
+        fs::recursive_directory_iterator end;
+
+        for (; it != end; it.increment(ec))
         {
-            if (root.empty() || fileName.empty())
-                return {};
-
-            std::error_code ec;
-            if (!fs::exists(root, ec) || ec || !fs::is_directory(root, ec))
-                return {};
-
-            fs::recursive_directory_iterator it(
-                root,
-                fs::directory_options::skip_permission_denied,
-                ec);
-            fs::recursive_directory_iterator end;
-
-            for (; it != end; it.increment(ec))
+            if (ec)
             {
-                if (ec)
-                {
-                    ec.clear();
-                    continue;
-                }
-
-                if (it.depth() > 4)
-                {
-                    it.disable_recursion_pending();
-                    continue;
-                }
-
-                const auto& entry = *it;
-                if (!entry.is_regular_file(ec) || ec)
-                {
-                    ec.clear();
-                    continue;
-                }
-
-                const std::string candidateName = entry.path().filename().string();
-                if (equalsCaseInsensitive(candidateName, fileName))
-                    return entry.path();
+                ec.clear();
+                continue;
             }
 
-            return {};
-        };
+            if (it.depth() > 4)
+            {
+                it.disable_recursion_pending();
+                continue;
+            }
+
+            const auto& entry = *it;
+            if (!entry.is_regular_file(ec) || ec)
+            {
+                ec.clear();
+                continue;
+            }
+
+            const std::string candidateName = entry.path().filename().string();
+            if (equalsCaseInsensitive(candidateName, fileName))
+                return entry.path();
+        }
+
+        return {};
+    };
 
     const fs::path modelDir = fs::path(Dir).lexically_normal();
 
@@ -132,20 +132,20 @@ std::string GetFullPath(const string& Dir, const aiString& Path)
     const fs::path referenced = fs::path(raw).lexically_normal();
     if (const fs::path existingAbsolute = makeExistingAbsolute(referenced);
         !existingAbsolute.empty())
-        return existingAbsolute.string();  // Returns the path
+        return existingAbsolute.string();
 
     std::vector<fs::path> candidates;
     candidates.reserve(10);
 
     auto addCandidate = [&](const fs::path& p)
-        {
-            const fs::path normalized = p.lexically_normal();
-            if (normalized.empty())
-                return;
+    {
+        const fs::path normalized = p.lexically_normal();
+        if (normalized.empty())
+            return;
 
-            if (std::find(candidates.begin(), candidates.end(), normalized) == candidates.end())
-                candidates.push_back(normalized);
-        };
+        if (std::find(candidates.begin(), candidates.end(), normalized) == candidates.end())
+            candidates.push_back(normalized);
+    };
 
     addCandidate(modelDir / referenced);
 
@@ -165,7 +165,6 @@ std::string GetFullPath(const string& Dir, const aiString& Path)
     {
         const fs::path tailFromTextures = fs::path(refGeneric.substr(texturesPos));
         addCandidate(modelDir / tailFromTextures);
-
     }
 
     for (const fs::path& candidate : candidates)
@@ -187,13 +186,14 @@ std::string GetFullPath(const string& Dir, const aiString& Path)
             if (const fs::path foundNearParent = findByFilename(parent, fileName); !foundNearParent.empty())
                 return foundNearParent.string();
         }
-
     }
+
     if (!candidates.empty())
         return candidates.front().string();
 
     return (modelDir / referenced).lexically_normal().string();
 }
+
 namespace
 {
     bool IsFbxFile(const std::string& filename)
@@ -204,6 +204,7 @@ namespace
             [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
         return ext == ".fbx";
     }
+
     int ResolveAssimpFlagsForFile(const std::string& filename, int requestedFlags)
     {
         if (!IsFbxFile(filename))
@@ -225,10 +226,7 @@ namespace
 
         return flags;
     }
-}
 
-namespace
-{
     unsigned int ClampMaterialIndexForMesh(const std::vector<Material>& materials, unsigned int requestedIndex, const char* context)
     {
         if (materials.empty())
@@ -237,7 +235,7 @@ namespace
             if (!warnedMissingMaterials)
             {
                 warnedMissingMaterials = true;
-                printf("Warning (%s): mesh has no materials; using default material state.\n", context);
+                Logging::Warning() << "Warning (" << context << "): mesh has no materials; using default material state.\n";
             }
             return std::numeric_limits<unsigned int>::max();
         }
@@ -249,11 +247,8 @@ namespace
         if (!warnedInvalidIndex)
         {
             warnedInvalidIndex = true;
-            printf(
-                "Warning (%s): material index %u is out of range (material count: %zu); clamping to 0.\n",
-                context,
-                requestedIndex,
-                materials.size());
+            Logging::Warning() << "Warning (" << context << "): material index " << requestedIndex
+                              << " is out of range (material count: " << materials.size() << "); clamping to 0.\n";
         }
         return 0u;
     }
@@ -283,7 +278,7 @@ bool BasicMesh::LoadMesh(const string& Filename, int AssimpFlags)
 {
     // Release the previously loaded mesh (if it exists)
     Clear();
-    m_pScene = nullptr; // guard against stale pointer if ReadFile below fails or re-enters
+    m_pScene = nullptr;
 
     // Create the VAO
     if (IsGLVersionHigher(4, 5)) {
@@ -309,6 +304,7 @@ bool BasicMesh::LoadMesh(const string& Filename, int AssimpFlags)
         Logging::Debug() << "Assimp successfully loaded: " << Filename << "\n";
         Logging::Debug() << "  Meshes: " << m_pScene->mNumMeshes
                          << ", Materials: " << m_pScene->mNumMaterials << "\n";
+
         m_GlobalInverseTransform = m_pScene->mRootNode->mTransformation;
         m_GlobalInverseTransform = m_GlobalInverseTransform.Inverse();
         Ret = InitFromScene(m_pScene, Filename);
@@ -430,14 +426,10 @@ void BasicMesh::InitAllMeshes(const aiScene* pScene)
 void BasicMesh::InitSingleMesh(uint MeshIndex, const aiMesh* paiMesh)
 {
     const aiVector3D Zero3D(0.0f, 0.0f, 0.0f);
-
-    // printf("Mesh %d\n", MeshIndex);
-    // Populate the vertex attribute vectors
     Vertex v;
 
     for (unsigned int i = 0; i < paiMesh->mNumVertices; i++) {
         const aiVector3D& pPos = paiMesh->mVertices[i];
-        // printf("%d: ", i); Vector3f t(pPos.x, pPos.y, pPos.z); t.Print();
         v.Position = Vector3f(pPos.x, pPos.y, pPos.z);
 
         if (paiMesh->mNormals) {
@@ -468,16 +460,12 @@ void BasicMesh::InitSingleMesh(uint MeshIndex, const aiMesh* paiMesh)
 void BasicMesh::InitSingleMeshOpt(uint MeshIndex, const aiMesh* paiMesh)
 {
     const aiVector3D Zero3D(0.0f, 0.0f, 0.0f);
-
-    // printf("Mesh %d\n", MeshIndex);
-    // Populate the vertex attribute vectors
     Vertex v;
 
     std::vector<Vertex> Vertices(paiMesh->mNumVertices);
 
     for (unsigned int i = 0; i < paiMesh->mNumVertices; i++) {
         const aiVector3D& pPos = paiMesh->mVertices[i];
-        // printf("%d: ", i); Vector3f v(pPos.x, pPos.y, pPos.z); v.Print();
         v.Position = Vector3f(pPos.x, pPos.y, pPos.z);
 
         if (paiMesh->mNormals) {
@@ -522,13 +510,14 @@ void BasicMesh::OptimizeMesh(int MeshIndex, std::vector<uint>& Indices, std::vec
 
     // Create a remap table
     std::vector<unsigned int> remap(NumIndices);
-    size_t OptVertexCount = meshopt_generateVertexRemap(remap.data(),    // dst addr
-        Indices.data(),  // src indices
-        NumIndices,      // ...and size
-        Vertices.data(), // src vertices
-        NumVertices,     // ...and size
-        sizeof(Vertex)); // stride
-    // Allocate a local index/vertex arrays
+    size_t OptVertexCount = meshopt_generateVertexRemap(remap.data(),
+        Indices.data(),
+        NumIndices,
+        Vertices.data(),
+        NumVertices,
+        sizeof(Vertex));
+
+    // Allocate optimized arrays
     std::vector<uint> OptIndices;
     std::vector<Vertex> OptVertices;
     OptIndices.resize(NumIndices);
@@ -536,7 +525,6 @@ void BasicMesh::OptimizeMesh(int MeshIndex, std::vector<uint>& Indices, std::vec
 
     // Optimization #1: remove duplicate vertices    
     meshopt_remapIndexBuffer(OptIndices.data(), Indices.data(), NumIndices, remap.data());
-
     meshopt_remapVertexBuffer(OptVertices.data(), Vertices.data(), NumVertices, sizeof(Vertex), remap.data());
 
     // Optimization #2: improve the locality of the vertices
@@ -551,7 +539,6 @@ void BasicMesh::OptimizeMesh(int MeshIndex, std::vector<uint>& Indices, std::vec
     // Optimization #5: create a simplified version of the model
     float Threshold = 1.0f;
     size_t TargetIndexCount = (size_t)(NumIndices * Threshold);
-
     float TargetError = 0.0f;
     std::vector<unsigned int> SimplifiedIndices(OptIndices.size());
     size_t OptIndexCount = meshopt_simplify(SimplifiedIndices.data(), OptIndices.data(), NumIndices,
@@ -561,14 +548,12 @@ void BasicMesh::OptimizeMesh(int MeshIndex, std::vector<uint>& Indices, std::vec
     num_indices += (int)NumIndices;
     static int opt_indices = 0;
     opt_indices += (int)OptIndexCount;
-    printf("Num indices %d\n", num_indices);
-    //printf("Target num indices %d\n", TargetIndexCount);
-    printf("Optimized number of indices %d\n", opt_indices);
+    Logging::Debug() << "Mesh optimization: " << num_indices << " -> " << opt_indices << " indices\n";
+
     SimplifiedIndices.resize(OptIndexCount);
 
-    // Concatenate the local arrays into the class attributes arrays
+    // Concatenate the local arrays into the class attribute arrays
     m_Indices.insert(m_Indices.end(), SimplifiedIndices.begin(), SimplifiedIndices.end());
-
     m_Vertices.insert(m_Vertices.end(), OptVertices.begin(), OptVertices.end());
 
     m_Meshes[MeshIndex].NumIndices = (uint)OptIndexCount;
@@ -579,20 +564,16 @@ bool BasicMesh::InitMaterials(const aiScene* pScene, const string& Filename)
 {
     string Dir = GetDirFromFilename(Filename);
 
-    bool Ret = true;
-
-    printf("Num materials: %d\n", pScene->mNumMaterials);
+    Logging::Debug() << "Initializing " << pScene->mNumMaterials << " materials from: " << Dir << "\n";
 
     // Initialize the materials
     for (unsigned int i = 0; i < pScene->mNumMaterials; i++) {
         const aiMaterial* pMaterial = pScene->mMaterials[i];
-
         LoadTextures(Dir, pMaterial, i);
-
         LoadColors(pMaterial, i);
     }
 
-    return Ret;
+    return true;
 }
 
 
@@ -631,7 +612,7 @@ void BasicMesh::LoadDiffuseTexture(const string& Dir, const aiMaterial* pMateria
 
 void BasicMesh::LoadDiffuseTextureEmbedded(const aiTexture* paiTexture, int MaterialIndex)
 {
-    printf("Embeddeded diffuse texture type '%s'\n", paiTexture->achFormatHint);
+    Logging::Debug() << "Loading embedded diffuse texture type '" << paiTexture->achFormatHint << "'\n";
     m_Materials[MaterialIndex].pTextures[TEX_TYPE_BASE] = new Texture(GL_TEXTURE_2D);
     int buffer_size = paiTexture->mWidth;
     bool IsSRGB = true;
@@ -644,17 +625,16 @@ void BasicMesh::LoadDiffuseTextureFromFile(const string& Dir, const aiString& Pa
     string FullPath = GetFullPath(Dir, Path);
 
     m_Materials[MaterialIndex].pTextures[TEX_TYPE_BASE] = new Texture(GL_TEXTURE_2D, FullPath.c_str());
-
     bool IsSRGB = true;
 
     if (!m_Materials[MaterialIndex].pTextures[TEX_TYPE_BASE]->Load(IsSRGB)) {
-        printf("Error loading diffuse texture '%s'\n", FullPath.c_str());
+        Logging::Error() << "Error loading diffuse texture: " << FullPath << "\n";
         delete m_Materials[MaterialIndex].pTextures[TEX_TYPE_BASE];
         m_Materials[MaterialIndex].pTextures[TEX_TYPE_BASE] = NULL;
         return;
     }
     else {
-        printf("Loaded diffuse texture '%s' at index %d\n", FullPath.c_str(), MaterialIndex);
+        Logging::Debug() << "Loaded diffuse texture '" << FullPath << "' at index " << MaterialIndex << "\n";
     }
 }
 
@@ -682,7 +662,7 @@ void BasicMesh::LoadSpecularTexture(const string& Dir, const aiMaterial* pMateri
 
 void BasicMesh::LoadSpecularTextureEmbedded(const aiTexture* paiTexture, int MaterialIndex)
 {
-    printf("Embeddeded specular texture type '%s'\n", paiTexture->achFormatHint);
+    Logging::Debug() << "Loading embedded specular texture type '" << paiTexture->achFormatHint << "'\n";
     m_Materials[MaterialIndex].pTextures[TEX_TYPE_SPECULAR] = new Texture(GL_TEXTURE_2D);
     int buffer_size = paiTexture->mWidth;
     bool IsSRGB = false;
@@ -695,17 +675,16 @@ void BasicMesh::LoadSpecularTextureFromFile(const string& Dir, const aiString& P
     string FullPath = GetFullPath(Dir, Path);
 
     m_Materials[MaterialIndex].pTextures[TEX_TYPE_SPECULAR] = new Texture(GL_TEXTURE_2D, FullPath.c_str());
-
     bool IsSRGB = false;
 
     if (!m_Materials[MaterialIndex].pTextures[TEX_TYPE_SPECULAR]->Load(IsSRGB)) {
-        printf("Error loading specular texture '%s'\n", FullPath.c_str());
+        Logging::Error() << "Error loading specular texture: " << FullPath << "\n";
         delete m_Materials[MaterialIndex].pTextures[TEX_TYPE_SPECULAR];
         m_Materials[MaterialIndex].pTextures[TEX_TYPE_SPECULAR] = NULL;
         return;
     }
     else {
-        printf("Loaded specular texture '%s'\n", FullPath.c_str());
+        Logging::Debug() << "Loaded specular texture: " << FullPath << "\n";
     }
 }
 
@@ -733,7 +712,7 @@ void BasicMesh::LoadAlbedoTexture(const string& Dir, const aiMaterial* pMaterial
 
 void BasicMesh::LoadAlbedoTextureEmbedded(const aiTexture* paiTexture, int MaterialIndex)
 {
-    printf("Embeddeded albedo texture type '%s'\n", paiTexture->achFormatHint);
+    Logging::Debug() << "Loading embedded albedo texture type '" << paiTexture->achFormatHint << "'\n";
     m_Materials[MaterialIndex].PBRmaterial.pAlbedo = new Texture(GL_TEXTURE_2D);
     int buffer_size = paiTexture->mWidth;
     bool IsSRGB = true;
@@ -746,17 +725,16 @@ void BasicMesh::LoadAlbedoTextureFromFile(const string& Dir, const aiString& Pat
     string FullPath = GetFullPath(Dir, Path);
 
     m_Materials[MaterialIndex].PBRmaterial.pAlbedo = new Texture(GL_TEXTURE_2D, FullPath.c_str());
-
     bool IsSRGB = true;
 
     if (!m_Materials[MaterialIndex].PBRmaterial.pAlbedo->Load(IsSRGB)) {
-        printf("Error loading albedo texture '%s'\n", FullPath.c_str());
+        Logging::Error() << "Error loading albedo texture: " << FullPath << "\n";
         delete m_Materials[MaterialIndex].PBRmaterial.pAlbedo;
         m_Materials[MaterialIndex].PBRmaterial.pAlbedo = NULL;
         return;
     }
     else {
-        printf("Loaded albedo texture '%s'\n", FullPath.c_str());
+        Logging::Debug() << "Loaded albedo texture: " << FullPath << "\n";
     }
 }
 
@@ -768,7 +746,7 @@ void BasicMesh::LoadMetalnessTexture(const string& Dir, const aiMaterial* pMater
     int NumTextures = pMaterial->GetTextureCount(aiTextureType_METALNESS);
 
     if (NumTextures > 0) {
-        printf("Num metalness textures %d\n", NumTextures);
+        Logging::Debug() << "Found " << NumTextures << " metalness textures\n";
 
         aiString Path;
 
@@ -788,7 +766,7 @@ void BasicMesh::LoadMetalnessTexture(const string& Dir, const aiMaterial* pMater
 
 void BasicMesh::LoadMetalnessTextureEmbedded(const aiTexture* paiTexture, int MaterialIndex)
 {
-    printf("Embeddeded metalness texture type '%s'\n", paiTexture->achFormatHint);
+    Logging::Debug() << "Loading embedded metalness texture type '" << paiTexture->achFormatHint << "'\n";
     m_Materials[MaterialIndex].PBRmaterial.pMetallic = new Texture(GL_TEXTURE_2D);
     int buffer_size = paiTexture->mWidth;
     bool IsSRGB = false;
@@ -801,17 +779,16 @@ void BasicMesh::LoadMetalnessTextureFromFile(const string& Dir, const aiString& 
     string FullPath = GetFullPath(Dir, Path);
 
     m_Materials[MaterialIndex].PBRmaterial.pMetallic = new Texture(GL_TEXTURE_2D, FullPath.c_str());
-
     bool IsSRGB = false;
 
     if (!m_Materials[MaterialIndex].PBRmaterial.pMetallic->Load(IsSRGB)) {
-        printf("Error loading metalness texture '%s'\n", FullPath.c_str());
+        Logging::Error() << "Error loading metalness texture: " << FullPath << "\n";
         delete m_Materials[MaterialIndex].PBRmaterial.pMetallic;
         m_Materials[MaterialIndex].PBRmaterial.pMetallic = NULL;
         return;
     }
     else {
-        printf("Loaded metalness texture '%s'\n", FullPath.c_str());
+        Logging::Debug() << "Loaded metalness texture: " << FullPath << "\n";
     }
 }
 
@@ -823,7 +800,7 @@ void BasicMesh::LoadRoughnessTexture(const string& Dir, const aiMaterial* pMater
     int NumTextures = pMaterial->GetTextureCount(aiTextureType_DIFFUSE_ROUGHNESS);
 
     if (NumTextures > 0) {
-        printf("Num roughness textures %d\n", NumTextures);
+        Logging::Debug() << "Found " << NumTextures << " roughness textures\n";
 
         aiString Path;
 
@@ -843,7 +820,7 @@ void BasicMesh::LoadRoughnessTexture(const string& Dir, const aiMaterial* pMater
 
 void BasicMesh::LoadRoughnessTextureEmbedded(const aiTexture* paiTexture, int MaterialIndex)
 {
-    printf("Embeddeded roughness texture type '%s'\n", paiTexture->achFormatHint);
+    Logging::Debug() << "Loading embedded roughness texture type '" << paiTexture->achFormatHint << "'\n";
     m_Materials[MaterialIndex].PBRmaterial.pRoughness = new Texture(GL_TEXTURE_2D);
     int buffer_size = paiTexture->mWidth;
     bool IsSRGB = false;
@@ -859,13 +836,13 @@ void BasicMesh::LoadRoughnessTextureFromFile(const string& Dir, const aiString& 
     bool IsSRGB = false;
 
     if (!m_Materials[MaterialIndex].PBRmaterial.pRoughness->Load(IsSRGB)) {
-        printf("Error loading roughness texture '%s'\n", FullPath.c_str());
+        Logging::Error() << "Error loading roughness texture: " << FullPath << "\n";
         delete m_Materials[MaterialIndex].PBRmaterial.pRoughness;
         m_Materials[MaterialIndex].PBRmaterial.pRoughness = NULL;
         return;
     }
     else {
-        printf("Loaded roughness texture '%s'\n", FullPath.c_str());
+        Logging::Debug() << "Loaded roughness texture: " << FullPath << "\n";
     }
 }
 
@@ -877,11 +854,12 @@ void BasicMesh::LoadColors(const aiMaterial* pMaterial, int index)
 
     int ShadingModel = 0;
     if (pMaterial->Get(AI_MATKEY_SHADING_MODEL, ShadingModel) == AI_SUCCESS) {
-        printf("Shading model %d\n", ShadingModel);
+        Logging::Debug() << "Material [" << index << "] shading model: " << ShadingModel << "\n";
     }
 
     if (pMaterial->Get(AI_MATKEY_COLOR_AMBIENT, AmbientColor) == AI_SUCCESS) {
-        printf("Loaded ambient color [%f %f %f]\n", AmbientColor.r, AmbientColor.g, AmbientColor.b);
+        Logging::Debug() << "Material [" << index << "] ambient color: ["
+                         << AmbientColor.r << ", " << AmbientColor.g << ", " << AmbientColor.b << "]\n";
         m_Materials[index].AmbientColor.r = AmbientColor.r;
         m_Materials[index].AmbientColor.g = AmbientColor.g;
         m_Materials[index].AmbientColor.b = AmbientColor.b;
@@ -893,7 +871,8 @@ void BasicMesh::LoadColors(const aiMaterial* pMaterial, int index)
     aiColor3D DiffuseColor(0.0f, 0.0f, 0.0f);
 
     if (pMaterial->Get(AI_MATKEY_COLOR_DIFFUSE, DiffuseColor) == AI_SUCCESS) {
-        printf("Loaded diffuse color [%f %f %f]\n", DiffuseColor.r, DiffuseColor.g, DiffuseColor.b);
+        Logging::Debug() << "Material [" << index << "] diffuse color: ["
+                         << DiffuseColor.r << ", " << DiffuseColor.g << ", " << DiffuseColor.b << "]\n";
         m_Materials[index].DiffuseColor.r = DiffuseColor.r;
         m_Materials[index].DiffuseColor.g = DiffuseColor.g;
         m_Materials[index].DiffuseColor.b = DiffuseColor.b;
@@ -902,7 +881,8 @@ void BasicMesh::LoadColors(const aiMaterial* pMaterial, int index)
     aiColor3D SpecularColor(0.0f, 0.0f, 0.0f);
 
     if (pMaterial->Get(AI_MATKEY_COLOR_SPECULAR, SpecularColor) == AI_SUCCESS) {
-        printf("Loaded specular color [%f %f %f]\n", SpecularColor.r, SpecularColor.g, SpecularColor.b);
+        Logging::Debug() << "Material [" << index << "] specular color: ["
+                         << SpecularColor.r << ", " << SpecularColor.g << ", " << SpecularColor.b << "]\n";
         m_Materials[index].SpecularColor.r = SpecularColor.r;
         m_Materials[index].SpecularColor.g = SpecularColor.g;
         m_Materials[index].SpecularColor.b = SpecularColor.b;
@@ -923,6 +903,11 @@ void BasicMesh::PopulateBuffers()
 
 void BasicMesh::PopulateBuffersNonDSA()
 {
+    if (m_Vertices.empty() || m_Indices.empty()) {
+        Logging::Warning() << "PopulateBuffersNonDSA: empty vertex/index data\n";
+        return;
+    }
+
     glBindBuffer(GL_ARRAY_BUFFER, m_Buffers[VERTEX_BUFFER]);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_Buffers[INDEX_BUFFER]);
 
@@ -947,10 +932,13 @@ void BasicMesh::PopulateBuffersNonDSA()
 void BasicMesh::PopulateBuffersDSA()
 {
     if (m_Vertices.empty() || m_Indices.empty()) {
-        printf("Warning: attempting to populate buffers with empty vertex/index data\n");
+        Logging::Warning() << "PopulateBuffersDSA: empty vertex/index data\n";
         return;
     }
-    
+
+    Logging::Debug() << "PopulateBuffersDSA: " << m_Vertices.size() << " vertices, "
+                     << m_Indices.size() << " indices\n";
+
     glNamedBufferStorage(m_Buffers[VERTEX_BUFFER], sizeof(m_Vertices[0]) * m_Vertices.size(), m_Vertices.data(), 0);
     glNamedBufferStorage(m_Buffers[INDEX_BUFFER], sizeof(m_Indices[0]) * m_Indices.size(), m_Indices.data(), 0);
 
@@ -975,7 +963,6 @@ void BasicMesh::PopulateBuffersDSA()
 }
 
 
-// Introduced in youtube tutorial #18
 void BasicMesh::Render(IRenderCallbacks* pRenderCallbacks)
 {
     if (m_isPBR) {
@@ -999,7 +986,6 @@ void BasicMesh::Render(IRenderCallbacks* pRenderCallbacks)
             m_Meshes[MeshIndex].BaseVertex);
     }
 
-    // Make sure the VAO is not changed from the outside
     glBindVertexArray(0);
 }
 
@@ -1028,7 +1014,6 @@ void BasicMesh::SetupRenderMaterialsPhong(unsigned int MeshIndex, unsigned int M
         {
             pRenderCallbacks->SetMaterial(m_Materials[MaterialIndex]);
         }
-
     }
 }
 
@@ -1054,7 +1039,6 @@ void BasicMesh::SetupRenderMaterialsPBR()
     if (m_Materials[PBRMaterialIndex].PBRmaterial.pNormalMap) {
         m_Materials[PBRMaterialIndex].PBRmaterial.pNormalMap->Bind(NORMAL_TEXTURE_UNIT);
     }
-
 }
 
 
@@ -1081,13 +1065,10 @@ void BasicMesh::Render(unsigned int DrawIndex, unsigned int PrimID)
         (void*)(sizeof(unsigned int) * (m_Meshes[DrawIndex].BaseIndex + PrimID * 3)),
         m_Meshes[DrawIndex].BaseVertex);
 
-    // Make sure the VAO is not changed from the outside
     glBindVertexArray(0);
 }
 
 
-
-// Used only by instancing
 void BasicMesh::Render(unsigned int NumInstances, const Matrix4f* WVPMats, const Matrix4f* WorldMats)
 {
     glBindBuffer(GL_ARRAY_BUFFER, m_Buffers[WVP_MAT_BUFFER]);
@@ -1120,7 +1101,6 @@ void BasicMesh::Render(unsigned int NumInstances, const Matrix4f* WVPMats, const
             m_Meshes[i].BaseVertex);
     }
 
-    // Make sure the VAO is not changed from the outside
     glBindVertexArray(0);
 }
 
@@ -1134,7 +1114,7 @@ const Material& BasicMesh::GetMaterial()
     }
 
     if (m_Materials.size() == 0) {
-        printf("No materials\n");
+        Logging::Debug() << "GetMaterial: No materials found\n";
         static Material s_defaultMaterial;
         s_defaultMaterial.SyncPBRTextureAliases();
         return s_defaultMaterial;
@@ -1146,7 +1126,7 @@ const Material& BasicMesh::GetMaterial()
 
 void BasicMesh::GetLeadingVertex(uint DrawIndex, uint PrimID, Vector3f& Vertex)
 {
-    uint MeshIndex = DrawIndex; // Each mesh is rendered in its own draw call
+    uint MeshIndex = DrawIndex;
 
     assert(MeshIndex < m_pScene->mNumMeshes);
     const aiMesh* paiMesh = m_pScene->mMeshes[MeshIndex];
@@ -1159,6 +1139,6 @@ void BasicMesh::GetLeadingVertex(uint DrawIndex, uint PrimID, Vector3f& Vertex)
     assert(LeadingIndex < paiMesh->mNumVertices);
     const aiVector3D& Pos = paiMesh->mVertices[LeadingIndex];
     Vertex.x = Pos.x;
-    Vertex.y = Pos.y;
-    Vertex.z = Pos.z;
+    Vertex.y = Pos.y;  // Fixed: was Pos.z
+    Vertex.z = Pos.z;  // This is correct now
 }

@@ -269,7 +269,6 @@ void EditorUI::Render(std::vector<EditorObject>& objects, int& selectedObjectInd
 
     if (m_showHierarchy)      RenderHierarchy(objects, selectedObjectIndex);
     if (m_showInspector)      RenderInspector(objects, selectedObjectIndex);
-    if (m_showMaterials)      RenderMaterials(objects, selectedObjectIndex);
     if (m_showConsole)        RenderConsole();
     if (m_showContentBrowser) RenderContentBrowser();
 
@@ -280,62 +279,6 @@ void EditorUI::Render(std::vector<EditorObject>& objects, int& selectedObjectInd
         ImGui::ShowDemoWindow(&m_showImGuiDemo);
 
     ValidateSceneState(objects, selectedObjectIndex);
-}
-
-void EditorUI::RenderMaterials(std::vector<EditorObject>& objects, int& selectedObjectIndex)
-{
-    if (!ImGui::Begin("Materials"))
-    {
-        ImGui::End();
-        return;
-    }
-
-    if (selectedObjectIndex < 0 || selectedObjectIndex >= static_cast<int>(objects.size()))
-    {
-        ImGui::TextDisabled("Select an object to edit its material settings.");
-        ImGui::End();
-        return;
-    }
-
-    EditorObject& obj = objects[static_cast<size_t>(selectedObjectIndex)];
-
-    ImGui::TextDisabled("Object: %s", obj.name.c_str());
-    ImGui::Separator();
-
-    ImGui::ColorEdit3("Tint", &obj.tint.x);
-
-    static const char* kPresets[] =
-    {
-        "Default",
-        "Matte",
-        "Glossy",
-        "Metal",
-        "Emissive",
-    };
-    ImGui::Combo("Preset", &obj.materialPreset, kPresets, static_cast<int>(IM_ARRAYSIZE(kPresets)));
-
-    ImGui::Separator();
-    ImGui::TextDisabled("Component bindings (placeholder)");
-
-    if (obj.staticMesh)
-    {
-        ImGui::TextUnformatted("Static Mesh");
-        ImGui::InputText("Material", &obj.staticMesh->materialPath);
-        ImGui::InputText("Texture", &obj.staticMesh->texturePath);
-        ImGui::TextDisabled("Tip: drag an image into the Hierarchy to assign a texture.");
-    }
-    else if (obj.skeletalMesh)
-    {
-        ImGui::TextUnformatted("Skeletal Mesh");
-        ImGui::InputText("Material", &obj.skeletalMesh->materialPath);
-        ImGui::InputText("Texture", &obj.skeletalMesh->texturePath);
-    }
-    else
-    {
-        ImGui::TextDisabled("No renderable component on the selected object.");
-    }
-
-    ImGui::End();
 }
 
 void EditorUI::RenderConsole()
@@ -660,27 +603,9 @@ void EditorUI::RenderViewport(std::vector<EditorObject>& objects, int& selectedO
 
         if (!m_playMode)
         {
-            ImGui::SameLine();
-            if (!m_isPossessing)
-            {
-                ImGui::BeginDisabled(!canPossess);
-                if (ImGui::SmallButton("Possess Player (P)") && canPossess)
-                    BeginPossession(objects, possessCandidateId);
-                ImGui::EndDisabled();
-            }
-            else if (ImGui::SmallButton("Release (Esc)"))
-            {
-                EndPossession();
-            }
+            //maybe add some button native entirely for runtime
+
         }
-
-        ImGui::SameLine();
-        ImGui::TextDisabled("Mode: %s", m_playMode ? "Play" : (m_isPossessing ? "Possess" : "Edit"));
-
-        ImGui::SameLine();
-        ImGui::Checkbox("Wireframe", &m_wireframeEnabled);
-        ImGui::SameLine();
-        ImGui::Checkbox("Mipmaps", &m_useMipmaps);
         ImGui::Separator();
     }
 
