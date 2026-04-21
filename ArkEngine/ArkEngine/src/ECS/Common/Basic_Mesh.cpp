@@ -263,32 +263,68 @@ BasicMesh::~BasicMesh()
 
 void BasicMesh::Clear()
 {
+    // Delete buffers FIRST
     if (m_Buffers[0] != 0) {
+        Logging::Debug() << "[Clear] Deleting " << ARRAY_SIZE_IN_ELEMENTS(m_Buffers) << " buffers\n";
+        for (size_t i = 0; i < ARRAY_SIZE_IN_ELEMENTS(m_Buffers); ++i) {
+            if (m_Buffers[i] != 0) {
+                Logging::Debug() << "  Buffer[" << i << "] ID: " << m_Buffers[i] << "\n";
+            }
+        }
         glDeleteBuffers(ARRAY_SIZE_IN_ELEMENTS(m_Buffers), m_Buffers);
+        
+        // CRITICAL FIX: Zero out the buffer IDs after deletion
+        std::memset(m_Buffers, 0, sizeof(m_Buffers));
+        Logging::Debug() << "[Clear] Buffers zeroed out\n";
     }
 
     if (m_VAO != 0) {
+        Logging::Debug() << "[Clear] Deleting VAO: " << m_VAO << "\n";
         glDeleteVertexArrays(1, &m_VAO);
         m_VAO = 0;
     }
 }
 
-
 bool BasicMesh::LoadMesh(const string& Filename, int AssimpFlags)
 {
     // Release the previously loaded mesh (if it exists)
-    Clear();
+    Logging::Debug() << "[LoadMesh] Starting load for: " << Filename << "\n";
+    Clear(); // ? This must happen FIRST
     m_pScene = nullptr;
 
-    // Create the VAO
+    // Verify buffers are cleared
+    for (size_t i = 0; i < ARRAY_SIZE_IN_ELEMENTS(m_Buffers); ++i) {
+        if (m_Buffers[i] != 0) {
+            Logging::Error() << "[LoadMesh] ERROR: Buffer[" << i << "] not cleared! ID: " << m_Buffers[i] << "\n";
+        }
+    }
+
+    // IMPORTANT: Create NEW buffers/VAO with fresh IDs
     if (IsGLVersionHigher(4, 5)) {
         glCreateVertexArrays(1, &m_VAO);
+        GLenum err = glGetError();
+        if (err != GL_NO_ERROR) {
+            Logging::Error() << "[LoadMesh] glCreateVertexArrays failed with error: 0x" << std::hex << err << std::dec << "\n";
+            return false;
+        }
+        Logging::Debug() << "[LoadMesh] Created VAO: " << m_VAO << "\n";
+
         glCreateBuffers(ARRAY_SIZE_IN_ELEMENTS(m_Buffers), m_Buffers);
+        err = glGetError();
+        if (err != GL_NO_ERROR) {
+            Logging::Error() << "[LoadMesh] glCreateBuffers failed with error: 0x" << std::hex << err << std::dec << "\n";
+            return false;
+        }
+        Logging::Debug() << "[LoadMesh] Created buffers:\n";
+        for (size_t i = 0; i < ARRAY_SIZE_IN_ELEMENTS(m_Buffers); ++i) {
+            Logging::Debug() << "  Buffer[" << i << "] ID: " << m_Buffers[i] << "\n";
+        }
     }
     else {
         glGenVertexArrays(1, &m_VAO);
         glBindVertexArray(m_VAO);
         glGenBuffers(ARRAY_SIZE_IN_ELEMENTS(m_Buffers), m_Buffers);
+        Logging::Debug() << "[LoadMesh] Created VAO (non-DSA): " << m_VAO << "\n";
     }
 
     bool Ret = false;
@@ -936,30 +972,210 @@ void BasicMesh::PopulateBuffersDSA()
         return;
     }
 
-    Logging::Debug() << "PopulateBuffersDSA: " << m_Vertices.size() << " vertices, "
+    Logging::Debug() << "[PopulateBuffersDSA] START - " << m_Vertices.size() << " vertices, "
                      << m_Indices.size() << " indices\n";
 
-    glNamedBufferStorage(m_Buffers[VERTEX_BUFFER], sizeof(m_Vertices[0]) * m_Vertices.size(), m_Vertices.data(), 0);
-    glNamedBufferStorage(m_Buffers[INDEX_BUFFER], sizeof(m_Indices[0]) * m_Indices.size(), m_Indices.data(), 0);
+    // Log buffer IDs before operations
+    Logging::Debug() << "[PopulateBuffersDSA] VAO: " << m_VAO << "\n";
+    Logging::Debug() << "[PopulateBuffersDSA] VERTEX_BUFFER: " << m_Buffers[VERTEX_BUFFER] << "\n";
+    Logging::Debug() << "[PopulateBuffersDSA] INDEX_BUFFER: " << m_Buffers[INDEX_BUFFER] << "\n";
 
+    // Verify buffers are valid
+    if (m_Buffers[VERTEX_BUFFER] == 0 || m_Buffers[INDEX_BUFFER] == 0) {
+        Logging::Error() << "[PopulateBuffersDSA] CRITICAL: Invalid buffer IDs detected!\n";
+        return;
+    }
+
+    // Clear any pending GL errors before we start
+    while (glGetError() != GL_NO_ERROR) {
+        Logging::Debug() << "[PopulateBuffersDSA] Cleared pre-existing GL error\n";
+    }
+
+    // Check if buffers already have storage
+    Logging::Debug() << "[PopulateBuffersDSA] Checking existing buffer storage...\n";
+    GLint vbSize = 0, ibSize = 0;
+    glGetNamedBufferParameteriv(m_Buffers[VERTEX_BUFFER], GL_BUFFER_SIZE, &vbSize);
+    GLenum err = glGetError();
+    if (err != GL_NO_ERROR) {
+        Logging::Error() << "[PopulateBuffersDSA] glGetNamedBufferParameteriv(VERTEX) failed: 0x" 
+                         << std::hex << err << std::dec << "\n";
+        return;
+    }
+
+    glGetNamedBufferParameteriv(m_Buffers[INDEX_BUFFER], GL_BUFFER_SIZE, &ibSize);
+    err = glGetError();
+    if (err != GL_NO_ERROR) {
+        Logging::Error() << "[PopulateBuffersDSA] glGetNamedBufferParameteriv(INDEX) failed: 0x" 
+                         << std::hex << err << std::dec << "\n";
+        return;
+    }
+
+    Logging::Debug() << "[PopulateBuffersDSA] Current buffer sizes: VB=" << vbSize << ", IB=" << ibSize << "\n";
+    
+    if (vbSize > 0 || ibSize > 0) {
+        Logging::Error() << "[PopulateBuffersDSA] ERROR: Buffers already have storage allocated!\n";
+        Logging::Error() << "  VERTEX_BUFFER size: " << vbSize << " bytes\n";
+        Logging::Error() << "  INDEX_BUFFER size: " << ibSize << " bytes\n";
+        Logging::Error() << "  This indicates Clear() did not properly delete old buffers.\n";
+        return;
+    }
+
+    // Allocate vertex buffer
+    const GLsizeiptr vertexBufferSize = sizeof(m_Vertices[0]) * m_Vertices.size();
+    Logging::Debug() << "[PopulateBuffersDSA] Allocating vertex buffer: " << vertexBufferSize << " bytes\n";
+    
+    glNamedBufferStorage(m_Buffers[VERTEX_BUFFER], vertexBufferSize, m_Vertices.data(), 0);
+    
+    err = glGetError();
+    if (err != GL_NO_ERROR) {
+        Logging::Error() << "[PopulateBuffersDSA] glNamedBufferStorage(VERTEX) FAILED with error: 0x" 
+                         << std::hex << err << std::dec << "\n";
+        switch (err) {
+            case GL_INVALID_OPERATION:
+                Logging::Error() << "  GL_INVALID_OPERATION (0x0502): Buffer already has immutable storage OR invalid buffer name\n";
+                break;
+            case GL_INVALID_VALUE:
+                Logging::Error() << "  GL_INVALID_VALUE (0x0501): Size is negative or flags are invalid\n";
+                Logging::Error() << "  vertexBufferSize = " << vertexBufferSize << "\n";
+                break;
+            case GL_OUT_OF_MEMORY:
+                Logging::Error() << "  GL_OUT_OF_MEMORY (0x0505): Cannot allocate memory\n";
+                break;
+            default:
+                Logging::Error() << "  Unknown error code\n";
+        }
+        return;
+    }
+    Logging::Debug() << "[PopulateBuffersDSA] Vertex buffer allocated successfully\n";
+
+    // Allocate index buffer
+    const GLsizeiptr indexBufferSize = sizeof(m_Indices[0]) * m_Indices.size();
+    Logging::Debug() << "[PopulateBuffersDSA] Allocating index buffer: " << indexBufferSize << " bytes\n";
+    
+    glNamedBufferStorage(m_Buffers[INDEX_BUFFER], indexBufferSize, m_Indices.data(), 0);
+    
+    err = glGetError();
+    if (err != GL_NO_ERROR) {
+        Logging::Error() << "[PopulateBuffersDSA] glNamedBufferStorage(INDEX) FAILED with error: 0x" 
+                         << std::hex << err << std::dec << "\n";
+        switch (err) {
+            case GL_INVALID_OPERATION:
+                Logging::Error() << "  GL_INVALID_OPERATION (0x0502): Buffer already has immutable storage OR invalid buffer name\n";
+                break;
+            case GL_INVALID_VALUE:
+                Logging::Error() << "  GL_INVALID_VALUE (0x0501): Size is negative or flags are invalid\n";
+                Logging::Error() << "  indexBufferSize = " << indexBufferSize << "\n";
+                break;
+            case GL_OUT_OF_MEMORY:
+                Logging::Error() << "  GL_OUT_OF_MEMORY (0x0505): Cannot allocate memory\n";
+                break;
+        }
+        return;
+    }
+    Logging::Debug() << "[PopulateBuffersDSA] Index buffer allocated successfully\n";
+
+    // Bind vertex buffer to VAO
+    Logging::Debug() << "[PopulateBuffersDSA] Binding vertex buffer to VAO...\n";
     glVertexArrayVertexBuffer(m_VAO, 0, m_Buffers[VERTEX_BUFFER], 0, sizeof(Vertex));
-    glVertexArrayElementBuffer(m_VAO, m_Buffers[INDEX_BUFFER]);
+    err = glGetError();
+    if (err != GL_NO_ERROR) {
+        Logging::Error() << "[PopulateBuffersDSA] glVertexArrayVertexBuffer FAILED: 0x" 
+                         << std::hex << err << std::dec << "\n";
+        return;
+    }
 
+    // Bind index buffer to VAO
+    Logging::Debug() << "[PopulateBuffersDSA] Binding index buffer to VAO...\n";
+    glVertexArrayElementBuffer(m_VAO, m_Buffers[INDEX_BUFFER]);
+    err = glGetError();
+    if (err != GL_NO_ERROR) {
+        Logging::Error() << "[PopulateBuffersDSA] glVertexArrayElementBuffer FAILED: 0x" 
+                         << std::hex << err << std::dec << "\n";
+        return;
+    }
+
+    // Setup vertex attributes
+    Logging::Debug() << "[PopulateBuffersDSA] Setting up vertex attributes...\n";
     size_t NumFloats = 0;
 
+    // Position attribute
     glEnableVertexArrayAttrib(m_VAO, POSITION_LOCATION);
+    err = glGetError();
+    if (err != GL_NO_ERROR) {
+        Logging::Error() << "[PopulateBuffersDSA] glEnableVertexArrayAttrib(POSITION) failed: 0x" 
+                         << std::hex << err << std::dec << "\n";
+        return;
+    }
+
     glVertexArrayAttribFormat(m_VAO, POSITION_LOCATION, 3, GL_FLOAT, GL_FALSE, (GLuint)(NumFloats * sizeof(float)));
+    err = glGetError();
+    if (err != GL_NO_ERROR) {
+        Logging::Error() << "[PopulateBuffersDSA] glVertexArrayAttribFormat(POSITION) failed: 0x" 
+                         << std::hex << err << std::dec << "\n";
+        return;
+    }
+
     glVertexArrayAttribBinding(m_VAO, POSITION_LOCATION, 0);
+    err = glGetError();
+    if (err != GL_NO_ERROR) {
+        Logging::Error() << "[PopulateBuffersDSA] glVertexArrayAttribBinding(POSITION) failed: 0x" 
+                         << std::hex << err << std::dec << "\n";
+        return;
+    }
     NumFloats += 3;
 
+    // TexCoord attribute
     glEnableVertexArrayAttrib(m_VAO, TEX_COORD_LOCATION);
+    err = glGetError();
+    if (err != GL_NO_ERROR) {
+        Logging::Error() << "[PopulateBuffersDSA] glEnableVertexArrayAttrib(TEXCOORD) failed: 0x" 
+                         << std::hex << err << std::dec << "\n";
+        return;
+    }
+
     glVertexArrayAttribFormat(m_VAO, TEX_COORD_LOCATION, 2, GL_FLOAT, GL_FALSE, (GLuint)(NumFloats * sizeof(float)));
+    err = glGetError();
+    if (err != GL_NO_ERROR) {
+        Logging::Error() << "[PopulateBuffersDSA] glVertexArrayAttribFormat(TEXCOORD) failed: 0x" 
+                         << std::hex << err << std::dec << "\n";
+        return;
+    }
+
     glVertexArrayAttribBinding(m_VAO, TEX_COORD_LOCATION, 0);
+    err = glGetError();
+    if (err != GL_NO_ERROR) {
+        Logging::Error() << "[PopulateBuffersDSA] glVertexArrayAttribBinding(TEXCOORD) failed: 0x" 
+                         << std::hex << err << std::dec << "\n";
+        return;
+    }
     NumFloats += 2;
 
+    // Normal attribute
     glEnableVertexArrayAttrib(m_VAO, NORMAL_LOCATION);
+    err = glGetError();
+    if (err != GL_NO_ERROR) {
+        Logging::Error() << "[PopulateBuffersDSA] glEnableVertexArrayAttrib(NORMAL) failed: 0x" 
+                         << std::hex << err << std::dec << "\n";
+        return;
+    }
+
     glVertexArrayAttribFormat(m_VAO, NORMAL_LOCATION, 3, GL_FLOAT, GL_FALSE, (GLuint)(NumFloats * sizeof(float)));
+    err = glGetError();
+    if (err != GL_NO_ERROR) {
+        Logging::Error() << "[PopulateBuffersDSA] glVertexArrayAttribFormat(NORMAL) failed: 0x" 
+                         << std::hex << err << std::dec << "\n";
+        return;
+    }
+
     glVertexArrayAttribBinding(m_VAO, NORMAL_LOCATION, 0);
+    err = glGetError();
+    if (err != GL_NO_ERROR) {
+        Logging::Error() << "[PopulateBuffersDSA] glVertexArrayAttribBinding(NORMAL) failed: 0x" 
+                         << std::hex << err << std::dec << "\n";
+        return;
+    }
+
+    Logging::Debug() << "[PopulateBuffersDSA] ? Completed successfully - all GL calls succeeded\n";
 }
 
 
