@@ -78,7 +78,7 @@ namespace Logging {
 
     bool IsLevelEnabled(Level level)
     {
-        return IsEnabled(level);
+        return (g_levelMask.load(std::memory_order_relaxed) & Bit(level)) != 0;
     }
 
     void EnableAllLevels()
@@ -97,10 +97,6 @@ namespace Logging {
     void DisableAllLevels()
     {
         g_levelMask.store(0, std::memory_order_relaxed);
-    }
-
-    bool IsEnabled(Level level) {
-        return (g_levelMask.load(std::memory_order_relaxed) & Bit(level)) != 0;
     }
 
 #if defined(_WIN32)
@@ -157,7 +153,7 @@ namespace Logging {
     }
 
     MessageStream::MessageStream(Level level)
-        : m_level(level), m_enabled(IsEnabled(level)) {
+        : m_level(level), m_enabled(IsLevelEnabled(level)) {
     }
 
     MessageStream::~MessageStream() {
