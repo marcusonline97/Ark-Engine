@@ -54,6 +54,12 @@ namespace Logging {
 
     void EnableLevel(Level level);
     void DisableLevel(Level level);
+    bool IsLevelEnabled(Level level);
+    void EnableAllLevels();
+	void DisableAllLevels();
+
+
+	const char* LevelName(Level level);
 
     MessageStream Message(Level level);
 

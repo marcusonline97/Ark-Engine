@@ -192,7 +192,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ArkEngine\src\ArkApp.cpp" />
-    <ClCompile Include="ArkEngine\src\ArkEngine.cpp" />
     <ClCompile Include="ArkEngine\src\ArkPhysics.cpp" />
     <ClCompile Include="ArkEngine\Vendor\Jolt\AABBTree\*.cpp" />
     <ClCompile Include="ArkEngine\Vendor\Jolt\Core\*.cpp" />
@@ -206,14 +205,9 @@
     <ClCompile Include="ArkEngine\src\ArkWindow.cpp" />
     <ClCompile Include="ArkEngine\src\AssetManager.cpp" />
     <ClCompile Include="ArkEngine\src\AssetManager\ResourceLoader.cpp" />
-    <ClCompile Include="ArkEngine\src\Camera\BasicCamera.cpp" />
-    <ClCompile Include="ArkEngine\src\Camera\Camera.cpp" />
     <ClCompile Include="ArkEngine\src\Camera\CameraController.cpp" />
-    <ClCompile Include="ArkEngine\src\Camera\ViewportCamera.cpp" />
-    <ClCompile Include="ArkEngine\src\Common\IO_Buffer.cpp" />
     <ClCompile Include="ArkEngine\src\Common\Pipeline.cpp" />
     <ClCompile Include="ArkEngine\src\ECS\Common\Basic_Mesh.cpp" />
-    <ClCompile Include="ArkEngine\src\ECS\Common\Mesh.cpp" />
     <ClCompile Include="ArkEngine\src\ECS\SkinnedMesh\Skinned_Mesh.cpp" />
     <ClCompile Include="ArkEngine\src\Editor\DirectoryScanner.cpp" />
     <ClCompile Include="ArkEngine\src\Editor\EditorUI.cpp" />
@@ -253,7 +247,6 @@
     <ClCompile Include="ArkEngine\src\Maps\Techniques\Shadow_Mapping_Technique.cpp" />
     <ClCompile Include="ArkEngine\src\Maps\Techniques\Skinning_Technique.cpp" />
     <ClCompile Include="ArkEngine\src\Maps\Techniques\Skybox_Technique.cpp" />
-    <ClCompile Include="ArkEngine\src\Material.cpp" />
     <ClCompile Include="ArkEngine\src\Math\3DMath_util.cpp" />
     <ClCompile Include="ArkEngine\src\Meshes\Cube.cpp" />
     <ClCompile Include="ArkEngine\src\MusicPlayer\Backend\FmodMusicBackend.cpp" />
@@ -280,26 +273,16 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ArkEngine\src\ArkApp.h" />
-    <ClInclude Include="ArkEngine\src\ArkEngine.h" />
     <ClInclude Include="ArkEngine\src\ArkEnum.h" />
     <ClInclude Include="ArkEngine\src\ArkPhysics.h" />
     <ClInclude Include="ArkEngine\src\ArkWindow.h" />
     <ClInclude Include="ArkEngine\src\AssetManager.h" />
     <ClInclude Include="ArkEngine\src\AssetManager\ResourceLoader.h" />
-    <ClInclude Include="ArkEngine\src\Camera\BasicCamera.h" />
-    <ClInclude Include="ArkEngine\src\Camera\Camera.h" />
     <ClInclude Include="ArkEngine\src\Camera\CameraController.h" />
-    <ClInclude Include="ArkEngine\src\Camera\Camera_API.h" />
-    <ClInclude Include="ArkEngine\src\Camera\ViewportCamera.h" />
-    <ClInclude Include="ArkEngine\src\Common\IO_Buffer.h" />
     <ClInclude Include="ArkEngine\src\Common\Pipeline.h" />
     <ClInclude Include="ArkEngine\src\ECS\Common\Basic_Mesh.h" />
-    <ClInclude Include="ArkEngine\src\ECS\Common\Mesh.h" />
     <ClInclude Include="ArkEngine\src\ECS\Common\Mesh_Common.h" />
-    <ClInclude Include="ArkEngine\src\ECS\Component.h" />
-    <ClInclude Include="ArkEngine\src\ECS\Lights\Lights_common.h" />
     <ClInclude Include="ArkEngine\src\ECS\SkinnedMesh\Skinned_Mesh.h" />
-    <ClInclude Include="ArkEngine\src\ECS\StaticMeshComponent.h" />
     <ClInclude Include="ArkEngine\src\Editor\DirectoryScanner.h" />
     <ClInclude Include="ArkEngine\src\Editor\EditorUI.h" />
     <ClInclude Include="ArkEngine\src\Editor\ImGuiLayer.h" />
@@ -349,7 +332,6 @@
     <ClInclude Include="ArkEngine\src\Maps\Techniques\Shadow_Mapping_Technique.h" />
     <ClInclude Include="ArkEngine\src\Maps\Techniques\Skinning_Technique.h" />
     <ClInclude Include="ArkEngine\src\Maps\Techniques\Skybox_Technique.h" />
-    <ClInclude Include="ArkEngine\src\Material.h" />
     <ClInclude Include="ArkEngine\src\Math\3DMath_util.h" />
     <ClInclude Include="ArkEngine\src\Meshes\Cube.h" />
     <ClInclude Include="ArkEngine\src\MusicPlayer\MusicPlayer.h" />

@@ -1,6 +1,5 @@
 #pragma once
 #include "Math/3DMath_util.h"
-#include "Camera/ViewportCamera.h"
 #include "Utility/Transform.h"
 
 struct Orientation
@@ -85,11 +84,6 @@ public:
         m_camera.Pos = Pos;
         m_camera.Target = Target;
         m_camera.Up = Up;
-    }
-
-    void SetCamera(const Camera& camera)
-    {
-        SetCamera(camera.GetPos(), camera.GetTarget(), camera.GetUp());
     }
 
     void Orient(const Orientation& o)
