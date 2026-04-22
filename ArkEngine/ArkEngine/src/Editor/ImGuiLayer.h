@@ -6,6 +6,7 @@
 #include <imgui/backends/imgui_impl_glfw.h>
 #include <imgui/backends/imgui_impl_opengl3.h>
 
+#include "ImGuizmo/ImGuizmo.h"
 #include "ImguiStyling.h"
 #include "Logger.h"
 
@@ -81,6 +82,8 @@ namespace Ark::Editor
 			ImGui_ImplOpenGL3_NewFrame();
 			ImGui_ImplGlfw_NewFrame();
 			ImGui::NewFrame();
+			ImGuizmo::BeginFrame();
+			ImGuizmo::SetOrthographic(false);
 		}
 
 		void EndFrame() const
