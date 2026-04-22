@@ -1,7 +1,6 @@
 #pragma once
 
 #include <cstddef>
-#include <limits>
 #include <memory>
 #include <vector>
 
@@ -41,22 +40,5 @@ private:
 	std::vector<EditorObject> m_Objects;
 	int m_SelectedObject = -1;
 
-	struct CachedTransformState
-	{
-		uint32_t objectId = 0;
-		glm::vec3 position{ 0.0f, 0.0f, 0.0f };
-		glm::vec3 rotation{ 0.0f, 0.0f, 0.0f };
-		glm::vec3 scale{ 1.0f, 1.0f, 1.0f };
-	};
-	//Reused render input storage avoids per-frame fector reallocations.
-	Ark::Rendering::WorldRenderInput m_renderInput{};
-
-	// Per-object transform cache keyed by object index in m_Objects.
-	std::vector<CachedTransformState> m_cachedObjectTransforms;
-	std::vector<glm::mat4> m_cachedObjectModels;
-
-	// Cached primary camera index, refreshed when scene topology/components change.
-	size_t m_primaryCameraIndex = std::numeric_limits<size_t>::max();
-	bool m_hasExplicitPrimaryCamera = false;
 };
 

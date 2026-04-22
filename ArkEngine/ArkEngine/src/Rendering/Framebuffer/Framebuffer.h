@@ -2,7 +2,6 @@
 
 #include <glad/glad.h>
 
-#include "Viewport/Viewport.h"
 #include "Math/3DMath_util.h"
 
 // TODO: try to merge with the Framebuffer class
@@ -41,6 +40,21 @@ public:
     int GetHeight() const { return m_height; }
 
 private:
+    struct SavedViewport
+    {
+        void Save()
+        {
+            glGetIntegerv(GL_VIEWPORT, viewport);
+        }
+
+        void Restore() const
+        {
+            glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
+        }
+
+        GLint viewport[4] = { 0, 0, 0, 0 };
+    };
+
     void InitDSA(int Width, int Height, int NumFormatComponents, bool IsFloat, bool DepthEnabled, bool NormalEnabled);
 
     void InitNonDSA(int Width, int Height, int NumFormatComponents, bool IsFloat, bool DepthEnabled, bool NormalEnabled);
@@ -61,5 +75,5 @@ private:
     GLuint m_colorBuffer = 0;
     GLuint m_depthBuffer = 0;
     GLuint m_normalBuffer = 0;
-    SaveViewport m_saveViewport;
+    SavedViewport m_savedViewport;
 };

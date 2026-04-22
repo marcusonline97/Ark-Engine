@@ -239,7 +239,7 @@ void Framebuffer::GenerateBufferNonDSA(GLuint& Buffer, int NumFormatComponents, 
 
 void Framebuffer::BindForWriting()
 {
-    m_saveViewport.Save();
+    m_savedViewport.Save();
 
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_fbo);
     glViewport(0, 0, m_width, m_height);
@@ -249,7 +249,7 @@ void Framebuffer::BindForWriting()
 void Framebuffer::UnbindWriting()
 {
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-    m_saveViewport.Restore();
+    m_savedViewport.Restore();
 }
 
 
