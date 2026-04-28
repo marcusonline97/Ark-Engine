@@ -266,15 +266,12 @@ void BasicMesh::Clear()
     // Delete buffers FIRST
     if (m_Buffers[0] != 0) {
         Logging::Debug() << "[Clear] Deleting " << ARRAY_SIZE_IN_ELEMENTS(m_Buffers) << " buffers\n";
-        for (size_t i = 0; i < ARRAY_SIZE_IN_ELEMENTS(m_Buffers); ++i) {
-            if (m_Buffers[i] != 0) {
-                Logging::Debug() << "  Buffer[" << i << "] ID: " << m_Buffers[i] << "\n";
-            }
-        }
         glDeleteBuffers(ARRAY_SIZE_IN_ELEMENTS(m_Buffers), m_Buffers);
         
         // CRITICAL FIX: Zero out the buffer IDs after deletion
-        std::memset(m_Buffers, 0, sizeof(m_Buffers));
+        for (size_t i = 0; i < ARRAY_SIZE_IN_ELEMENTS(m_Buffers); ++i) {
+            m_Buffers[i] = 0;
+        }
         Logging::Debug() << "[Clear] Buffers zeroed out\n";
     }
 

@@ -79,10 +79,10 @@ bool EditorUI::WouldCreateCycle(const std::vector<EditorObject>& objects, std::u
 
 Ark::Rendering::WorldCameraInput EditorUI::GetEditorViewportCamera() const
 {
-	const Ark::CameraController& activeCamera = m_isPossessing ? m_possessedCamera : m_editorCamera;
+    const Ark::CameraController& activeCamera = m_isPossessing ? m_possessedCamera : m_editorCamera;
 
     Ark::Rendering::WorldCameraInput cam{};
-	cam.position = activeCamera.position;
+    cam.position = activeCamera.position;
 
     // Editor camera is now also left-handed; no conversion here.
     cam.pitchYawDeg = glm::vec2(activeCamera.pitchDeg, activeCamera.yawDeg);
@@ -250,7 +250,7 @@ void EditorUI::Init()
 void EditorUI::Shutdown()
 {
     // nothing to add here since the panels are in intermediate mode
-	EndPossession();
+    EndPossession();
     m_music.Shutdown();
     m_dirScanner.Stop();
 }
@@ -723,22 +723,27 @@ void EditorUI::RenderViewport(std::vector<EditorObject>& objects, int& selectedO
             EditorObject& obj = objects[static_cast<size_t>(selectedObjectIndex)];
             const Ark::CameraController& activeCamera = m_editorCamera;
 
-            // Use editor camera (NOT a fixed lookAt) for gizmo matrices
+            // IMPORTANT: The gizmo view/projection MUST match the renderer exactly.
+            // The renderer uses left-handed (LH) conventions with a [0,1] depth range (ZO).
+            // Using the right-handed glm::lookAt / glm::perspective here causes the gizmo
+            // to compute a different clip-space than the rendered image, making it drift
+            // whenever the camera moves or rotates.
             const glm::vec3 camPos = activeCamera.position;
             const glm::vec3 camForward = activeCamera.GetForward();
-            const glm::mat4 view = glm::lookAt(camPos, camPos + camForward, glm::vec3(0, 1, 0));
+            const glm::vec3 camUp(0.0f, 1.0f, 0.0f);
+            const glm::mat4 view = glm::lookAtLH(camPos, camPos + camForward, camUp);
 
             const float aspect = (availableSize.y > 1.0f) ? (availableSize.x / availableSize.y) : 1.0f;
-            const glm::mat4 projection = glm::perspective(glm::radians(m_editorCamFovDeg), aspect, m_editorCamNear, m_editorCamFar);
+            const glm::mat4 projection = glm::perspectiveLH_ZO(
+                glm::radians(m_editorCamFovDeg), aspect, m_editorCamNear, m_editorCamFar);
 
-            glm::mat4 model(1.0f);
-            {
-                const glm::mat4 rotX = glm::rotate(glm::mat4(1.0f), glm::radians(obj.rotationDeg.x), glm::vec3(1, 0, 0));
-                const glm::mat4 rotY = glm::rotate(glm::mat4(1.0f), glm::radians(obj.rotationDeg.y), glm::vec3(0, 1, 0));
-                const glm::mat4 rotZ = glm::rotate(glm::mat4(1.0f), glm::radians(obj.rotationDeg.z), glm::vec3(0, 0, 1));
-                const glm::mat4 rot = rotZ * rotY * rotX;
-                model = glm::translate(glm::mat4(1.0f), obj.position) * rot * glm::scale(glm::mat4(1.0f), obj.scale);
-            }
+            // Build TRS model matrix (rotation order Z*Y*X, matching the renderer).
+            const glm::mat4 rotX = glm::rotate(glm::mat4(1.0f), glm::radians(obj.rotationDeg.x), glm::vec3(1, 0, 0));
+            const glm::mat4 rotY = glm::rotate(glm::mat4(1.0f), glm::radians(obj.rotationDeg.y), glm::vec3(0, 1, 0));
+            const glm::mat4 rotZ = glm::rotate(glm::mat4(1.0f), glm::radians(obj.rotationDeg.z), glm::vec3(0, 0, 1));
+            glm::mat4 model = glm::translate(glm::mat4(1.0f), obj.position)
+                * (rotZ * rotY * rotX)
+                * glm::scale(glm::mat4(1.0f), obj.scale);
 
             // Important: draw gizmo in viewport rect
             ImGuizmo::SetDrawlist(ImGui::GetWindowDrawList());
@@ -1483,70 +1488,70 @@ void EditorUI::RenderInspector(std::vector<EditorObject>& objects, int& selected
             ImGui::InputText("Material Path (.mtl)", &obj.staticMesh->materialPath);
 
             auto acceptMtlDropToString = [&](std::string& dst)
-            {
-                if (!ImGui::BeginDragDropTarget())
-                    return false;
-
-                bool changed = false;
-
-                if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(kPayloadAssetPath))
                 {
-                    const char* dropped = static_cast<const char*>(payload->Data);
-                    if (dropped && dropped[0] != '\0')
-                    {
-                        const std::filesystem::path p(dropped);
-                        std::string ext = p.has_extension() ? p.extension().string() : std::string();
-                        std::transform(ext.begin(), ext.end(), ext.begin(),
-                            [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+                    if (!ImGui::BeginDragDropTarget())
+                        return false;
 
-                        if (ext == ".mtl")
+                    bool changed = false;
+
+                    if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(kPayloadAssetPath))
+                    {
+                        const char* dropped = static_cast<const char*>(payload->Data);
+                        if (dropped && dropped[0] != '\0')
                         {
-                            dst = dropped;
-                            changed = true;
+                            const std::filesystem::path p(dropped);
+                            std::string ext = p.has_extension() ? p.extension().string() : std::string();
+                            std::transform(ext.begin(), ext.end(), ext.begin(),
+                                [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+
+                            if (ext == ".mtl")
+                            {
+                                dst = dropped;
+                                changed = true;
+                            }
                         }
                     }
-                }
 
-                ImGui::EndDragDropTarget();
-                return changed;
-            };
-
-            const auto rebuildMtlTextureSlots = [&]()
-            {
-                obj.staticMesh->textures.clear();
-
-                if (obj.staticMesh->materialPath.empty())
-                    return;
-
-                const std::string resolved = AssetManager::Instance().ResolveAssetPath(obj.staticMesh->materialPath);
-
-                Ark::Rendering::MtlMaterial mtl{};
-                if (!Ark::Rendering::TryLoadMtlMaterial(resolved, mtl))
-                    return;
-
-                const auto addAll = [&](const char* name, Ark::Rendering::MtlTextureSemantic sem)
-                {
-                    auto it = mtl.textures.find(sem);
-                    if (it == mtl.textures.end() || it->second.empty())
-                        return;
-
-                    for (const auto& path : it->second)
-                    {
-                        if (path.empty())
-                            continue;
-
-                        StaticMeshEditorComponent::TextureSlot slot{};
-                        slot.name = name;
-                        slot.path = path;
-                        obj.staticMesh->textures.push_back(std::move(slot));
-                    }
+                    ImGui::EndDragDropTarget();
+                    return changed;
                 };
 
-                addAll("Diffuse", Ark::Rendering::MtlTextureSemantic::Diffuse);
-                addAll("Specular", Ark::Rendering::MtlTextureSemantic::Specular);
-                addAll("Normal", Ark::Rendering::MtlTextureSemantic::Normal);
-                addAll("Opacity", Ark::Rendering::MtlTextureSemantic::Opacity);
-            };
+            const auto rebuildMtlTextureSlots = [&]()
+                {
+                    obj.staticMesh->textures.clear();
+
+                    if (obj.staticMesh->materialPath.empty())
+                        return;
+
+                    const std::string resolved = AssetManager::Instance().ResolveAssetPath(obj.staticMesh->materialPath);
+
+                    Ark::Rendering::MtlMaterial mtl{};
+                    if (!Ark::Rendering::TryLoadMtlMaterial(resolved, mtl))
+                        return;
+
+                    const auto addAll = [&](const char* name, Ark::Rendering::MtlTextureSemantic sem)
+                        {
+                            auto it = mtl.textures.find(sem);
+                            if (it == mtl.textures.end() || it->second.empty())
+                                return;
+
+                            for (const auto& path : it->second)
+                            {
+                                if (path.empty())
+                                    continue;
+
+                                StaticMeshEditorComponent::TextureSlot slot{};
+                                slot.name = name;
+                                slot.path = path;
+                                obj.staticMesh->textures.push_back(std::move(slot));
+                            }
+                        };
+
+                    addAll("Diffuse", Ark::Rendering::MtlTextureSemantic::Diffuse);
+                    addAll("Specular", Ark::Rendering::MtlTextureSemantic::Specular);
+                    addAll("Normal", Ark::Rendering::MtlTextureSemantic::Normal);
+                    addAll("Opacity", Ark::Rendering::MtlTextureSemantic::Opacity);
+                };
 
             const bool mtlDropped = acceptMtlDropToString(obj.staticMesh->materialPath);
 

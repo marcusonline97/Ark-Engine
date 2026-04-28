@@ -15,7 +15,6 @@
 #include "Logger.h"
 #include "Utility/Utility.h"
 #include "Utility/SceneIO.h"
-#include "Camera/CameraController.h"
 #include "Input/Input.h"
 #include "ArkPhysics.h"
 #include "AssetManager.h"
@@ -24,45 +23,45 @@ static constexpr const char* kImGuiGLSLVersion = "#version 450";
 
 namespace
 {
-	constexpr int kResourcesPerFrame = 2;
-
+	// Resolve scene path through the AssetManager so project-relative paths work correctly.
 	std::filesystem::path ResolveEditorScenePath()
 	{
-		// Keep scene resolution aligned with runtime asset lookup rules.
 		return AssetManager::Instance().ResolveAssetPath("Resources/Scenes/EditorScene.json");
 	}
 
-	Ark::CameraInput BuildCameraInputFromKeyboard()
-	{
-		Ark::CameraInput input{};
-		input.forward = Ark::Input::IsKeyDown(ARK_KEY_W);
-		input.back = Ark::Input::IsKeyDown(ARK_KEY_S);
-		input.left = Ark::Input::IsKeyDown(ARK_KEY_A);
-		input.right = Ark::Input::IsKeyDown(ARK_KEY_D);
-		input.up = Ark::Input::IsKeyDown(ARK_KEY_E);
-		input.down = Ark::Input::IsKeyDown(ARK_KEY_Q);
-		input.fast = Ark::Input::IsKeyDown(ARK_KEY_LEFT_SHIFT);
-		return input;
-	}
-
+	// Build a TRS model matrix from an EditorObject's transform components.
+	// Rotation order: Z * Y * X (applied right to left, i.e. X first).
 	glm::mat4 BuildModelMatrix(const EditorObject& obj)
 	{
 		const glm::mat4 rotX = glm::rotate(glm::mat4(1.0f), glm::radians(obj.rotationDeg.x), glm::vec3(1, 0, 0));
 		const glm::mat4 rotY = glm::rotate(glm::mat4(1.0f), glm::radians(obj.rotationDeg.y), glm::vec3(0, 1, 0));
 		const glm::mat4 rotZ = glm::rotate(glm::mat4(1.0f), glm::radians(obj.rotationDeg.z), glm::vec3(0, 0, 1));
-		const glm::mat4 rot = rotZ * rotY * rotX;
-		return glm::translate(glm::mat4(1.0f), obj.position) * rot * glm::scale(glm::mat4(1.0f), obj.scale);
+		return glm::translate(glm::mat4(1.0f), obj.position)
+			* (rotZ * rotY * rotX)
+			* glm::scale(glm::mat4(1.0f), obj.scale);
 	}
 
+	// Find the first enabled camera object that is marked primary,
+	// falling back to the first camera if none is marked primary.
+	EditorObject* FindActiveCamera(std::vector<EditorObject>& objects)
+	{
+		EditorObject* fallback = nullptr;
+		for (auto& o : objects)
+		{
+			if (!o.enabled || !o.camera)
+				continue;
+			if (o.camera->primary)
+				return &o;
+			if (!fallback)
+				fallback = &o;
+		}
+		return fallback;
+	}
 }
-
-// TODO(camera-legacy): BasicCamera and ViewportCamera still exist in the tree but
-// runtime control now goes through CameraController-based possession/editor logic.
 
 GLFWwindow* App::GetWindowHandle() const
 {
 	return m_Window ? m_Window->GetNativeHandle() : nullptr;
-
 }
 
 App::App()
@@ -80,10 +79,9 @@ App::App()
 		[](GLFWwindow*, int width, int height)
 		{
 			glViewport(0, 0, width, height);
-		}
-	);
+		});
 
-	std::cout << "OpenGL Version: " << glGetString(GL_VERSION) << std::endl;
+	std::cout << "OpenGL Version: " << glGetString(GL_VERSION) << "\n";
 
 	const bool imguiOk = m_ImGui.Init(m_Window->GetNativeHandle(), kImGuiGLSLVersion);
 	Logging::ToDo() << "Initializing ImGui.\n";
@@ -97,20 +95,15 @@ App::App()
 			});
 	}
 
-	// Load blank map first (clean state), then load EditorScene.json.
+	// Load a clean state first, then load the saved scene.
 	{
-		// Blank map = no objects
 		m_Objects.clear();
 		m_SelectedObject = -1;
 
 		const std::filesystem::path scenePath = ResolveEditorScenePath();
-
 		if (!Ark::Editor::LoadEditorScene(scenePath, m_Objects))
 		{
 			Logging::Warning() << "Failed to load scene: " << scenePath.string() << " (scene will be empty)\n";
-
-			// IMPORTANT: Do not create fallback objects here.
-			// The Hierarchy should reflect only what's in the Scene.json file.
 			m_Objects.clear();
 		}
 
@@ -140,12 +133,8 @@ App::~App()
 void App::Run()
 {
 	double lastTime = glfwGetTime();
-	bool rotating = false;
-	double lastMouseX = 0.0;
-	double lastMouseY = 0.0;
 
-	bool showGrid = true;
-
+	// Assign stable IDs to any objects that were loaded without one.
 	{
 		std::uint32_t nextId = 1;
 		for (auto& o : m_Objects)
@@ -165,50 +154,35 @@ void App::Run()
 
 		Ark::Input::NewFrame();
 
+		// --- Physics: consume latest transforms and apply to dynamic objects ---
 		if (m_PhysicsWorld && m_EditorUI.IsPlayMode())
 		{
-			std::vector<Ark::Physics::BodyTransform> physicsTransforms = m_PhysicsWorld->ConsumeLatestTransforms();
-			if (!physicsTransforms.empty())
+			const auto physicsTransforms = m_PhysicsWorld->ConsumeLatestTransforms();
+			for (const auto& t : physicsTransforms)
 			{
-				for (const auto& t : physicsTransforms)
+				if (t.objectId == 0)
+					continue;
+
+				for (auto& o : m_Objects)
 				{
-					if (t.objectId == 0)
+					if (o.id != t.objectId || !o.physicsBody || !o.enabled)
 						continue;
 
-					for (auto& o : m_Objects)
+					const int motionType = std::clamp(o.physicsBody->motionType, 0, 2);
+					if (motionType == 1) // Dynamic
 					{
-						if (o.id != t.objectId)
-							continue;
-
-						if (!o.physicsBody || !o.enabled)
-							break;
-
-						const int motionType = std::clamp(o.physicsBody->motionType, 0, 2);
-						const bool isDynamic = motionType == 1;
-						if (isDynamic)
-						{
-							o.position = t.position;
-							o.rotationDeg = t.rotationDeg;
-						}
-						break;
+						o.position = t.position;
+						o.rotationDeg = t.rotationDeg;
 					}
+					break;
 				}
 			}
 		}
 
-		if (Ark::Input::IsKeyPressed(ARK_KEY_G))
-		{
-			showGrid = !showGrid;
-
-			if (!showGrid)
-				Logging::Debug() << "Grid cleared (hidden).\n";
-			else
-				Logging::Debug() << "Grid enabled.\n";
-		}
-
-		// CPU iterative resource loading: do a small bounded amount per frame.
+		// --- CPU resource streaming ---
 		m_cpuResourceLoader.Pump(2);
 
+		// --- Physics: submit current scene state ---
 		if (m_PhysicsWorld)
 		{
 			std::vector<Ark::Physics::BodyConfig> physicsBodies;
@@ -226,11 +200,11 @@ void App::Run()
 				cfg.position = o.position;
 				cfg.rotationDeg = o.rotationDeg;
 
-				const glm::vec3 safeHalfExtents = glm::max(glm::abs(o.physicsBody->halfExtents), glm::vec3(0.01f));
+				const glm::vec3 safeHalf = glm::max(glm::abs(o.physicsBody->halfExtents), glm::vec3(0.01f));
 				cfg.halfExtents = glm::vec3(
-					safeHalfExtents.x * std::max(0.01f, std::abs(o.scale.x)),
-					safeHalfExtents.y * std::max(0.01f, std::abs(o.scale.y)),
-					safeHalfExtents.z * std::max(0.01f, std::abs(o.scale.z)));
+					safeHalf.x * std::max(0.01f, std::abs(o.scale.x)),
+					safeHalf.y * std::max(0.01f, std::abs(o.scale.y)),
+					safeHalf.z * std::max(0.01f, std::abs(o.scale.z)));
 
 				physicsBodies.push_back(cfg);
 			}
@@ -239,26 +213,11 @@ void App::Run()
 			m_PhysicsWorld->SubmitScene(physicsBodies);
 		}
 
-		// Play mode: possess the primary camera and drive it with basic FPS controls.
+		// --- Play-mode: drive the primary scene camera with FPS controls ---
+		// Note: edit-mode camera is fully managed by EditorUI (possession/viewport).
 		if (m_EditorUI.IsPlayMode())
 		{
-			EditorObject* camObj = nullptr;
-			for (auto& o : m_Objects)
-			{
-				if (!o.enabled || !o.camera) continue;
-				if (o.camera->primary) { camObj = &o; break; }
-			}
-			if (!camObj)
-			{
-				for (auto& o : m_Objects)
-				{
-					if (!o.enabled || !o.camera) continue;
-					camObj = &o;
-					break;
-				}
-			}
-
-			if (camObj)
+			if (EditorObject* camObj = FindActiveCamera(m_Objects))
 			{
 				const float pitch = camObj->rotationDeg.x;
 				const float yaw = camObj->rotationDeg.y;
@@ -269,22 +228,22 @@ void App::Run()
 				front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
 				front = glm::normalize(front);
 
-				const glm::vec3 up(0.0f, 1.0f, 0.0f);
-				const glm::vec3 right = glm::normalize(glm::cross(up, front));
-
-				const float speed = 3.5f;
-				const float move = speed * dt;
+				const glm::vec3 worldUp(0.0f, 1.0f, 0.0f);
+				const glm::vec3 right = glm::normalize(glm::cross(worldUp, front));
+				const float move = 3.5f * dt;
 
 				if (Ark::Input::IsKeyDown(ARK_KEY_W)) camObj->position += front * move;
 				if (Ark::Input::IsKeyDown(ARK_KEY_S)) camObj->position -= front * move;
+				if (Ark::Input::IsKeyDown(ARK_KEY_A)) camObj->position -= right * move;
+				if (Ark::Input::IsKeyDown(ARK_KEY_D)) camObj->position += right * move;
+				if (Ark::Input::IsKeyDown(ARK_KEY_E)) camObj->position += worldUp * move;
+				if (Ark::Input::IsKeyDown(ARK_KEY_Q)) camObj->position -= worldUp * move;
 
-				if (Ark::Input::IsKeyDown(ARK_KEY_A)) camObj->position -= right * move; // left
-				if (Ark::Input::IsKeyDown(ARK_KEY_D)) camObj->position += right * move; // right
+				// RMB look
+				static bool rotating = false;
+				static double lastMouseX = 0.0;
+				static double lastMouseY = 0.0;
 
-				if (Ark::Input::IsKeyDown(ARK_KEY_E)) camObj->position += up * move;
-				if (Ark::Input::IsKeyDown(ARK_KEY_Q)) camObj->position -= up * move;
-
-				// Hold RMB to rotate the camera.
 				if (Ark::Input::IsMouseDown(ARK_MOUSE_RIGHT))
 				{
 					double mx = 0.0, my = 0.0;
@@ -297,18 +256,12 @@ void App::Run()
 					}
 					else
 					{
-						const double dx = mx - lastMouseX;
-						const double dy = my - lastMouseY;
+						constexpr float sensitivity = 0.12f;
+						camObj->rotationDeg.y += static_cast<float>(mx - lastMouseX) * sensitivity;
+						camObj->rotationDeg.x -= static_cast<float>(my - lastMouseY) * sensitivity;
+						camObj->rotationDeg.x = std::clamp(camObj->rotationDeg.x, -89.0f, 89.0f);
 						lastMouseX = mx;
 						lastMouseY = my;
-
-						constexpr float sensitivity = 0.12f;
-						camObj->rotationDeg.y += static_cast<float>(dx) * sensitivity;
-						camObj->rotationDeg.x -= static_cast<float>(dy) * sensitivity;
-
-						// Clamp pitch to avoid gimbal flip.
-						if (camObj->rotationDeg.x > 89.0f) camObj->rotationDeg.x = 89.0f;
-						if (camObj->rotationDeg.x < -89.0f) camObj->rotationDeg.x = -89.0f;
 					}
 				}
 				else
@@ -318,68 +271,49 @@ void App::Run()
 			}
 		}
 
+		// --- Resolve viewport dimensions ---
 		glm::vec2 vpSize = m_EditorUI.GetViewportSize();
 		int vpW = static_cast<int>(vpSize.x);
 		int vpH = static_cast<int>(vpSize.y);
 		if (vpW < 16 || vpH < 16)
 			glfwGetFramebufferSize(m_Window->GetNativeHandle(), &vpW, &vpH);
+		vpW = std::max(vpW, 1);
+		vpH = std::max(vpH, 1);
 
-		if (vpW < 1) vpW = 1;
-		if (vpH < 1) vpH = 1;
-
+		// --- Build and submit render input ---
 		if (m_WorldRenderer)
 		{
 			Ark::Rendering::WorldRenderInput input{};
 			input.width = static_cast<uint32_t>(vpW);
 			input.height = static_cast<uint32_t>(vpH);
-
 			input.wireframe = m_EditorUI.GetWireframeEnabled();
 			input.useMipmaps = m_EditorUI.GetUseMipmaps();
 			input.showGrid = m_EditorUI.GetShowGrid();
 
-			const auto toModel = [](const EditorObject& obj)
-				{
-					const glm::mat4 rotX = glm::rotate(glm::mat4(1.0f), glm::radians(obj.rotationDeg.x), glm::vec3(1, 0, 0));
-					const glm::mat4 rotY = glm::rotate(glm::mat4(1.0f), glm::radians(obj.rotationDeg.y), glm::vec3(0, 1, 0));
-					const glm::mat4 rotZ = glm::rotate(glm::mat4(1.0f), glm::radians(obj.rotationDeg.z), glm::vec3(0, 0, 1));
-					const glm::mat4 rot = rotZ * rotY * rotX;
-					return glm::translate(glm::mat4(1.0f), obj.position) * rot * glm::scale(glm::mat4(1.0f), obj.scale);
-				};
-
-			// Camera selection:
-			// - EDIT mode: use the editor viewport camera (world-space).
-			// - PLAY mode: use the scene's primary camera (or first camera).
+			// Camera selection: edit mode uses the editor viewport camera,
+			// play mode drives from the primary scene camera object.
 			if (!m_EditorUI.IsPlayMode())
 			{
 				input.camera = m_EditorUI.GetEditorViewportCamera();
-				m_EditorUI.SetViewportRenderCamera(input.camera);
 			}
-			else
+			else if (EditorObject* camObj = FindActiveCamera(m_Objects))
 			{
-				EditorObject* camObj = nullptr;
-				for (auto& o : m_Objects)
-				{
-					if (!o.enabled || !o.camera) continue;
-					if (o.camera->primary) { camObj = &o; break; }
-					if (!camObj) camObj = &o;
-				}
-
-				if (camObj && camObj->camera)
-				{
-					input.camera.position = camObj->position;
-					input.camera.pitchYawDeg = glm::vec2(camObj->rotationDeg.x, camObj->rotationDeg.y);
-					input.camera.fovDeg = camObj->camera->fovDeg;
-					input.camera.nearPlane = camObj->camera->nearPlane;
-					input.camera.farPlane = camObj->camera->farPlane;
-				}
-
-				m_EditorUI.SetViewportRenderCamera(input.camera);
+				input.camera.position = camObj->position;
+				input.camera.pitchYawDeg = glm::vec2(camObj->rotationDeg.x, camObj->rotationDeg.y);
+				input.camera.fovDeg = camObj->camera ? camObj->camera->fovDeg : 45.0f;
+				input.camera.nearPlane = camObj->camera ? camObj->camera->nearPlane : 0.1f;
+				input.camera.farPlane = camObj->camera ? camObj->camera->farPlane : 100.0f;
 			}
+			m_EditorUI.SetViewportRenderCamera(input.camera);
 
-			input.instances.clear();
+			// Build instance and light lists from the enabled scene objects.
 			input.instances.reserve(m_Objects.size());
-			input.pointLights.clear();
 			input.pointLights.reserve(m_Objects.size());
+
+			const auto resolve = [](const std::string& p) -> std::string
+				{
+					return p.empty() ? std::string{} : AssetManager::Instance().ResolveAssetPath(p);
+				};
 
 			for (const auto& o : m_Objects)
 			{
@@ -390,57 +324,32 @@ void App::Run()
 				{
 					Ark::Rendering::RenderInstance inst{};
 					inst.objectId = o.id;
-
-					inst.model = toModel(o);
+					inst.model = BuildModelMatrix(o);
 					inst.tint = o.tint;
-
-					inst.hasMaterial = false;
-					if (o.materialPreset != 0)
-						inst.hasMaterial = true;
-
-					if (o.staticMesh && !o.staticMesh->texturePath.empty())
-						inst.hasMaterial = true;
-					if (o.skeletalMesh && !o.skeletalMesh->texturePath.empty())
-						inst.hasMaterial = true;
-
-					// Always resolve paths through AssetManager so that project-relative
-					// paths (e.g. "ArkEngine\Resources\...") become absolute before
-					// being handed to the renderer / Assimp / stb_image.
-					auto resolve = [](const std::string& p) -> std::string
-						{
-							if (p.empty()) return {};
-							return AssetManager::Instance().ResolveAssetPath(p);
-						};
+					inst.hasMaterial = (o.materialPreset != 0);
 
 					if (o.staticMesh)
 					{
 						inst.meshType = Ark::Rendering::RenderMeshType::Static;
-
-						if (!o.staticMesh->meshPath.empty())
-							inst.meshPath = resolve(o.staticMesh->meshPath);
-
-						if (!o.staticMesh->texturePath.empty())
-							inst.albedoTexturePath = resolve(o.staticMesh->texturePath);
+						inst.meshPath = resolve(o.staticMesh->meshPath);
+						inst.albedoTexturePath = resolve(o.staticMesh->texturePath);
+						if (!inst.albedoTexturePath.empty())
+							inst.hasMaterial = true;
 					}
 					else if (o.skeletalMesh)
 					{
 						inst.meshType = Ark::Rendering::RenderMeshType::Skeletal;
-
-						if (!o.skeletalMesh->meshPath.empty())
-							inst.meshPath = resolve(o.skeletalMesh->meshPath);
-
-						if (!o.skeletalMesh->texturePath.empty())
-							inst.albedoTexturePath = resolve(o.skeletalMesh->texturePath);
-
-						if (!o.skeletalMesh->animationPath.empty())
-							inst.animationPath = resolve(o.skeletalMesh->animationPath);
+						inst.meshPath = resolve(o.skeletalMesh->meshPath);
+						inst.albedoTexturePath = resolve(o.skeletalMesh->texturePath);
+						inst.animationPath = resolve(o.skeletalMesh->animationPath);
 						inst.animationIndex = o.skeletalMesh->animationIndex;
+						if (!inst.albedoTexturePath.empty())
+							inst.hasMaterial = true;
 					}
 
 					input.instances.push_back(inst);
 				}
 
-				// Scene light (affects shading)
 				if (o.pointLight)
 				{
 					Ark::Rendering::PointLightInput l{};
@@ -449,8 +358,6 @@ void App::Run()
 					l.intensity = o.pointLight->intensity;
 					l.radius = o.pointLight->radius;
 					input.pointLights.push_back(l);
-
-					// NOTE: Do NOT render point lights as proxy cubes. Gizmos are handled by ImGuizmo in the editor UI.
 				}
 			}
 
@@ -459,7 +366,7 @@ void App::Run()
 
 		Utilities::TickViewportFPS(glfwGetTime());
 
-		// Clear the main framebuffer before drawing UI.
+		// --- Clear main framebuffer, then render UI on top ---
 		int winW = 0, winH = 0;
 		glfwGetFramebufferSize(m_Window->GetNativeHandle(), &winW, &winH);
 		glViewport(0, 0, winW, winH);
@@ -489,6 +396,7 @@ void App::Run()
 					Logging::Debug() << "Scene loaded: " << scenePath.string() << "\n";
 				}
 			}
+
 			m_ImGui.EndFrame();
 		}
 

@@ -440,12 +440,34 @@ namespace Ark::Rendering
 		if (it != m_staticMeshes.end())
 			return it->second.get();
 
-		auto mesh = std::make_unique<BasicMesh>();
-		if (!mesh->LoadMesh(meshPath))
+		// Resolve the path through AssetManager
+		const std::string resolvedPath = AssetManager::Instance().ResolveAssetPath(meshPath);
+		if (resolvedPath.empty())
 		{
-			Logging::Error() << "WorldRendererLegacy: failed to load static mesh '" << meshPath << "'\n";
+			Logging::Error() << "WorldRendererLegacy: mesh path '" << meshPath 
+							<< "' could not be resolved\n";
 			return nullptr;
 		}
+
+		// Check if file actually exists at resolved path
+		if (!std::filesystem::exists(resolvedPath))
+		{
+			Logging::Error() << "WorldRendererLegacy: mesh file not found at resolved path '" 
+							<< resolvedPath << "'\n";
+			return nullptr;
+		}
+
+		Logging::Debug() << "WorldRendererLegacy: Loading mesh from '" << resolvedPath << "'\n";
+
+		auto mesh = std::make_unique<BasicMesh>();
+		if (!mesh->LoadMesh(resolvedPath))
+		{
+			Logging::Error() << "WorldRendererLegacy: failed to load static mesh '" 
+							<< resolvedPath << "'\n";
+			return nullptr;
+		}
+
+		Logging::Debug() << "WorldRendererLegacy: Successfully loaded mesh '" << resolvedPath << "'\n";
 
 		BasicMesh* raw = mesh.get();
 		m_staticMeshes.emplace(meshPath, std::move(mesh));
@@ -461,12 +483,34 @@ namespace Ark::Rendering
 		if (it != m_skeletalMeshes.end())
 			return it->second.get();
 
-		auto mesh = std::make_unique<SkinnedMesh>();
-		if (!mesh->LoadMesh(meshPath))
+		// Resolve the path through AssetManager
+		const std::string resolvedPath = AssetManager::Instance().ResolveAssetPath(meshPath);
+		if (resolvedPath.empty())
 		{
-			Logging::Error() << "WorldRendererLegacy: failed to load skinned mesh '" << meshPath << "'\n";
+			Logging::Error() << "WorldRendererLegacy: skeletal mesh path '" << meshPath 
+							<< "' could not be resolved\n";
 			return nullptr;
 		}
+
+		// Check if file actually exists at resolved path
+		if (!std::filesystem::exists(resolvedPath))
+		{
+			Logging::Error() << "WorldRendererLegacy: skeletal mesh file not found at resolved path '" 
+							<< resolvedPath << "'\n";
+			return nullptr;
+		}
+
+		Logging::Debug() << "WorldRendererLegacy: Loading skeletal mesh from '" << resolvedPath << "'\n";
+
+		auto mesh = std::make_unique<SkinnedMesh>();
+		if (!mesh->LoadMesh(resolvedPath))
+		{
+			Logging::Error() << "WorldRendererLegacy: failed to load skinned mesh '" 
+							<< resolvedPath << "'\n";
+			return nullptr;
+		}
+
+		Logging::Debug() << "WorldRendererLegacy: Successfully loaded skeletal mesh '" << resolvedPath << "'\n";
 
 		SkinnedMesh* raw = mesh.get();
 		m_skeletalMeshes.emplace(meshPath, std::move(mesh));
