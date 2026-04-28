@@ -193,6 +193,9 @@
   <ItemGroup>
     <ClCompile Include="ArkEngine\src\ArkApp.cpp" />
     <ClCompile Include="ArkEngine\src\ArkPhysics.cpp" />
+    <ClCompile Include="ArkEngine\src\Migration\New_stb_image.cpp" />
+    <ClCompile Include="ArkEngine\src\Migration\New_Texture.cpp" />
+    <ClCompile Include="ArkEngine\src\Migration\New_WorldTransform.cpp" />
     <ClCompile Include="ArkEngine\Vendor\Jolt\AABBTree\*.cpp" />
     <ClCompile Include="ArkEngine\Vendor\Jolt\Core\*.cpp" />
     <ClCompile Include="ArkEngine\Vendor\Jolt\Geometry\*.cpp" />
@@ -260,14 +263,12 @@
     <ClCompile Include="ArkEngine\src\Rendering\Material\MtlMaterial.cpp" />
     <ClCompile Include="ArkEngine\src\Rendering\Phong\Phong_Renderer.cpp" />
     <ClCompile Include="ArkEngine\src\Rendering\Texture\Cubemap_Texture.cpp" />
-    <ClCompile Include="ArkEngine\src\Rendering\Texture\Texture.cpp" />
     <ClCompile Include="ArkEngine\src\Rendering\Threading\WorldRenderThread.cpp" />
     <ClCompile Include="ArkEngine\src\Rendering\WorldRendererLegacy.cpp" />
     <ClCompile Include="ArkEngine\src\Shader.cpp" />
     <ClCompile Include="ArkEngine\src\Utility\MemoryDiagnostics.cpp" />
     <ClCompile Include="ArkEngine\src\Utility\SceneIO.cpp" />
     <ClCompile Include="ArkEngine\src\Utility\Technique.cpp" />
-    <ClCompile Include="ArkEngine\src\Utility\Transform.cpp" />
     <ClCompile Include="ArkEngine\src\Utility\Util.cpp" />
     <ClCompile Include="ArkEngine\src\Utility\Utility.cpp" />
   </ItemGroup>
@@ -280,8 +281,11 @@
     <ClInclude Include="ArkEngine\src\AssetManager\ResourceLoader.h" />
     <ClInclude Include="ArkEngine\src\Camera\CameraController.h" />
     <ClInclude Include="ArkEngine\src\Common\Pipeline.h" />
+    <ClInclude Include="ArkEngine\src\Migration\Additional_Util.cpp" />
     <ClInclude Include="ArkEngine\src\ECS\Common\Basic_Mesh.h" />
     <ClInclude Include="ArkEngine\src\ECS\Common\Mesh_Common.h" />
+    <ClInclude Include="ArkEngine\src\Migration\Additional_Util.h" />
+    <ClInclude Include="ArkEngine\src\Migration\New_BasicMesh.h" />
     <ClInclude Include="ArkEngine\src\ECS\SkinnedMesh\Skinned_Mesh.h" />
     <ClInclude Include="ArkEngine\src\Editor\DirectoryScanner.h" />
     <ClInclude Include="ArkEngine\src\Editor\EditorUI.h" />
@@ -334,6 +338,13 @@
     <ClInclude Include="ArkEngine\src\Maps\Techniques\Skybox_Technique.h" />
     <ClInclude Include="ArkEngine\src\Math\3DMath_util.h" />
     <ClInclude Include="ArkEngine\src\Meshes\Cube.h" />
+    <ClInclude Include="ArkEngine\src\Migration\New_Material.h" />
+    <ClInclude Include="ArkEngine\src\Migration\New_Math3d.h" />
+    <ClInclude Include="ArkEngine\src\Migration\New_MeshCommon.h" />
+    <ClInclude Include="ArkEngine\src\Migration\New_stb_image.h" />
+    <ClInclude Include="ArkEngine\src\Migration\New_Texture.h" />
+    <ClInclude Include="ArkEngine\src\Migration\New_Types.h" />
+    <ClInclude Include="ArkEngine\src\Migration\New_WorldTransform.h" />
     <ClInclude Include="ArkEngine\src\MusicPlayer\MusicPlayer.h" />
     <ClInclude Include="ArkEngine\src\Rendering\Assets\MeshCache.h" />
     <ClInclude Include="ArkEngine\src\Rendering\Cache\TextureCache.h" />
@@ -345,7 +356,6 @@
     <ClInclude Include="ArkEngine\src\Rendering\Phong\Phong_Renderer.h" />
     <ClInclude Include="ArkEngine\src\Rendering\Texture\bitmap.h" />
     <ClInclude Include="ArkEngine\src\Rendering\Texture\Cubemap_Texture.h" />
-    <ClInclude Include="ArkEngine\src\Rendering\Texture\Texture.h" />
     <ClInclude Include="ArkEngine\src\Rendering\Threading\WorldRenderThread.h" />
     <ClInclude Include="ArkEngine\src\Rendering\VertexBuffer\VertexBuffer.h" />
     <ClInclude Include="ArkEngine\src\Rendering\WorldRendererLegacy.h" />
@@ -356,7 +366,6 @@
     <ClInclude Include="ArkEngine\src\Utility\MemoryDiagnostics.h" />
     <ClInclude Include="ArkEngine\src\Utility\SceneIO.h" />
     <ClInclude Include="ArkEngine\src\Utility\Technique.h" />
-    <ClInclude Include="ArkEngine\src\Utility\Transform.h" />
     <ClInclude Include="ArkEngine\src\Utility\Util.h" />
     <ClInclude Include="ArkEngine\src\Utility\Utility.h" />
     <ClInclude Include="ArkEngine\src\Viewport\Viewport.h" />
