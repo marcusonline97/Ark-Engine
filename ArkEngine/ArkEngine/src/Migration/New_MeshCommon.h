@@ -1,6 +1,6 @@
 #include "New_Types.h"
 #include "New_WorldTransform.h"
-#include "Material"
+#include "New_Material.h"
 
 class IRenderCallbacks
 {

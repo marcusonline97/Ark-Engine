@@ -3,11 +3,12 @@
 #include <iostream>
 #include <math.h>
 
-#include "stb_image/stb_image.h"
-#include "stb_image/stb_image_write.h"
-
 #include "Additional_Util.h"
 #include "Logger.h"
+#include "New_Texture.h"
+
+#include "stb_image/stb_image.h"
+#include "stb_image/stb_image_write.h"
 
 
 static int GetNumMipMapLevels2D(int w, int h)
