@@ -8,7 +8,7 @@
 #include <assimp/scene.h>       // Output data structure
 #include <assimp/postprocess.h> // Post processing flags
 
-#include "Ark_util.h"
+#include "Ark_Util.h"
 #include "Ark_math_3d.h"
 #include "Ark_texture.h"
 #include "Ark_world_transform.h"

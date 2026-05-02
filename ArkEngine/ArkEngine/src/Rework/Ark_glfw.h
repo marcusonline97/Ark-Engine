@@ -1,5 +1,7 @@
 #include <Glad/glad.h>
+#ifdef _WIN32
 #define GLFW_DLL
+#endif
 #include <GLFW/glfw3.h>
 
 #include "Ark_glm_camera.h"
