@@ -41,6 +41,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -148,8 +149,8 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>ntdll.lib;DbgHelp.lib;vulkan-1.lib;msvcrtd.lib;assimp-vc143-mt.lib;user32.lib;gdi32.lib;shell32.lib;advapi32.lib;glfw3.lib;opengl32.lib;fmod_vc.lib;meshoptimizer.lib;SDL3.lib;freetype265.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>D:\GameEngine\Ark-Engine\lib\x64;D:\GameEngine\Ark-Engine\lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>ntdll.lib;DbgHelp.lib;vulkan-1.lib;assimp-vc143-mt.lib;user32.lib;gdi32.lib;shell32.lib;advapi32.lib;glfw3.lib;opengl32.lib;fmod_vc.lib;meshoptimizer.lib;SDL3.lib;freetype265.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>
@@ -176,7 +177,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(ProjectDir)ArkEngine\Vendor\Assimp\lib\;$(ProjectDir)ArkEngine\Vendor\meshoptimizer\lib\Release\;$(ProjectDir)ArkEngine\Vendor\FMod\lib\;$(ProjectDir)ArkEngine\Vendor\GLFW\lib\release\;$(SolutionDir)Vendor\GLFW\lib;$(VULKAN_SDK)\Lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>ntdll.lib;DbgHelp.lib;vulkan-1.lib;msvcrt.lib;assimp-vc143-mt.lib;user32.lib;gdi32.lib;shell32.lib;advapi32.lib;glfw3.lib;opengl32.lib;assimp-vc143-mt.lib;meshoptimizer.lib;fmod_vc.lib</AdditionalDependencies>
+      <AdditionalDependencies>ntdll.lib;DbgHelp.lib;vulkan-1.lib;assimp-vc143-mt.lib;user32.lib;gdi32.lib;shell32.lib;advapi32.lib;glfw3.lib;opengl32.lib;meshoptimizer.lib;fmod_vc.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>
@@ -192,6 +193,7 @@
     <Image Include="ArkEngine\Resources\Textures\BathroomFloor_ALB.png" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\lib\include\stb_image\stb_image.cpp" />
     <ClCompile Include="ArkEngine\src\glad\glad.c" />
     <ClCompile Include="ArkEngine\src\Math\3DMath_util.cpp" />
     <ClCompile Include="ArkEngine\src\Rework\Ark_basic_glfw_camera.cpp" />
