@@ -662,6 +662,7 @@
     <ClInclude Include="ArkEngine\src\Utility\Types.h" />
     <ClInclude Include="ArkEngine\src\ECS\WorldTransform.h" />
     <ClInclude Include="ArkEngine\src\Utility\Engine_common.h" />
+    <ClInclude Include="ArkEngine\src\Migration\ArkEngine_app.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="ArkEngine\Resources\Textures\BathroomFloor_ALB.png" />

@@ -331,6 +331,7 @@
     <ClInclude Include="ArkEngine\src\Maps\Techniques\Skybox_Technique.h" />
     <ClInclude Include="ArkEngine\src\Math\3DMath_util.h" />
     <ClInclude Include="ArkEngine\src\Meshes\Cube.h" />
+    <ClInclude Include="ArkEngine\src\Migration\ArkEngine_app.h" />
     <ClInclude Include="ArkEngine\src\Utility\Util.h" />
     <ClInclude Include="ArkEngine\src\Utility\Engine_common.h" />
     <ClInclude Include="ArkEngine\src\Meshes\BasicMesh.h" />
