@@ -272,9 +272,9 @@
     </CopyFileToFolders>
   </ItemGroup>
   <ItemGroup>
-    <None Include="ArkEngine\Resources\Shaders\empty.frag" />
-    <None Include="ArkEngine\Resources\Shaders\infinite_grid.frag" />
-    <None Include="ArkEngine\Resources\Shaders\Infinite_grid.vert" />
+    <None Include="ArkEngine\Resources\Shaders\empty.fs" />
+    <None Include="ArkEngine\Resources\Shaders\infinite_grid.fs" />
+    <None Include="ArkEngine\Resources\Shaders\Infinite_grid.vs" />
     <None Include="ArkEngine\Resources\Shaders\lighting_new.frag" />
     <None Include="ArkEngine\Resources\Shaders\lighting_new.vert" />
     <None Include="ArkEngine\Resources\Shaders\lighting_new_to_gs.vert" />
