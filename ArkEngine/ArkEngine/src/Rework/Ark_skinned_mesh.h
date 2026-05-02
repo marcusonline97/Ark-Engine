@@ -2,7 +2,7 @@
 #include <vector>
 #include <Glad/glad.h>
 
-#include "Ark_util.h"
+#include "Ark_Util.h"
 #include "Ark_math_3d.h"
 #include "Ark_texture.h"
 #include "Ark_world_transform.h"

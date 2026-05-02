@@ -3,7 +3,7 @@
 #endif
 #include <stdio.h>
 
-#include "Ark_util.h"
+#include "Ark_Util.h"
 #include "Ark_glfw.h"
 #include "Ark_glm_camera.h"
 

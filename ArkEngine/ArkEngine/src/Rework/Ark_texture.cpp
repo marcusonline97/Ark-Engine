@@ -1,6 +1,6 @@
 #include <iostream>
 #include <math.h>
-#include "Ark_util.h"
+#include "Ark_Util.h"
 #include "Ark_texture.h"
 #include "stb_image/stb_image.h"
 #include "stb_image/stb_image_write.h"

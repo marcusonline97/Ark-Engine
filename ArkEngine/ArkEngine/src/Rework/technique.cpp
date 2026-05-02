@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "Ark_util.h"
+#include "Ark_Util.h"
 #include "technique.h"
 
 Technique::Technique()

@@ -4,101 +4,94 @@ project(ArkEngine)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Set output directories
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
-# Include directories
-include_directories(
-    ${CMAKE_SOURCE_DIR}
-    ${CMAKE_SOURCE_DIR}/src
-    ${CMAKE_SOURCE_DIR}/Vendor/GLAD/include
-    ${CMAKE_SOURCE_DIR}/Vendor/GLFW/include
-    ${CMAKE_SOURCE_DIR}/Vendor/glm
-    ${CMAKE_SOURCE_DIR}/Vendor/assimp/include
-    ${CMAKE_SOURCE_DIR}/Vendor/stb_image
-    ${CMAKE_SOURCE_DIR}/Vendor/lodepng/include
-    ${CMAKE_SOURCE_DIR}/Vendor/tinyexr
-    ${CMAKE_SOURCE_DIR}/Vendor/tinyobjloader
-    ${CMAKE_SOURCE_DIR}/Vendor/nlohmann_json/include
-    ${CMAKE_SOURCE_DIR}/Vendor/magic_enum/include
-    ${CMAKE_SOURCE_DIR}/Vendor/Vulkan/Include
-    ${CMAKE_SOURCE_DIR}/Vendor/VulkanMemoryAllocator/include
-    ${CMAKE_SOURCE_DIR}/Vendor/VkBootstrap
-    ${CMAKE_SOURCE_DIR}/Vendor/entt
-    ${CMAKE_SOURCE_DIR}/Vendor/imgui/include
-    ${CMAKE_SOURCE_DIR}/Vendor/compressonator/include
-    ${CMAKE_SOURCE_DIR}/Vendor/ImGuizmo
+# Vendored third-party headers live under <repo_root>/lib/include
+set(LIB_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/../../lib/include)
+
+# ---------------------------------------------------------------------------
+# Rework sources -- the self-contained engine foundation in src/Rework/
+# ---------------------------------------------------------------------------
+set(REWORK_SOURCES
+    src/Rework/main.cpp
+    src/Rework/Ark_basic_glfw_camera.cpp
+    src/Rework/Ark_basic_mesh.cpp
+    src/Rework/Ark_glfw.cpp
+    src/Rework/Ark_glfw_camera_handler.cpp
+    src/Rework/Ark_glm_camera.cpp
+    src/Rework/Ark_math_3d.cpp
+    src/Rework/Ark_new_lighting.cpp
+    src/Rework/Ark_phong_renderer.cpp
+    src/Rework/Ark_shadow_mapping_technique.cpp
+    src/Rework/Ark_skinned_mesh.cpp
+    src/Rework/Ark_skinning_technique.cpp
+    src/Rework/Ark_stb_image.cpp
+    src/Rework/Ark_texture.cpp
+    src/Rework/Ark_Util.cpp
+    src/Rework/Ark_world_transform.cpp
+    src/Rework/technique.cpp
 )
 
-# Create executable first
-add_executable(${PROJECT_NAME})
+# meshoptimizer (used by BasicMesh and SkinnedMesh for mesh optimization)
+file(GLOB MESHOPT_SOURCES ${LIB_INCLUDE_DIR}/meshoptimizer/*.cpp)
 
-# Source files (add your source files here)
-file(GLOB_RECURSE SOURCES
-    "src/*.cpp"
-    "src/*.c"
-    "Vendor/glad/src/*.c"
-    "Vendor/stb_image/*.cpp"
-    "Vendor/lodepng/include/lodepng/*.cpp"
-    "Vendor/tinyexr/*.cpp"
-    "Vendor/imgui/include/imgui/*.cpp"
-    "Vendor/ImGuizmo/ImGuizmo.cpp"
+# glad loader (C source)
+set(GLAD_SOURCES src/glad/glad.c)
+
+# stb_image implementation (defines STB_IMAGE_IMPLEMENTATION)
+set(STB_SOURCES ${LIB_INCLUDE_DIR}/stb_image/stb_image.cpp)
+
+add_executable(${PROJECT_NAME}
+    ${REWORK_SOURCES}
+    ${GLAD_SOURCES}
+    ${STB_SOURCES}
+    ${MESHOPT_SOURCES}
 )
 
-# Add source files to target
-target_sources(${PROJECT_NAME} PRIVATE ${SOURCES})
+target_include_directories(${PROJECT_NAME} PRIVATE
+    ${CMAKE_SOURCE_DIR}/src/Rework
+    ${LIB_INCLUDE_DIR}
+    ${LIB_INCLUDE_DIR}/GLAD
+    ${LIB_INCLUDE_DIR}/GLFW
+    ${LIB_INCLUDE_DIR}/glm
+    ${LIB_INCLUDE_DIR}/gli
+    ${LIB_INCLUDE_DIR}/stb_image
+    ${LIB_INCLUDE_DIR}/meshoptimizer
+)
 
-# Link libraries
 # OpenGL
 find_package(OpenGL REQUIRED)
-target_link_libraries(${PROJECT_NAME} OpenGL::GL)
+target_link_libraries(${PROJECT_NAME} PRIVATE OpenGL::GL)
 
 # GLFW
 find_package(glfw3 REQUIRED)
-target_link_libraries(${PROJECT_NAME} glfw)
-
-# Vulkan (optional - only if building with Vulkan support)
-find_package(Vulkan QUIET)
-if(Vulkan_FOUND)
-    target_link_libraries(${PROJECT_NAME} Vulkan::Vulkan)
-    target_compile_definitions(${PROJECT_NAME} PRIVATE VULKAN_ENABLED)
-endif()
+target_link_libraries(${PROJECT_NAME} PRIVATE glfw)
 
 # Assimp
-find_package(assimp QUIET)
-if(assimp_FOUND)
-    target_link_libraries(${PROJECT_NAME} assimp::assimp)
-else()
-    message(WARNING "Assimp not found - model loading may not work")
-endif()
+find_package(assimp REQUIRED)
+target_link_libraries(${PROJECT_NAME} PRIVATE assimp::assimp)
 
 # Platform-specific settings
 if(WIN32)
-    # Windows-specific settings
     target_compile_definitions(${PROJECT_NAME} PRIVATE _WIN32)
 endif()
 
 if(UNIX AND NOT APPLE)
-    # Linux-specific settings
-    target_link_libraries(${PROJECT_NAME} pthread dl)
+    target_link_libraries(${PROJECT_NAME} PRIVATE pthread dl)
 endif()
 
 if(APPLE)
-    # macOS-specific settings
     find_library(COCOA_LIBRARY Cocoa)
-    target_link_libraries(${PROJECT_NAME} ${COCOA_LIBRARY})
+    target_link_libraries(${PROJECT_NAME} PRIVATE ${COCOA_LIBRARY})
 endif()
 
-# Compiler-specific options
+# Compiler options
 if(MSVC)
     target_compile_options(${PROJECT_NAME} PRIVATE /W4 /WX- /std:c++17)
-    # Link filesystem library on MSVC (C++17 filesystem support)
     target_link_libraries(${PROJECT_NAME} PRIVATE filesystem)
 else()
-    target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -Wpedantic -std=c++17)
-    target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
-    # Link filesystem library on GCC/Clang (if needed)
+    target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wno-unused-parameter -Wno-unused-variable -Wno-sign-compare)
     target_link_libraries(${PROJECT_NAME} PRIVATE stdc++fs)
 endif()
