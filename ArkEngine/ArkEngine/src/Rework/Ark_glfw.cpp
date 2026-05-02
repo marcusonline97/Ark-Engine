@@ -89,6 +89,8 @@ GLFWwindow* glfw_init(int major_ver, int minor_ver, int width, int height, bool 
 
     glfwMakeContextCurrent(window);
 
+    // Must be done after glfw is initialized!
+    init_glew();
     // The following functions must be called after the context is made current
     glGetIntegerv(GL_MAJOR_VERSION, &glMajorVersion);
     glGetIntegerv(GL_MINOR_VERSION, &glMinorVersion);
@@ -109,8 +111,6 @@ GLFWwindow* glfw_init(int major_ver, int minor_ver, int width, int height, bool 
         }
     }
 
-    // Must be done after glfw is initialized!
-    init_glew();
 
     enable_debug_output();
 
