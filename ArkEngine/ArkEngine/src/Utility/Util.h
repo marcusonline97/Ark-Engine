@@ -13,7 +13,7 @@
 #ifndef OGLDEV_VULKAN
 #include <glad/glad.h>
 #endif
-#include "ArkTypes.h"
+#include "Types.h"
 
 
 using namespace std;

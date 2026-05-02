@@ -3,12 +3,13 @@
 #include <iostream>
 #include <math.h>
 
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb_image/stb_image.h>
-#include <stb_image/stb_image_write.h>
-
-#include "Logger.h"
 #include "Utility/Util.h"
+#include "Logger.h"
+#include "Rendering/Texture/Texture.h"
+
+#include "stb_image/stb_image.h"
+#include "stb_image/stb_image_write.h"
+
 
 static int GetNumMipMapLevels2D(int w, int h)
 {
@@ -62,20 +63,21 @@ bool Texture::Load(bool IsSRGB)
         pImageData = (unsigned char*)gliTex.data();
     }
     else {
-        stbi_set_flip_vertically_on_load(m_flipY ? 1 : 0);
+        stbi_set_flip_vertically_on_load(1);
+
         pImageData = stbi_load(m_fileName.c_str(), &m_imageWidth, &m_imageHeight, &m_imageBPP, 0);
     }
 
     if (!pImageData) {
-        Logging::Warning() << "Texture load failed: '" << m_fileName
-            << "' - " << (stbi_failure_reason() ? stbi_failure_reason() : "unknown reason");
-        return false;
+        printf("Can't load texture from '%s' - %s\n", m_fileName.c_str(), stbi_failure_reason());
+        exit(0);
     }
 
     printf("Loaded texture '%s' width %d, height %d, bpp %d\n", m_fileName.c_str(), m_imageWidth, m_imageHeight, m_imageBPP);
 
     LoadInternal(pImageData, IsSRGB);
 
+    // Free the image data after loading it into OpenGL
     if (!m_isKTX) {
         stbi_image_free(pImageData);
     }
@@ -84,11 +86,13 @@ bool Texture::Load(bool IsSRGB)
 }
 
 
-bool Texture::Load(const std::string& Filename, bool IsSRGB)
+void Texture::Load(const std::string& Filename, bool IsSRGB)
 {
     m_fileName = Filename;
 
-    return Load(IsSRGB);
+    if (!Load(IsSRGB)) {
+        exit(0);
+    }
 }
 
 
@@ -155,8 +159,9 @@ void Texture::LoadInternalNonDSA(const void* pImageData, bool IsSRGB)
     glTexParameteri(m_textureTarget, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(m_textureTarget, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(m_textureTarget, GL_TEXTURE_BASE_LEVEL, 0);
-    glTexParameteri(m_textureTarget, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(m_textureTarget, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(m_textureTarget, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(m_textureTarget, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    //glTexParameteri(m_textureTarget, GL_TEXTURE_WRAP_R, GL_REPEAT);
 
     glGenerateMipmap(m_textureTarget);
 
@@ -167,7 +172,7 @@ void Texture::LoadInternalDSA(const void* pImageData, bool IsSRGB)
 {
     glCreateTextures(m_textureTarget, 1, &m_textureObj);
 
-	int Levels = GetNumMipMapLevels2D(m_imageWidth, m_imageHeight);
+    int Levels = std::min(5, (int)log2f((float)std::max(m_imageWidth, m_imageHeight)));
     Levels = std::max(1, Levels);   // must be 1 or greater else the GL call will fail
 
     GLenum InternalFormat = GL_NONE;
@@ -220,17 +225,14 @@ void Texture::LoadInternalDSA(const void* pImageData, bool IsSRGB)
     glTextureParameteri(m_textureObj, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTextureParameteri(m_textureObj, GL_TEXTURE_BASE_LEVEL, 0);
     glTextureParameteri(m_textureObj, GL_TEXTURE_MAX_LEVEL, Levels - 1);
-    glTextureParameteri(m_textureObj, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTextureParameteri(m_textureObj, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTextureParameterf(m_textureObj, GL_TEXTURE_MAX_ANISOTROPY, 16.0f);
+    glTextureParameteri(m_textureObj, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTextureParameteri(m_textureObj, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTextureParameteri(m_textureObj, GL_TEXTURE_MAX_ANISOTROPY, 16);
+
     glGenerateTextureMipmap(m_textureObj);
 
-
-    if (GLAD_GL_ARB_bindless_texture)
-    {
-        m_bindlessHandle = glGetTextureHandleARB(m_textureObj);
-		glMakeTextureHandleResidentARB(m_bindlessHandle);
-    }
+    m_bindlessHandle = glGetTextureHandleARB(m_textureObj);
+    glMakeTextureHandleResidentARB(m_bindlessHandle);
 }
 
 

@@ -6,7 +6,7 @@
 #include <assimp/scene.h>       // Output data structure
 #include <assimp/postprocess.h> // Post processing flags
 
-#include "Additional_Util.h"
+#include "Utility/Util.h"
 
 
 #define MAX_NUM_BONES_PER_VERTEX 4

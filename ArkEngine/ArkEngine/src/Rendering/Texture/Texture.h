@@ -1,10 +1,7 @@
-#pragma once
-
 #include <string>
 
 #include <glad/glad.h>
-#include <gli/gli.hpp>
-
+#include "gli/gli.hpp"
 
 class BaseTexture
 {
@@ -22,16 +19,18 @@ class Texture : public BaseTexture
 {
 public:
     Texture(GLenum TextureTarget, const std::string& FileName);
+
     Texture(GLenum TextureTarget);
 
     // Should be called once to load the texture
     bool Load(bool IsSRGB = false);
 
-    void SetFlipY(bool flipY) { m_flipY = flipY; }
+    void Load(const std::string& Filename, bool IsSRGB = false);
 
-    bool Load(const std::string& Filename, bool IsSRGB = false);
     void Load(unsigned int BufferSize, void* pImageData, bool IsSRGB);
+
     void LoadRaw(int Width, int Height, int BPP, const unsigned char* pImageData, bool IsSRGB);
+
     void LoadF32(int Width, int Height, const float* pImageData);
 
     // Must be called at least once for the specific texture unit
@@ -44,6 +43,7 @@ public:
     }
 
     GLuint GetTexture() const { return m_textureObj; }
+
     GLuint64 GetBindlessHandle() const { return m_bindlessHandle; }
 
 private:
@@ -55,10 +55,10 @@ private:
     void BindInternalDSA(GLenum TextureUnit);
 
     std::string m_fileName;
-    GLuint64 m_bindlessHandle = 0;
+    GLuint64 m_bindlessHandle = -1;
     int m_imageWidth = 0;
     int m_imageHeight = 0;
     int m_imageBPP = 0;
-
-    bool m_flipY = true;
 };
+
+

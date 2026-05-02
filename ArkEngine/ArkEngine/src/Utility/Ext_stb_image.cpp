@@ -1,7 +1,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image/stb_image.h"
 
-#include "New_stb_image.h"
+#include "Ext_stb_image.h"
 
 
 void STBImage::Load(const char* pFilename)

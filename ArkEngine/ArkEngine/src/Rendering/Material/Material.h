@@ -1,21 +1,17 @@
-#pragma once
-
-#include "Math/3DMath_util.h"
-#include "Rendering/Texture/Texture.h"
+#include "New_Math3d.h"
+#include "New_Texture.h"
 
 struct PBRMaterial
 {
     float Roughness = 0.0f;
     bool IsMetal = false;
     Vector3f Color = Vector3f(0.0f, 0.0f, 0.0f);
-
-    // Aliases into Material::pTextures[] (non-owning).
-    Texture* pAlbedo = nullptr;
-    Texture* pRoughness = nullptr;
-    Texture* pMetallic = nullptr;
-    Texture* pNormalMap = nullptr;
-    Texture* pAO = nullptr;
-    Texture* pEmissive = nullptr;
+    Texture* pAlbedo = NULL;
+    Texture* pRoughness = NULL;
+    Texture* pMetallic = NULL;
+    Texture* pNormalMap = NULL;
+    Texture* pAO = NULL;
+    Texture* pEmissive = NULL;
 };
 
 enum TEXTURE_TYPE {
@@ -48,34 +44,18 @@ public:
     Vector4f MetallicRoughnessNormalOcclusion = Vector4f(1.0f);
     Vector4f ClearCoatTransmissionThickness = Vector4f(1.0f);
 
-    // Owns all textures.
-    Texture* pTextures[TEX_TYPE_NUM] = { 0 };
-
-    // Non-owning aliases into pTextures[].
     PBRMaterial PBRmaterial;
+
+    Texture* pTextures[TEX_TYPE_NUM] = { 0 };
 
     float m_transparencyFactor = 1.0f;
     float m_alphaTest = 0.0f;
     u32 m_flags = 0;
 
-    void SyncPBRTextureAliases()
-    {
-        PBRmaterial.pAlbedo = pTextures[TEX_TYPE_BASE];
-        PBRmaterial.pRoughness = pTextures[TEX_TYPE_ROUGHNESS];
-        PBRmaterial.pMetallic = pTextures[TEX_TYPE_METALNESS];
-        PBRmaterial.pNormalMap = pTextures[TEX_TYPE_NORMAL];
-        PBRmaterial.pAO = pTextures[TEX_TYPE_AMBIENT_OCCLUSION];
-        PBRmaterial.pEmissive = pTextures[TEX_TYPE_EMISSIVE];
-    }
-
     ~Material()
     {
-        for (Texture*& pTex : pTextures) {
+        for (Texture* pTex : pTextures) {
             delete pTex;
-            pTex = nullptr;
         }
-
-        // Avoid dangling aliases (debug safety).
-        SyncPBRTextureAliases();
     }
 };

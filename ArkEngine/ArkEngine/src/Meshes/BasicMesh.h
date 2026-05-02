@@ -8,12 +8,12 @@
 #include <Assimp/scene.h>
 #include <Assimp/postprocess.h>
 
-#include "Additional_Util.h"
+#include "Utility/Util.h"
 #include "Math/3DMath_util.h"
-#include "New_Texture.h"
-#include "New_WorldTransform.h"
-#include "New_Material.h"
-#include "New_MeshCommon.h"
+#include "Rendering/Texture/Texture.h"
+#include "ECS/WorldTransform.h"
+#include "Rendering/Material/Material.h"
+#include "Mestes/MeshCommon.h"
 
 #define INVALID_MATERIAL 0xffffffff
 

@@ -1,7 +1,14 @@
 #include <iostream>
 #include <fstream>
+#ifdef _WIN32
 #include <Windows.h>
+#else
+#include <sys/time.h>
+#endif
 
+#ifndef VULKAN
+#include <glad/glad.h>
+#endif
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -346,28 +353,4 @@ string GetDirFromFilename(const string& Filename)
     }
 
     return Dir;
-}
-
-int GetGLMajorVersion()
-{
-    GLint major = 0;
-    glGetIntegerv(GL_MAJOR_VERSION, &major);
-    return static_cast<int>(major);
-}
-
-int GetGLMinorVersion()
-{
-    GLint minor = 0;
-    glGetIntegerv(GL_MINOR_VERSION, &minor);
-    return static_cast<int>(minor);
-}
-
-int IsGLVersionHigher(int MajorVer, int MinorVer)
-{
-    const int major = GetGLMajorVersion();
-    const int minor = GetGLMinorVersion();
-
-    if (major > MajorVer) return 1;
-    if (major < MajorVer) return 0;
-    return (minor >= MinorVer) ? 1 : 0;
 }

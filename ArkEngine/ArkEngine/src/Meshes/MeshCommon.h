@@ -1,4 +1,4 @@
-#include "New_Types.h"
+#include "Utility/Types.h"
 #include "New_WorldTransform.h"
 #include "New_Material.h"
 
