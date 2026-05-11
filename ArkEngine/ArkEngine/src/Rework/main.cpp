@@ -171,7 +171,7 @@ private:
 		int major_ver = 0;
 		int minor_ver = 0;
 		bool is_full_screen = false;
-		window = glfw_init(major_ver, minor_ver, WINDOW_WIDTH, WINDOW_HEIGHT, is_full_screen, "Tutorial 49");
+		window = glfw_init(major_ver, minor_ver, WINDOW_WIDTH, WINDOW_HEIGHT, is_full_screen, "Ark Engine");
 
 		glfwSetCursorPos(window, WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2);
 	}
@@ -214,7 +214,7 @@ private:
 	{
 		m_pMesh = new BasicMesh();
 
-		m_pMesh->LoadMesh("../Content/Vanguard.dae");
+		m_pMesh->LoadMesh("Resources/Models/OBJ/cube/cube.obj");
 
 		m_pMesh->SetPosition(0.0f, 0.0f, 15.0f);
 	}

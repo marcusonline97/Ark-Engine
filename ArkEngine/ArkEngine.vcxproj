@@ -194,7 +194,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\lib\include\stb_image\stb_image.cpp" />
+    <ClCompile Include="ArkEngine\src\Graphics\ShaderProgram.cpp" />
+    <ClCompile Include="ArkEngine\src\Core\Application.cpp" />
+    <ClCompile Include="ArkEngine\src\Core\ArkEngine.cpp" />
+    <ClCompile Include="ArkEngine\src\Core\main.cpp" />
+    <ClCompile Include="ArkEngine\src\Game.cpp" />
     <ClCompile Include="ArkEngine\src\glad\glad.c" />
+    <ClCompile Include="ArkEngine\src\Input\InputManager.cpp" />
     <ClCompile Include="ArkEngine\src\Math\3DMath_util.cpp" />
     <ClCompile Include="ArkEngine\src\Rework\Ark_basic_glfw_camera.cpp" />
     <ClCompile Include="ArkEngine\src\Rework\Ark_basic_mesh.cpp" />
@@ -210,7 +216,6 @@
     <ClCompile Include="ArkEngine\src\Rework\Ark_texture.cpp" />
     <ClCompile Include="ArkEngine\src\Rework\Ark_Util.cpp" />
     <ClCompile Include="ArkEngine\src\Rework\Ark_world_transform.cpp" />
-    <ClCompile Include="ArkEngine\src\Rework\main.cpp" />
     <ClCompile Include="ArkEngine\src\Rework\technique.cpp" />
     <ClCompile Include="ArkEngine\Vendor\Jolt\AABBTree\*.cpp" />
     <ClCompile Include="ArkEngine\Vendor\Jolt\Core\*.cpp" />
@@ -223,6 +228,12 @@
     <ClCompile Include="ArkEngine\Vendor\Jolt\RegisterTypes.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ArkEngine\src\Graphics\ShaderProgram.h" />
+    <ClInclude Include="ArkEngine\src\Core\Application.h" />
+    <ClInclude Include="ArkEngine\src\Core\ArkEngine.h" />
+    <ClInclude Include="ArkEngine\src\Core\EngineInclude.h" />
+    <ClInclude Include="ArkEngine\src\Game.h" />
+    <ClInclude Include="ArkEngine\src\Input\InputManager.h" />
     <ClInclude Include="ArkEngine\src\Math\3DMath_util.h" />
     <ClInclude Include="ArkEngine\src\Math\Math3d.h" />
     <ClInclude Include="ArkEngine\src\Migration\ArkEngine_app.h" />
@@ -290,6 +301,11 @@
     <None Include="ArkEngine\Resources\Shaders\world_background.frag" />
     <None Include="ArkEngine\Resources\Shaders\world_background.vert" />
     <None Include="ArkEngine\Resources\Shaders\wireframe_on_mesh.gs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ArkEngine\Resources\Models\OBJ\cube\cube.obj">
+      <FileType>Document</FileType>
+    </None>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
