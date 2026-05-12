@@ -194,6 +194,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\lib\include\stb_image\stb_image.cpp" />
+    <ClCompile Include="ArkEngine\src\Graphics\GraphicsAPI.cpp" />
     <ClCompile Include="ArkEngine\src\Graphics\ShaderProgram.cpp" />
     <ClCompile Include="ArkEngine\src\Core\Application.cpp" />
     <ClCompile Include="ArkEngine\src\Core\ArkEngine.cpp" />
@@ -202,6 +203,9 @@
     <ClCompile Include="ArkEngine\src\glad\glad.c" />
     <ClCompile Include="ArkEngine\src\Input\InputManager.cpp" />
     <ClCompile Include="ArkEngine\src\Math\3DMath_util.cpp" />
+    <ClCompile Include="ArkEngine\src\Render\Material.cpp" />
+    <ClCompile Include="ArkEngine\src\Render\Mesh.cpp" />
+    <ClCompile Include="ArkEngine\src\Render\RenderQueue.cpp" />
     <ClCompile Include="ArkEngine\src\Rework\Ark_basic_glfw_camera.cpp" />
     <ClCompile Include="ArkEngine\src\Rework\Ark_basic_mesh.cpp" />
     <ClCompile Include="ArkEngine\src\Rework\Ark_glfw.cpp" />
@@ -217,6 +221,8 @@
     <ClCompile Include="ArkEngine\src\Rework\Ark_Util.cpp" />
     <ClCompile Include="ArkEngine\src\Rework\Ark_world_transform.cpp" />
     <ClCompile Include="ArkEngine\src\Rework\technique.cpp" />
+    <ClCompile Include="ArkEngine\src\Scene\GameObject.cpp" />
+    <ClCompile Include="ArkEngine\src\Scene\Scene.cpp" />
     <ClCompile Include="ArkEngine\Vendor\Jolt\AABBTree\*.cpp" />
     <ClCompile Include="ArkEngine\Vendor\Jolt\Core\*.cpp" />
     <ClCompile Include="ArkEngine\Vendor\Jolt\Geometry\*.cpp" />
@@ -228,15 +234,20 @@
     <ClCompile Include="ArkEngine\Vendor\Jolt\RegisterTypes.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ArkEngine\src\Graphics\GraphicsAPI.h" />
     <ClInclude Include="ArkEngine\src\Graphics\ShaderProgram.h" />
     <ClInclude Include="ArkEngine\src\Core\Application.h" />
     <ClInclude Include="ArkEngine\src\Core\ArkEngine.h" />
     <ClInclude Include="ArkEngine\src\Core\EngineInclude.h" />
     <ClInclude Include="ArkEngine\src\Game.h" />
+    <ClInclude Include="ArkEngine\src\Graphics\VertexLayout.h" />
     <ClInclude Include="ArkEngine\src\Input\InputManager.h" />
     <ClInclude Include="ArkEngine\src\Math\3DMath_util.h" />
     <ClInclude Include="ArkEngine\src\Math\Math3d.h" />
     <ClInclude Include="ArkEngine\src\Migration\ArkEngine_app.h" />
+    <ClInclude Include="ArkEngine\src\Render\Material.h" />
+    <ClInclude Include="ArkEngine\src\Render\Mesh.h" />
+    <ClInclude Include="ArkEngine\src\Render\RenderQueue.h" />
     <ClInclude Include="ArkEngine\src\Rework\Ark_engine_common.h" />
     <ClInclude Include="ArkEngine\src\Rework\Ark_material.h" />
     <ClInclude Include="ArkEngine\src\Rework\Ark_mesh_common.h" />
@@ -258,6 +269,8 @@
     <ClInclude Include="ArkEngine\src\Rework\Ark_math_3d.h" />
     <ClInclude Include="ArkEngine\src\Rework\Ark_world_transform.h" />
     <ClInclude Include="ArkEngine\src\Rework\technique.h" />
+    <ClInclude Include="ArkEngine\src\Scene\GameObject.h" />
+    <ClInclude Include="ArkEngine\src\Scene\Scene.h" />
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="..\lib\x64\assimp-vc143-mt.dll">

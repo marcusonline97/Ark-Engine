@@ -1,10 +1,10 @@
 #pragma once
 
+#include "Graphics/GraphicsAPI.h"
 #include "Input/InputManager.h"
-
-#include <memory>
+#include "Render/RenderQueue.h"
 #include <chrono>
-
+#include <memory>
 
 struct GLFWwindow;
 
@@ -20,7 +20,7 @@ namespace Engine
 		// Properties & Variables
 		//-------------------------------------------
 
-	
+
 		//-------------------------------------------
 		// Functions
 		//-------------------------------------------
@@ -37,6 +37,8 @@ namespace Engine
 		Application* GetApplication();
 
 		InputManager& GetInputManager();
+		GraphicsAPI& GetGraphicsAPI();
+		RenderQueue& GetRenderQueue();
 
 	private:
 		//-------------------------------------------
@@ -47,6 +49,7 @@ namespace Engine
 
 		GLFWwindow* m_window = nullptr;
 		InputManager m_inputManager;
+		GraphicsAPI m_graphicsAPI;
 		//-------------------------------------------
 		// Functions
 		//-------------------------------------------
@@ -55,7 +58,6 @@ namespace Engine
 		ArkEngine(ArkEngine&&) = delete;
 		ArkEngine& operator=(const ArkEngine&) = delete;
 		ArkEngine& operator=(ArkEngine&&) = delete;
-		static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
-
+		RenderQueue m_renderQueue;
 	};
 }

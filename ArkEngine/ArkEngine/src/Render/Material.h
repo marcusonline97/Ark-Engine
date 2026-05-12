@@ -1,48 +1,45 @@
 #pragma once
 
-#include <Glad/glad.h>
-
-#include <string>
+#include <memory>
 #include <unordered_map>
+#include <string>
 
 namespace Engine
 {
-	class ShaderProgram
-	{
+	class ShaderProgram;
 
+	class Material
+	{
 	public:
 		//-------------------------------------------
 		// Properties & Variables
 		//-------------------------------------------
 
-
 		//-------------------------------------------
 		// Functions
 		//-------------------------------------------
-		ShaderProgram() = delete;
-		ShaderProgram(const ShaderProgram&) = delete;
-		ShaderProgram& operator=(const ShaderProgram&) = delete;
-		~ShaderProgram();
+		void SetShaderProgram(const std::shared_ptr<ShaderProgram>& shaderProgram);
 
+		void SetParam(const std::string& name, float value);
+		void SetParam(const std::string& name, float v0, float v1);
 		void Bind();
-		explicit ShaderProgram(GLuint shaderProgramID);
-
-		GLint GetUniformLocation(const std::string& name);
-		
-		void SetUniform(const std::string& name, float value);
-		void SetUniform(const std::string& name, float v0, float v1);
-
 
 	private:
+
 		//-------------------------------------------
 		// Properties & Variables
 		//-------------------------------------------
-		std::unordered_map<std::string, GLint> m_uniformLocationCache;
-		GLuint m_shaderProgramID = 0;
+		std::shared_ptr<ShaderProgram> m_shaderProgram;
+
+		std::unordered_map<std::string, float> m_floatParams;
+		std::unordered_map<std::string, std::pair<float, float>> m_float2Params;
 
 		//-------------------------------------------
 		// Functions
 		//-------------------------------------------
+		
+
+
 
 	};
 }

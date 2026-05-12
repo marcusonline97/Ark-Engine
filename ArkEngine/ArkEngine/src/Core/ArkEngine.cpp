@@ -8,15 +8,23 @@
 
 namespace Engine
 {
-	void ArkEngine::KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
+	void keyCallback(GLFWwindow* window, int key, int, int action, int)
 	{
-		auto* engine = static_cast<ArkEngine*>(glfwGetWindowUserPointer(window));
-		if (!engine) return;
-
+		auto& inputManager = Engine::ArkEngine::GetInstance().GetInputManager();
 		if (action == GLFW_PRESS)
-			engine->GetInputManager().SetKeyPressed(key, true);
+		{
+			inputManager.SetKeyPressed(key, true);
+		}
 		else if (action == GLFW_RELEASE)
-			engine->GetInputManager().SetKeyPressed(key, false);
+		{
+			inputManager.SetKeyPressed(key, false);
+		}
+	}
+
+	ArkEngine& ArkEngine::GetInstance()
+	{
+		static ArkEngine instance;
+		return instance;
 	}
 
 	bool ArkEngine::Init(int width, int height)
@@ -47,7 +55,7 @@ namespace Engine
 
 		glfwSetWindowUserPointer(m_window, this);
 
-		glfwSetKeyCallback(m_window, ArkEngine::KeyCallback);
+		glfwSetKeyCallback(m_window, keyCallback);
 
 		glfwMakeContextCurrent(m_window);
 
@@ -83,6 +91,11 @@ namespace Engine
 
 			m_application->Update(deltaTime);
 
+			m_graphicsAPI.SetClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+			m_graphicsAPI.ClearBuffers();
+
+			m_renderQueue.Draw(&m_graphicsAPI);
+
 			glfwSwapBuffers(m_window);
 		}
 	}
@@ -99,11 +112,7 @@ namespace Engine
 		// Cleanup code here
 	}
 
-	ArkEngine& ArkEngine::GetInstance()
-	{
-		static ArkEngine instance;
-		return instance;
-	}
+
 
 	void ArkEngine::SetApplication(Application* app)
 	{
@@ -117,6 +126,16 @@ namespace Engine
 	InputManager& ArkEngine::GetInputManager()
 	{
 		return m_inputManager;
+	}
+
+	GraphicsAPI& ArkEngine::GetGraphicsAPI()
+	{
+		return m_graphicsAPI;
+	}
+
+	RenderQueue& ArkEngine::GetRenderQueue()
+	{
+		return m_renderQueue;
 	}
 
 }
