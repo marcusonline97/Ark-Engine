@@ -37,4 +37,8 @@ namespace Engine
 			m_shaderProgram->SetUniform(param.first, param.second.first, param.second.second);
 		}
 	}
+	ShaderProgram* Material::GetShaderProgram() const
+	{
+		return m_shaderProgram.get();
+	}
 }

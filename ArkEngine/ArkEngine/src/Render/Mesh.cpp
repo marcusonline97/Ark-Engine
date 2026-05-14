@@ -20,7 +20,8 @@ namespace Engine
 
 		for (auto& element : m_vertexLayout.elements)
 		{
-			glVertexAttribPointer(element.index, element.size, element.type, GL_FALSE, m_vertexLayout.stride, (void*)(uintptr_t)element.offset);
+			glVertexAttribPointer(element.index, element.size, element.type, GL_FALSE,
+				m_vertexLayout.stride, (void*)(uintptr_t)element.offset);
 			glEnableVertexAttribArray(element.index);
 		}
 
@@ -32,7 +33,6 @@ namespace Engine
 
 		m_vertexCount = (vertices.size() * sizeof(float)) / m_vertexLayout.stride;
 		m_indexCount = indices.size();
-
 	}
 
 	Mesh::Mesh(const VertexLayout& layout, const std::vector<float>& vertices)
@@ -50,7 +50,8 @@ namespace Engine
 
 		for (auto& element : m_vertexLayout.elements)
 		{
-			glVertexAttribPointer(element.index, element.size, element.type, GL_FALSE, m_vertexLayout.stride, (void*)(uintptr_t)element.offset);
+			glVertexAttribPointer(element.index, element.size, element.type, GL_FALSE,
+				m_vertexLayout.stride, (void*)(uintptr_t)element.offset);
 			glEnableVertexAttribArray(element.index);
 		}
 
@@ -69,12 +70,11 @@ namespace Engine
 	{
 		if (m_indexCount > 0)
 		{
-			glDrawElements(GL_TRIANGLES, m_indexCount, GL_UNSIGNED_INT, 0);
+			glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(m_indexCount), GL_UNSIGNED_INT, 0);
 		}
-
 		else
 		{
-			glDrawArrays(GL_TRIANGLES, 0, m_vertexCount);
+			glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(m_vertexCount));
 		}
 	}
 }

@@ -3,6 +3,7 @@
 #include "Graphics/GraphicsAPI.h"
 #include "Input/InputManager.h"
 #include "Render/RenderQueue.h"
+#include "Scene/Scene.h"
 #include <chrono>
 #include <memory>
 
@@ -40,6 +41,9 @@ namespace Engine
 		GraphicsAPI& GetGraphicsAPI();
 		RenderQueue& GetRenderQueue();
 
+		void SetScene(Scene* scene);
+		Scene* GetScene();
+
 	private:
 		//-------------------------------------------
 		// Properties & Variables
@@ -50,6 +54,8 @@ namespace Engine
 		GLFWwindow* m_window = nullptr;
 		InputManager m_inputManager;
 		GraphicsAPI m_graphicsAPI;
+		RenderQueue m_renderQueue;
+		std::unique_ptr<Scene> m_currentScene;
 		//-------------------------------------------
 		// Functions
 		//-------------------------------------------
@@ -58,6 +64,5 @@ namespace Engine
 		ArkEngine(ArkEngine&&) = delete;
 		ArkEngine& operator=(const ArkEngine&) = delete;
 		ArkEngine& operator=(ArkEngine&&) = delete;
-		RenderQueue m_renderQueue;
 	};
 }

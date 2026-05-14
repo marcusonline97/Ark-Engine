@@ -23,7 +23,7 @@ namespace Engine
 		void Update(float deltaTime);
 		void Clear();
 
-		GameObject* CreateGameObject(const std::string& name, GameObject* parent = nullptr);
+		GameObject* CreateObject(const std::string& name, GameObject* parent = nullptr);
 
 		template<typename T, typename = typename std::enable_if_t<std::is_base_of_v<GameObject, T>>>
 		T* CreateObject(const std::string& name, GameObject* parent = nullptr)
@@ -34,14 +34,18 @@ namespace Engine
 			return obj;
 		}
 
-		void SetParent(GameObject* obj, GameObject* parent);
+		bool SetParent(GameObject* obj, GameObject* parent);
 
+		void SetMainCamera(GameObject* camera);
+		GameObject* GetMainCamera();
 
 	private:
 		//-------------------------------------------
 		// Properties & Variables
 		//-------------------------------------------
 		std::vector<std::unique_ptr<GameObject>> m_objects;
+
+		GameObject* m_mainCamera = nullptr;
 		//-------------------------------------------
 		// Functions
 		//-------------------------------------------

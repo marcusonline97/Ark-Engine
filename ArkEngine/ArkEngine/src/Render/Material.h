@@ -24,6 +24,8 @@ namespace Engine
 		void SetParam(const std::string& name, float v0, float v1);
 		void Bind();
 
+		ShaderProgram* GetShaderProgram() const;
+
 	private:
 
 		//-------------------------------------------
