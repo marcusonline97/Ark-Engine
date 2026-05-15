@@ -4,6 +4,8 @@
 #include "Input/InputManager.h"
 #include "Render/RenderQueue.h"
 #include "Scene/Scene.h"
+#include "AssetManager/FileSystem.h"
+
 #include <chrono>
 #include <memory>
 
@@ -40,6 +42,8 @@ namespace Engine
 		InputManager& GetInputManager();
 		GraphicsAPI& GetGraphicsAPI();
 		RenderQueue& GetRenderQueue();
+		FileSystem& GetFileSystem();
+
 
 		void SetScene(Scene* scene);
 		Scene* GetScene();
@@ -55,6 +59,7 @@ namespace Engine
 		InputManager m_inputManager;
 		GraphicsAPI m_graphicsAPI;
 		RenderQueue m_renderQueue;
+		FileSystem m_fileSystem;
 		std::unique_ptr<Scene> m_currentScene;
 		//-------------------------------------------
 		// Functions

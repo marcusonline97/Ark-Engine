@@ -7,6 +7,7 @@
 #include <memory>
 
 #include <glm/vec3.hpp>
+#include <glm/gtc/quaternion.hpp>
 #include <glm/mat4x4.hpp>
 
 namespace Engine
@@ -51,8 +52,8 @@ namespace Engine
 		const glm::vec3 GetPosition() const;
 		void SetPosition(const glm::vec3& pos);
 
-		const glm::vec3 GetRotation() const;
-		void SetRotation(const glm::vec3& rotation);
+		const glm::quat& GetRotation() const;
+		void SetRotation(const glm::quat& rotation);
 
 		const glm::vec3 GetScale() const;
 		void SetScale(const glm::vec3& scale);
@@ -85,7 +86,7 @@ namespace Engine
 		friend class Scene;
 
 		glm::vec3 m_position = glm::vec3(0.0f);
-		glm::vec3 m_rotation = glm::vec3(0.0f);
+		glm::quat m_rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
 		glm::vec3 m_scale = glm::vec3(1.0f);
 		//-------------------------------------------
 		// Functions

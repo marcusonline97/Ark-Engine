@@ -73,7 +73,7 @@ namespace Engine
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-        m_window = glfwCreateWindow(width, height, "GameDevelopmentProject", nullptr, nullptr);
+        m_window = glfwCreateWindow(width, height, "Ark Engine", nullptr, nullptr);
 
         if (m_window == nullptr)
         {
@@ -93,6 +93,8 @@ namespace Engine
             std::cout << "Failed to initialize GLAD" << std::endl;
             return false;
 		}
+
+		m_graphicsAPI.Init();
 
         return m_application->Init();
     }
@@ -182,6 +184,11 @@ namespace Engine
     RenderQueue& ArkEngine::GetRenderQueue()
     {
         return m_renderQueue;
+    }
+
+    FileSystem& ArkEngine::GetFileSystem()
+    {
+        return m_fileSystem;
     }
 
     void ArkEngine::SetScene(Scene* scene)

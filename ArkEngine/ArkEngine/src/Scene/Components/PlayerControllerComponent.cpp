@@ -22,23 +22,23 @@ namespace Engine
 			float deltaY = currentPos.y - oldPos.y;
 
 			// rotation around the Y axis
-			rotation.y -= deltaX * m_sensitivity * deltaTime;
+			float yAngle = -deltaX * m_sensitivity * deltaTime;
+			glm::quat yRot = glm::angleAxis(yAngle, glm::vec3(0.0f, 1.0f, 0.0f));
 
 			// rotation around the X axis
-			rotation.x -= deltaY * m_sensitivity * deltaTime;
+			float xAngle = -deltaY * m_sensitivity * deltaTime;
+			glm::vec3 right = rotation * glm::vec3(1.0f, 0.0f, 0.0f);
+			glm::quat xRot = glm::angleAxis(xAngle, right);
+
+			glm::quat deltaRot = yRot * xRot;
+			rotation = glm::normalize(deltaRot * rotation);
 
 			m_owner->SetRotation(rotation);
 		}
 
-		glm::mat4 rotMat(1.0f);
-		rotMat = glm::rotate(rotMat, rotation.x, glm::vec3(1.0f, 0.0f, 0.0f)); // X-Axis
-		rotMat = glm::rotate(rotMat, rotation.y, glm::vec3(0.0f, 1.0f, 0.0f)); // Y-Axis
-		rotMat = glm::rotate(rotMat, rotation.z, glm::vec3(0.0f, 0.0f, 1.0f)); // Z-Axis
 
-
-		glm::vec3 front = glm::normalize(glm::vec3(rotMat * glm::vec4(0.0f, 0.0f, -1.0f, 0.0f)));
-		glm::vec3 right = glm::normalize(glm::vec3(rotMat * glm::vec4(1.0f, 0.0f, 0.0f, 0.0f)));
-
+		glm::vec3 front = rotation * glm::vec3(0.0f, 0.0f, -1.0f);
+		glm::vec3 right = rotation * glm::vec3(1.0f, 0.0f, 0.0f);
 		auto position = m_owner->GetPosition();
 
 

@@ -13,7 +13,7 @@ namespace Engine
 	
 	private:
 
-		float m_sensitivity = 0.1f;
+		float m_sensitivity = 1.5f;
 		float m_moveSpeed = 1.0f;
 	};
 }
