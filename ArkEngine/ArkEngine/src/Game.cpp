@@ -4,21 +4,12 @@
 #include <iostream>
 
 
-#define STB_IMAGE_IMPLEMENTATION
-#include <Stb_image/stb_image.h>
 
 bool Game::Init()
 {
 	auto& fs = Engine::ArkEngine::GetInstance().GetFileSystem();
-	auto path = fs.GetAssetsFolder() / "Brick.png";
+	auto texture = Engine::Texture::Load("brick.png");
 
-	int width, height, channels;
-	unsigned char* data = stbi_load(path.string().c_str(), &width, &height, &channels, 0);
-
-	if (data)
-	{
-		std::cout << "Image Loaded" << std::endl;
- 	}
 
     m_scene = new Engine::Scene();
 
@@ -30,75 +21,108 @@ bool Game::Init()
     m_scene->SetMainCamera(camera);
 
     m_scene->CreateObject<TestObject>("TestObject");
+	std::string vertexShaderSource = fs.LoadAssetFileText("Shaders/Vertex.glsl");
+	std::string fragmentShaderSource = fs.LoadAssetFileText("Shaders/Fragment.glsl");
 
-	std::string vertexShaderSource = R"(
-		#version 330 core
-		layout(location = 0) in vec3 position;
-		layout(location = 1) in vec3 color;
+	// --- Shader load diagnostic ---
+	std::cout << "[Assets] Folder: " << fs.GetAssetsFolder() << std::endl;
 
-		out vec3 vColor;
+	if (vertexShaderSource.empty())
+	{
+		std::cerr << "[ERROR] Vertex shader is empty or not found at: "
+			<< fs.GetAssetsFolder() / "Shaders/Vertex.glsl" << std::endl;
+		return false;
+	}
+	else
+	{
+		std::cout << "[OK] Vertex shader loaded (" << vertexShaderSource.size() << " bytes)" << std::endl;
+	}
 
-		uniform mat4 uModel;
-		uniform mat4 uView;
-		uniform mat4 uProjection;
-
-
-		void main()
-		{
-			vColor = color;
-			gl_Position = uProjection * uView * uModel * vec4(position, 1.0);
-		}
-	)";
-
-	std::string fragmentShaderSource = R"(
-		#version 330 core
-		out vec4 FragColor;
-		in vec3 vColor;
-		void main()
-		{
-			FragColor = vec4(vColor, 1.0);
-		}
-	)";
+	if (fragmentShaderSource.empty())
+	{
+		std::cerr << "[ERROR] Fragment shader is empty or not found at: "
+			<< fs.GetAssetsFolder() / "Shaders/Fragment.glsl" << std::endl;
+		return false;
+	}
+	else
+	{
+		std::cout << "[OK] Fragment shader loaded (" << fragmentShaderSource.size() << " bytes)" << std::endl;
+	}
+	// --- End diagnostic ---
 
 	auto& graphicAPI = Engine::ArkEngine::GetInstance().GetGraphicsAPI();
 	auto shaderProgram = graphicAPI.CreateShaderProgram(vertexShaderSource, fragmentShaderSource);
 
+	if (!shaderProgram)
+	{
+		std::cerr << "[ERROR] Shader program creation failed." << std::endl;
+		return false;
+	}
+
 	auto material = std::make_shared<Engine::Material>();
 	material->SetShaderProgram(shaderProgram);
+	material->SetParam("brickTexture", texture);
 
 	std::vector<float> vertices =
 	{
-		0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 0.0f,
-		-0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f,
-		-0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f,
-		0.5f, -0.5f, 0.5f, 1.0f, 1.0f, 0.0f,
+		// Front face
+			0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f,
+			-0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
+			-0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+			0.5f, -0.5f, 0.5f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f,
 
-		0.5f, 0.5f, -0.5f, 1.0f, 0.0f, 0.0f,
-		-0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
-		-0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 1.0f,
-		0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 0.0f
+			// Top face 
+			0.5f, 0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f,
+			-0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
+			-0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+			0.5f, 0.5f, 0.5f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f,
+
+			// Right face
+			0.5f, 0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f,
+			0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
+			0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+			0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f,
+
+			// Left face
+			-0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f,
+			-0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
+			-0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+			-0.5f, -0.5f, 0.5f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f,
+
+			// Bottom face
+			0.5f, -0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f,
+			-0.5f, -0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
+			-0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+			0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f,
+
+			// Back face
+			-0.5f, 0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f,
+			0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
+			0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+			-0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f
+
 	};
 
 	std::vector<unsigned int> indices =
 	{
-		//front face
+		// front face
 		0, 1, 2,
 		0, 2, 3,
-		//top face
-		4, 5 ,1,
-		4, 1, 0,
-		//right face
-		4, 0, 3,
-		4, 3, 7,
-		//left face
-		1, 5 , 6,
-		1, 6, 2,
-		//botton face
-		3, 2, 6,
-		3, 6, 7,
-		//back face
-		4, 7 ,6,
-		4, 6, 5
+		// top face
+		4, 5, 6,
+		4, 6, 7,
+		// right face
+		8, 9, 10,
+		8, 10, 11,
+		// left face
+		12, 13, 14,
+		12, 14, 15,
+		// bottom face
+		16, 17, 18,
+		16, 18, 19,
+		// back face
+		20, 21, 22,
+		20, 22, 23
 	};
 
 	Engine::VertexLayout vertexLayout;
@@ -118,7 +142,14 @@ bool Game::Init()
 		sizeof(float) * 3
 		});
 
-	vertexLayout.stride = sizeof(float) * 6;
+	//UV
+	vertexLayout.elements.push_back({
+		2,
+		2,
+		GL_FLOAT,
+		sizeof(float) * 6
+		});
+	vertexLayout.stride = sizeof(float) * 8;
 
 	auto mesh = std::make_shared<Engine::Mesh>(vertexLayout, vertices, indices);
 

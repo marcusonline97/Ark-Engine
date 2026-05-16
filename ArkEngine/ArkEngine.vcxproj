@@ -202,6 +202,7 @@
     <ClCompile Include="ArkEngine\src\Core\main.cpp" />
     <ClCompile Include="ArkEngine\src\Game.cpp" />
     <ClCompile Include="ArkEngine\src\glad\glad.c" />
+    <ClCompile Include="ArkEngine\src\Graphics\Texture.cpp" />
     <ClCompile Include="ArkEngine\src\Input\InputManager.cpp" />
     <ClCompile Include="ArkEngine\src\Math\3DMath_util.cpp" />
     <ClCompile Include="ArkEngine\src\Render\Material.cpp" />
@@ -232,6 +233,7 @@
     <ClInclude Include="ArkEngine\src\Core\ArkEngine.h" />
     <ClInclude Include="ArkEngine\src\Core\EngineInclude.h" />
     <ClInclude Include="ArkEngine\src\Game.h" />
+    <ClInclude Include="ArkEngine\src\Graphics\Texture.h" />
     <ClInclude Include="ArkEngine\src\Graphics\VertexLayout.h" />
     <ClInclude Include="ArkEngine\src\Input\InputManager.h" />
     <ClInclude Include="ArkEngine\src\Math\3DMath_util.h" />
@@ -273,6 +275,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="ArkEngine\Resources\Shaders\empty.frag" />
+    <None Include="ArkEngine\Resources\Shaders\Fragment.glsl" />
     <None Include="ArkEngine\Resources\Shaders\infinite_grid.frag" />
     <None Include="ArkEngine\Resources\Shaders\Infinite_grid.vert" />
     <None Include="ArkEngine\Resources\Shaders\lighting_new.frag" />
@@ -285,6 +288,7 @@
     <None Include="ArkEngine\Resources\Shaders\skinning.vert" />
     <None Include="ArkEngine\Resources\Shaders\tex.frag" />
     <None Include="ArkEngine\Resources\Shaders\tex.vert" />
+    <None Include="ArkEngine\Resources\Shaders\Vertex.glsl" />
     <None Include="ArkEngine\Resources\Shaders\viewport_textured.frag" />
     <None Include="ArkEngine\Resources\Shaders\viewport_textured.vert" />
     <None Include="ArkEngine\Resources\Shaders\world_background.frag" />
