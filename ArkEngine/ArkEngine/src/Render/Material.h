@@ -27,6 +27,7 @@ namespace Engine
 		void Bind();
 
 		ShaderProgram* GetShaderProgram() const;
+		static std::shared_ptr<Material> Load(const std::string& path);
 
 	private:
 

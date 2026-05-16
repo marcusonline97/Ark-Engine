@@ -15,6 +15,10 @@ namespace Engine
 		GLuint type;  // Data type (e.g., GL_FLOAT)
 		uint32_t offset; // Byte offset from the start of the vertex
 
+
+		static constexpr int PositionIndex = 0;
+		static constexpr int ColorIndex = 1;
+		static constexpr int UVIndex = 2;
 	};
 
 	struct VertexLayout

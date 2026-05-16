@@ -2,6 +2,8 @@
 
 #include "Glad/glad.h"
 #include "Graphics/VertexLayout.h"
+#include <memory>
+#include <string>
 
 namespace Engine
 {
@@ -12,7 +14,8 @@ namespace Engine
 		//-------------------------------------------
 		// Properties & Variables
 		//-------------------------------------------
-
+		// 
+		// 
 		//-------------------------------------------
 		// Functions
 		//-------------------------------------------
@@ -25,6 +28,8 @@ namespace Engine
 
 		void Bind();
 		void Draw();
+
+		static std::shared_ptr<Mesh> Load(const std::string& path);
 
 	private:
 		//-------------------------------------------

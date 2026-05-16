@@ -24,44 +24,13 @@ bool Game::Init()
 	std::string vertexShaderSource = fs.LoadAssetFileText("Shaders/Vertex.glsl");
 	std::string fragmentShaderSource = fs.LoadAssetFileText("Shaders/Fragment.glsl");
 
-	// --- Shader load diagnostic ---
-	std::cout << "[Assets] Folder: " << fs.GetAssetsFolder() << std::endl;
-
-	if (vertexShaderSource.empty())
-	{
-		std::cerr << "[ERROR] Vertex shader is empty or not found at: "
-			<< fs.GetAssetsFolder() / "Shaders/Vertex.glsl" << std::endl;
-		return false;
-	}
-	else
-	{
-		std::cout << "[OK] Vertex shader loaded (" << vertexShaderSource.size() << " bytes)" << std::endl;
-	}
-
-	if (fragmentShaderSource.empty())
-	{
-		std::cerr << "[ERROR] Fragment shader is empty or not found at: "
-			<< fs.GetAssetsFolder() / "Shaders/Fragment.glsl" << std::endl;
-		return false;
-	}
-	else
-	{
-		std::cout << "[OK] Fragment shader loaded (" << fragmentShaderSource.size() << " bytes)" << std::endl;
-	}
-	// --- End diagnostic ---
-
 	auto& graphicAPI = Engine::ArkEngine::GetInstance().GetGraphicsAPI();
 	auto shaderProgram = graphicAPI.CreateShaderProgram(vertexShaderSource, fragmentShaderSource);
 
-	if (!shaderProgram)
-	{
-		std::cerr << "[ERROR] Shader program creation failed." << std::endl;
-		return false;
-	}
+	
 
-	auto material = std::make_shared<Engine::Material>();
-	material->SetShaderProgram(shaderProgram);
-	material->SetParam("brickTexture", texture);
+	auto material = Engine::Material::Load("Materials/brick.mat");
+	
 
 	std::vector<float> vertices =
 	{
@@ -168,6 +137,13 @@ bool Game::Init()
 	objectC->SetPosition(glm::vec3(-2.0f, 0.0f, 0.0f));
 	objectC->SetRotation(glm::vec3(1.0f, 2.0f, 0.0f));
 	objectC->SetScale(glm::vec3(1.5f, 1.5f, 1.5f));
+
+	auto suzanneMesh = Engine::Mesh::Load("Models//Suzanne.gltf");
+	auto suzanneMaterial = Engine::Material::Load("Materials/suzanne.mat");
+
+	auto suzanneObj = m_scene->CreateObject("Suzanne");
+	suzanneObj->AddComponent(new Engine::MeshComponent(suzanneMaterial, suzanneMesh));
+	suzanneObj->SetPosition(glm::vec3(0.0f, 0.0f, -5.0f));
 
     Engine::ArkEngine::GetInstance().SetScene(m_scene);
 

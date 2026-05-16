@@ -191,7 +191,10 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="ArkEngine\Resources\brick.png" />
+    <Image Include="ArkEngine\Resources\Models\suzanne\Suzanne_BaseColor.png" />
+    <Image Include="ArkEngine\Resources\Models\suzanne\Suzanne_MetallicRoughness.png" />
     <Image Include="ArkEngine\Resources\Textures\BathroomFloor_ALB.png" />
+    <Image Include="ArkEngine\Resources\Textures\brick.png" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ArkEngine\src\AssetManager\Filesystem.cpp" />
@@ -249,6 +252,7 @@
     <ClInclude Include="ArkEngine\src\Scene\Components\MeshComponent.h" />
     <ClInclude Include="ArkEngine\src\Scene\Scene.h" />
     <ClInclude Include="ArkEngine\src\TestObject.h" />
+    <ClInclude Include="ArkEngine\Vendor\cgltf\cgltf.h" />
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="..\lib\x64\assimp-vc143-mt.dll">
@@ -274,6 +278,10 @@
     </CopyFileToFolders>
   </ItemGroup>
   <ItemGroup>
+    <None Include="ArkEngine\Resources\Materials\brick.mat" />
+    <None Include="ArkEngine\Resources\Materials\suzanne.mat" />
+    <None Include="ArkEngine\Resources\Models\suzanne\Suzanne.bin" />
+    <None Include="ArkEngine\Resources\Models\suzanne\Suzanne.gltf" />
     <None Include="ArkEngine\Resources\Shaders\empty.frag" />
     <None Include="ArkEngine\Resources\Shaders\Fragment.glsl" />
     <None Include="ArkEngine\Resources\Shaders\infinite_grid.frag" />
