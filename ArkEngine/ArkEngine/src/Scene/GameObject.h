@@ -32,7 +32,6 @@ namespace Engine
 		void MarkForDestroy();
 
 		void AddComponent(Component* component);
-
 		template<typename T, typename = typename std::enable_if_t<std::is_base_of_v<Component, T>>>
 		T* GetComponent()
 		{
@@ -49,13 +48,14 @@ namespace Engine
 			return nullptr;
 		}
 
-		const glm::vec3 GetPosition() const;
+		const glm::vec3& GetPosition() const;
+		glm::vec3 GetWorldPosition() const;
 		void SetPosition(const glm::vec3& pos);
 
 		const glm::quat& GetRotation() const;
-		void SetRotation(const glm::quat& rotation);
+		void SetRotation(const glm::quat& rot);
 
-		const glm::vec3 GetScale() const;
+		const glm::vec3& GetScale() const;
 		void SetScale(const glm::vec3& scale);
 
 		glm::mat4 GetLocalTransform() const;
@@ -80,14 +80,12 @@ namespace Engine
 		GameObject* m_parent = nullptr;
 		std::vector<std::unique_ptr<GameObject>> m_children;
 		std::vector<std::unique_ptr<Component>> m_components;
-
 		bool m_isAlive = true;
-
-		friend class Scene;
-
 		glm::vec3 m_position = glm::vec3(0.0f);
 		glm::quat m_rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
 		glm::vec3 m_scale = glm::vec3(1.0f);
+
+		friend class Scene;
 		//-------------------------------------------
 		// Functions
 		//-------------------------------------------

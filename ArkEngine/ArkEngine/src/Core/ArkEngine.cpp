@@ -122,6 +122,7 @@ namespace Engine
             m_graphicsAPI.ClearBuffers();
 
             CameraData cameraData;
+            std::vector<LightData> lights;
 
             int width = 0;
             int height = 0;
@@ -140,13 +141,15 @@ namespace Engine
                         cameraData.projectionMatrix = cameraComponent->GetProjectionMatrix(aspect);
                     }
                 }
+
+                lights = m_currentScene->CollectLights();
             }
 
-            m_renderQueue.Draw(m_graphicsAPI, cameraData);
+            m_renderQueue.Draw(m_graphicsAPI, cameraData, lights);
 
             glfwSwapBuffers(m_window);
 
-			m_inputManager.SetMousePositionOld(m_inputManager.GetMousePositionCurrent());
+            m_inputManager.SetMousePositionOld(m_inputManager.GetMousePositionCurrent());
         }
     }
 
@@ -195,7 +198,6 @@ namespace Engine
     {
         m_currentScene.reset(scene);
     }
-
 
     Scene* ArkEngine::GetScene()
     {

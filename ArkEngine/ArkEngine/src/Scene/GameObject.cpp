@@ -23,90 +23,99 @@ namespace Engine
 			}
 		}
 	}
-	const std::string& GameObject::GetName() const
-	{
-		return m_name;
-	}
-	void GameObject::SetName(const std::string& name)
-	{
-		m_name = name;
-	}
-	GameObject* GameObject::GetParent()
-	{
-		return m_parent;
-	}
-	bool GameObject::IsAlive() const
-	{
-		return m_isAlive;
-	}
-	void GameObject::MarkForDestroy()
-	{
-		m_isAlive = false;
-	}
+    const std::string& GameObject::GetName() const
+    {
+        return m_name;
+    }
 
-	void GameObject::AddComponent(Component* component)
-	{
-		m_components.emplace_back(component);
-		component->m_owner = this;
+    void GameObject::SetName(const std::string& name)
+    {
+        m_name = name;
+    }
 
-	}
+    GameObject* GameObject::GetParent()
+    {
+        return m_parent;
+    }
 
+    bool GameObject::IsAlive() const
+    {
+        return m_isAlive;
+    }
 
-	const glm::vec3 GameObject::GetPosition() const
-	{
-		return m_position;
-	}
+    void GameObject::MarkForDestroy()
+    {
+        m_isAlive = false;
+    }
 
-	void GameObject::SetPosition(const glm::vec3& pos)
-	{
-		m_position = pos;
-	}
+    void GameObject::AddComponent(Component* component)
+    {
+        m_components.emplace_back(component);
+        component->m_owner = this;
+    }
 
-	const glm::quat& GameObject::GetRotation() const
-	{
-		return m_rotation;
-	}
-	void GameObject::SetRotation(const glm::quat& rotation)
-	{
-			m_rotation = rotation;
-	}
+    const glm::vec3& GameObject::GetPosition() const
+    {
+        return m_position;
+    }
 
-	const glm::vec3 GameObject::GetScale() const
-	{
-		return m_scale;
-	}
-	void GameObject::SetScale(const glm::vec3& scale)
-	{
-		m_scale = scale;
-	}
+    glm::vec3 GameObject::GetWorldPosition() const
+    {
+        glm::vec4 hom = GetWorldTransform() * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+        return glm::vec3(hom) / hom.w;
+    }
 
-	glm::mat4 GameObject::GetLocalTransform() const
-	{
-		glm::mat4 mat = glm::mat4(1.0f);
+    void GameObject::SetPosition(const glm::vec3& pos)
+    {
+        m_position = pos;
+    }
 
-		// Translation
-		mat = glm::translate(mat, m_position);
+    const glm::quat& GameObject::GetRotation() const
+    {
+        return m_rotation;
+    }
 
-		// Rotation
-		mat = mat * glm::mat4_cast(m_rotation);
+    void GameObject::SetRotation(const glm::quat& rot)
+    {
+        m_rotation = rot;
+    }
 
-		// Scale
-		mat = glm::scale(mat, m_scale);
-		
-		return mat;
-	}
+    const glm::vec3& GameObject::GetScale() const
+    {
+        return m_scale;
+    }
 
-	glm::mat4 GameObject::GetWorldTransform() const
-	{
-		if (m_parent)
-		{
-			return m_parent->GetWorldTransform() * GetLocalTransform();
-		}
+    void GameObject::SetScale(const glm::vec3& scale)
+    {
+        m_scale = scale;
+    }
 
-		else
-		{
-			return GetLocalTransform();
-		}
-	}
+    glm::mat4 GameObject::GetLocalTransform() const
+    {
+        glm::mat4 mat = glm::mat4(1.0f);
+
+        // Translation
+        mat = glm::translate(mat, m_position);
+
+        // Rotation
+        mat = mat * glm::mat4_cast(m_rotation);
+
+        // Scale
+        mat = glm::scale(mat, m_scale);
+
+        return mat;
+    }
+
+    glm::mat4 GameObject::GetWorldTransform() const
+    {
+        if (m_parent)
+        {
+            return m_parent->GetWorldTransform() * GetLocalTransform();
+        }
+        else
+        {
+            return GetLocalTransform();
+        }
+    }
 
 }

@@ -29,6 +29,7 @@ namespace Engine
 		void Bind();
 		void Draw();
 
+		static std::shared_ptr<Mesh> CreateCube();
 		static std::shared_ptr<Mesh> Load(const std::string& path);
 
 	private:

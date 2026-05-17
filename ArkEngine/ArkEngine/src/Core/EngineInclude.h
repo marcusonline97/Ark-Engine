@@ -16,6 +16,7 @@
 #include "Scene/Components/MeshComponent.h"
 #include "Scene/Components/CameraComponent.h"
 #include "Scene/Components/PlayerControllerComponent.h"
+#include "Scene/Components/LightComponent.h"
 #include "AssetManager/FileSystem.h"
 
 // This header file serves as a central include for all core engine components, allowing other parts of the codebase to include this single file to access the entire engine functionality.
