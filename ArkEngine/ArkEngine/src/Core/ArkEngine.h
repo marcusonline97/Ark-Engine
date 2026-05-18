@@ -1,7 +1,8 @@
 #pragma once
 
-#include "Graphics/GraphicsAPI.h"
 #include "Input/InputManager.h"
+#include "Graphics/Texture.h"
+#include "Graphics/GraphicsAPI.h"
 #include "Render/RenderQueue.h"
 #include "Scene/Scene.h"
 #include "AssetManager/FileSystem.h"
@@ -43,6 +44,7 @@ namespace Engine
 		GraphicsAPI& GetGraphicsAPI();
 		RenderQueue& GetRenderQueue();
 		FileSystem& GetFileSystem();
+		TextureManager& GetTextureManager();
 
 
 		void SetScene(Scene* scene);
@@ -60,6 +62,7 @@ namespace Engine
 		GraphicsAPI m_graphicsAPI;
 		RenderQueue m_renderQueue;
 		FileSystem m_fileSystem;
+		TextureManager m_textureManager;
 		std::unique_ptr<Scene> m_currentScene;
 		//-------------------------------------------
 		// Functions

@@ -12,6 +12,9 @@
 
 namespace Engine
 {
+
+	class Scene;
+
 	class GameObject
 	{
 
@@ -28,6 +31,8 @@ namespace Engine
 		const std::string& GetName() const;
 		void SetName(const std::string& name);
 		GameObject* GetParent();
+		bool SetParent(GameObject* parent);
+		Scene* GetScene();
 		bool IsAlive() const;
 		void MarkForDestroy();
 
@@ -61,6 +66,9 @@ namespace Engine
 		glm::mat4 GetLocalTransform() const;
 		glm::mat4 GetWorldTransform() const;
 
+		static GameObject* LoadGLTF(const std::string& path);
+
+
 	protected:
 
 		//-------------------------------------------
@@ -78,6 +86,7 @@ namespace Engine
 		//-------------------------------------------
 		std::string m_name;
 		GameObject* m_parent = nullptr;
+		Scene* m_scene = nullptr;
 		std::vector<std::unique_ptr<GameObject>> m_children;
 		std::vector<std::unique_ptr<Component>> m_components;
 		bool m_isAlive = true;

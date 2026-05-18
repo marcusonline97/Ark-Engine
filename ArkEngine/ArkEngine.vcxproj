@@ -283,6 +283,8 @@
   <ItemGroup>
     <None Include="ArkEngine\Resources\Materials\brick.mat" />
     <None Include="ArkEngine\Resources\Materials\suzanne.mat" />
+    <None Include="ArkEngine\Resources\Models\CarbineGun\scene.bin" />
+    <None Include="ArkEngine\Resources\Models\CarbineGun\scene.gltf" />
     <None Include="ArkEngine\Resources\Models\suzanne\Suzanne.bin" />
     <None Include="ArkEngine\Resources\Models\suzanne\Suzanne.gltf" />
     <None Include="ArkEngine\Resources\Shaders\empty.frag" />

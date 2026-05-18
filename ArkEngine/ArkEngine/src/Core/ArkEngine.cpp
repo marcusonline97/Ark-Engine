@@ -139,6 +139,7 @@ namespace Engine
                     {
                         cameraData.viewMatrix = cameraComponent->GetViewMatrix();
                         cameraData.projectionMatrix = cameraComponent->GetProjectionMatrix(aspect);
+						cameraData.position = cameraObject->GetWorldPosition();
                     }
                 }
 
@@ -192,6 +193,11 @@ namespace Engine
     FileSystem& ArkEngine::GetFileSystem()
     {
         return m_fileSystem;
+    }
+
+    TextureManager& ArkEngine::GetTextureManager()
+    {
+        return m_textureManager;
     }
 
     void ArkEngine::SetScene(Scene* scene)
