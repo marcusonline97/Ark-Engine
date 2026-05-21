@@ -9,6 +9,8 @@ class btDiscreteDynamicsWorld;
 
 namespace Engine
 {
+	class RigidBody;
+
 	class PhysicsManager
 	{
 	public:
@@ -17,6 +19,10 @@ namespace Engine
 
 		void Init();
 		void Update(float deltaTime);
+
+		void AddRigidBody(RigidBody* body);
+		void RemoveRigidBody(RigidBody* body);
+
 
 
 		btDiscreteDynamicsWorld* GetWorld();

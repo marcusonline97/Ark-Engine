@@ -149,7 +149,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>ntdll.lib;DbgHelp.lib;vulkan-1.lib;assimp-vc143-mt.lib;user32.lib;gdi32.lib;shell32.lib;advapi32.lib;glfw3.lib;opengl32.lib;fmod_vc.lib;meshoptimizer.lib;SDL3.lib;freetype265.lib</AdditionalDependencies>
+      <AdditionalDependencies>ntdll.lib;DbgHelp.lib;Bullet2FileLoader_Debug.lib;Bullet3Collision_Debug.lib;Bullet3Common_Debug.lib;Bullet3Dynamics_Debug.lib;Bullet3Geometry_Debug.lib;BulletCollision_Debug.lib;BulletDynamics_Debug.lib;BulletInverseDynamics_Debug.lib;BulletSoftBody_Debug.lib;LinearMath_Debug.lib;vulkan-1.lib;assimp-vc143-mt.lib;user32.lib;gdi32.lib;shell32.lib;advapi32.lib;glfw3.lib;opengl32.lib;fmod_vc.lib;meshoptimizer.lib;SDL3.lib;freetype265.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
@@ -217,6 +217,7 @@
     <ClCompile Include="ArkEngine\src\Scene\Components\AnimationComponent.cpp" />
     <ClCompile Include="ArkEngine\src\Scene\Components\CameraComponent.cpp" />
     <ClCompile Include="ArkEngine\src\Scene\Components\LightComponent.cpp" />
+    <ClCompile Include="ArkEngine\src\Scene\Components\PhysicsComponent.cpp" />
     <ClCompile Include="ArkEngine\src\Scene\Components\PlayerControllerComponent.cpp" />
     <ClCompile Include="ArkEngine\src\Scene\GameObject.cpp" />
     <ClCompile Include="ArkEngine\src\Scene\Components\MeshComponent.cpp" />
@@ -255,6 +256,7 @@
     <ClInclude Include="ArkEngine\src\Scene\Components\AnimationComponent.h" />
     <ClInclude Include="ArkEngine\src\Scene\Components\CameraComponent.h" />
     <ClInclude Include="ArkEngine\src\Scene\Components\LightComponent.h" />
+    <ClInclude Include="ArkEngine\src\Scene\Components\PhysicsComponent.h" />
     <ClInclude Include="ArkEngine\src\Scene\Components\PlayerControllerComponent.h" />
     <ClInclude Include="ArkEngine\src\Scene\GameObject.h" />
     <ClInclude Include="ArkEngine\src\Scene\Components\MeshComponent.h" />

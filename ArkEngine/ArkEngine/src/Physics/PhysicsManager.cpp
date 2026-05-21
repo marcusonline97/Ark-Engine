@@ -1,4 +1,5 @@
 #include "Physics/PhysicsManager.h"
+#include "Physics/RigidBody.h"
 
 #include <Bullet3/btBulletCollisionCommon.h>
 #include <Bullet3/btBulletDynamicsCommon.h>
@@ -27,6 +28,8 @@ namespace Engine
 		m_world->setGravity(btVector3(0, -9.81f, 0));
 	}
 
+
+
 	void PhysicsManager::Update(float deltaTime)
 	{
 		const btScalar fixedTimeStep = 1.0f / 60.0f;
@@ -34,8 +37,38 @@ namespace Engine
 		m_world->stepSimulation(deltaTime, maxSubsteps, fixedTimeStep);
 	}
 
+	void PhysicsManager::AddRigidBody(RigidBody* body)
+	{
+		if(!body || !m_world)
+		{
+			return;
+		}
+
+		if (auto rigidBody = body->GetBody())
+		{
+			m_world->addRigidBody(rigidBody, btBroadphaseProxy::StaticFilter,
+				btBroadphaseProxy::AllFilter);
+			body->SetAddedToWorld(true);
+		}
+	}
+
+	void PhysicsManager::RemoveRigidBody(RigidBody* body)
+	{
+		if (!body || !m_world)
+		{
+			return;
+		}
+
+		if (auto rigidBody = body->GetBody())
+		{
+			m_world->removeRigidBody(rigidBody);
+			body->SetAddedToWorld(false);
+		}
+	}
+
+
 	btDiscreteDynamicsWorld* PhysicsManager::GetWorld()
 	{
-
+		return m_world.get();
 	}
 }

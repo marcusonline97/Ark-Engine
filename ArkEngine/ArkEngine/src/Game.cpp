@@ -21,7 +21,7 @@ bool Game::Init()
     m_scene->CreateObject<TestObject>("TestObject");
 
     auto material = Engine::Material::Load("materials/brick.mat");
-    auto mesh = Engine::Mesh::CreateCube();
+    auto mesh = Engine::Mesh::CreateBox();
 
     auto objectB = m_scene->CreateObject("ObjectB");
     objectB->AddComponent(new Engine::MeshComponent(material, mesh));
@@ -65,7 +65,26 @@ bool Game::Init()
     light->AddComponent(lightComp);
     light->SetPosition(glm::vec3(0.0f, 5.0f, 0.0f));
 
+	auto ground = m_scene->CreateObject("Ground");
+	ground->SetPosition(glm::vec3(0.0f, -5.0f, 0.0f));
+    
+	glm::vec3 groundExtents(20.0f, 2.0f, 20.0f);
+	auto groundMesh = Engine::Mesh::CreateBox(groundExtents);
+	ground->AddComponent(new Engine::MeshComponent(material, groundMesh));
 
+	auto groundCollider = std::make_shared<Engine::BoxCollider>(groundExtents);
+	auto groundBody = std::make_shared<Engine::RigidBody>(Engine::BodyType::Static, groundCollider, 0.0f, 0.5f);
+	ground->AddComponent(new Engine::PhysicsComponent(groundBody));
+
+	auto boxObj = m_scene->CreateObject("FallingBox");
+	boxObj->AddComponent(new Engine::MeshComponent(material, mesh));
+	boxObj->SetPosition(glm::vec3(0.0f, 2.0f, 0.0f));
+	boxObj->SetRotation(glm::quat(glm::vec3(1.0f, 2.0f, 0.0f)));
+	auto boxCollider = std::make_shared<Engine::BoxCollider>(glm::vec3(1.0f));
+	auto boxBody = std::make_shared<Engine::RigidBody>(Engine::BodyType::Dynamic, boxCollider, 5.0f, 0.5f);
+	boxObj->AddComponent(new Engine::PhysicsComponent(boxBody));
+
+	camera->SetPosition(glm::vec3(0.0f, 1.0f, 7.0f));
     return true;
 }
 

@@ -2,6 +2,9 @@
 
 #include "Glad/glad.h"
 #include "Graphics/VertexLayout.h"
+
+#include <glm/vec3.hpp>
+
 #include <memory>
 #include <string>
 
@@ -21,16 +24,13 @@ namespace Engine
 		//-------------------------------------------
 		Mesh(const VertexLayout& layout, const std::vector<float>& vertices, const std::vector<uint32_t>& indices);
 		Mesh(const VertexLayout& layout, const std::vector<float>& vertices);
-
-
 		Mesh(const Mesh&) = delete;
 		Mesh& operator=(const Mesh&) = delete;
 
 		void Bind();
 		void Draw();
 
-		static std::shared_ptr<Mesh> CreateCube();
-	//	static std::shared_ptr<Mesh> Load(const std::string& path);
+		static std::shared_ptr<Mesh> CreateBox(const glm::vec3& extents = glm::vec3(1.0f));
 
 	private:
 		//-------------------------------------------
