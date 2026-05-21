@@ -6,6 +6,7 @@
 #include "Render/RenderQueue.h"
 #include "Scene/Scene.h"
 #include "AssetManager/FileSystem.h"
+#include "Physics/PhysicsManager.h"
 
 #include <chrono>
 #include <memory>
@@ -45,6 +46,7 @@ namespace Engine
 		RenderQueue& GetRenderQueue();
 		FileSystem& GetFileSystem();
 		TextureManager& GetTextureManager();
+		PhysicsManager& GetPhysicsManager();
 
 
 		void SetScene(Scene* scene);
@@ -63,6 +65,7 @@ namespace Engine
 		RenderQueue m_renderQueue;
 		FileSystem m_fileSystem;
 		TextureManager m_textureManager;
+		PhysicsManager m_physicsManager;
 		std::unique_ptr<Scene> m_currentScene;
 		//-------------------------------------------
 		// Functions

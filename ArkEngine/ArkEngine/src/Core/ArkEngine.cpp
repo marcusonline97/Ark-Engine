@@ -95,7 +95,7 @@ namespace Engine
 		}
 
 		m_graphicsAPI.Init();
-
+		m_physicsManager.Init();
         return m_application->Init();
     }
 
@@ -115,6 +115,8 @@ namespace Engine
             auto now = std::chrono::steady_clock::now();
             float deltaTime = std::chrono::duration<float>(now - m_lastTimePoint).count();
             m_lastTimePoint = now;
+
+            m_physicsManager.Update(deltaTime);
 
             m_application->Update(deltaTime);
 
@@ -198,6 +200,11 @@ namespace Engine
     TextureManager& ArkEngine::GetTextureManager()
     {
         return m_textureManager;
+    }
+
+    PhysicsManager& ArkEngine::GetPhysicsManager()
+    {
+        return m_physicsManager;
     }
 
     void ArkEngine::SetScene(Scene* scene)

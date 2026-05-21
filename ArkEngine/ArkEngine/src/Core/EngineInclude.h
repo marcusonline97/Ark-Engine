@@ -10,13 +10,17 @@
 #include "Render/Material.h"
 #include "Render/Mesh.h"
 #include "Render/RenderQueue.h"
-#include "Scene/Scene.h"
 #include "Scene/GameObject.h"
+#include "Scene/Scene.h"
 #include "Scene/Component.h"
 #include "Scene/Components/MeshComponent.h"
 #include "Scene/Components/CameraComponent.h"
 #include "Scene/Components/PlayerControllerComponent.h"
 #include "Scene/Components/LightComponent.h"
+#include "Scene/Components/AnimationComponent.h"
 #include "AssetManager/FileSystem.h"
-
+#include "Physics/PhysicsManager.h"
 // This header file serves as a central include for all core engine components, allowing other parts of the codebase to include this single file to access the entire engine functionality.
+
+// By including this file, you can access all the core engine classes and functionalities without needing to include each header individually in your source files.
+// Generally used in Game.cpp or actual game related source files to access the engine's features.
