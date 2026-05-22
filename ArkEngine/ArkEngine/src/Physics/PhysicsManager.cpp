@@ -43,8 +43,21 @@ namespace Engine
 
         if (auto rigidBody = body->GetBody())
         {
-            m_world->addRigidBody(rigidBody, btBroadphaseProxy::StaticFilter,
-                btBroadphaseProxy::AllFilter);
+            int group;
+            int mask;
+
+            if (body->GetType() == BodyType::Dynamic)
+            {
+                group = btBroadphaseProxy::DefaultFilter;
+                mask = btBroadphaseProxy::AllFilter;
+            }
+            else
+            {
+                group = btBroadphaseProxy::StaticFilter;
+                mask = btBroadphaseProxy::AllFilter ^ btBroadphaseProxy::StaticFilter;
+            }
+
+            m_world->addRigidBody(rigidBody, group, mask);
             body->SetAddedToWorld(true);
         }
     }
