@@ -13,7 +13,8 @@ namespace Engine
 		//-------------------------------------------
 		// Functions
 		//-------------------------------------------
-
+		virtual ~Application() = default;
+		virtual void RegisterTypes();
 		virtual bool Init() = 0;
 		//deltaTime in seconds
 		virtual void Update(float deltaTime) = 0;

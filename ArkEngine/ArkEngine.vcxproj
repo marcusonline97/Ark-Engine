@@ -298,6 +298,7 @@
     <None Include="ArkEngine\Resources\Models\CarbineGun\scene.gltf" />
     <None Include="ArkEngine\Resources\Models\suzanne\Suzanne.bin" />
     <None Include="ArkEngine\Resources\Models\suzanne\Suzanne.gltf" />
+    <None Include="ArkEngine\Resources\Scenes\Development.sc" />
     <None Include="ArkEngine\Resources\Shaders\empty.frag" />
     <None Include="ArkEngine\Resources\Shaders\Fragment.glsl" />
     <None Include="ArkEngine\Resources\Shaders\infinite_grid.frag" />

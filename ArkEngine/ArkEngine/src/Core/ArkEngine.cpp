@@ -63,6 +63,9 @@ namespace Engine
             return false;
         }
 
+        Scene::RegisterTypes();
+        m_application->RegisterTypes();
+
 #if defined (__linux__)
         glfwInitHint(GLFW_PLATFORM, GLFW_PLATFORM_X11);
 #endif

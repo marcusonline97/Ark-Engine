@@ -61,9 +61,12 @@ namespace Engine
 		const glm::vec3& GetPosition() const;
 		glm::vec3 GetWorldPosition() const;
 		void SetPosition(const glm::vec3& pos);
+		void SetWorldPosition(const glm::vec3& pos);
 
 		const glm::quat& GetRotation() const;
+		glm::quat GetWorldRotation();
 		void SetRotation(const glm::quat& rot);
+		void SetWorldRotation(const glm::quat& rot);
 
 		const glm::vec3& GetScale() const;
 		void SetScale(const glm::vec3& scale);

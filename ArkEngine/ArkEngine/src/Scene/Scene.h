@@ -21,6 +21,8 @@ namespace Engine
 		//-------------------------------------------
 		// Functions
 		//-------------------------------------------
+		static void RegisterTypes();
+
 		void Update(float deltaTime);
 		void Clear();
 
@@ -44,6 +46,7 @@ namespace Engine
 		std::vector<LightData> CollectLights();
 
 
+
 	private:
 		//-------------------------------------------
 		// Properties & Variables
@@ -54,7 +57,10 @@ namespace Engine
 		//-------------------------------------------
 		// Functions
 		//-------------------------------------------
+		static std::shared_ptr<Scene> Load(const std::string& path);
+
 
 		void CollectLightsRecursive(GameObject* obj, std::vector<LightData>& out);
+		void LoadObject(const nlohmann::json& jsonObject, GameObject* parent);
 	};
 }

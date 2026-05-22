@@ -35,8 +35,14 @@ namespace Engine
 
         if (m_rigidBody->GetType() == BodyType::Dynamic)
         {
-            m_owner->SetPosition(m_rigidBody->GetPosition());
-            m_owner->SetRotation(m_rigidBody->GetRotation());
+            m_owner->SetWorldPosition(m_rigidBody->GetPosition());
+            m_owner->SetWorldRotation(m_rigidBody->GetRotation());
         }
     }
+
+    void PhysicsComponent::SetRigidBody(const std::shared_ptr<RigidBody>& body)
+    {
+        m_rigidBody = body;
+    }
+
 }

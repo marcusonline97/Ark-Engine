@@ -2,10 +2,9 @@
 
 namespace Engine
 {
-	bool Application::Init()
+	void Application::RegisterTypes()
 	{
-		// Initialization code here
-		return true;
+
 	}
 
 	void Application::Destroy()
