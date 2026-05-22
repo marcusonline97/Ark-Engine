@@ -3,8 +3,6 @@
 #include "Scene/Component.h"
 #include "Physics/RigidBody.h"
 
-#include <memory>
-
 namespace Engine
 {
 	class PhysicsComponent : public Component

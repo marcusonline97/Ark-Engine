@@ -5,39 +5,38 @@
 
 namespace Engine
 {
-	PhysicsComponent::PhysicsComponent(const std::shared_ptr<RigidBody>& body)
-		: m_rigidBody(body) 
-	{
+    PhysicsComponent::PhysicsComponent(const std::shared_ptr<RigidBody>& body)
+        : m_rigidBody(body)
+    {
+    }
 
-	}
+    void PhysicsComponent::Init()
+    {
+        if (!m_rigidBody)
+        {
+            return;
+        }
 
-	void PhysicsComponent::Init()
-	{
-		if(!m_rigidBody)
-		{
-			return;
-		}
+        const auto pos = m_owner->GetWorldPosition();
+        const auto rot = m_owner->GetRotation();
 
-		const auto pos = m_owner->GetWorldPosition();
-		const auto rot = m_owner->GetRotation();
+        m_rigidBody->SetPosition(pos);
+        m_rigidBody->SetRotation(rot);
 
-		m_rigidBody->SetPosition(pos);
-		m_rigidBody->SetRotation(rot);
+        ArkEngine::GetInstance().GetPhysicsManager().AddRigidBody(m_rigidBody.get());
+    }
 
-		ArkEngine::GetInstance().GetPhysicsManager().AddRigidBody(m_rigidBody.get());
-	}
-	void PhysicsComponent::Update(float deltaTime) 
-	{
-		if(!m_rigidBody)
-		{
-			return;
-		}
+    void PhysicsComponent::Update(float deltaTime)
+    {
+        if (!m_rigidBody)
+        {
+            return;
+        }
 
-		if(m_rigidBody->GetType() == BodyType::Dynamic)
-		{
-			m_owner->SetPosition(m_rigidBody->GetPosition());
-			m_owner->SetRotation(m_rigidBody->GetRotation());
-
-		}
-	}
+        if (m_rigidBody->GetType() == BodyType::Dynamic)
+        {
+            m_owner->SetPosition(m_rigidBody->GetPosition());
+            m_owner->SetRotation(m_rigidBody->GetRotation());
+        }
+    }
 }

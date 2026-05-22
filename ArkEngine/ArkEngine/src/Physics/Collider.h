@@ -6,32 +6,31 @@ class btCollisionShape;
 
 namespace Engine
 {
-	class Collider
-	{
-	public:
-		virtual ~Collider();
-		btCollisionShape* GetShape();
+    class Collider
+    {
+    public:
+        virtual ~Collider();
+        btCollisionShape* GetShape();
 
-	protected:
-		btCollisionShape* m_shape = nullptr;
- 
-	};
+    protected:
+        btCollisionShape* m_shape = nullptr;
+    };
 
-	class BoxCollider : public Collider
-	{
-	public:
-		BoxCollider(const glm::vec3& extents);
-	};
+    class BoxCollider : public Collider
+    {
+    public:
+        BoxCollider(const glm::vec3& extents);
+    };
 
-	class SphereCollider : public Collider
-	{
-	public:
-		SphereCollider(float radius);
-	};
+    class SphereCollider : public Collider
+    {
+    public:
+        SphereCollider(float radius);
+    };
 
-	class CapsuleCollider : public Collider
-	{
-	public:
-		CapsuleCollider(float radius, float height);
-	};
+    class CapsuleCollider : public Collider
+    {
+    public:
+        CapsuleCollider(float radius, float height);
+    };
 }

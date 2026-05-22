@@ -22,7 +22,6 @@ class btRigidBody;
 
 #include "LinearMath/btAlignedAllocator.h"
 #include "LinearMath/btTransformUtil.h"
-
 ///Until we get other contributions, only use SIMD on Windows, when using Visual Studio 2008 or later, and not double precision
 #ifdef BT_USE_SSE
 #define USE_SIMD 1
