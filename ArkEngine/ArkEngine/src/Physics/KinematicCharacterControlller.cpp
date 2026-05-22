@@ -20,7 +20,7 @@ namespace Engine
         start.setOrigin(btVector3(0.0f, 2.0f, 0.0f));
         m_ghost->setWorldTransform(start);
         m_ghost->setCollisionShape(capsule);
-        m_ghost->setCollisionFlags(m_ghost->getCollisionFlags() | btCollisionObject::CF_CHARACTER_OBJECT);
+        m_ghost->setCollisionFlags(btCollisionObject::CF_CHARACTER_OBJECT | btCollisionObject::CF_NO_CONTACT_RESPONSE);
 
         world->getBroadphase()->getOverlappingPairCache()->setInternalGhostPairCallback(
             new btGhostPairCallback());
@@ -29,9 +29,11 @@ namespace Engine
         m_controller = std::make_unique<btKinematicCharacterController>(m_ghost.get(), capsule, stepHeight);
 
         m_controller->setMaxSlope(btRadians(50.0f));
-        m_controller->setGravity(world->getGravity()); // negative value is fine
-        btBroadphaseProxy::CharacterFilter,
-            btBroadphaseProxy::AllFilter & ~btBroadphaseProxy::SensorTrigger); // collide with most things
+        m_controller->setGravity(world->getGravity());
+
+        world->addCollisionObject(m_ghost.get(),
+            btBroadphaseProxy::CharacterFilter,
+            btBroadphaseProxy::AllFilter ^ btBroadphaseProxy::CharacterFilter);
         world->addAction(m_controller.get());
     }
 
