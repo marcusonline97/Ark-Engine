@@ -1,24 +1,23 @@
 #include "RigidBody.h"
 #include "Core/ArkEngine.h"
 
-#include <Bullet3/btBulletCollisionCommon.h>
-#include <Bullet3/btBulletDynamicsCommon.h>
+#include <btBulletCollisionCommon.h>
+#include <btBulletDynamicsCommon.h>
 
 namespace Engine
 {
 	RigidBody::RigidBody(BodyType type, const std::shared_ptr<Collider>& collider, float mass, float friction)
 		: m_type(type), m_collider(collider), m_mass(mass), m_friction(friction)
 	{
-
 		if (!collider)
 		{
 			return;
 		}
 
-		btVector3 inertia(0, 0, 0);
+		btVector3 intertia(0, 0, 0);
 		if (m_type == BodyType::Dynamic && mass > 0.0f && m_collider->GetShape())
 		{
-			m_collider->GetShape()->calculateLocalInertia(btScalar(mass), inertia);
+			m_collider->GetShape()->calculateLocalInertia(btScalar(mass), intertia);
 		}
 
 		btTransform transform;
@@ -27,17 +26,17 @@ namespace Engine
 
 		btRigidBody::btRigidBodyConstructionInfo info(
 			(m_type == BodyType::Dynamic) ? btScalar(mass) : btScalar(0),
-			motionState, m_collider->GetShape(), inertia);
+			motionState, m_collider->GetShape(), intertia
+		);
 
 		m_body = std::make_unique<btRigidBody>(info);
-		m_body->setFriction(m_friction);
+		m_body->setFriction(friction);
 
-		if(m_type == BodyType::Kinematic)
+		if (m_type == BodyType::Kinematic)
 		{
 			m_body->setCollisionFlags(m_body->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT);
 			m_body->setActivationState(DISABLE_DEACTIVATION);
 		}
-
 	}
 
 	RigidBody::~RigidBody()
@@ -50,8 +49,9 @@ namespace Engine
 
 	btRigidBody* RigidBody::GetBody()
 	{
-				return m_body.get();
+		return m_body.get();
 	}
+
 	void RigidBody::SetAddedToWorld(bool added)
 	{
 		m_addedToWorld = added;
@@ -69,20 +69,17 @@ namespace Engine
 
 	void RigidBody::SetPosition(const glm::vec3& pos)
 	{
-	
-		if(!m_body)
+		if (!m_body)
 		{
 			return;
 		}
 
 		auto& tr = m_body->getWorldTransform();
 		tr.setOrigin(btVector3(btScalar(pos.x), btScalar(pos.y), btScalar(pos.z)));
-
 		if (m_body->getMotionState())
 		{
 			m_body->getMotionState()->setWorldTransform(tr);
 		}
-
 		m_body->setWorldTransform(tr);
 	}
 
@@ -94,15 +91,14 @@ namespace Engine
 
 	void RigidBody::SetRotation(const glm::quat& rot)
 	{
-		if(!m_body)
+		if (!m_body)
 		{
 			return;
 		}
 
 		auto& tr = m_body->getWorldTransform();
 		tr.setRotation(btQuaternion(btScalar(rot.x), btScalar(rot.y), btScalar(rot.z), btScalar(rot.w)));
-
-		if(m_body->getMotionState())
+		if (m_body->getMotionState())
 		{
 			m_body->getMotionState()->setWorldTransform(tr);
 		}

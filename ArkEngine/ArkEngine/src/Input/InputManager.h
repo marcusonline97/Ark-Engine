@@ -19,7 +19,7 @@ namespace Engine
 		// Functions
 		//-------------------------------------------
 		void SetKeyPressed(int key, bool pressed);
-		bool IsKeyPressed(int key) const;
+		bool IsKeyPressed(int key);
 
 		void SetMouseButtonPressed(int button, bool pressed);
 		bool IsMouseButtonPressed(int button);
@@ -30,6 +30,8 @@ namespace Engine
 		void SetMousePositionCurrent(const glm::vec2& pos);
 		const glm::vec2& GetMousePositionCurrent() const;
 
+		void SetMousePositionChanged(bool changed);
+		bool IsMousePositionChanged() const;
 
 	private:
 		//-------------------------------------------
@@ -40,7 +42,7 @@ namespace Engine
 
 		glm::vec2 m_mousePositionOld = glm::vec2(0.0f);
 		glm::vec2 m_mousePositionCurrent = glm::vec2(0.0f);
-
+		bool m_mousePositionChanged = false;
 		friend class ArkEngine;
 
 		//-------------------------------------------
@@ -53,4 +55,6 @@ namespace Engine
 		InputManager& operator=(InputManager&&) = delete;
 
 	};
+
+	// might look into implementing the keys as an enum class using uint16_t later on to group them into categories and make it more readable, but for now this is fine
 }

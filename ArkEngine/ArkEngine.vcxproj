@@ -208,8 +208,10 @@
     <ClCompile Include="ArkEngine\src\Graphics\Texture.cpp" />
     <ClCompile Include="ArkEngine\src\Input\InputManager.cpp" />
     <ClCompile Include="ArkEngine\src\Physics\Collider.cpp" />
+    <ClCompile Include="ArkEngine\src\Physics\KinematicCharacterControlller.cpp" />
     <ClCompile Include="ArkEngine\src\Physics\PhysicsManager.cpp" />
     <ClCompile Include="ArkEngine\src\Physics\RigidBody.cpp" />
+    <ClCompile Include="ArkEngine\src\Player.cpp" />
     <ClCompile Include="ArkEngine\src\Render\Material.cpp" />
     <ClCompile Include="ArkEngine\src\Render\Mesh.cpp" />
     <ClCompile Include="ArkEngine\src\Render\RenderQueue.cpp" />
@@ -247,8 +249,10 @@
     <ClInclude Include="ArkEngine\src\Input\InputManager.h" />
     <ClInclude Include="ArkEngine\src\Migration\ArkEngine_app.h" />
     <ClInclude Include="ArkEngine\src\Physics\Collider.h" />
+    <ClInclude Include="ArkEngine\src\Physics\KinematicCharacterController.h" />
     <ClInclude Include="ArkEngine\src\Physics\PhysicsManager.h" />
     <ClInclude Include="ArkEngine\src\Physics\RigidBody.h" />
+    <ClInclude Include="ArkEngine\src\Player.h" />
     <ClInclude Include="ArkEngine\src\Render\Material.h" />
     <ClInclude Include="ArkEngine\src\Render\Mesh.h" />
     <ClInclude Include="ArkEngine\src\Render\RenderQueue.h" />

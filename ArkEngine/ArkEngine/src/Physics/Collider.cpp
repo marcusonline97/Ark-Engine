@@ -1,6 +1,6 @@
 #include "Collider.h"
 
-#include <Bullet3/btBulletCollisionCommon.h>
+#include <btBulletCollisionCommon.h>
 
 namespace Engine
 {
