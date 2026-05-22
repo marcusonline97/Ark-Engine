@@ -30,7 +30,10 @@ namespace Engine
 
         m_controller->setMaxSlope(btRadians(50.0f));
         m_controller->setGravity(world->getGravity()); // negative value is fine
-        btBroadphaseProxy::CharacterFilter,
+
+        world->addCollisionObject(
+            m_ghost.get(),
+            btBroadphaseProxy::CharacterFilter,
             btBroadphaseProxy::AllFilter & ~btBroadphaseProxy::SensorTrigger); // collide with most things
         world->addAction(m_controller.get());
     }
