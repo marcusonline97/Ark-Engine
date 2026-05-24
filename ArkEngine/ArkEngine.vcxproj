@@ -198,6 +198,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ArkEngine\src\AssetManager\Filesystem.cpp" />
+    <ClCompile Include="ArkEngine\src\Audio\Audio.cpp" />
+    <ClCompile Include="ArkEngine\src\Audio\AudioManager.cpp" />
     <ClCompile Include="ArkEngine\src\Graphics\GraphicsAPI.cpp" />
     <ClCompile Include="ArkEngine\src\Graphics\ShaderProgram.cpp" />
     <ClCompile Include="ArkEngine\src\Core\Application.cpp" />
@@ -217,6 +219,8 @@
     <ClCompile Include="ArkEngine\src\Render\RenderQueue.cpp" />
     <ClCompile Include="ArkEngine\src\Scene\Component.cpp" />
     <ClCompile Include="ArkEngine\src\Scene\Components\AnimationComponent.cpp" />
+    <ClCompile Include="ArkEngine\src\Scene\Components\AudioComponent.cpp" />
+    <ClCompile Include="ArkEngine\src\Scene\Components\AudioListenerComponent.cpp" />
     <ClCompile Include="ArkEngine\src\Scene\Components\CameraComponent.cpp" />
     <ClCompile Include="ArkEngine\src\Scene\Components\LightComponent.cpp" />
     <ClCompile Include="ArkEngine\src\Scene\Components\PhysicsComponent.cpp" />
@@ -237,6 +241,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ArkEngine\src\AssetManager\FileSystem.h" />
+    <ClInclude Include="ArkEngine\src\Audio\Audio.h" />
+    <ClInclude Include="ArkEngine\src\Audio\AudioManager.h" />
     <ClInclude Include="ArkEngine\src\Core\Common.h" />
     <ClInclude Include="ArkEngine\src\Graphics\GraphicsAPI.h" />
     <ClInclude Include="ArkEngine\src\Graphics\ShaderProgram.h" />
@@ -258,6 +264,8 @@
     <ClInclude Include="ArkEngine\src\Render\RenderQueue.h" />
     <ClInclude Include="ArkEngine\src\Scene\Component.h" />
     <ClInclude Include="ArkEngine\src\Scene\Components\AnimationComponent.h" />
+    <ClInclude Include="ArkEngine\src\Scene\Components\AudioComponent.h" />
+    <ClInclude Include="ArkEngine\src\Scene\Components\AudioListenerComponent.h" />
     <ClInclude Include="ArkEngine\src\Scene\Components\CameraComponent.h" />
     <ClInclude Include="ArkEngine\src\Scene\Components\LightComponent.h" />
     <ClInclude Include="ArkEngine\src\Scene\Components\PhysicsComponent.h" />

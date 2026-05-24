@@ -12,4 +12,6 @@ public:
 
 private:
 	Engine::AnimationComponent* m_animationComponent = nullptr;
+	Engine::AudioComponent* m_audioComponent = nullptr;
+	Engine::PlayerControllerComponent* m_playerControllerComponent = nullptr;
 };

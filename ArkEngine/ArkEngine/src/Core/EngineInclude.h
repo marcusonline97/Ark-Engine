@@ -19,11 +19,15 @@
 #include "Scene/Components/LightComponent.h"
 #include "Scene/Components/AnimationComponent.h"
 #include "Scene/Components/PhysicsComponent.h"
+#include "Scene/Components/AudioComponent.h"
+#include "Scene/Components/AudioListenerComponent.h"
 #include "Physics/Collider.h"
 #include "Physics/RigidBody.h"
 #include "Physics/PhysicsManager.h"
+#include "Physics/KinematicCharacterController.h"
+#include "Audio/AudioManager.h"
+#include "Audio/Audio.h"
 #include "AssetManager/FileSystem.h"
-#include "Physics/PhysicsManager.h"
 // This header file serves as a central include for all core engine components, allowing other parts of the codebase to include this single file to access the entire engine functionality.
 
 // By including this file, you can access all the core engine classes and functionalities without needing to include each header individually in your source files.

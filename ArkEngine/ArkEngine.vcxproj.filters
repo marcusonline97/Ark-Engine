@@ -3359,6 +3359,10 @@
     <ClCompile Include="ArkEngine\Vendor\Jolt\Skeleton\*.cpp" />
     <ClCompile Include="ArkEngine\Vendor\Jolt\TriangleSplitter\*.cpp" />
     <ClCompile Include="ArkEngine\Vendor\Jolt\TriangleSplitter\*.cpp" />
+    <ClCompile Include="ArkEngine\src\Audio\AudioManager.cpp" />
+    <ClCompile Include="ArkEngine\src\Audio\Audio.cpp" />
+    <ClCompile Include="ArkEngine\src\Scene\Components\AudioComponent.cpp" />
+    <ClCompile Include="ArkEngine\src\Scene\Components\AudioListenerComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ArkEngine\src\Migration\ArkEngine_app.h" />
@@ -3392,6 +3396,10 @@
     <ClInclude Include="ArkEngine\src\Scene\Components\PhysicsComponent.h" />
     <ClInclude Include="ArkEngine\src\Physics\KinematicCharacterController.h" />
     <ClInclude Include="ArkEngine\src\Player.h" />
+    <ClInclude Include="ArkEngine\src\Audio\AudioManager.h" />
+    <ClInclude Include="ArkEngine\src\Audio\Audio.h" />
+    <ClInclude Include="ArkEngine\src\Scene\Components\AudioComponent.h" />
+    <ClInclude Include="ArkEngine\src\Scene\Components\AudioListenerComponent.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="ArkEngine\Resources\Textures\BathroomFloor_ALB.png" />

@@ -13,12 +13,6 @@ void Game::RegisterTypes()
 bool Game::Init()
 {
     auto scene = Engine::Scene::Load("Scenes/scene.sc");
-    if (!scene)
-    {
-        std::cerr << "[Game] Failed to load scene. Check that 'Scenes/scene.sc' exists and is valid JSON.\n";
-        return false;
-    }
-
     m_scene = scene;
     Engine::ArkEngine::GetInstance().SetScene(scene.get());
 
@@ -27,6 +21,10 @@ bool Game::Init()
 
 void Game::Update(float deltaTime)
 {
+    if (!m_scene)
+    {
+        return;
+    }
     m_scene->Update(deltaTime);
 }
 

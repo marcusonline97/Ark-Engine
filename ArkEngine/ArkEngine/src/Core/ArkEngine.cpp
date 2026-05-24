@@ -104,6 +104,7 @@ namespace Engine
 
 		m_graphicsAPI.Init();
 		m_physicsManager.Init();
+		m_audioManager.Init();
         return m_application->Init();
     }
 
@@ -214,6 +215,13 @@ namespace Engine
     {
         return m_physicsManager;
     }
+
+    AudioManager& ArkEngine::GetAudioManager()
+    {
+		return m_audioManager;
+    }
+
+
 
     void ArkEngine::SetScene(Scene* scene)
     {

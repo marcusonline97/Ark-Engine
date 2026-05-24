@@ -5,6 +5,8 @@
 #include "Scene/Components/MeshComponent.h"
 #include "Scene/Components/PhysicsComponent.h"
 #include "Scene/Components/PlayerControllerComponent.h"
+#include "Scene/Components/AudioComponent.h"
+#include "Scene/Components/AudioListenerComponent.h"
 #include "Core/ArkEngine.h"
 
 #include <algorithm>
@@ -21,6 +23,8 @@ namespace Engine
         MeshComponent::Register();
         PhysicsComponent::Register();
         PlayerControllerComponent::Register();
+        AudioComponent::Register();
+        AudioListenerComponent::Register();
     }
 
     void Scene::Update(float deltaTime)

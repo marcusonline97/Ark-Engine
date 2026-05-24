@@ -82,4 +82,14 @@ namespace Engine
 
 		m_owner->SetPosition(m_kinematicController->GetPosition());
     }
+
+    bool PlayerControllerComponent::OnGround() const
+    {
+        if (m_kinematicController)
+        {
+            return m_kinematicController->OnGround();
+        }
+        return false;
+    }
+
 }

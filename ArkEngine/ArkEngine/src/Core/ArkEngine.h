@@ -7,6 +7,7 @@
 #include "Scene/Scene.h"
 #include "AssetManager/FileSystem.h"
 #include "Physics/PhysicsManager.h"
+#include "Audio/AudioManager.h"
 
 #include <chrono>
 #include <memory>
@@ -47,6 +48,7 @@ namespace Engine
 		FileSystem& GetFileSystem();
 		TextureManager& GetTextureManager();
 		PhysicsManager& GetPhysicsManager();
+		AudioManager& GetAudioManager();
 
 
 		void SetScene(Scene* scene);
@@ -66,6 +68,7 @@ namespace Engine
 		FileSystem m_fileSystem;
 		TextureManager m_textureManager;
 		PhysicsManager m_physicsManager;
+		AudioManager m_audioManager;
 		std::unique_ptr<Scene> m_currentScene;
 		//-------------------------------------------
 		// Functions
