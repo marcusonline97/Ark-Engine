@@ -3,9 +3,10 @@
 
 class Player : public Engine::GameObject
 {
+	GAMEOBJECT(Player)
 public:
 
-	void Init();
+	void Init() override;
 
 	void Update(float deltaTime) override;
 

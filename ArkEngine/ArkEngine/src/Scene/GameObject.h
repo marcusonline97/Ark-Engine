@@ -27,6 +27,8 @@ namespace Engine
 		// Functions
 		//-------------------------------------------
 		virtual ~GameObject() = default;
+		virtual void Init();
+		virtual void LoadProperties(const nlohmann::json& json);
 		virtual void Update(float deltaTime);
 		const std::string& GetName() const;
 		void SetName(const std::string& name);
@@ -74,7 +76,7 @@ namespace Engine
 		glm::mat4 GetLocalTransform() const;
 		glm::mat4 GetWorldTransform() const;
 
-		static GameObject* LoadGLTF(const std::string& path);
+		static GameObject* LoadGLTF(const std::string& path, Scene* scene);
 
 
 	protected:
@@ -108,5 +110,43 @@ namespace Engine
 		// Functions
 		//-------------------------------------------
 
+
 	};
+
+	class ObjectCreatorBase
+	{
+	public:
+		virtual ~ObjectCreatorBase() = default;
+		virtual GameObject* CreateGameObject() = 0;
+	};
+
+	template<typename T>
+	class ObjectCreator : public ObjectCreatorBase
+	{
+	public:
+		virtual GameObject* CreateGameObject() override
+		{
+			return new T();
+		}
+	};
+
+	class GameObjectFactory
+	{
+	public:
+		static GameObjectFactory& GetInstance();
+		template<typename T>
+		void RegisterObject(const std::string& name)
+		{
+			m_creators.emplace(name, std::make_unique<ObjectCreator<T>>());
+		}
+
+		GameObject* CreateGameObject(const std::string& typeName);
+
+	private:
+		std::unordered_map<std::string, std::unique_ptr<ObjectCreatorBase>> m_creators;
+	};
+
+#define GAMEOBJECT(ObjectClass) \
+public: \
+    static void Register() { Engine::GameObjectFactory::GetInstance().RegisterObject<ObjectClass>(std::string(#ObjectClass)); }
 }

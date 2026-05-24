@@ -12,7 +12,7 @@ namespace Engine
     class KinematicCharacterController
     {
     public:
-        KinematicCharacterController(float raduis, float height);
+        KinematicCharacterController( float raduis, float height, const glm::vec3& position);
         ~KinematicCharacterController();
 
         glm::vec3 GetPosition() const;

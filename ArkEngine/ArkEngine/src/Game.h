@@ -1,6 +1,7 @@
 #pragma once
 #include "Core/EngineInclude.h"
 #include <memory>
+
 class Game : public Engine::Application
 {
 
@@ -13,7 +14,7 @@ public:
 	//-------------------------------------------
 	// Functions
 	//-------------------------------------------
-
+	void RegisterTypes() override;
 	bool Init() override;
 
 	void Update(float deltaTime) override;
@@ -28,5 +29,5 @@ private:
 	//-------------------------------------------
 	// Functions
 	//-------------------------------------------
-	Engine::Scene* m_scene;
+	std::shared_ptr<Engine::Scene> m_scene;
 };

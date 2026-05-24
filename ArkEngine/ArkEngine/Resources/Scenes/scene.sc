@@ -1,4 +1,4 @@
-{
+﻿{
 	"name": "MyScene",
 	"objects": [
 		{
@@ -22,7 +22,7 @@
 			"components": [
 				{
 					"type": "MeshComponent",
-					"material": "Materials/brick.mat",
+					"material": "materials/brick.mat",
 					"mesh": {
 						"type": "box",
 						"x": 2,
@@ -48,7 +48,7 @@
 				{
 					"name": "Gun",
 					"type": "gltf",
-					"path": "Models/CarbineGun/scene.gltf",
+					"path": "models/sten_gunmachine_carbine/scene.gltf",
 					"position": {
 						"x": 0.75,
 						"y": -0.5,
@@ -78,7 +78,7 @@
 						"y": 2,
 						"z": 20
 					},
-					"material": "Materials/brick.mat"
+					"material": "materials/brick.mat"
 				},
 				{
 					"type": "PhysicsComponent",
@@ -112,7 +112,7 @@
 			"components": [
 				{
 					"type": "MeshComponent",
-					"material": "Materials/brick.mat",
+					"material": "materials/brick.mat",
 					"mesh": {
 						"type": "box",
 						"x": 1,

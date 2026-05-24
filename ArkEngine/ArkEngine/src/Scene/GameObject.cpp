@@ -21,6 +21,16 @@
 
 namespace Engine
 {
+    void GameObject::Init()
+    {
+
+    }
+
+    void GameObject::LoadProperties(const nlohmann::json& json)
+    {
+
+    }
+
     void GameObject::Update(float deltaTime)
     {
         if (!m_active)
@@ -500,10 +510,15 @@ namespace Engine
             }
         };
 
-    GameObject* GameObject::LoadGLTF(const std::string& path)
+    GameObject* GameObject::LoadGLTF(const std::string& path, Scene* gameScene)
     {
         auto contents = ArkEngine::GetInstance().GetFileSystem().LoadAssetFileText(path);
         if (contents.empty())
+        {
+            return nullptr;
+        }
+
+        if(!gameScene)
         {
             return nullptr;
         }
@@ -528,7 +543,7 @@ namespace Engine
             return nullptr;
         }
 
-        auto resultObject = ArkEngine::GetInstance().GetScene()->CreateObject("Result");
+        auto resultObject = gameScene->CreateObject("Result");
         auto scene = &data->scenes[0];
 
         for (cgltf_size i = 0; i < scene->nodes_count; ++i)
@@ -640,5 +655,23 @@ namespace Engine
         cgltf_free(data);
 
         return resultObject;
+    }
+
+
+    GameObjectFactory& GameObjectFactory::GetInstance()
+    {
+        static GameObjectFactory instance;
+        return instance;
+    }
+
+    GameObject* GameObjectFactory::CreateGameObject(const std::string& typeName)
+    {
+		auto it = m_creators.find(typeName);
+        if (it == m_creators.end())
+        {
+            return nullptr;
+        }
+
+		return it->second->CreateGameObject();
     }
 }

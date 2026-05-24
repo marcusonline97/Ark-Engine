@@ -9,58 +9,41 @@
 
 namespace Engine
 {
-	class GameObject;
+    class Scene
+    {
+    public:
+        static void RegisterTypes();
+        void Update(float deltaTime);
+        void Clear();
 
-	class Scene
-	{
-	public:
-		//-------------------------------------------
-		// Properties & Variables
-		//-------------------------------------------
+        GameObject* CreateObject(const std::string& name, GameObject* parent = nullptr);
+        GameObject* CreateObject(const std::string& type, const std::string& name, GameObject* parent = nullptr);
 
-		//-------------------------------------------
-		// Functions
-		//-------------------------------------------
-		static void RegisterTypes();
+        template<typename T, typename = typename std::enable_if_t<std::is_base_of_v<GameObject, T>>>
+        T* CreateObject(const std::string& name, GameObject* parent = nullptr)
+        {
+            auto obj = new T();
+            obj->SetName(name);
+            obj->m_scene = this;
+            SetParent(obj, parent);
+            return obj;
+        }
 
-		void Update(float deltaTime);
-		void Clear();
+        bool SetParent(GameObject* obj, GameObject* parent);
 
-		GameObject* CreateObject(const std::string& name, GameObject* parent = nullptr);
+        void SetMainCamera(GameObject* camera);
+        GameObject* GetMainCamera();
 
-		template<typename T, typename = typename std::enable_if_t<std::is_base_of_v<GameObject, T>>>
-		T* CreateObject(const std::string& name, GameObject* parent = nullptr)
-		{
-			auto obj = new T();
-			obj->SetName(name);
-			obj->m_scene = this;
-			SetParent(obj, parent);
-			return obj;
-		}
+        std::vector<LightData> CollectLights();
 
-		bool SetParent(GameObject* obj, GameObject* parent);
+        static std::shared_ptr<Scene> Load(const std::string& path);
 
-		void SetMainCamera(GameObject* camera);
-		GameObject* GetMainCamera();
+    private:
+        void CollectLightsRecursive(GameObject* obj, std::vector<LightData>& out);
+        void LoadObject(const nlohmann::json& jsonObject, GameObject* parent);
 
-		std::vector<LightData> CollectLights();
-
-
-
-	private:
-		//-------------------------------------------
-		// Properties & Variables
-		//-------------------------------------------
-		std::vector<std::unique_ptr<GameObject>> m_objects;
-
-		GameObject* m_mainCamera = nullptr;
-		//-------------------------------------------
-		// Functions
-		//-------------------------------------------
-		static std::shared_ptr<Scene> Load(const std::string& path);
-
-
-		void CollectLightsRecursive(GameObject* obj, std::vector<LightData>& out);
-		void LoadObject(const nlohmann::json& jsonObject, GameObject* parent);
-	};
+    private:
+        std::vector<std::unique_ptr<GameObject>> m_objects;
+        GameObject* m_mainCamera = nullptr;
+    };
 }
