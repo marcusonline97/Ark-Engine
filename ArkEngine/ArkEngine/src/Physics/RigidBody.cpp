@@ -14,6 +14,9 @@ namespace Engine
 			return;
 		}
 
+		m_collisionObjectType = CollisionObjectType::RigidBody;
+
+
 		btVector3 intertia(0, 0, 0);
 		if (m_type == BodyType::Dynamic && mass > 0.0f && m_collider->GetShape())
 		{
@@ -31,6 +34,7 @@ namespace Engine
 
 		m_body = std::make_unique<btRigidBody>(info);
 		m_body->setFriction(friction);
+		m_body->setUserPointer(this);
 
 		if (m_type == BodyType::Kinematic)
 		{
@@ -107,7 +111,22 @@ namespace Engine
 
 	glm::quat RigidBody::GetRotation() const
 	{
+		if (!m_body)
+		{
+			return glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+		}
 		const auto& rot = m_body->getWorldTransform().getRotation();
 		return glm::quat(rot.w(), rot.x(), rot.y(), rot.z());
 	}
+
+	void RigidBody::ApplyImpulse(const glm::vec3& impulse)
+	{
+		if (!m_body)
+		{
+			return;
+		}
+
+		m_body->applyCentralImpulse(btVector3(btScalar(impulse.x), btScalar(impulse.y), btScalar(impulse.z)));
+	}
+
 }

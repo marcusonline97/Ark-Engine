@@ -110,4 +110,10 @@ namespace Engine
         m_rigidBody = body;
     }
 
+    const std::shared_ptr<RigidBody>& PhysicsComponent::GetRigidBody()
+    {
+		return m_rigidBody;
+    }
+
+
 }

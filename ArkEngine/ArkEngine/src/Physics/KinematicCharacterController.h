@@ -1,4 +1,5 @@
 #pragma once
+#include "Physics/CollisionObject.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
@@ -9,7 +10,7 @@ class btKinematicCharacterController;
 
 namespace Engine
 {
-    class KinematicCharacterController
+    class KinematicCharacterController : public CollisionObject
     {
     public:
         KinematicCharacterController( float raduis, float height, const glm::vec3& position);

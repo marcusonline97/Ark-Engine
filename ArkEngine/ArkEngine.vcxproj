@@ -195,11 +195,14 @@
     <Image Include="ArkEngine\Resources\Models\suzanne\Suzanne_MetallicRoughness.png" />
     <Image Include="ArkEngine\Resources\Textures\BathroomFloor_ALB.png" />
     <Image Include="ArkEngine\Resources\Textures\brick.png" />
+    <Image Include="ArkEngine\Resources\Textures\checker.png" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ArkEngine\Resources\Materials\Checker.mat" />
     <ClCompile Include="ArkEngine\src\AssetManager\Filesystem.cpp" />
     <ClCompile Include="ArkEngine\src\Audio\Audio.cpp" />
     <ClCompile Include="ArkEngine\src\Audio\AudioManager.cpp" />
+    <ClCompile Include="ArkEngine\src\Bullet.cpp" />
     <ClCompile Include="ArkEngine\src\Graphics\GraphicsAPI.cpp" />
     <ClCompile Include="ArkEngine\src\Graphics\ShaderProgram.cpp" />
     <ClCompile Include="ArkEngine\src\Core\Application.cpp" />
@@ -209,7 +212,9 @@
     <ClCompile Include="ArkEngine\src\glad\glad.c" />
     <ClCompile Include="ArkEngine\src\Graphics\Texture.cpp" />
     <ClCompile Include="ArkEngine\src\Input\InputManager.cpp" />
+    <ClCompile Include="ArkEngine\src\JumpPlatform.cpp" />
     <ClCompile Include="ArkEngine\src\Physics\Collider.cpp" />
+    <ClCompile Include="ArkEngine\src\Physics\CollisionObject.cpp" />
     <ClCompile Include="ArkEngine\src\Physics\KinematicCharacterControlller.cpp" />
     <ClCompile Include="ArkEngine\src\Physics\PhysicsManager.cpp" />
     <ClCompile Include="ArkEngine\src\Physics\RigidBody.cpp" />
@@ -243,6 +248,7 @@
     <ClInclude Include="ArkEngine\src\AssetManager\FileSystem.h" />
     <ClInclude Include="ArkEngine\src\Audio\Audio.h" />
     <ClInclude Include="ArkEngine\src\Audio\AudioManager.h" />
+    <ClInclude Include="ArkEngine\src\Bullet.h" />
     <ClInclude Include="ArkEngine\src\Core\Common.h" />
     <ClInclude Include="ArkEngine\src\Graphics\GraphicsAPI.h" />
     <ClInclude Include="ArkEngine\src\Graphics\ShaderProgram.h" />
@@ -253,8 +259,10 @@
     <ClInclude Include="ArkEngine\src\Graphics\Texture.h" />
     <ClInclude Include="ArkEngine\src\Graphics\VertexLayout.h" />
     <ClInclude Include="ArkEngine\src\Input\InputManager.h" />
+    <ClInclude Include="ArkEngine\src\JumpPlatform.h" />
     <ClInclude Include="ArkEngine\src\Migration\ArkEngine_app.h" />
     <ClInclude Include="ArkEngine\src\Physics\Collider.h" />
+    <ClInclude Include="ArkEngine\src\Physics\CollisionObject.h" />
     <ClInclude Include="ArkEngine\src\Physics\KinematicCharacterController.h" />
     <ClInclude Include="ArkEngine\src\Physics\PhysicsManager.h" />
     <ClInclude Include="ArkEngine\src\Physics\RigidBody.h" />
@@ -307,6 +315,7 @@
     <None Include="ArkEngine\Resources\Models\suzanne\Suzanne.bin" />
     <None Include="ArkEngine\Resources\Models\suzanne\Suzanne.gltf" />
     <None Include="ArkEngine\Resources\Scenes\Development.sc" />
+    <None Include="ArkEngine\Resources\Scenes\scene.sc" />
     <None Include="ArkEngine\Resources\Shaders\empty.frag" />
     <None Include="ArkEngine\Resources\Shaders\Fragment.glsl" />
     <None Include="ArkEngine\Resources\Shaders\infinite_grid.frag" />

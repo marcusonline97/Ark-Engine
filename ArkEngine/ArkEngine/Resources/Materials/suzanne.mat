@@ -10,7 +10,7 @@
 		[
 			{
 				"name": "baseColorTexture",
-				"path": "Models/Suzanne_BaseColor.png"
+				"path": "Models/suzanne/Suzanne_BaseColor.png"
 			}
 		]
 	}

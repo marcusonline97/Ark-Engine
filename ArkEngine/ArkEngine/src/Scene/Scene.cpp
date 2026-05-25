@@ -29,6 +29,16 @@ namespace Engine
 
     void Scene::Update(float deltaTime)
     {
+        m_objects.erase(std::remove_if(m_objects.begin(), m_objects.end(), [](const std::unique_ptr<GameObject>& obj) { return !obj->IsAlive(); }),
+            m_objects.end());
+
+        for(auto& obj : m_objectsToAdd)
+        {
+            SetParent(obj.first, obj.second);
+		}
+        m_objectsToAdd.clear();
+
+        m_isUpdating = true;
         for (auto it = m_objects.begin(); it != m_objects.end();)
         {
             if ((*it)->IsAlive())
@@ -41,6 +51,7 @@ namespace Engine
                 it = m_objects.erase(it);
             }
         }
+        m_isUpdating = false;
     }
 
     void Scene::Clear()
@@ -53,7 +64,14 @@ namespace Engine
         auto obj = new GameObject();
         obj->SetName(name);
 		obj->m_scene = this;
-        SetParent(obj, parent);
+        if (m_isUpdating)
+        {
+            m_objectsToAdd.push_back({ obj, parent });
+        }
+        else
+        {
+			SetParent(obj, parent);
+        }
         return obj;
     }
 
@@ -64,7 +82,15 @@ namespace Engine
         {
             obj->SetName(name);
             obj->m_scene = this;
-            SetParent(obj, parent);
+            if(m_isUpdating)
+            {
+				m_objectsToAdd.push_back({ obj, parent });
+            }
+            else
+            {
+                SetParent(obj, parent);
+
+            }
         }
         return obj;
 

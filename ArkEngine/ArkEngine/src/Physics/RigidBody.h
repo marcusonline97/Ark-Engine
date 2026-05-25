@@ -1,5 +1,6 @@
 #pragma once
 #include "Collider.h"
+#include "Physics/CollisionObject.h"
 
 #include <glm/gtc/quaternion.hpp>
 
@@ -16,7 +17,7 @@ namespace Engine
 		Kinematic
 	};
 
-	class RigidBody
+	class RigidBody : public CollisionObject
 	{
 	public:
 		RigidBody(BodyType type, const std::shared_ptr<Collider>& collider, float mass, float friction);
@@ -32,6 +33,8 @@ namespace Engine
 
 		void SetRotation(const glm::quat& rot);
 		glm::quat GetRotation() const;
+
+		void ApplyImpulse(const glm::vec3& impulse);
 
 	private:
 		std::unique_ptr<btRigidBody> m_body;

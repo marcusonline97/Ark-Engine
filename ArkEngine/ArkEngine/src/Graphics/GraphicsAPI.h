@@ -32,6 +32,7 @@ namespace Engine
 		void BindMaterial(Material* material);
 
 		void BindMesh(Mesh* mesh);
+		void UnBindMesh(Mesh* mesh);
 		void DrawMesh(Mesh* mesh);
 
 	private:

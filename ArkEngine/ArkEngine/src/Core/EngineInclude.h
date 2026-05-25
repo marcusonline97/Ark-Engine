@@ -25,6 +25,7 @@
 #include "Physics/RigidBody.h"
 #include "Physics/PhysicsManager.h"
 #include "Physics/KinematicCharacterController.h"
+#include "Physics/CollisionObject.h"
 #include "Audio/AudioManager.h"
 #include "Audio/Audio.h"
 #include "AssetManager/FileSystem.h"
