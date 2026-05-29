@@ -6,17 +6,23 @@
 
 namespace Engine
 {
-
     bool GraphicsAPI::Init()
     {
         glEnable(GL_DEPTH_TEST);
-
         return true;
     }
 
     std::shared_ptr<ShaderProgram> GraphicsAPI::CreateShaderProgram(const std::string& vertexSource,
         const std::string& fragmentSource)
     {
+		ShaderKey key{ vertexSource, fragmentSource };
+        auto it = m_shaderCache.find(key);
+        if (it != m_shaderCache.end())
+        {
+			return it->second;
+        }
+
+
         GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
         const char* vertexShaderCStr = vertexSource.c_str();
         glShaderSource(vertexShader, 1, &vertexShaderCStr, nullptr);
@@ -63,7 +69,11 @@ namespace Engine
         glDeleteShader(vertexShader);
         glDeleteShader(fragmentShader);
 
-        return std::make_shared<ShaderProgram>(shaderProgramID);
+
+		auto shaderProgram = std::make_shared<ShaderProgram>(shaderProgramID);
+        m_shaderCache.emplace(key, shaderProgram);
+
+        return shaderProgram;
     }
 
     const std::shared_ptr<ShaderProgram>& GraphicsAPI::GetDefaultShaderProgram()
@@ -148,6 +158,104 @@ namespace Engine
         return m_defaultShaderProgram;
     }
 
+    const std::shared_ptr<ShaderProgram>& GraphicsAPI::GetDefault2DShaderProgram()
+    {
+        if (!m_default2DShaderProgram)
+        {
+            std::string vertexShaderSource = R"(
+            #version 330 core
+            layout (location = 0) in vec2 position;
+        
+            out vec2 vUV;
+        
+            uniform mat4 uModel;
+            uniform mat4 uView;
+            uniform mat4 uProjection;
+
+            uniform vec2 uPivot;
+            uniform vec2 uSize;    
+
+            uniform vec2 uUVMin;
+            uniform vec2 uUVMax;  
+        
+            void main()
+            {
+                vec2 local = (position - uPivot) * uSize;
+                vUV = mix(uUVMin, uUVMax, position);
+                
+                gl_Position = uProjection * uView * uModel * vec4(local, 0.0, 1.0);
+            }
+            )";
+
+            std::string fragmentShaderSource = R"(
+            #version 330 core
+
+            in vec2 vUV;
+
+            uniform vec4 uColor;
+
+            uniform sampler2D uTex;
+
+            out vec4 FragColor;
+
+            void main()
+            {
+                vec4 src = texture(uTex, vUV) * uColor;
+                FragColor = src;
+            }
+            )";
+
+            m_default2DShaderProgram = CreateShaderProgram(vertexShaderSource, fragmentShaderSource);
+        }
+        return m_default2DShaderProgram;
+    }
+
+    const std::shared_ptr<ShaderProgram>& GraphicsAPI::GetDefaultUIShaderProgram()
+    {
+        if (!m_defaultUIShaderProgram)
+        {
+            std::string vertexShaderSource = R"(
+            #version 330 core
+            layout (location = 0) in vec2 position;
+            layout (location = 1) in vec4 color;
+            layout (location = 2) in vec2 uv;
+
+            out vec2 vUV;
+            out vec4 vColor;
+        
+            uniform mat4 uProjection;
+
+            void main()
+            {
+                vUV = uv;
+                vColor = color;
+                
+                gl_Position = uProjection * vec4(position, 0.0, 1.0);
+            }
+            )";
+
+            std::string fragmentShaderSource = R"(
+            #version 330 core
+
+            in vec2 vUV;
+            in vec4 vColor;
+
+            uniform sampler2D uTex;
+            uniform int uUseTexture;
+
+            out vec4 FragColor;
+
+            void main()
+            {
+                vec4 src = (uUseTexture != 0) ? texture(uTex, vUV) * vColor : vColor;
+                FragColor = src;
+            }
+            )";
+
+            m_defaultUIShaderProgram = CreateShaderProgram(vertexShaderSource, fragmentShaderSource);
+        }
+        return m_defaultUIShaderProgram;
+    }
 
     GLuint GraphicsAPI::CreateVertexBuffer(const std::vector<float>& vertices)
     {
@@ -167,57 +275,116 @@ namespace Engine
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(uint32_t), indices.data(), GL_STATIC_DRAW);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
         return EBO;
-	}
+    }
 
-	void GraphicsAPI::SetClearColor(float r, float g, float b, float a)
-	{
-		glClearColor(r, g, b, a);
-	}
-
-	void GraphicsAPI::ClearBuffers()
-	{
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	}
-
-	void GraphicsAPI::BindShaderProgram(ShaderProgram* shaderProgram)
-	{
-		if (shaderProgram)
-		{
-			shaderProgram->Bind();
-		}
-	}
-
-	void GraphicsAPI::BindMaterial(Material* material)
-	{
-		if (material)
-		{
-			material->Bind();
-		}
-	}
-
-	void GraphicsAPI::BindMesh(Mesh* mesh)
-	{
-		if (mesh)
-		{
-			mesh->Bind();
-		}
-	}
-
-    void GraphicsAPI::UnBindMesh(Mesh* mesh)
+    void GraphicsAPI::SetClearColor(float r, float g, float b, float a)
     {
-        if (mesh)
+        glClearColor(r, g, b, a);
+    }
+
+    void GraphicsAPI::ClearBuffers()
+    {
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    }
+
+    const Rect& GraphicsAPI::GetViewport() const
+    {
+        return m_viewport;
+    }
+
+    void GraphicsAPI::SetViewport(int x, int y, int width, int height)
+    {
+        glViewport(x, y, width, height);
+        m_viewport.x = x;
+        m_viewport.y = y;
+        m_viewport.width = width;
+        m_viewport.height = height;
+    }
+
+    void GraphicsAPI::SetDepthTestEnabled(bool enabled)
+    {
+        if (enabled)
         {
-            mesh->UnBind();
+            glEnable(GL_DEPTH_TEST);
+        }
+        else
+        {
+            glDisable(GL_DEPTH_TEST);
         }
     }
 
+    void GraphicsAPI::SetBlendMode(BlendMode mode)
+    {
+        switch (mode)
+        {
+        case BlendMode::Disabled:
+        {
+            glDisable(GL_BLEND);
+        }
+        break;
+        case BlendMode::Alpha:
+        {
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        }
+        break;
+        case BlendMode::Additive:
+        {
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_ONE, GL_ONE);
+        }
+        break;
+        case BlendMode::Multiply:
+        {
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_DST_COLOR, GL_ZERO);
+        }
+        break;
+        default:
+        {
+            glDisable(GL_BLEND);
+        }
+        break;
+        }
+    }
 
-	void GraphicsAPI::DrawMesh(Mesh* mesh)
-	{
-		if (mesh)
-		{
-			mesh->Draw();
-		}
-	}
+    void GraphicsAPI::BindShaderProgram(ShaderProgram* shaderProgram)
+    {
+        if (shaderProgram)
+        {
+            shaderProgram->Bind();
+        }
+    }
 
+    void GraphicsAPI::BindMaterial(Material* material)
+    {
+        if (material)
+        {
+            material->Bind();
+        }
+    }
+
+    void GraphicsAPI::BindMesh(Mesh* mesh)
+    {
+        if (mesh)
+        {
+            mesh->Bind();
+        }
+    }
+
+    void GraphicsAPI::UnbindMesh(Mesh* mesh)
+    {
+        if (mesh)
+        {
+            mesh->Unbind();
+        }
+    }
+
+    void GraphicsAPI::DrawMesh(Mesh* mesh)
+    {
+        if (mesh)
+        {
+            mesh->Draw();
+        }
+    }
 }

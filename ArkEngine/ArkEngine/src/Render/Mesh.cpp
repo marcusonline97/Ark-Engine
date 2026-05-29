@@ -31,7 +31,7 @@ namespace Engine
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-        m_vertexCount = (vertices.size() * sizeof(float)) / m_vertexLayout.stride;
+        m_vertexCout = (vertices.size() * sizeof(float)) / m_vertexLayout.stride;
         m_indexCount = indices.size();
     }
 
@@ -58,7 +58,7 @@ namespace Engine
         glBindVertexArray(0);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-        m_vertexCount = (vertices.size() * sizeof(float)) / m_vertexLayout.stride;
+        m_vertexCout = (vertices.size() * sizeof(float)) / m_vertexLayout.stride;
     }
 
     void Mesh::Bind()
@@ -66,9 +66,9 @@ namespace Engine
         glBindVertexArray(m_VAO);
     }
 
-    void Mesh::UnBind()
+    void Mesh::Unbind()
     {
-		glBindVertexArray(0);
+        glBindVertexArray(0);
     }
 
     void Mesh::Draw()
@@ -79,9 +79,50 @@ namespace Engine
         }
         else
         {
-            glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(m_vertexCount));
+            glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(m_vertexCout));
         }
     }
+
+    void Mesh::DrawIndexedRange(uint32_t startIndex, uint32_t indexCount)
+    {
+        if (indexCount == 0)
+        {
+            return;
+        }
+        glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indexCount),
+            GL_UNSIGNED_INT,
+            reinterpret_cast<void*>(static_cast<size_t>(startIndex) * sizeof(uint32_t)));
+    }
+
+    void Mesh::UpdateDynamic(const std::vector<float>& vertices)
+    {
+        glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+        glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_DYNAMIC_DRAW);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        m_vertexCout = (vertices.size() * sizeof(float)) / m_vertexLayout.stride;
+    }
+
+    void Mesh::UpdateDynamic(const std::vector<float>& vertices, const std::vector<uint32_t>& indices)
+    {
+        glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+        glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_DYNAMIC_DRAW);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        m_vertexCout = (vertices.size() * sizeof(float)) / m_vertexLayout.stride;
+
+        if (m_EBO == 0)
+        {
+            ArkEngine::GetInstance().GetGraphicsAPI().CreateIndexBuffer(indices);
+        }
+        else
+        {
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_EBO);
+            glBufferData(GL_ELEMENT_ARRAY_BUFFER,
+                indices.size() * sizeof(uint32_t), indices.data(), GL_DYNAMIC_DRAW);
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+        }
+        m_indexCount = indices.size();
+    }
+
     std::shared_ptr<Mesh> Mesh::CreateBox(const glm::vec3& extents)
     {
         const glm::vec3 half = extents * 0.5f;
@@ -190,12 +231,12 @@ namespace Engine
         std::vector<float> vertices((stacks + 1) * (sectors + 1) * 8);
         for (int i = 0; i <= stacks; ++i)
         {
-            float stackAngle = PI / 2.0f - static_cast<float>(i) * (PI / static_cast<float>(stacks)); // From -n/2 to n/2
+            float stackAngle = PI / 2.0f - static_cast<float>(i) * (PI / static_cast<float>(stacks)); // From -?/2 to ?/2
             float xy = radius * cosf(stackAngle); // x-y plane radius at this stack
             float z = radius * sinf(stackAngle);  // z coordinate
 
             for (int j = 0; j <= sectors; ++j) {
-                float sectorAngle = static_cast<float>(j) * (2.0f * PI / static_cast<float>(sectors)); // From 0 to 2n
+                float sectorAngle = static_cast<float>(j) * (2.0f * PI / static_cast<float>(sectors)); // From 0 to 2?
 
                 float x = xy * cosf(sectorAngle);
                 float y = xy * sinf(sectorAngle);
@@ -273,5 +314,35 @@ namespace Engine
         return result;
     }
 
-}
+    std::shared_ptr<Mesh> Mesh::CreatePlane()
+    {
+        std::vector<float> vertices =
+        {
+            1.0f, 1.0f,
+            0.0f, 1.0f,
+            0.0f, 0.0f,
+            1.0f, 0.0f
+        };
 
+        std::vector<uint32_t> indices =
+        {
+            0, 1, 2,
+            0, 2, 3
+        };
+
+        Engine::VertexLayout vertexLayout;
+
+        // Position
+        vertexLayout.elements.push_back({
+            VertexElement::PositionIndex,
+            2,
+            GL_FLOAT,
+            0
+            });
+        vertexLayout.stride = sizeof(float) * 2;
+
+        auto result = std::make_shared<Engine::Mesh>(vertexLayout, vertices, indices);
+
+        return result;
+    }
+}

@@ -203,6 +203,8 @@
     <ClCompile Include="ArkEngine\src\Audio\Audio.cpp" />
     <ClCompile Include="ArkEngine\src\Audio\AudioManager.cpp" />
     <ClCompile Include="ArkEngine\src\Bullet.cpp" />
+    <ClCompile Include="ArkEngine\src\Font\Font.cpp" />
+    <ClCompile Include="ArkEngine\src\Font\FontManager.cpp" />
     <ClCompile Include="ArkEngine\src\Graphics\GraphicsAPI.cpp" />
     <ClCompile Include="ArkEngine\src\Graphics\ShaderProgram.cpp" />
     <ClCompile Include="ArkEngine\src\Core\Application.cpp" />
@@ -230,6 +232,13 @@
     <ClCompile Include="ArkEngine\src\Scene\Components\LightComponent.cpp" />
     <ClCompile Include="ArkEngine\src\Scene\Components\PhysicsComponent.cpp" />
     <ClCompile Include="ArkEngine\src\Scene\Components\PlayerControllerComponent.cpp" />
+    <ClCompile Include="ArkEngine\src\Scene\Components\SpriteComponent.cpp" />
+    <ClCompile Include="ArkEngine\src\Scene\Components\UI\ButtonComponent.cpp" />
+    <ClCompile Include="ArkEngine\src\Scene\Components\UI\CanvasComponent.cpp" />
+    <ClCompile Include="ArkEngine\src\Scene\Components\UI\RectTransformComponent.cpp" />
+    <ClCompile Include="ArkEngine\src\Scene\Components\UI\TextComponent.cpp" />
+    <ClCompile Include="ArkEngine\src\Scene\Components\UI\UIElementComponent.cpp" />
+    <ClCompile Include="ArkEngine\src\Scene\Components\UI\UIInputSystem.cpp" />
     <ClCompile Include="ArkEngine\src\Scene\GameObject.cpp" />
     <ClCompile Include="ArkEngine\src\Scene\Components\MeshComponent.cpp" />
     <ClCompile Include="ArkEngine\src\Scene\Scene.cpp" />
@@ -250,6 +259,8 @@
     <ClInclude Include="ArkEngine\src\Audio\AudioManager.h" />
     <ClInclude Include="ArkEngine\src\Bullet.h" />
     <ClInclude Include="ArkEngine\src\Core\Common.h" />
+    <ClInclude Include="ArkEngine\src\Font\Font.h" />
+    <ClInclude Include="ArkEngine\src\Font\FontManager.h" />
     <ClInclude Include="ArkEngine\src\Graphics\GraphicsAPI.h" />
     <ClInclude Include="ArkEngine\src\Graphics\ShaderProgram.h" />
     <ClInclude Include="ArkEngine\src\Core\Application.h" />
@@ -278,6 +289,13 @@
     <ClInclude Include="ArkEngine\src\Scene\Components\LightComponent.h" />
     <ClInclude Include="ArkEngine\src\Scene\Components\PhysicsComponent.h" />
     <ClInclude Include="ArkEngine\src\Scene\Components\PlayerControllerComponent.h" />
+    <ClInclude Include="ArkEngine\src\Scene\Components\SpriteComponent.h" />
+    <ClInclude Include="ArkEngine\src\Scene\Components\UI\ButtonComponent.h" />
+    <ClInclude Include="ArkEngine\src\Scene\Components\UI\CanvasComponent.h" />
+    <ClInclude Include="ArkEngine\src\Scene\Components\UI\RectTransformComponent.h" />
+    <ClInclude Include="ArkEngine\src\Scene\Components\UI\TextComponent.h" />
+    <ClInclude Include="ArkEngine\src\Scene\Components\UI\UIElementComponent.h" />
+    <ClInclude Include="ArkEngine\src\Scene\Components\UI\UIInputSystem.h" />
     <ClInclude Include="ArkEngine\src\Scene\GameObject.h" />
     <ClInclude Include="ArkEngine\src\Scene\Components\MeshComponent.h" />
     <ClInclude Include="ArkEngine\src\Scene\Scene.h" />
@@ -341,6 +359,9 @@
     <None Include="ArkEngine\Resources\Models\OBJ\cube\cube.obj">
       <FileType>Document</FileType>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Font Include="ArkEngine\Resources\Fonts\arial.ttf" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

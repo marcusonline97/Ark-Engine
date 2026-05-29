@@ -8,6 +8,8 @@
 #include "AssetManager/FileSystem.h"
 #include "Physics/PhysicsManager.h"
 #include "Audio/AudioManager.h"
+#include "Font/FontManager.h"
+#include "Scene/Components/UI/UIInputSystem.h"
 
 #include <chrono>
 #include <memory>
@@ -32,10 +34,9 @@ namespace Engine
 		//-------------------------------------------
 
 		bool Init(int width, int height);
-
 		void Run();
-
 		void Destroy();
+		void SetCursorEnabled(bool enabled);
 
 		static ArkEngine& GetInstance();
 
@@ -49,10 +50,11 @@ namespace Engine
 		TextureManager& GetTextureManager();
 		PhysicsManager& GetPhysicsManager();
 		AudioManager& GetAudioManager();
+		FontManager& GetFontManager();
+		UIInputSystem& GetUIInputSystem();
 
-
-		void SetScene(Scene* scene);
-		Scene* GetScene();
+		void SetScene(const std::shared_ptr<Scene>& scene);
+		const std::shared_ptr<Scene>& GetScene();
 
 	private:
 		//-------------------------------------------
@@ -69,7 +71,9 @@ namespace Engine
 		TextureManager m_textureManager;
 		PhysicsManager m_physicsManager;
 		AudioManager m_audioManager;
-		std::unique_ptr<Scene> m_currentScene;
+		FontManager m_fontManager;
+		UIInputSystem m_uiInputSystem;
+		std::shared_ptr<Scene> m_currentScene;
 		//-------------------------------------------
 		// Functions
 		//-------------------------------------------

@@ -5,10 +5,13 @@
 
 namespace Engine
 {
+	class Texture;
+
 	struct CameraData
 	{
 		glm::mat4 viewMatrix;
 		glm::mat4 projectionMatrix;
+		glm::mat4 orthoMatrix;
 		glm::vec3 position;
 	};
 
@@ -17,5 +20,11 @@ namespace Engine
 		glm::vec3 color;
 		glm::vec3 position;
 
+	};
+
+	struct UIBatch
+	{
+		Texture* texture = nullptr;
+		uint32_t indexCount = 0;
 	};
 }

@@ -18,6 +18,10 @@ namespace Engine
 
 
 		void Init(int width, int height, int numChannels, unsigned char* data);
+
+		int GetWidth() const;
+		int GetHeight() const;
+
 		static std::shared_ptr<Texture> Load(const std::string& path);
 
 

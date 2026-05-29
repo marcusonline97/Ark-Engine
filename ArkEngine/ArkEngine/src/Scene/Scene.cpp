@@ -7,6 +7,12 @@
 #include "Scene/Components/PlayerControllerComponent.h"
 #include "Scene/Components/AudioComponent.h"
 #include "Scene/Components/AudioListenerComponent.h"
+#include "Scene/Components/SpriteComponent.h"
+#include "Scene/Components/UI/UIElementComponent.h"
+#include "Scene/Components/UI/CanvasComponent.h"
+#include "Scene/Components/UI/TextComponent.h"
+#include "Scene/Components/UI/ButtonComponent.h"
+#include "Scene/Components/UI/RectTransformComponent.h"
 #include "Core/ArkEngine.h"
 
 #include <algorithm>
@@ -25,6 +31,12 @@ namespace Engine
         PlayerControllerComponent::Register();
         AudioComponent::Register();
         AudioListenerComponent::Register();
+		SpriteComponent::Register();
+        UIElementComponent::Register();
+        CanvasComponent::Register();
+		TextComponent::Register();
+		ButtonComponent::Register();
+		RectTransformComponent::Register();
     }
 
     void Scene::Update(float deltaTime)
@@ -228,6 +240,19 @@ namespace Engine
         return result;
     }
 
+    GameObject* Scene::FindObjectByName(const std::string& name)
+    {
+        for (auto& obj : m_objects)
+        {
+            if (auto child = obj->FindChildByName(name))
+            {
+                return child;
+            }
+        }
+        return nullptr;
+    }
+
+
     void Scene::SetMainCamera(GameObject* camera)
     {
         m_mainCamera = camera;
@@ -284,6 +309,19 @@ namespace Engine
                 if (auto object = child->FindChildByName(cameraObjName))
                 {
 					result->SetMainCamera(object);
+                    break;
+                }
+            }
+        }
+
+		std::string activeCanvasName = json.value("activeCanvas", "");
+        for (auto& child : result->m_objects)
+        {
+            if (auto canvasObject = child->FindChildByName(activeCanvasName))
+            {
+                if (auto component = canvasObject->GetComponent<CanvasComponent>())
+                {
+					ArkEngine::GetInstance().GetUIInputSystem().SetCanvas(component);
                     break;
                 }
             }

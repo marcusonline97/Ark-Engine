@@ -30,13 +30,13 @@ namespace Engine
         glGenTextures(1, &m_textureID);
         glBindTexture(GL_TEXTURE_2D, m_textureID);
 
-		GLint internalFormat = GL_RGB;
-		GLenum format = GL_RGB;
+        GLint internalFormat = GL_RGB;
+        GLenum format = GL_RGB;
 
         if (numChannels == 4)
         {
-			internalFormat = GL_RGBA;
-			format = GL_RGBA;
+            internalFormat = GL_RGBA;
+            format = GL_RGBA;
         }
 
         glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, format, GL_UNSIGNED_BYTE, data);
@@ -48,6 +48,16 @@ namespace Engine
 
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    }
+
+    int Texture::GetWidth() const
+    {
+        return m_width;
+    }
+
+    int Texture::GetHeight() const
+    {
+        return m_height;
     }
 
     std::shared_ptr<Texture> Texture::Load(const std::string& path)

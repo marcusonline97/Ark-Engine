@@ -49,7 +49,8 @@ namespace Engine
 
 			for (auto& component : m_components)
 			{
-				if (component->GetTypeId() == typeId)
+				if (component->GetTypeId() == typeId ||
+					ComponentFactory::GetInstance().HasParent(component->GetTypeId(), typeId))
 				{
 					return static_cast<T*>(component.get());
 				}
@@ -59,22 +60,32 @@ namespace Engine
 		}
 
 		GameObject* FindChildByName(const std::string& name);
+		const std::vector<std::unique_ptr<GameObject>>& GetChildren() const;
 
 		const glm::vec3& GetPosition() const;
 		glm::vec3 GetWorldPosition() const;
+		glm::vec2 GetPosition2D() const;
+		glm::vec2 GetWorldPosition2D() const;
 		void SetPosition(const glm::vec3& pos);
 		void SetWorldPosition(const glm::vec3& pos);
+		void SetPosition2D(const glm::vec2& pos);
 
 		const glm::quat& GetRotation() const;
 		glm::quat GetWorldRotation();
+		float GetRotation2D() const;
 		void SetRotation(const glm::quat& rot);
 		void SetWorldRotation(const glm::quat& rot);
+		void SetRotation2D(float rotation);
 
 		const glm::vec3& GetScale() const;
+		glm::vec2 GetScale2D() const;
 		void SetScale(const glm::vec3& scale);
+		void SetScale2D(const glm::vec2& scale);
 
 		glm::mat4 GetLocalTransform() const;
+		glm::mat4 GetLocalTransform2D() const;
 		glm::mat4 GetWorldTransform() const;
+		glm::mat4 GetWorldTransform2D() const;
 
 		static GameObject* LoadGLTF(const std::string& path, Scene* scene);
 

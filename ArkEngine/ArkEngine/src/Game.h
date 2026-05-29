@@ -25,9 +25,10 @@ private:
 	//-------------------------------------------
 	// Properties & Variables
 	//-------------------------------------------
-	
+	std::shared_ptr<Engine::Scene> m_scene;
+	Engine::GameObject* m_3DRoot = nullptr;
+
 	//-------------------------------------------
 	// Functions
 	//-------------------------------------------
-	std::shared_ptr<Engine::Scene> m_scene;
 };

@@ -6,55 +6,48 @@
 
 namespace Engine
 {
-	class InputManager
-	{
-	public:
+    class InputManager
+    {
+    private:
+        InputManager() = default;
+        InputManager(const InputManager&) = delete;
+        InputManager(InputManager&&) = delete;
+        InputManager& operator=(const InputManager&) = delete;
+        InputManager& operator=(InputManager&&) = delete;
 
-		//-------------------------------------------
-		// Properties & Variables
-		//-------------------------------------------
+    public:
+        void SetKeyPressed(int key, bool pressed);
+        bool IsKeyPressed(int key);
 
+        void SetMouseButtonPressed(int button, bool pressed);
+        bool IsMouseButtonPressed(int button);
 
-		//-------------------------------------------
-		// Functions
-		//-------------------------------------------
-		void SetKeyPressed(int key, bool pressed);
-		bool IsKeyPressed(int key);
+        void SetMouseButtonWasPressed(int button, bool pressed);
+        bool WasMouseButtonPressed(int button) const;
 
-		void SetMouseButtonPressed(int button, bool pressed);
-		bool IsMouseButtonPressed(int button);
+        void SetMouseButtonWasReleased(int button, bool pressed);
+        bool WasMouseButtonReleased(int button) const;
 
-		void SetMousePositionOld(const glm::vec2& pos);
-		const glm::vec2& GetMousePositionOld() const;
+        void SetMousePositionOld(const glm::vec2& pos);
+        const glm::vec2& GetMousePositionOld() const;
 
-		void SetMousePositionCurrent(const glm::vec2& pos);
-		const glm::vec2& GetMousePositionCurrent() const;
+        void SetMousePositionCurrent(const glm::vec2& pos);
+        const glm::vec2& GetMousePositionCurrent() const;
 
-		void SetMousePositionChanged(bool changed);
-		bool IsMousePositionChanged() const;
+        void SetMousePositionChanged(bool changed);
+        bool IsMousePositionChanged() const;
 
-	private:
-		//-------------------------------------------
-		// Properties & Variables
-		//-------------------------------------------
-		std::array <bool, 512> m_keys = {false};
-		std::array<bool, 16> m_mouseKeys = { false };
+        void ClearStates();
 
-		glm::vec2 m_mousePositionOld = glm::vec2(0.0f);
-		glm::vec2 m_mousePositionCurrent = glm::vec2(0.0f);
-		bool m_mousePositionChanged = false;
-		friend class ArkEngine;
+    private:
+        std::array<bool, 512> m_keys = { false };
+        std::array<bool, 16> m_mouseKeys = { false };
+        std::array<bool, 16> m_mouseKeyPressed = { false };
+        std::array<bool, 16> m_mouseKeyReleased = { false };
+        glm::vec2 m_mousePositionOld = glm::vec2(0.0f);
+        glm::vec2 m_mousePositionCurrent = glm::vec2(0.0f);
+        bool m_mousePositionChanged = false;
 
-		//-------------------------------------------
-		// Functions
-		//-------------------------------------------
-		InputManager() = default;
-		InputManager(const InputManager&) = delete;
-		InputManager(InputManager&&) = delete;
-		InputManager& operator=(const InputManager&) = delete;
-		InputManager& operator=(InputManager&&) = delete;
-
-	};
-
-	// might look into implementing the keys as an enum class using uint16_t later on to group them into categories and make it more readable, but for now this is fine
+        friend class ArkEngine;
+    };
 }

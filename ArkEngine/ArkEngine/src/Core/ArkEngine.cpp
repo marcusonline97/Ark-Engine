@@ -24,31 +24,37 @@ namespace Engine
         }
     }
 
-    void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
+    void mouseButtonCallback(GLFWwindow* window, int button, int action, int)
     {
         auto& inputManager = Engine::ArkEngine::GetInstance().GetInputManager();
         if (action == GLFW_PRESS)
         {
             inputManager.SetMouseButtonPressed(button, true);
+            inputManager.SetMouseButtonWasPressed(button, true);
         }
         else if (action == GLFW_RELEASE)
         {
             inputManager.SetMouseButtonPressed(button, false);
-		}
+            inputManager.SetMouseButtonWasReleased(button, true);
+        }
     }
 
     void cursorPositionCallback(GLFWwindow* window, double xpos, double ypos)
     {
         auto& inputManager = Engine::ArkEngine::GetInstance().GetInputManager();
 
-		inputManager.SetMousePositionOld(inputManager.GetMousePositionCurrent());
+        inputManager.SetMousePositionOld(inputManager.GetMousePositionCurrent());
 
-		glm::vec2 currentPos(static_cast<float>(xpos), static_cast<float>(ypos));
-		inputManager.SetMousePositionCurrent(currentPos);
+        glm::vec2 currentPos(static_cast<float>(xpos), static_cast<float>(ypos));
+        inputManager.SetMousePositionCurrent(currentPos);
 
-		inputManager.SetMousePositionChanged(true);
+        inputManager.SetMousePositionChanged(true);
+    }
 
-	}
+	void windowSizeCallback(GLFWwindow* window, int width, int height)
+    {
+		Engine::ArkEngine::GetInstance().GetGraphicsAPI().SetViewport(0, 0, width, height);
+    }
 
     ArkEngine& ArkEngine::GetInstance()
     {
@@ -91,8 +97,7 @@ namespace Engine
         glfwSetKeyCallback(m_window, keyCallback);
 		glfwSetMouseButtonCallback(m_window, mouseButtonCallback);
         glfwSetCursorPosCallback(m_window, cursorPositionCallback);
-
-		glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		glfwSetWindowSizeCallback(m_window, windowSizeCallback);
 
         glfwMakeContextCurrent(m_window);
 
@@ -103,8 +108,11 @@ namespace Engine
 		}
 
 		m_graphicsAPI.Init();
+        m_graphicsAPI.SetViewport(0, 0, width, height);
 		m_physicsManager.Init();
 		m_audioManager.Init();
+        m_renderQueue.Init();
+		m_fontManager.Init();  
         return m_application->Init();
     }
 
@@ -126,6 +134,11 @@ namespace Engine
             m_lastTimePoint = now;
 
             m_physicsManager.Update(deltaTime);
+
+            if (m_uiInputSystem.IsActive())
+            {
+                m_uiInputSystem.Update(deltaTime);
+            }
 
             m_application->Update(deltaTime);
 
@@ -150,6 +163,7 @@ namespace Engine
                     {
                         cameraData.viewMatrix = cameraComponent->GetViewMatrix();
                         cameraData.projectionMatrix = cameraComponent->GetProjectionMatrix(aspect);
+                        cameraData.orthoMatrix = glm::ortho(0.0f, static_cast<float>(width),0.0f, static_cast<float>(height));
 						cameraData.position = cameraObject->GetWorldPosition();
                     }
                 }
@@ -161,8 +175,10 @@ namespace Engine
 
             glfwSwapBuffers(m_window);
 
-			m_inputManager.SetMousePositionChanged(false);
+			m_inputManager.ClearStates();
         }
+
+        m_application.reset(nullptr); // Ensure to clean the memory out of the game
     }
 
     void ArkEngine::Destroy()
@@ -175,6 +191,12 @@ namespace Engine
             m_window = nullptr;
         }
     }
+
+    void ArkEngine::SetCursorEnabled(bool enabled)
+    {
+        glfwSetInputMode(m_window, GLFW_CURSOR, enabled ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
+    }
+
 
     void ArkEngine::SetApplication(Application* app)
     {
@@ -221,15 +243,23 @@ namespace Engine
 		return m_audioManager;
     }
 
-
-
-    void ArkEngine::SetScene(Scene* scene)
+    FontManager& ArkEngine::GetFontManager()
     {
-        m_currentScene.reset(scene);
+		return m_fontManager;
     }
 
-    Scene* ArkEngine::GetScene()
+    UIInputSystem& ArkEngine::GetUIInputSystem()
     {
-        return m_currentScene.get();
+        return m_uiInputSystem;
+    }
+
+    void ArkEngine::SetScene(const std::shared_ptr<Scene>& scene)
+    {
+        m_currentScene = scene;
+    }
+
+    const std::shared_ptr<Scene>& ArkEngine::GetScene()
+    {
+        return m_currentScene;
     }
 }

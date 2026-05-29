@@ -21,6 +21,12 @@
 #include "Scene/Components/PhysicsComponent.h"
 #include "Scene/Components/AudioComponent.h"
 #include "Scene/Components/AudioListenerComponent.h"
+#include "Scene/Components/SpriteComponent.h"
+#include "Scene/Components/UI/CanvasComponent.h"
+#include "Scene/Components/UI/TextComponent.h"
+#include "Scene/Components/UI/UIElementComponent.h"
+#include "Scene/Components/UI/UIInputSystem.h"
+#include "Scene/Components/UI/ButtonComponent.h"
 #include "Physics/Collider.h"
 #include "Physics/RigidBody.h"
 #include "Physics/PhysicsManager.h"
@@ -28,6 +34,8 @@
 #include "Physics/CollisionObject.h"
 #include "Audio/AudioManager.h"
 #include "Audio/Audio.h"
+#include "Font/FontManager.h"
+#include "Font/Font.h"
 #include "AssetManager/FileSystem.h"
 // This header file serves as a central include for all core engine components, allowing other parts of the codebase to include this single file to access the entire engine functionality.
 
