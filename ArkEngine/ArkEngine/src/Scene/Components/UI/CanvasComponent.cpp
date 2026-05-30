@@ -14,6 +14,11 @@ namespace Engine
         SetActive(active);
     }
 
+    void CanvasComponent::SaveProperties(nlohmann::json& json) const
+    {
+        json["active"] = m_active;
+    }
+
     void CanvasComponent::Update(float deltaTime)
     {
         if (!m_active)

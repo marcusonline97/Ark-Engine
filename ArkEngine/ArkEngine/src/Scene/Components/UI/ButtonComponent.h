@@ -15,6 +15,7 @@ namespace Engine
 
     public:
         void LoadProperties(const nlohmann::json& json) override;
+        void SaveProperties(nlohmann::json& json) const override;
         void Render(CanvasComponent* canvas) override;
         bool HitTest(const glm::vec2& pos)  override;
         void OnPointerEnter() override;
@@ -36,6 +37,7 @@ namespace Engine
         std::function<void()> onClick;
 
     private:
+        glm::vec2 m_rect = glm::vec2(150.0f, 50.0f);
         glm::vec4 m_color = glm::vec4(1.0f);
         glm::vec4 m_hoveredColor = glm::vec4(0.5f, 0.5f, 0.5f, 1.0f);
         glm::vec4 m_pressedColor = glm::vec4(0.2f, 0.2f, 0.2f, 1.0f);

@@ -34,6 +34,22 @@ namespace Engine
 		}
 	}
 
+	void RectTransformComponent::SaveProperties(nlohmann::json& json) const
+	{
+		json["size"] = {
+			{"x", m_size.x},
+			{"y", m_size.y}
+		};
+		json["anchor"] = {
+			{"x", m_anchor.x},
+			{"y", m_anchor.y}
+		};
+		json["pivot"] = {
+			{"x", m_pivot.x},
+			{"y", m_pivot.y}
+		};
+	}
+
 
 	const glm::vec2& RectTransformComponent::GetSize() const
 	{

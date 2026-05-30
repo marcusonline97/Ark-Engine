@@ -15,6 +15,7 @@ namespace Engine
 
 		void LoadProperties(const nlohmann::json& json) override;
 		void Init() override;
+		void OnRemoved() override;
 
 		void Update(float deltaTime) override;
 

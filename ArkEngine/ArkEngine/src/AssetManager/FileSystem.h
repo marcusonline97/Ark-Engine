@@ -14,5 +14,6 @@ namespace Engine
 		std::vector<char> LoadFile(const std::filesystem::path& path);
 		std::vector<char> LoadAssetFile(const std::string& relativePath);
 		std::string LoadAssetFileText(const std::string& relativePath);
+		bool SaveAssetFileText(const std::string& relativePath, const std::string& contents);
 	};
 }

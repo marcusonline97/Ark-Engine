@@ -24,10 +24,12 @@ bool Game::Init()
     engine.SetScene(m_scene);
     
     m_3DRoot = m_scene->FindObjectByName("3DRoot");
+    m_mainPlayer = m_scene->FindObjectByName("MainPlayer");
     if (m_3DRoot)
     {
         m_3DRoot->SetActive(false);
     }
+    m_sceneEditor.SetScene(m_scene, "Scenes/scene.sc");
 
     auto canvasComponent = engine.GetUIInputSystem().GetCanvas();
     if (!canvasComponent)
@@ -44,14 +46,18 @@ bool Game::Init()
         {
             component->onClick = [this]()
                 {
-                    auto& engine = Engine::ArkEngine::GetInstance();
-                    engine.GetUIInputSystem().GetCanvas()->SetActive(false);
-                    engine.SetCursorEnabled(false);
+                    EnterPlayMode();
+                };
+        }
+    }
 
-                    if (m_3DRoot)
-                    {
-                        m_3DRoot->SetActive(true);
-                    }
+    if (auto button = canvasComponent->GetOwner()->FindChildByName("EditButton"))
+    {
+        if (auto component = button->GetComponent<Engine::ButtonComponent>())
+        {
+            component->onClick = [this]()
+                {
+                    EnterEditMode();
                 };
         }
     }
@@ -124,20 +130,97 @@ void Game::Update(float deltaTime)
 
     m_scene->Update(deltaTime);
 
-	auto& engine = Engine::ArkEngine::GetInstance();
-
     if (Engine::ArkEngine::GetInstance().GetInputManager().IsKeyPressed(GLFW_KEY_ESCAPE))
     {
-        if (m_3DRoot && m_3DRoot->IsActive())
+        if (m_mode == Mode::Playing || m_mode == Mode::Editing)
         {
-			engine.GetUIInputSystem().GetCanvas()->SetActive(true);
-            engine.SetCursorEnabled(true);
-			m_3DRoot->SetActive(false);
+            EnterMenuMode();
         }
+    }
+}
+
+void Game::RenderUI()
+{
+    if (m_mode == Mode::Editing)
+    {
+        m_sceneEditor.Render();
     }
 }
 
 void Game::Destroy()
 {
 
+}
+
+void Game::EnterMenuMode()
+{
+    auto& engine = Engine::ArkEngine::GetInstance();
+    if (auto canvas = engine.GetUIInputSystem().GetCanvas())
+    {
+        canvas->SetActive(true);
+    }
+    engine.GetUIInputSystem().SetActive(true);
+    engine.SetCursorEnabled(true);
+    m_sceneEditor.SetActive(false);
+
+    if (m_mainPlayer)
+    {
+        m_mainPlayer->SetActive(true);
+    }
+
+    if (m_3DRoot)
+    {
+        m_3DRoot->SetActive(false);
+    }
+
+    m_mode = Mode::Menu;
+}
+
+void Game::EnterPlayMode()
+{
+    auto& engine = Engine::ArkEngine::GetInstance();
+    if (auto canvas = engine.GetUIInputSystem().GetCanvas())
+    {
+        canvas->SetActive(false);
+    }
+    engine.GetUIInputSystem().SetActive(false);
+    engine.SetCursorEnabled(false);
+    m_sceneEditor.SetActive(false);
+
+    if (m_mainPlayer)
+    {
+        m_mainPlayer->SetActive(true);
+    }
+
+    if (m_3DRoot)
+    {
+        m_3DRoot->SetActive(true);
+    }
+
+    m_mode = Mode::Playing;
+}
+
+void Game::EnterEditMode()
+{
+    auto& engine = Engine::ArkEngine::GetInstance();
+    if (auto canvas = engine.GetUIInputSystem().GetCanvas())
+    {
+        canvas->SetActive(false);
+    }
+    engine.GetUIInputSystem().SetActive(false);
+    engine.SetCursorEnabled(true);
+
+    if (m_3DRoot)
+    {
+        m_3DRoot->SetActive(true);
+    }
+
+    // Keep the camera available for rendering, but stop player gameplay input while editing.
+    if (m_mainPlayer)
+    {
+        m_mainPlayer->SetActive(false);
+    }
+
+    m_sceneEditor.SetActive(true);
+    m_mode = Mode::Editing;
 }

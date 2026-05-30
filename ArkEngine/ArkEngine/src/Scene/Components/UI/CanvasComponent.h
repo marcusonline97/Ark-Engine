@@ -20,6 +20,7 @@ namespace Engine
         COMPONENT(CanvasComponent)
     public:
         void LoadProperties(const nlohmann::json& json) override;
+        void SaveProperties(nlohmann::json& json) const override;
         void Update(float deltaTime) override;
         void Init() override;
         void Render(UIElementComponent* element);

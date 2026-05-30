@@ -91,6 +91,14 @@ namespace Engine
         ArkEngine::GetInstance().GetPhysicsManager().AddRigidBody(m_rigidBody.get());
     }
 
+    void PhysicsComponent::OnRemoved()
+    {
+        if (m_rigidBody)
+        {
+            ArkEngine::GetInstance().GetPhysicsManager().RemoveRigidBody(m_rigidBody.get());
+        }
+    }
+
     void PhysicsComponent::Update(float deltaTime)
     {
         if (!m_rigidBody)

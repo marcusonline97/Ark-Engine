@@ -37,6 +37,7 @@ namespace Engine
 		void Run();
 		void Destroy();
 		void SetCursorEnabled(bool enabled);
+		bool IsEditorUIActive() const;
 
 		static ArkEngine& GetInstance();
 
@@ -74,6 +75,7 @@ namespace Engine
 		FontManager m_fontManager;
 		UIInputSystem m_uiInputSystem;
 		std::shared_ptr<Scene> m_currentScene;
+		bool m_editorUIActive = false;
 		//-------------------------------------------
 		// Functions
 		//-------------------------------------------
