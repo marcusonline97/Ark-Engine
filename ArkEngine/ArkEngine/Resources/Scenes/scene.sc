@@ -1713,28 +1713,44 @@
       "components": [
         {
           "type": "CanvasComponent"
+        },
+        {
+          "type": "RectTransformComponent",
+          "anchor": {
+            "x": 0.5,
+            "y": 0.5
+          },
+          "pivot": {
+            "x": 0,
+            "y": 0
+          }
         }
       ],
       "children": [
         {
           "name": "PlayButton",
           "position": {
-            "x": 500,
-            "y": 450,
+            "x": 0,
+            "y": 50,
             "z": 0
           },
           "components": [
             {
-              "type": "ButtonComponent",
-              "rect": {
+              "type": "ButtonComponent"
+            },
+            {
+              "type": "RectTransformComponent",
+              "anchor": {
+                "x": 0.5,
+                "y": 0.5
+              },
+              "pivot": {
+                "x": 0.5,
+                "y": 0.5
+              },
+              "size": {
                 "x": 150,
                 "y": 50
-              },
-              "color": {
-                "r": 0.8,
-                "g": 0.8,
-                "b": 0.8,
-                "a": 1
               }
             }
           ],
@@ -1755,55 +1771,16 @@
                     "b": 0,
                     "a": 1
                   }
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "name": "SettingsButton",
-          "position": {
-            "x": 500,
-            "y": 400,
-            "z": 0
-          },
-          "components": [
-            {
-              "type": "ButtonComponent",
-              "rect": {
-                "x": 150,
-                "y": 50
-              },
-              "color": {
-                "r": 0.8,
-                "g": 0.8,
-                "b": 0.8,
-                "a": 1
-              }
-            }
-          ],
-          "children": [
-            {
-              "name": "Text",
-              "position": {
-                "x": 400,
-                "y": 400,
-                "z": 200
-              },
-
-              "components": [
+                },
                 {
-                  "type": "TextComponent",
-                  "text": "Settings",
-                  "font": {
-                    "path": "fonts/arial.ttf",
-                    "size": 24
+                  "type": "RectTransformComponent",
+                  "anchor": {
+                    "x": 0.5,
+                    "y": 0.5
                   },
-                  "color": {
-                    "r": 0,
-                    "g": 0,
-                    "b": 0,
-                    "a": 1
+                  "pivot": {
+                    "x": 0.5,
+                    "y": 0.5
                   }
                 }
               ]
@@ -1813,22 +1790,27 @@
         {
           "name": "QuitButton",
           "position": {
-            "x": 500,
-            "y": 350,
+            "x": 0,
+            "y": -50,
             "z": 0
           },
           "components": [
             {
-              "type": "ButtonComponent",
-              "rect": {
+              "type": "ButtonComponent"
+            },
+            {
+              "type": "RectTransformComponent",
+              "anchor": {
+                "x": 0.5,
+                "y": 0.5
+              },
+              "pivot": {
+                "x": 0.5,
+                "y": 0.5
+              },
+              "size": {
                 "x": 150,
                 "y": 50
-              },
-              "color": {
-                "r": 0.8,
-                "g": 0.8,
-                "b": 0.8,
-                "a": 1
               }
             }
           ],
@@ -1848,6 +1830,17 @@
                     "g": 0,
                     "b": 0,
                     "a": 1
+                  }
+                },
+                {
+                  "type": "RectTransformComponent",
+                  "anchor": {
+                    "x": 0.5,
+                    "y": 0.5
+                  },
+                  "pivot": {
+                    "x": 0.5,
+                    "y": 0.5
                   }
                 }
               ]
