@@ -252,6 +252,11 @@ namespace Engine
         return nullptr;
     }
 
+    const std::vector<std::unique_ptr<GameObject>>& Scene::GetRootObjects() const
+    {
+        return m_objects;
+    }
+
 
     void Scene::SetMainCamera(GameObject* camera)
     {
@@ -289,7 +294,7 @@ namespace Engine
 
 		auto result = std::make_shared<Scene>();
 
-		const std::string sceneName = json.value("name", "noname");
+		result->m_name = json.value("name", "noname");
 
         if(json.contains("objects") && json["objects"].is_array())
         {
@@ -304,6 +309,7 @@ namespace Engine
         if (json.contains("camera"))
         {
             std::string cameraObjName = json.value("camera", "");
+            result->m_cameraName = cameraObjName;
             for (const auto& child : result->m_objects)
             {
                 if (auto object = child->FindChildByName(cameraObjName))
@@ -315,6 +321,7 @@ namespace Engine
         }
 
 		std::string activeCanvasName = json.value("activeCanvas", "");
+        result->m_activeCanvasName = activeCanvasName;
         for (auto& child : result->m_objects)
         {
             if (auto canvasObject = child->FindChildByName(activeCanvasName))
@@ -325,6 +332,39 @@ namespace Engine
                     break;
                 }
             }
+        }
+
+        return result;
+    }
+
+    bool Scene::Save(const std::string& path) const
+    {
+        auto json = Serialize();
+        return ArkEngine::GetInstance().GetFileSystem().SaveAssetFileText(path, json.dump(2));
+    }
+
+    nlohmann::json Scene::Serialize() const
+    {
+        nlohmann::json result;
+        result["name"] = m_name;
+        result["objects"] = nlohmann::json::array();
+
+        for (const auto& object : m_objects)
+        {
+            if (object && object->IsAlive())
+            {
+                result["objects"].push_back(SerializeObject(object.get()));
+            }
+        }
+
+        if (!m_cameraName.empty())
+        {
+            result["camera"] = m_cameraName;
+        }
+
+        if (!m_activeCanvasName.empty())
+        {
+            result["activeCanvas"] = m_activeCanvasName;
         }
 
         return result;
@@ -385,6 +425,8 @@ namespace Engine
 
         }
 
+        gameObject->SetSerializedData(jsonObject);
+
         // Read Transform
         if (jsonObject.contains("position"))
         {
@@ -428,6 +470,7 @@ namespace Engine
                 Component* component = ComponentFactory::GetInstance().CreateComponent(type);
                 if (component)
                 {
+                    component->SetSerializedData(comp);
                     component->LoadProperties(comp);
                     gameObject->AddComponent(component);
                 }
@@ -444,5 +487,81 @@ namespace Engine
         }
 
         gameObject->Init();
+    }
+
+    nlohmann::json Scene::SerializeObject(const GameObject* object) const
+    {
+        nlohmann::json result = object->GetSerializedData().is_object()
+            ? object->GetSerializedData()
+            : nlohmann::json::object();
+
+        result["name"] = object->GetName();
+        result["position"] = {
+            {"x", object->GetPosition().x},
+            {"y", object->GetPosition().y},
+            {"z", object->GetPosition().z}
+        };
+        result["rotation"] = {
+            {"x", object->GetRotation().x},
+            {"y", object->GetRotation().y},
+            {"z", object->GetRotation().z},
+            {"w", object->GetRotation().w}
+        };
+        result["scale"] = {
+            {"x", object->GetScale().x},
+            {"y", object->GetScale().y},
+            {"z", object->GetScale().z}
+        };
+
+        object->SaveProperties(result);
+
+        result["components"] = nlohmann::json::array();
+        for (const auto& component : object->GetComponents())
+        {
+            if (component)
+            {
+                result["components"].push_back(SerializeComponent(component.get()));
+            }
+        }
+        if (result["components"].empty())
+        {
+            result.erase("components");
+        }
+
+        const bool preserveGeneratedChildren =
+            result.value("type", "") == "gltf" &&
+            !object->GetSerializedData().contains("children");
+        result["children"] = nlohmann::json::array();
+        if (!preserveGeneratedChildren)
+        {
+            for (const auto& child : object->GetChildren())
+            {
+                if (child && child->IsAlive())
+                {
+                    result["children"].push_back(SerializeObject(child.get()));
+                }
+            }
+        }
+        if (result["children"].empty())
+        {
+            result.erase("children");
+        }
+
+        return result;
+    }
+
+    nlohmann::json Scene::SerializeComponent(const Component* component) const
+    {
+        nlohmann::json result = component->GetSerializedData().is_object()
+            ? component->GetSerializedData()
+            : nlohmann::json::object();
+
+        if (!result.contains("type"))
+        {
+            result["type"] = ComponentFactory::GetInstance().GetTypeName(component->GetTypeId());
+        }
+
+        component->SaveProperties(result);
+        return result;
     }
 }

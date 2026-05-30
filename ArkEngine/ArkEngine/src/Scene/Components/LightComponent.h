@@ -11,6 +11,7 @@ namespace Engine
         COMPONENT(LightComponent)
     public:
         void LoadProperties(const nlohmann::json& json) override;
+        void SaveProperties(nlohmann::json& json) const override;
         void Update(float deltaTime) override;
 
         void SetColor(const glm::vec3& color);

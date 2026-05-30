@@ -1761,7 +1761,7 @@
           ]
         },
         {
-          "name": "SettingsButton",
+          "name": "EditButton",
           "position": {
             "x": 500,
             "y": 400,
@@ -1794,7 +1794,7 @@
               "components": [
                 {
                   "type": "TextComponent",
-                  "text": "Settings",
+                  "text": "Edit",
                   "font": {
                     "path": "fonts/arial.ttf",
                     "size": 24

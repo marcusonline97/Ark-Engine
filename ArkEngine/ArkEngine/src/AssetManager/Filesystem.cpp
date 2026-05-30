@@ -81,4 +81,19 @@ namespace Engine
 		return std::string(buffer.begin(), buffer.end());
 	}
 
+	bool FileSystem::SaveAssetFileText(const std::string& relativePath, const std::string& contents)
+	{
+		auto path = GetAssetsFolder() / relativePath;
+		std::filesystem::create_directories(path.parent_path());
+
+		std::ofstream file(path, std::ios::binary | std::ios::trunc);
+		if (!file.is_open())
+		{
+			return false;
+		}
+
+		file << contents;
+		return file.good();
+	}
+
 }

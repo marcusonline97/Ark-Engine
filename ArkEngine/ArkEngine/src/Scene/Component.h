@@ -4,6 +4,7 @@
 
 #include <cstddef>
 #include <string>
+#include <vector>
 #include <unordered_map>
 #include <memory>
 
@@ -16,11 +17,15 @@ namespace Engine
     public:
         virtual ~Component() = default;
         virtual void LoadProperties(const nlohmann::json& json);
+        virtual void SaveProperties(nlohmann::json& json) const;
         virtual void Update(float deltaTime);
         virtual void Init();
+        virtual void OnRemoved();
         virtual size_t GetTypeId() const = 0;
 
         GameObject* GetOwner();
+        const nlohmann::json& GetSerializedData() const;
+        void SetSerializedData(const nlohmann::json& json);
 
         template<typename T>
         static size_t StaticTypeId()
@@ -31,6 +36,7 @@ namespace Engine
 
     protected:
         GameObject* m_owner = nullptr;
+        nlohmann::json m_serializedData = nlohmann::json::object();
 
         friend class GameObject;
 
@@ -65,6 +71,8 @@ namespace Engine
 		{
 			m_creators.emplace(name, std::make_unique<ComponentCreator<T>>());
 			m_parentMap[T::TypeId()].push_back(Component::StaticTypeId<Component>());
+            m_typeNames[T::TypeId()] = name;
+            m_registeredNames.push_back(name);
 		}
 
 		template<typename T, typename ParentType>
@@ -72,14 +80,20 @@ namespace Engine
 		{
 			m_creators.emplace(name, std::make_unique<ComponentCreator<T>>());
 			m_parentMap[T::TypeId()].push_back(Component::StaticTypeId<ParentType>());
+            m_typeNames[T::TypeId()] = name;
+            m_registeredNames.push_back(name);
 		}
 
 		Component* CreateComponent(const std::string& name);
 		bool HasParent(size_t objectType, size_t parentType);
+        const std::vector<std::string>& GetRegisteredNames() const;
+        std::string GetTypeName(size_t typeId) const;
 
 	private:
 		std::unordered_map<std::string, std::unique_ptr<ComponentCreatorBase>> m_creators;
 		std::unordered_map<size_t, std::vector<size_t>> m_parentMap;
+        std::unordered_map<size_t, std::string> m_typeNames;
+        std::vector<std::string> m_registeredNames;
 	};
 
 #define COMPONENT(ComponentClass) \

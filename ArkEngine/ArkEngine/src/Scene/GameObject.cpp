@@ -31,6 +31,11 @@ namespace Engine
 
     }
 
+    void GameObject::SaveProperties(nlohmann::json& json) const
+    {
+
+    }
+
     void GameObject::Update(float deltaTime)
     {
         if (!m_active)
@@ -97,6 +102,16 @@ namespace Engine
         m_isAlive = false;
     }
 
+    const nlohmann::json& GameObject::GetSerializedData() const
+    {
+        return m_serializedData;
+    }
+
+    void GameObject::SetSerializedData(const nlohmann::json& json)
+    {
+        m_serializedData = json;
+    }
+
     void GameObject::SetActive(bool active)
     {
 		m_active = active;
@@ -117,6 +132,34 @@ namespace Engine
         m_components.emplace_back(component);
         component->m_owner = this;
 		component->Init();
+    }
+
+    bool GameObject::RemoveComponent(Component* component)
+    {
+        if (!component)
+        {
+            return false;
+        }
+
+        auto it = std::find_if(m_components.begin(), m_components.end(),
+            [component](const std::unique_ptr<Component>& element)
+            {
+                return element.get() == component;
+            });
+
+        if (it == m_components.end())
+        {
+            return false;
+        }
+
+        (*it)->OnRemoved();
+        m_components.erase(it);
+        return true;
+    }
+
+    const std::vector<std::unique_ptr<Component>>& GameObject::GetComponents() const
+    {
+        return m_components;
     }
 
     GameObject* GameObject::FindChildByName(const std::string& name)
@@ -748,5 +791,10 @@ namespace Engine
         }
 
 		return it->second->CreateGameObject();
+    }
+
+    const std::vector<std::string>& GameObjectFactory::GetRegisteredNames() const
+    {
+        return m_registeredNames;
     }
 }
