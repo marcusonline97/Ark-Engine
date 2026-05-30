@@ -1731,7 +1731,7 @@
           "name": "PlayButton",
           "position": {
             "x": 0,
-            "y": 50,
+            "y": 90,
             "z": 0
           },
           "components": [
@@ -1788,10 +1788,70 @@
           ]
         },
         {
+          "name": "EditButton",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "components": [
+            {
+              "type": "ButtonComponent"
+            },
+            {
+              "type": "RectTransformComponent",
+              "anchor": {
+                "x": 0.5,
+                "y": 0.5
+              },
+              "pivot": {
+                "x": 0.5,
+                "y": 0.5
+              },
+              "size": {
+                "x": 150,
+                "y": 50
+              }
+            }
+          ],
+          "children": [
+            {
+              "name": "Text",
+              "components": [
+                {
+                  "type": "TextComponent",
+                  "text": "Edit",
+                  "font": {
+                    "path": "fonts/arial.ttf",
+                    "size": 24
+                  },
+                  "color": {
+                    "r": 0,
+                    "g": 0,
+                    "b": 0,
+                    "a": 1
+                  }
+                },
+                {
+                  "type": "RectTransformComponent",
+                  "anchor": {
+                    "x": 0.5,
+                    "y": 0.5
+                  },
+                  "pivot": {
+                    "x": 0.5,
+                    "y": 0.5
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
           "name": "QuitButton",
           "position": {
             "x": 0,
-            "y": -50,
+            "y": -90,
             "z": 0
           },
           "components": [
