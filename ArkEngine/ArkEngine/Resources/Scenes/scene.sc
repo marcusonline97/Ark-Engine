@@ -1761,6 +1761,56 @@
           ]
         },
         {
+          "name": "SettingsButton",
+          "position": {
+            "x": 500,
+            "y": 400,
+            "z": 0
+          },
+          "components": [
+            {
+              "type": "ButtonComponent",
+              "rect": {
+                "x": 150,
+                "y": 50
+              },
+              "color": {
+                "r": 0.8,
+                "g": 0.8,
+                "b": 0.8,
+                "a": 1
+              }
+            }
+          ],
+          "children": [
+            {
+              "name": "Text",
+              "position": {
+                "x": 400,
+                "y": 400,
+                "z": 200
+              },
+
+              "components": [
+                {
+                  "type": "TextComponent",
+                  "text": "Settings",
+                  "font": {
+                    "path": "fonts/arial.ttf",
+                    "size": 24
+                  },
+                  "color": {
+                    "r": 0,
+                    "g": 0,
+                    "b": 0,
+                    "a": 1
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
           "name": "QuitButton",
           "position": {
             "x": 500,

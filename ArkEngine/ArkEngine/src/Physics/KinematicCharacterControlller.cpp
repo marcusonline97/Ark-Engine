@@ -11,7 +11,7 @@ namespace Engine
         : m_radius(raduis), m_height(height)
     {
         m_collisionObjectType = CollisionObjectType::KinematicCharacterController;
-        auto world = Engine::GetInstance().GetPhysicsManager().GetWorld();
+        auto world = ArkEngine::GetInstance().GetPhysicsManager().GetWorld();
 
         auto capsule = new btCapsuleShape(m_radius, m_height);
 
@@ -42,7 +42,7 @@ namespace Engine
 
     KinematicCharacterController::~KinematicCharacterController()
     {
-        auto world = Engine::GetInstance().GetPhysicsManager().GetWorld();
+        auto world = ArkEngine::GetInstance().GetPhysicsManager().GetWorld();
         if (m_controller)
         {
             world->removeAction(m_controller.get());
