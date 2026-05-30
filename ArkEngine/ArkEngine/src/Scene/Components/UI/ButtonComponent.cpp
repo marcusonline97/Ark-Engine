@@ -108,16 +108,6 @@ namespace Engine
         }
     }
 
-    void ButtonComponent::SetRect(const glm::vec2& rect)
-    {
-        m_rect = rect;
-    }
-
-    const glm::vec2& ButtonComponent::GetRect() const
-    {
-        return m_rect;
-    }
-
     void ButtonComponent::SetColor(const glm::vec4& color)
     {
         m_color = color;

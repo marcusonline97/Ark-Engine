@@ -142,7 +142,6 @@ namespace Engine
 
             m_application->Update(deltaTime);
 
-            m_graphicsAPI.SetClearColor(1.0f, 1.0f, 1.0f, 1.0f);
             m_graphicsAPI.ClearBuffers();
 
             CameraData cameraData;

@@ -1,5 +1,6 @@
 #include "CanvasComponent.h"
 #include "UIElementComponent.h"
+#include "RectTransformComponent.h"
 #include "Scene/GameObject.h"
 #include "Graphics/VertexLayout.h"
 #include "Render/Mesh.h"
@@ -18,6 +19,15 @@ namespace Engine
         if (!m_active)
         {
             return;
+        }
+
+
+        if (auto rt = GetOwner()->GetComponent<RectTransformComponent>())
+        {
+            auto& graphics = ArkEngine::GetInstance().GetGraphicsAPI();
+            const auto& viewport = graphics.GetViewport();
+			rt->SetSize(glm::vec2(static_cast<float>(viewport.width), static_cast<float>(viewport.height)));
+
         }
 
         BeginRendering();

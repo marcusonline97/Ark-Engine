@@ -68,7 +68,7 @@ namespace Engine
 	glm::vec2 RectTransformComponent::GetScreenPosition()
 	{
 		auto parent = GetOwner()->GetParent();
-		if (!parent || parent->GetComponent<RectTransformComponent>())
+		if (!parent || !parent->GetComponent<RectTransformComponent>())
 		{
 			return GetOwner()->GetPosition2D();
 		}

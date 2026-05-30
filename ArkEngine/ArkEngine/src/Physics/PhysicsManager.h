@@ -9,30 +9,27 @@ class btDiscreteDynamicsWorld;
 
 namespace Engine
 {
-	class RigidBody;
+    class RigidBody;
 
-	class PhysicsManager
-	{
-	public:
-		PhysicsManager();
-		~PhysicsManager();
+    class PhysicsManager
+    {
+    public:
+        PhysicsManager();
+        ~PhysicsManager();
 
-		void Init();
-		void Update(float deltaTime);
+        void Init();
+        void Update(float deltaTime);
 
-		void AddRigidBody(RigidBody* body);
-		void RemoveRigidBody(RigidBody* body);
+        void AddRigidBody(RigidBody* body);
+        void RemoveRigidBody(RigidBody* body);
 
+        btDiscreteDynamicsWorld* GetWorld();
 
-
-		btDiscreteDynamicsWorld* GetWorld();
-
-	private:
-
-		std::unique_ptr<btBroadphaseInterface> m_broadphase;
-		std::unique_ptr<btDefaultCollisionConfiguration> m_collisionConfig;
-		std::unique_ptr<btCollisionDispatcher> m_dispatcher;
-		std::unique_ptr<btSequentialImpulseConstraintSolver> m_solver;
-		std::unique_ptr<btDiscreteDynamicsWorld> m_world;
-	};
+    private:
+        std::unique_ptr<btBroadphaseInterface> m_broadphase;
+        std::unique_ptr<btDefaultCollisionConfiguration> m_collisionConfig;
+        std::unique_ptr<btCollisionDispatcher> m_dispatcher;
+        std::unique_ptr<btSequentialImpulseConstraintSolver> m_solver;
+        std::unique_ptr<btDiscreteDynamicsWorld> m_world;
+    };
 }

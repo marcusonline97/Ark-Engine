@@ -67,6 +67,8 @@ bool Game::Init()
         }
     }
 
+    Engine::ArkEngine::GetInstance().GetGraphicsAPI().SetClearColor(117.0f / 256.0f, 187.0f / 256.0f, 253 / 256.0f, 1.0f);
+
     /* UI TEST
 	m_scene = std::make_shared<Engine::Scene>();
 	Engine::ArkEngine::GetInstance().SetScene(m_scene.get());

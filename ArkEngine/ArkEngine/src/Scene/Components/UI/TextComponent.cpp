@@ -1,5 +1,6 @@
 #include "TextComponent.h"
 #include "CanvasComponent.h"
+#include "RectTransformComponent.h"
 #include "Font/Font.h"
 #include "Core/ArkEngine.h"
 
@@ -105,9 +106,10 @@ namespace Engine
         m_font = ArkEngine::GetInstance().GetFontManager().GetFont(path, size);
     }
 
-    glm::vec2 TextComponent::GetPivotPos() const
+    glm::vec2 TextComponent::GetPivotPos()
     {
-        auto pos = m_owner->GetWorldPosition2D();
+        auto rt = GetOwner()->GetComponent<RectTransformComponent>();
+        auto pos = rt ? rt->GetScreenPosition() : GetOwner()->GetWorldPosition2D();
 
         glm::vec2 rect(0.0f);
         for (const auto c : m_text)
@@ -117,8 +119,13 @@ namespace Engine
             rect.y = std::max(rect.y, static_cast<float>(d.height));
         }
 
-        pos.x -= std::round(rect.x * m_pivot.x);
-        pos.y -= std::round(rect.y * m_pivot.y);
+        if (rt)
+        {
+            pos -= rect * rt->GetPivot();
+        }
+
+        pos.x = std::round(pos.x);
+        pos.y = std::round(pos.y);
         return pos;
     }
 }

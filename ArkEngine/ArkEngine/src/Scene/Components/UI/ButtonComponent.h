@@ -23,8 +23,6 @@ namespace Engine
         void OnPointerDown() override;
         void OnClick() override;
 
-        void SetRect(const glm::vec2& rect);
-        const glm::vec2& GetRect() const;
 
         void SetColor(const glm::vec4& color);
         const glm::vec4& GetColor() const;
