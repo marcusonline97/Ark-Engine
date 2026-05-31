@@ -74,11 +74,19 @@ namespace Engine
                 }
             }
             SetMaterial(mat);
+            m_materialPath = path;
         }
 
         if (json.contains("mesh"))
         {
             auto& meshObj = json["mesh"];
+            const std::string path = meshObj.value("path", "");
+            if (!path.empty())
+            {
+                SetMeshPath(path);
+                return;
+            }
+
             const std::string type = meshObj.value("type", "box");
             if (type == "box")
             {
@@ -88,13 +96,55 @@ namespace Engine
                 extents.z = meshObj.value("z", 1.0f);
                 auto mesh = Mesh::CreateBox(extents);
                 SetMesh(mesh);
+                m_meshType = type;
+                m_boxExtents = extents;
+                m_meshPath.clear();
             }
             else if (type == "sphere")
             {
                 float r = meshObj.value("r", 1.0f);
                 auto mesh = Mesh::CreateSphere(r, 16, 16);
                 SetMesh(mesh);
+                m_meshType = type;
+                m_sphereRadius = r;
+                m_meshPath.clear();
             }
+        }
+    }
+
+    void MeshComponent::SaveProperties(nlohmann::json& json) const
+    {
+        if (!m_materialPath.empty())
+        {
+            if (!json["material"].is_object())
+            {
+                json["material"] = nlohmann::json::object();
+            }
+            json["material"]["path"] = m_materialPath;
+        }
+
+        if (!m_meshPath.empty())
+        {
+            json["mesh"] = {
+                {"type", "gltf"},
+                {"path", m_meshPath}
+            };
+        }
+        else if (m_meshType == "box")
+        {
+            json["mesh"] = {
+                {"type", "box"},
+                {"x", m_boxExtents.x},
+                {"y", m_boxExtents.y},
+                {"z", m_boxExtents.z}
+            };
+        }
+        else if (m_meshType == "sphere")
+        {
+            json["mesh"] = {
+                {"type", "sphere"},
+                {"r", m_sphereRadius}
+            };
         }
     }
 
@@ -125,6 +175,43 @@ namespace Engine
     void MeshComponent::SetMesh(const std::shared_ptr<Mesh>& mesh)
     {
         m_mesh = mesh;
+    }
+
+    bool MeshComponent::SetMaterialPath(const std::string& path)
+    {
+        auto material = Material::Load(path);
+        if (!material)
+        {
+            return false;
+        }
+
+        SetMaterial(material);
+        m_materialPath = path;
+        return true;
+    }
+
+    bool MeshComponent::SetMeshPath(const std::string& path)
+    {
+        auto mesh = Mesh::LoadGLTF(path);
+        if (!mesh)
+        {
+            return false;
+        }
+
+        SetMesh(mesh);
+        m_meshPath = path;
+        m_meshType = "gltf";
+        return true;
+    }
+
+    const std::string& MeshComponent::GetMaterialPath() const
+    {
+        return m_materialPath;
+    }
+
+    const std::string& MeshComponent::GetMeshPath() const
+    {
+        return m_meshPath;
     }
 
 }

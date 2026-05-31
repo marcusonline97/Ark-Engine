@@ -2,6 +2,44 @@
 #include "graphics/GraphicsAPI.h"
 #include "Core/ArkEngine.h"
 
+#include <cgltf/cgltf.h>
+#include <algorithm>
+#include <filesystem>
+#include <functional>
+
+namespace
+{
+    const cgltf_primitive* FindFirstTrianglePrimitive(const cgltf_node* node)
+    {
+        if (!node)
+        {
+            return nullptr;
+        }
+
+        if (node->mesh)
+        {
+            for (cgltf_size i = 0; i < node->mesh->primitives_count; ++i)
+            {
+                const cgltf_primitive& primitive = node->mesh->primitives[i];
+                if (primitive.type == cgltf_primitive_type_triangles)
+                {
+                    return &primitive;
+                }
+            }
+        }
+
+        for (cgltf_size i = 0; i < node->children_count; ++i)
+        {
+            if (const cgltf_primitive* primitive = FindFirstTrianglePrimitive(node->children[i]))
+            {
+                return primitive;
+            }
+        }
+
+        return nullptr;
+    }
+}
+
 namespace Engine
 {
     Mesh::Mesh(const VertexLayout& layout, const std::vector<float>& vertices, const std::vector<uint32_t>& indices)
@@ -344,5 +382,179 @@ namespace Engine
         auto result = std::make_shared<Engine::Mesh>(vertexLayout, vertices, indices);
 
         return result;
+    }
+
+    std::shared_ptr<Mesh> Mesh::LoadGLTF(const std::string& path)
+    {
+        auto& fileSystem = ArkEngine::GetInstance().GetFileSystem();
+        auto contents = fileSystem.LoadAssetFileText(path);
+        if (contents.empty())
+        {
+            return nullptr;
+        }
+
+        cgltf_options options = {};
+        cgltf_data* data = nullptr;
+        cgltf_result res = cgltf_parse(&options, contents.data(), contents.size(), &data);
+        if (res != cgltf_result_success)
+        {
+            return nullptr;
+        }
+
+        auto fullPath = fileSystem.GetAssetFilePath(path);
+        auto fullFolderPath = fullPath.remove_filename();
+        res = cgltf_load_buffers(&options, data, fullFolderPath.string().c_str());
+        if (res != cgltf_result_success)
+        {
+            cgltf_free(data);
+            return nullptr;
+        }
+
+        const cgltf_scene* scene = data->scene;
+        if (!scene && data->scenes_count > 0)
+        {
+            scene = &data->scenes[0];
+        }
+
+        const cgltf_primitive* primitive = nullptr;
+        if (scene)
+        {
+            for (cgltf_size i = 0; i < scene->nodes_count; ++i)
+            {
+                primitive = FindFirstTrianglePrimitive(scene->nodes[i]);
+                if (primitive)
+                {
+                    break;
+                }
+            }
+        }
+
+        if (!primitive)
+        {
+            cgltf_free(data);
+            return nullptr;
+        }
+
+        auto readFloats = [](const cgltf_accessor* acc, cgltf_size i, float* out, int n)
+        {
+            std::fill(out, out + n, 0.0f);
+            return cgltf_accessor_read_float(acc, i, out, n) == 1;
+        };
+
+        auto readIndex = [](const cgltf_accessor* acc, cgltf_size i)
+        {
+            cgltf_uint out = 0;
+            cgltf_bool ok = cgltf_accessor_read_uint(acc, i, &out, 1);
+            return ok ? static_cast<uint32_t>(out) : 0;
+        };
+
+        VertexLayout vertexLayout;
+        cgltf_accessor* accessors[4] = {};
+
+        for (cgltf_size i = 0; i < primitive->attributes_count; ++i)
+        {
+            const cgltf_attribute& attr = primitive->attributes[i];
+            cgltf_accessor* acc = attr.data;
+            if (!acc)
+            {
+                continue;
+            }
+
+            VertexElement element;
+            element.type = GL_FLOAT;
+
+            switch (attr.type)
+            {
+            case cgltf_attribute_type_position:
+            {
+                accessors[VertexElement::PositionIndex] = acc;
+                element.index = VertexElement::PositionIndex;
+                element.size = 3;
+            }
+            break;
+            case cgltf_attribute_type_color:
+            {
+                if (attr.index != 0)
+                {
+                    continue;
+                }
+                accessors[VertexElement::ColorIndex] = acc;
+                element.index = VertexElement::ColorIndex;
+                element.size = 3;
+            }
+            break;
+            case cgltf_attribute_type_texcoord:
+            {
+                if (attr.index != 0)
+                {
+                    continue;
+                }
+                accessors[VertexElement::UVIndex] = acc;
+                element.index = VertexElement::UVIndex;
+                element.size = 2;
+            }
+            break;
+            case cgltf_attribute_type_normal:
+            {
+                accessors[VertexElement::NormalIndex] = acc;
+                element.index = VertexElement::NormalIndex;
+                element.size = 3;
+            }
+            break;
+            default:
+                continue;
+            }
+
+            if (element.size > 0)
+            {
+                element.offset = vertexLayout.stride;
+                vertexLayout.stride += element.size * sizeof(float);
+                vertexLayout.elements.push_back(element);
+            }
+        }
+
+        if (!accessors[VertexElement::PositionIndex])
+        {
+            cgltf_free(data);
+            return nullptr;
+        }
+
+        const cgltf_size vertexCount = accessors[VertexElement::PositionIndex]->count;
+        std::vector<float> vertices;
+        vertices.resize((vertexLayout.stride / sizeof(float)) * vertexCount);
+
+        for (cgltf_size vi = 0; vi < vertexCount; ++vi)
+        {
+            for (const auto& element : vertexLayout.elements)
+            {
+                if (!accessors[element.index])
+                {
+                    continue;
+                }
+
+                auto index = (vi * vertexLayout.stride + element.offset) / sizeof(float);
+                float* outData = &vertices[index];
+                readFloats(accessors[element.index], vi, outData, element.size);
+            }
+        }
+
+        std::shared_ptr<Mesh> mesh;
+        if (primitive->indices)
+        {
+            const cgltf_size indexCount = primitive->indices->count;
+            std::vector<uint32_t> indices(indexCount);
+            for (cgltf_size i = 0; i < indexCount; ++i)
+            {
+                indices[i] = readIndex(primitive->indices, i);
+            }
+            mesh = std::make_shared<Mesh>(vertexLayout, vertices, indices);
+        }
+        else
+        {
+            mesh = std::make_shared<Mesh>(vertexLayout, vertices);
+        }
+
+        cgltf_free(data);
+        return mesh;
     }
 }

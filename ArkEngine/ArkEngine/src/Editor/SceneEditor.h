@@ -8,6 +8,8 @@
 
 namespace Engine
 {
+	class MeshComponent;
+
 	class SceneEditor
 	{
 	public:
@@ -27,6 +29,7 @@ namespace Engine
 		void DrawObjectNode(GameObject* object);
 		void DrawInspector();
 		void DrawComponents(GameObject* object);
+		void DrawMeshComponentFields(MeshComponent* meshComponent);
 		void SelectObject(GameObject* object);
 		GameObject* CreateObject(GameObject* parent);
 		void DeleteSelected();
@@ -42,5 +45,8 @@ namespace Engine
 		std::string m_status;
 		std::array<char, 128> m_nameBuffer = {};
 		std::array<char, 128> m_newObjectName = { 'N', 'e', 'w', ' ', 'O', 'b', 'j', 'e', 'c', 't', '\0' };
+		MeshComponent* m_meshFieldComponent = nullptr;
+		std::array<char, 256> m_meshPathBuffer = {};
+		std::array<char, 256> m_materialPathBuffer = {};
 	};
 }

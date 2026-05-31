@@ -1,9 +1,11 @@
 #include "SceneEditor.h"
 
 #include "Scene/Components/LightComponent.h"
+#include "Scene/Components/MeshComponent.h"
 #include "imgui/imgui.h"
 
 #include <algorithm>
+#include <cstring>
 #include <glm/gtc/quaternion.hpp>
 
 namespace Engine
@@ -41,6 +43,7 @@ namespace Engine
 	{
 		m_selectedObject = nullptr;
 		m_nameBufferObject = nullptr;
+		m_meshFieldComponent = nullptr;
 		std::fill(m_nameBuffer.begin(), m_nameBuffer.end(), '\0');
 	}
 
@@ -238,6 +241,10 @@ namespace Engine
 						light->SetColor(glm::vec3(col[0], col[1], col[2]));
 					}
 				}
+				else if (auto mesh = dynamic_cast<MeshComponent*>(component.get()))
+				{
+					DrawMeshComponentFields(mesh);
+				}
 				else
 				{
 					ImGui::TextWrapped("This component is preserved in JSON and can be removed, but does not have custom editor fields yet.");
@@ -297,10 +304,68 @@ namespace Engine
 		}
 	}
 
+	void SceneEditor::DrawMeshComponentFields(MeshComponent* meshComponent)
+	{
+		if (!meshComponent)
+		{
+			return;
+		}
+
+		if (m_meshFieldComponent != meshComponent)
+		{
+			std::fill(m_meshPathBuffer.begin(), m_meshPathBuffer.end(), '\0');
+			std::fill(m_materialPathBuffer.begin(), m_materialPathBuffer.end(), '\0');
+
+			const std::string& meshPath = meshComponent->GetMeshPath();
+			std::copy_n(
+				meshPath.c_str(),
+				std::min(meshPath.size(), m_meshPathBuffer.size() - 1),
+				m_meshPathBuffer.data());
+
+			const std::string& materialPath = meshComponent->GetMaterialPath();
+			std::copy_n(
+				materialPath.c_str(),
+				std::min(materialPath.size(), m_materialPathBuffer.size() - 1),
+				m_materialPathBuffer.data());
+
+			m_meshFieldComponent = meshComponent;
+		}
+
+		ImGui::TextWrapped("Mesh Path loads the first triangle primitive from a glTF asset path.");
+		ImGui::InputText("Mesh Path", m_meshPathBuffer.data(), m_meshPathBuffer.size());
+		if (ImGui::Button("Apply Mesh Path"))
+		{
+			const std::string path = m_meshPathBuffer.data();
+			if (meshComponent->SetMeshPath(path))
+			{
+				m_status = "Applied mesh path: " + path;
+			}
+			else
+			{
+				m_status = "Failed to load mesh path: " + path;
+			}
+		}
+
+		ImGui::InputText("Material Path", m_materialPathBuffer.data(), m_materialPathBuffer.size());
+		if (ImGui::Button("Apply Material Path"))
+		{
+			const std::string path = m_materialPathBuffer.data();
+			if (meshComponent->SetMaterialPath(path))
+			{
+				m_status = "Applied material path: " + path;
+			}
+			else
+			{
+				m_status = "Failed to load material path: " + path;
+			}
+		}
+	}
+
 	void SceneEditor::SelectObject(GameObject* object)
 	{
 		m_selectedObject = object;
 		m_nameBufferObject = nullptr;
+		m_meshFieldComponent = nullptr;
 	}
 
 	GameObject* SceneEditor::CreateObject(GameObject* parent)
