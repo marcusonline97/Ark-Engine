@@ -59,6 +59,42 @@
           ]
         },
         {
+          "name": "GunPickup",
+          "type": "GunPickup",
+          "position": {
+            "x": 0,
+            "y": 1.2,
+            "z": -3
+          },
+          "rotationSpeed": 90.0,
+          "components": [
+            {
+              "type": "PhysicsComponent",
+              "collider": {
+                "type": "sphere",
+                "x": 0.75
+              },
+              "body": {
+                "mass": 0,
+                "friction": 0.5,
+                "type": "static"
+              }
+            }
+          ],
+          "children": [
+            {
+              "name": "PickupGunModel",
+              "type": "gltf",
+              "path": "models/CarbineGun/scene.gltf",
+              "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+              }
+            }
+          ]
+        },
+        {
           "name": "Ground",
           "position": {
             "x": 0,
@@ -1731,7 +1767,7 @@
           "name": "PlayButton",
           "position": {
             "x": 0,
-            "y": 90,
+            "y": 100,
             "z": 0
           },
           "components": [
@@ -1816,7 +1852,7 @@
           ],
           "children": [
             {
-              "name": "Text",
+              "name": "Editor",
               "components": [
                 {
                   "type": "TextComponent",
@@ -1851,7 +1887,7 @@
           "name": "QuitButton",
           "position": {
             "x": 0,
-            "y": -90,
+            "y": -100,
             "z": 0
           },
           "components": [
