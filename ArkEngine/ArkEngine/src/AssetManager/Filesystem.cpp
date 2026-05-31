@@ -9,10 +9,67 @@
 #include <limits.h>
 #endif
 
+#include <algorithm>
+#include <cctype>
 #include <fstream>
 
 namespace Engine
 {
+	namespace
+	{
+		std::string ToLower(std::string value)
+		{
+			std::transform(value.begin(), value.end(), value.begin(), [](unsigned char c)
+				{
+					return static_cast<char>(std::tolower(c));
+				});
+			return value;
+		}
+
+		std::filesystem::path ResolveCaseInsensitivePath(const std::filesystem::path& path)
+		{
+			if (std::filesystem::exists(path))
+			{
+				return path;
+			}
+
+			std::filesystem::path resolved = path.is_absolute() ? path.root_path() : std::filesystem::path();
+			for (const auto& part : path.relative_path())
+			{
+				const auto candidate = resolved / part;
+				if (std::filesystem::exists(candidate))
+				{
+					resolved = candidate;
+					continue;
+				}
+
+				if (!std::filesystem::exists(resolved) || !std::filesystem::is_directory(resolved))
+				{
+					return path;
+				}
+
+				const auto target = ToLower(part.string());
+				bool found = false;
+				for (const auto& entry : std::filesystem::directory_iterator(resolved))
+				{
+					if (ToLower(entry.path().filename().string()) == target)
+					{
+						resolved = entry.path();
+						found = true;
+						break;
+					}
+				}
+
+				if (!found)
+				{
+					return path;
+				}
+			}
+
+			return resolved;
+		}
+	}
+
 	std::filesystem::path FileSystem::GetExecutableFolder() const
 	{
 #if defined(_WIN32)
@@ -50,7 +107,7 @@ namespace Engine
 
 	std::filesystem::path FileSystem::GetAssetFilePath(const std::string& relativePath) const
 	{
-		return GetAssetsFolder() / std::filesystem::path(relativePath);
+		return ResolveCaseInsensitivePath(GetAssetsFolder() / std::filesystem::path(relativePath));
 	}
 
 	std::vector<char> FileSystem::LoadFile(const std::filesystem::path& path)
@@ -77,7 +134,7 @@ namespace Engine
 
 	std::vector<char> FileSystem::LoadAssetFile(const std::string& relativePath)
 	{
-		return LoadFile(GetAssetsFolder() / relativePath);
+		return LoadFile(GetAssetFilePath(relativePath));
 	}
 
 	std::string FileSystem::LoadAssetFileText(const std::string& relativePath)

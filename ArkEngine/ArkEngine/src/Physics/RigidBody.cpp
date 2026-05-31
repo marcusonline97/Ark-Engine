@@ -134,4 +134,30 @@ namespace Engine
 		m_body->applyCentralImpulse(btVector3(btScalar(impulse.x), btScalar(impulse.y), btScalar(impulse.z)));
 	}
 
+	void RigidBody::SetTrigger(bool trigger)
+	{
+		m_isTrigger = trigger;
+		if (!m_body)
+		{
+			return;
+		}
+
+		int flags = m_body->getCollisionFlags();
+		if (trigger)
+		{
+			flags |= btCollisionObject::CF_NO_CONTACT_RESPONSE;
+		}
+		else
+		{
+			flags &= ~btCollisionObject::CF_NO_CONTACT_RESPONSE;
+		}
+
+		m_body->setCollisionFlags(flags);
+	}
+
+	bool RigidBody::IsTrigger() const
+	{
+		return m_isTrigger;
+	}
+
 }

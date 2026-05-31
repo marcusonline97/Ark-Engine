@@ -35,6 +35,8 @@ namespace Engine
 		glm::quat GetRotation() const;
 
 		void ApplyImpulse(const glm::vec3& impulse);
+		void SetTrigger(bool trigger);
+		bool IsTrigger() const;
 
 	private:
 		std::unique_ptr<btRigidBody> m_body;
@@ -43,5 +45,6 @@ namespace Engine
 		float m_mass = 0.0f;
 		float m_friction = 0.5f;
 		bool m_addedToWorld = false;
+		bool m_isTrigger = false;
 	};
 }

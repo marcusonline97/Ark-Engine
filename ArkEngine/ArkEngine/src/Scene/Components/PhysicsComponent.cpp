@@ -53,6 +53,7 @@ namespace Engine
                 float mass = bodyObj.value("mass", 0.0f);
                 float friction = bodyObj.value("friction", 0.5f);
                 std::string typeStr = bodyObj.value("type", "static");
+                const bool isTrigger = bodyObj.value("trigger", false);
 
                 BodyType type = BodyType::Static;
                 if (typeStr == "dynamic")
@@ -65,6 +66,7 @@ namespace Engine
                 }
 
                 rigidBody = std::make_shared<RigidBody>(type, collider, mass, friction);
+                rigidBody->SetTrigger(isTrigger);
 
             }
 
