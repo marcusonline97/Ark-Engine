@@ -208,6 +208,12 @@
     <ClCompile Include="ArkEngine\src\Font\FontManager.cpp" />
     <ClCompile Include="ArkEngine\src\Graphics\GraphicsAPI.cpp" />
     <ClCompile Include="ArkEngine\src\Graphics\ShaderProgram.cpp" />
+    <ClCompile Include="ArkEngine\src\imgui\imgui.cpp" />
+    <ClCompile Include="ArkEngine\src\imgui\imgui_draw.cpp" />
+    <ClCompile Include="ArkEngine\src\imgui\imgui_tables.cpp" />
+    <ClCompile Include="ArkEngine\src\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="ArkEngine\src\imgui\backends\imgui_impl_glfw.cpp" />
+    <ClCompile Include="ArkEngine\src\imgui\backends\imgui_impl_opengl3.cpp" />
     <ClCompile Include="ArkEngine\src\Core\Application.cpp" />
     <ClCompile Include="ArkEngine\src\Core\ArkEngine.cpp" />
     <ClCompile Include="ArkEngine\src\Core\main.cpp" />
