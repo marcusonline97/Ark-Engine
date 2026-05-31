@@ -86,26 +86,26 @@ namespace Engine
 
 		Component* CreateComponent(const std::string& name);
 		bool HasParent(size_t objectType, size_t parentType);
-        const std::vector<std::string>& GetRegisteredNames() const;
-        std::string GetTypeName(size_t typeId) const;
+		const std::vector<std::string>& GetRegisteredNames() const;
+		std::string GetTypeName(size_t typeId) const;
 
 	private:
 		std::unordered_map<std::string, std::unique_ptr<ComponentCreatorBase>> m_creators;
 		std::unordered_map<size_t, std::vector<size_t>> m_parentMap;
-        std::unordered_map<size_t, std::string> m_typeNames;
-        std::vector<std::string> m_registeredNames;
+		std::unordered_map<size_t, std::string> m_typeNames;
+		std::vector<std::string> m_registeredNames;
 	};
 
 #define COMPONENT(ComponentClass) \
 public: \
     static size_t TypeId() { return Engine::Component::StaticTypeId<ComponentClass>(); } \
     size_t GetTypeId() const override { return TypeId(); } \
-    static void Register() { Engine::ComponentFactory::GetInstance().RegisterComponent<ComponentClass>(std::string(#ComponentClass)); }
+    static void Register() { Engine::ComponentFactory::GetInstance().RegisterComponent<ComponentClass>(#ComponentClass); }
 
 #define COMPONENT_2(ComponentClass, ParentComponentClass) \
 public: \
     static size_t TypeId() { return Engine::Component::StaticTypeId<ComponentClass>(); } \
     size_t GetTypeId() const override { return TypeId(); } \
-    static void Register() { Engine::ComponentFactory::GetInstance().RegisterComponent<ComponentClass, ParentComponentClass>(std::string(#ComponentClass)); }
+    static void Register() { Engine::ComponentFactory::GetInstance().RegisterComponent<ComponentClass, ParentComponentClass>(#ComponentClass); }
 
 }
