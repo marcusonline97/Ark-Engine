@@ -24,18 +24,22 @@
             },
             {
               "type": "AudioComponent",
+              "volume": 1.0,
               "audio": [
                 {
                   "name": "shoot",
-                  "path": "audio/shoot.wav"
+                  "path": "audio/shoot.wav",
+                  "volume": 1.0
                 },
                 {
                   "name": "step",
-                  "path": "audio/step.wav"
+                  "path": "audio/step.wav",
+                  "volume": 1.0
                 },
                 {
                   "name": "jump",
-                  "path": "audio/jump.wav"
+                  "path": "audio/jump.wav",
+                  "volume": 1.0
                 }
               ]
             }

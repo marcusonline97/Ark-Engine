@@ -8,6 +8,7 @@ namespace Engine
 	{
 		if (json.contains("audio"))
 		{
+			float defaultVolume = json.value("volume", 1.0f);
 			auto& clipsObject = json["audio"];
 			for (auto& clip : clipsObject)
 			{
@@ -16,7 +17,7 @@ namespace Engine
 				auto audio = Audio::Load(path);
 				if (audio)
 				{
-					float volume = clip.value("volume", 1.0f);
+					float volume = clip.value("volume", defaultVolume);
 					audio->SetVolume(volume);
 					RegisterAudio(name, audio);
 				}
