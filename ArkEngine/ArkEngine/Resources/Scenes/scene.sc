@@ -59,6 +59,42 @@
           ]
         },
         {
+          "name": "GunPickup",
+          "type": "GunPickup",
+          "position": {
+            "x": 0,
+            "y": 1.2,
+            "z": -3
+          },
+          "rotationSpeed": 90.0,
+          "components": [
+            {
+              "type": "PhysicsComponent",
+              "collider": {
+                "type": "sphere",
+                "x": 0.75
+              },
+              "body": {
+                "mass": 0,
+                "friction": 0.5,
+                "type": "static"
+              }
+            }
+          ],
+          "children": [
+            {
+              "name": "PickupGunModel",
+              "type": "gltf",
+              "path": "models/9mm/scene.gltf",
+              "scale": {
+                "x": 0.45,
+                "y": 0.45,
+                "z": 0.45
+              }
+            }
+          ]
+        },
+        {
           "name": "Ground",
           "position": {
             "x": 0,

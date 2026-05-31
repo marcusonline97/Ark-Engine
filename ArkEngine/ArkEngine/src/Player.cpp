@@ -23,10 +23,12 @@ void Player::Init()
         fire->SetActive(false);
     }
 
-    if (auto gun = FindChildByName("Gun"))
+    m_gunObject = FindChildByName("Gun");
+    if (m_gunObject)
     {
-        m_animationComponent = gun->GetComponent<Engine::AnimationComponent>();
+        m_animationComponent = m_gunObject->GetComponent<Engine::AnimationComponent>();
     }
+    SetHasGun(false);
 
     m_audioComponent = GetComponent<Engine::AudioComponent>();
     m_playerControllerComponent = GetComponent<Engine::PlayerControllerComponent>();
@@ -48,12 +50,26 @@ const std::shared_ptr<Engine::Material>& Player::GetBulletMaterial()
     return m_bulletMaterial;
 }
 
+void Player::SetHasGun(bool hasGun)
+{
+    m_hasGun = hasGun;
+    if (m_gunObject)
+    {
+        m_gunObject->SetActive(hasGun);
+    }
+}
+
+bool Player::HasGun() const
+{
+    return m_hasGun;
+}
+
 void Player::Update(float deltaTime)
 {
     Engine::GameObject::Update(deltaTime);
 
     auto& input = Engine::ArkEngine::GetInstance().GetInputManager();
-    if (input.IsMouseButtonPressed(GLFW_MOUSE_BUTTON_LEFT))
+    if (m_hasGun && input.IsMouseButtonPressed(GLFW_MOUSE_BUTTON_LEFT))
     {
         if (m_animationComponent && !m_animationComponent->IsPlaying())
         {

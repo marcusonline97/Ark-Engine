@@ -3,6 +3,7 @@
 #include "Player.h"
 #include "Bullet.h"
 #include "JumpPlatform.h"
+#include "GunPickup.h"
 
 #include <GLFW/glfw3.h>
 #include <glm/common.hpp>
@@ -28,6 +29,7 @@ void Game::RegisterTypes()
 	Player::Register();
 	Bullet::Register();
 	JumpPlatform::Register();
+	GunPickup::Register();
 }
 
 

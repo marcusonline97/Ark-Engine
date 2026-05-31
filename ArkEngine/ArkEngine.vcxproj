@@ -220,6 +220,7 @@
     <ClCompile Include="ArkEngine\src\Game.cpp" />
     <ClCompile Include="ArkEngine\src\glad\glad.c" />
     <ClCompile Include="ArkEngine\src\Graphics\Texture.cpp" />
+    <ClCompile Include="ArkEngine\src\GunPickup.cpp" />
     <ClCompile Include="ArkEngine\src\Input\InputManager.cpp" />
     <ClCompile Include="ArkEngine\src\JumpPlatform.cpp" />
     <ClCompile Include="ArkEngine\src\Physics\Collider.cpp" />
@@ -277,6 +278,7 @@
     <ClInclude Include="ArkEngine\src\Game.h" />
     <ClInclude Include="ArkEngine\src\Graphics\Texture.h" />
     <ClInclude Include="ArkEngine\src\Graphics\VertexLayout.h" />
+    <ClInclude Include="ArkEngine\src\GunPickup.h" />
     <ClInclude Include="ArkEngine\src\Input\InputManager.h" />
     <ClInclude Include="ArkEngine\src\JumpPlatform.h" />
     <ClInclude Include="ArkEngine\src\Migration\ArkEngine_app.h" />
