@@ -217,7 +217,12 @@ void Game::EnterEditMode()
 
     if (m_3DRoot)
     {
-		m_mainPlayer->SetActive(true);
+        m_3DRoot->SetActive(true);
+    }
+
+    if (m_mainPlayer)
+    {
+        m_mainPlayer->SetActive(true);
     }
 
     m_sceneEditor.SetActive(true);
