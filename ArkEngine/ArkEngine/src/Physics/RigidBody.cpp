@@ -89,6 +89,11 @@ namespace Engine
 
 	glm::vec3 RigidBody::GetPosition() const
 	{
+		if (!m_body)
+		{
+			return glm::vec3(0.0f);
+		}
+
 		const auto& pos = m_body->getWorldTransform().getOrigin();
 		return glm::vec3(pos.x(), pos.y(), pos.z());
 	}

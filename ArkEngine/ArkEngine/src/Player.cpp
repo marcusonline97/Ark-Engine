@@ -3,6 +3,14 @@
 
 #include <GLFW/glfw3.h> // For input bindings
 
+namespace
+{
+    constexpr float BulletRadius = 0.2f;
+    constexpr int BulletSectors = 32;
+    constexpr int BulletStacks = 32;
+    constexpr const char* BulletMaterialPath = "materials/suzanne.mat";
+}
+
 void Player::Init()
 {
     if (auto bullet = FindChildByName("bullet_33"))
@@ -22,6 +30,22 @@ void Player::Init()
 
     m_audioComponent = GetComponent<Engine::AudioComponent>();
     m_playerControllerComponent = GetComponent<Engine::PlayerControllerComponent>();
+    PreloadBulletMaterial();
+}
+
+void Player::PreloadBulletMaterial()
+{
+    m_bulletMaterial = Engine::Material::Load(BulletMaterialPath);
+}
+
+const std::shared_ptr<Engine::Material>& Player::GetBulletMaterial()
+{
+    if (!m_bulletMaterial)
+    {
+        PreloadBulletMaterial();
+    }
+
+    return m_bulletMaterial;
 }
 
 void Player::Update(float deltaTime)
@@ -45,9 +69,8 @@ void Player::Update(float deltaTime)
             }
 
             auto bullet = m_scene->CreateObject<Bullet>("Bullet");
-            auto material = Engine::Material::Load("materials/suzanne.mat");
-            auto mesh = Engine::Mesh::CreateSphere(0.2f, 32, 32);
-            bullet->AddComponent(new Engine::MeshComponent(material, mesh));
+            auto mesh = Engine::Mesh::CreateSphere(BulletRadius, BulletSectors, BulletStacks);
+            bullet->AddComponent(new Engine::MeshComponent(GetBulletMaterial(), mesh));
 
             glm::vec3 pos = glm::vec3(0.0f);
             if (auto child = FindChildByName("BOOM_35"))
@@ -55,8 +78,8 @@ void Player::Update(float deltaTime)
                 pos = child->GetWorldPosition();
             }
             bullet->SetPosition(pos + m_rotation * glm::vec3(-0.2f, 0.2f, -1.75f));
+            auto collider = std::make_shared<Engine::SphereCollider>(BulletRadius);
 
-            auto collider = std::make_shared<Engine::SphereCollider>(0.2f);
             auto rigidBody = std::make_shared<Engine::RigidBody>(
                 Engine::BodyType::Dynamic, collider, 10.0f, 0.1f);
             bullet->AddComponent(new Engine::PhysicsComponent(rigidBody));
