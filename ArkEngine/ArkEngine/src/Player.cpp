@@ -66,7 +66,7 @@ void Player::Update(float deltaTime)
         }
     }
 
-    if (input.IsKeyPressed(GLFW_KEY_SPACE))
+    if (m_playerControllerComponent && m_playerControllerComponent->JumpStarted())
     {
         if (m_audioComponent)
         {
