@@ -160,5 +160,15 @@ namespace Engine
 		return m_isTrigger;
 	}
 
+	void RigidBody::SetOwner(GameObject* owner)
+	{
+		m_owner = owner;
+	}
+
+	GameObject* RigidBody::GetOwner() const
+	{
+		return m_owner;
+	}
+
 
 }

@@ -1731,6 +1731,284 @@
           ]
         },
         {
+          "name": "ShootPathwayFloor",
+          "position": {
+            "x": 0,
+            "y": 0.56,
+            "z": 5
+          },
+          "components": [
+            {
+              "type": "MeshComponent",
+              "mesh": {
+                "type": "box",
+                "x": 2.6,
+                "y": 0.12,
+                "z": 16
+              },
+              "material": {
+                "path": "materials/checker.mat",
+                "params": {
+                  "float3": [
+                    {
+                      "name": "color",
+                      "value0": 0.45,
+                      "value1": 0.45,
+                      "value2": 0.45
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "type": "PhysicsComponent",
+              "collider": {
+                "type": "box",
+                "x": 2.6,
+                "y": 0.12,
+                "z": 16
+              },
+              "body": {
+                "mass": 0,
+                "friction": 0.5,
+                "type": "static"
+              }
+            }
+          ]
+        },
+        {
+          "name": "ShootPathwayLeftRail",
+          "position": {
+            "x": -1.15,
+            "y": 1.55,
+            "z": 5
+          },
+          "components": [
+            {
+              "type": "MeshComponent",
+              "mesh": {
+                "type": "box",
+                "x": 0.25,
+                "y": 2.0,
+                "z": 16
+              },
+              "material": {
+                "path": "materials/checker.mat",
+                "params": {
+                  "float3": [
+                    {
+                      "name": "color",
+                      "value0": 0.25,
+                      "value1": 0.25,
+                      "value2": 0.30
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "type": "PhysicsComponent",
+              "collider": {
+                "type": "box",
+                "x": 0.25,
+                "y": 2.0,
+                "z": 16
+              },
+              "body": {
+                "mass": 0,
+                "friction": 0.5,
+                "type": "static"
+              }
+            }
+          ]
+        },
+        {
+          "name": "ShootPathwayRightRail",
+          "position": {
+            "x": 1.15,
+            "y": 1.55,
+            "z": 5
+          },
+          "components": [
+            {
+              "type": "MeshComponent",
+              "mesh": {
+                "type": "box",
+                "x": 0.25,
+                "y": 2.0,
+                "z": 16
+              },
+              "material": {
+                "path": "materials/checker.mat",
+                "params": {
+                  "float3": [
+                    {
+                      "name": "color",
+                      "value0": 0.25,
+                      "value1": 0.25,
+                      "value2": 0.30
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "type": "PhysicsComponent",
+              "collider": {
+                "type": "box",
+                "x": 0.25,
+                "y": 2.0,
+                "z": 16
+              },
+              "body": {
+                "mass": 0,
+                "friction": 0.5,
+                "type": "static"
+              }
+            }
+          ]
+        },
+        {
+          "name": "ShootPathwayCubeA",
+          "type": "ShootableCube",
+          "position": {
+            "x": 0,
+            "y": 1.5,
+            "z": 2
+          },
+          "components": [
+            {
+              "type": "MeshComponent",
+              "mesh": {
+                "type": "box",
+                "x": 1.8,
+                "y": 1.8,
+                "z": 1.8
+              },
+              "material": {
+                "path": "materials/checker.mat",
+                "params": {
+                  "float3": [
+                    {
+                      "name": "color",
+                      "value0": 1.0,
+                      "value1": 0.15,
+                      "value2": 0.10
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "type": "PhysicsComponent",
+              "collider": {
+                "type": "box",
+                "x": 1.8,
+                "y": 1.8,
+                "z": 1.8
+              },
+              "body": {
+                "mass": 0,
+                "friction": 0.5,
+                "type": "static"
+              }
+            }
+          ]
+        },
+        {
+          "name": "ShootPathwayCubeB",
+          "type": "ShootableCube",
+          "position": {
+            "x": 0,
+            "y": 1.5,
+            "z": 8
+          },
+          "components": [
+            {
+              "type": "MeshComponent",
+              "mesh": {
+                "type": "box",
+                "x": 1.8,
+                "y": 1.8,
+                "z": 1.8
+              },
+              "material": {
+                "path": "materials/checker.mat",
+                "params": {
+                  "float3": [
+                    {
+                      "name": "color",
+                      "value0": 1.0,
+                      "value1": 0.15,
+                      "value2": 0.10
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "type": "PhysicsComponent",
+              "collider": {
+                "type": "box",
+                "x": 1.8,
+                "y": 1.8,
+                "z": 1.8
+              },
+              "body": {
+                "mass": 0,
+                "friction": 0.5,
+                "type": "static"
+              }
+            }
+          ]
+        },
+        {
+          "name": "ShootPathwayExitPlatform",
+          "position": {
+            "x": 0,
+            "y": 0.65,
+            "z": 13
+          },
+          "components": [
+            {
+              "type": "MeshComponent",
+              "mesh": {
+                "type": "box",
+                "x": 2.6,
+                "y": 0.2,
+                "z": 2.0
+              },
+              "material": {
+                "path": "materials/checker.mat",
+                "params": {
+                  "float3": [
+                    {
+                      "name": "color",
+                      "value0": 0.05,
+                      "value1": 0.80,
+                      "value2": 0.20
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "type": "PhysicsComponent",
+              "collider": {
+                "type": "box",
+                "x": 2.6,
+                "y": 0.2,
+                "z": 2.0
+              },
+              "body": {
+                "mass": 0,
+                "friction": 0.5,
+                "type": "static"
+              }
+            }
+          ]
+        },
+        {
           "name": "Light",
           "position": {
             "x": -2,

@@ -10,6 +10,8 @@ class btRigidBody;
 
 namespace Engine
 {
+	class GameObject;
+
 	enum class BodyType
 	{
 		Static,
@@ -37,6 +39,8 @@ namespace Engine
 		void ApplyImpulse(const glm::vec3& impulse);
 		void SetTrigger(bool trigger);
 		bool IsTrigger() const;
+		void SetOwner(GameObject* owner);
+		GameObject* GetOwner() const;
 
 	private:
 		std::unique_ptr<btRigidBody> m_body;
@@ -46,5 +50,6 @@ namespace Engine
 		float m_friction = 0.5f;
 		bool m_addedToWorld = false;
 		bool m_isTrigger = false;
+		GameObject* m_owner = nullptr;
 	};
 }

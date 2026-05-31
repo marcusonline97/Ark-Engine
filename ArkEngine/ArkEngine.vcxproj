@@ -250,6 +250,7 @@
     <ClCompile Include="ArkEngine\src\Scene\GameObject.cpp" />
     <ClCompile Include="ArkEngine\src\Scene\Components\MeshComponent.cpp" />
     <ClCompile Include="ArkEngine\src\Scene\Scene.cpp" />
+    <ClCompile Include="ArkEngine\src\ShootableCube.cpp" />
     <ClCompile Include="ArkEngine\src\TestObject.cpp" />
     <ClCompile Include="ArkEngine\Vendor\Jolt\AABBTree\*.cpp" />
     <ClCompile Include="ArkEngine\Vendor\Jolt\Core\*.cpp" />
@@ -309,6 +310,7 @@
     <ClInclude Include="ArkEngine\src\Scene\GameObject.h" />
     <ClInclude Include="ArkEngine\src\Scene\Components\MeshComponent.h" />
     <ClInclude Include="ArkEngine\src\Scene\Scene.h" />
+    <ClInclude Include="ArkEngine\src\ShootableCube.h" />
     <ClInclude Include="ArkEngine\src\TestObject.h" />
     <ClInclude Include="ArkEngine\Vendor\cgltf\cgltf.h" />
   </ItemGroup>
