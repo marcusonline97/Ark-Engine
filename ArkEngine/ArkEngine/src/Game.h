@@ -32,7 +32,13 @@ private:
 	std::shared_ptr<Engine::Scene> m_scene;
 	Engine::GameObject* m_3DRoot = nullptr;
 	Engine::GameObject* m_mainPlayer = nullptr;
+	Engine::GameObject* m_gameCamera = nullptr;
+	std::unique_ptr<Engine::GameObject> m_editorCamera;
 	Engine::SceneEditor m_sceneEditor;
+	float m_editorCameraPitch = 0.0f;
+	float m_editorCameraYaw = 0.0f;
+	bool m_editorCameraLookActive = false;
+	bool m_skipEditorCameraMouseDelta = false;
 
 	enum class Mode
 	{
@@ -49,4 +55,9 @@ private:
 	void EnterMenuMode();
 	void EnterPlayMode();
 	void EnterEditMode();
+	void EnsureEditorCamera();
+	void RestoreGameCamera();
+	void SetEditorCameraLookActive(bool active);
+	void SyncEditorCameraFrom(Engine::GameObject* camera);
+	void UpdateEditorCamera(float deltaTime);
 };

@@ -48,6 +48,7 @@ namespace Engine
 	{
 		ImGui::Begin("Editor");
 		ImGui::Text("Editing: %s", m_scenePath.c_str());
+		ImGui::TextUnformatted("Camera: hold RMB, use WASD to fly, E/Space up, Q/Ctrl down, Shift to speed up");
 		if (ImGui::Button("Save Scene"))
 		{
 			SaveScene();

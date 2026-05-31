@@ -5,8 +5,24 @@
 #include "JumpPlatform.h"
 
 #include <GLFW/glfw3.h>
+#include <glm/common.hpp>
+#include <glm/geometric.hpp>
+#include <glm/gtc/quaternion.hpp>
+#include <glm/trigonometric.hpp>
+#include <cmath>
 #include <iostream>
 
+namespace
+{
+    class EditorCameraObject final : public Engine::GameObject
+    {
+    public:
+        EditorCameraObject()
+        {
+            SetName("EditorCamera");
+        }
+    };
+}
 void Game::RegisterTypes()
 {
 	Player::Register();
@@ -25,6 +41,7 @@ bool Game::Init()
     
     m_3DRoot = m_scene->FindObjectByName("3DRoot");
 	m_mainPlayer = m_scene->FindObjectByName("MainPlayer");
+    m_gameCamera = m_scene->GetMainCamera();
 
     if (m_3DRoot)
     {
@@ -132,6 +149,11 @@ void Game::Update(float deltaTime)
 
     m_scene->Update(deltaTime);
 
+    if (m_mode == Mode::Editing)
+    {
+        UpdateEditorCamera(deltaTime);
+    }
+
     if (Engine::ArkEngine::GetInstance().GetInputManager().IsKeyPressed(GLFW_KEY_ESCAPE))
     {
         if (m_mode == Mode::Playing || m_mode == Mode::Editing)
@@ -158,6 +180,8 @@ void Game::Destroy()
 void Game::EnterMenuMode()
 {
     auto& engine = Engine::ArkEngine::GetInstance();
+    SetEditorCameraLookActive(false);
+    RestoreGameCamera();
     if (auto canvas = engine.GetUIInputSystem().GetCanvas())
     {
         canvas->SetActive(true);
@@ -183,6 +207,8 @@ void Game::EnterMenuMode()
 void Game::EnterPlayMode()
 {
     auto& engine = Engine::ArkEngine::GetInstance();
+    SetEditorCameraLookActive(false);
+    RestoreGameCamera();
     if (auto canvas = engine.GetUIInputSystem().GetCanvas())
     {
         canvas->SetActive(false);
@@ -208,6 +234,19 @@ void Game::EnterPlayMode()
 void Game::EnterEditMode()
 {
     auto& engine = Engine::ArkEngine::GetInstance();
+    EnsureEditorCamera();
+    if (m_scene)
+    {
+        if (auto currentCamera = m_scene->GetMainCamera())
+        {
+            if (currentCamera != m_editorCamera.get())
+            {
+                m_gameCamera = currentCamera;
+            }
+        }
+    }
+    SyncEditorCameraFrom(m_gameCamera);
+
     if (auto canvas = engine.GetUIInputSystem().GetCanvas())
     {
 		canvas->SetActive(false);
@@ -222,9 +261,142 @@ void Game::EnterEditMode()
 
     if (m_mainPlayer)
     {
-		m_mainPlayer->SetActive(true);
+		m_mainPlayer->SetActive(false);
     }
 
     m_sceneEditor.SetActive(true);
     m_mode = Mode::Editing;
+}
+
+void Game::EnsureEditorCamera()
+{
+    if (m_editorCamera)
+    {
+        return;
+    }
+
+    m_editorCamera = std::make_unique<EditorCameraObject>();
+    m_editorCamera->AddComponent(new Engine::CameraComponent());
+    m_editorCamera->SetPosition(glm::vec3(0.0f, 2.0f, 5.0f));
+}
+
+void Game::RestoreGameCamera()
+{
+    if (m_scene && m_gameCamera)
+    {
+        m_scene->SetMainCamera(m_gameCamera);
+    }
+}
+
+void Game::SetEditorCameraLookActive(bool active)
+{
+    if (m_editorCameraLookActive == active)
+    {
+        return;
+    }
+
+    m_editorCameraLookActive = active;
+    m_skipEditorCameraMouseDelta = active;
+    Engine::ArkEngine::GetInstance().SetCursorEnabled(!active);
+}
+
+void Game::SyncEditorCameraFrom(Engine::GameObject* camera)
+{
+    if (!m_editorCamera || !camera)
+    {
+        return;
+    }
+
+    m_editorCamera->SetPosition(camera->GetWorldPosition());
+    m_editorCamera->SetRotation(camera->GetWorldRotation());
+
+    glm::vec3 forward = m_editorCamera->GetRotation() * glm::vec3(0.0f, 0.0f, -1.0f);
+    forward = glm::normalize(forward);
+    m_editorCameraPitch = glm::degrees(std::asin(glm::clamp(forward.y, -1.0f, 1.0f)));
+    m_editorCameraYaw = glm::degrees(std::atan2(-forward.x, -forward.z));
+}
+
+void Game::UpdateEditorCamera(float deltaTime)
+{
+    if (!m_editorCamera)
+    {
+        return;
+    }
+
+    auto& inputManager = Engine::ArkEngine::GetInstance().GetInputManager();
+    const bool lookActive = inputManager.IsMouseButtonPressed(GLFW_MOUSE_BUTTON_RIGHT);
+    SetEditorCameraLookActive(lookActive);
+
+    if (!m_editorCameraLookActive)
+    {
+        return;
+    }
+
+    constexpr float mouseSensitivity = 10.0f;
+    constexpr float moveSpeed = 10.0f;
+    constexpr float fastMoveMultiplier = 4.0f;
+
+    if (inputManager.IsMousePositionChanged())
+    {
+        if (m_skipEditorCameraMouseDelta)
+        {
+            m_skipEditorCameraMouseDelta = false;
+        }
+        else
+        {
+            const auto& oldPos = inputManager.GetMousePositionOld();
+            const auto& currentPos = inputManager.GetMousePositionCurrent();
+
+            m_editorCameraYaw -= (currentPos.x - oldPos.x) * mouseSensitivity * deltaTime;
+            m_editorCameraPitch -= (currentPos.y - oldPos.y) * mouseSensitivity * deltaTime;
+            m_editorCameraPitch = glm::clamp(m_editorCameraPitch, -89.0f, 89.0f);
+        }
+    }
+
+    const glm::quat yawRot = glm::angleAxis(glm::radians(m_editorCameraYaw), glm::vec3(0.0f, 1.0f, 0.0f));
+    const glm::quat pitchRot = glm::angleAxis(glm::radians(m_editorCameraPitch), glm::vec3(1.0f, 0.0f, 0.0f));
+    const glm::quat rotation = glm::normalize(yawRot * pitchRot);
+    m_editorCamera->SetRotation(rotation);
+
+    const glm::vec3 forward = rotation * glm::vec3(0.0f, 0.0f, -1.0f);
+    const glm::vec3 right = rotation * glm::vec3(1.0f, 0.0f, 0.0f);
+    const glm::vec3 worldUp = glm::vec3(0.0f, 1.0f, 0.0f);
+
+    glm::vec3 move(0.0f);
+    if (inputManager.IsKeyPressed(GLFW_KEY_W))
+    {
+        move += forward;
+    }
+    if (inputManager.IsKeyPressed(GLFW_KEY_S))
+    {
+        move -= forward;
+    }
+    if (inputManager.IsKeyPressed(GLFW_KEY_D))
+    {
+        move += right;
+    }
+    if (inputManager.IsKeyPressed(GLFW_KEY_A))
+    {
+        move -= right;
+    }
+    if (inputManager.IsKeyPressed(GLFW_KEY_E) || inputManager.IsKeyPressed(GLFW_KEY_SPACE))
+    {
+        move += worldUp;
+    }
+    if (inputManager.IsKeyPressed(GLFW_KEY_Q) || inputManager.IsKeyPressed(GLFW_KEY_LEFT_CONTROL))
+    {
+        move -= worldUp;
+    }
+
+    if (glm::dot(move, move) > 0.0f)
+    {
+        float speed = moveSpeed;
+        if (inputManager.IsKeyPressed(GLFW_KEY_LEFT_SHIFT))
+        {
+            speed *= fastMoveMultiplier;
+        }
+
+        const glm::vec3 position = m_editorCamera->GetPosition() + glm::normalize(move) * speed * deltaTime;
+        m_editorCamera->SetPosition(position);
+    }
 }
