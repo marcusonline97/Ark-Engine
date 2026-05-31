@@ -683,9 +683,9 @@
         {
           "name": "PlatformС",
           "position": {
-            "x": -14,
+            "x": 10,
             "y": 1.05,
-            "z": -3
+            "z": 1.5
           },
           "components": [
             {
@@ -694,7 +694,7 @@
                 "type": "box",
                 "x": 2,
                 "y": 1.1,
-                "z": 8
+                "z": 14
               },
               "material": {
                 "path": "materials/checker.mat"
@@ -706,7 +706,7 @@
                 "type": "box",
                 "x": 2,
                 "y": 1.1,
-                "z": 8
+                "z": 14
               },
               "body": {
                 "mass": 0,
@@ -873,10 +873,11 @@
         },
         {
           "name": "ObjectCollide1",
+          "type": "ShootableCube",
           "position": {
-            "x": 10,
+            "x": 7.75,
             "y": 1.251,
-            "z": 0
+            "z": -5
           },
           "components": [
             {
@@ -919,10 +920,11 @@
         },
         {
           "name": "ObjectCollide2",
+          "type": "ShootableCube",
           "position": {
-            "x": 10,
+            "x": 12.25,
             "y": 1.251,
-            "z": 1.51
+            "z": -4
           },
           "components": [
             {
@@ -965,10 +967,11 @@
         },
         {
           "name": "ObjectCollide3",
+          "type": "ShootableCube",
           "position": {
-            "x": 10,
+            "x": 7.75,
             "y": 1.251,
-            "z": 3.02
+            "z": -3
           },
           "components": [
             {
@@ -1011,10 +1014,11 @@
         },
         {
           "name": "ObjectCollide4",
+          "type": "ShootableCube",
           "position": {
-            "x": 10,
+            "x": 12.25,
             "y": 1.251,
-            "z": 4.53
+            "z": -2
           },
           "components": [
             {
@@ -1057,10 +1061,11 @@
         },
         {
           "name": "ObjectCollide5",
+          "type": "ShootableCube",
           "position": {
-            "x": 10,
+            "x": 7.75,
             "y": 1.251,
-            "z": 6.04
+            "z": -1
           },
           "components": [
             {
@@ -1103,10 +1108,11 @@
         },
         {
           "name": "ObjectCollide6",
+          "type": "ShootableCube",
           "position": {
-            "x": 10,
+            "x": 12.25,
             "y": 1.251,
-            "z": 7.55
+            "z": 0
           },
           "components": [
             {
@@ -1149,10 +1155,11 @@
         },
         {
           "name": "ObjectCollide7",
+          "type": "ShootableCube",
           "position": {
-            "x": 10,
-            "y": 2.752,
-            "z": 0.75
+            "x": 7.75,
+            "y": 1.251,
+            "z": 1
           },
           "components": [
             {
@@ -1195,10 +1202,11 @@
         },
         {
           "name": "ObjectCollide8",
+          "type": "ShootableCube",
           "position": {
-            "x": 10,
-            "y": 2.752,
-            "z": 2.251
+            "x": 12.25,
+            "y": 1.251,
+            "z": 2
           },
           "components": [
             {
@@ -1241,10 +1249,11 @@
         },
         {
           "name": "ObjectCollide9",
+          "type": "ShootableCube",
           "position": {
-            "x": 10,
-            "y": 2.752,
-            "z": 3.752
+            "x": 7.75,
+            "y": 1.251,
+            "z": 3
           },
           "components": [
             {
@@ -1287,10 +1296,11 @@
         },
         {
           "name": "ObjectCollide10",
+          "type": "ShootableCube",
           "position": {
-            "x": 10,
-            "y": 2.752,
-            "z": 5.253
+            "x": 12.25,
+            "y": 1.251,
+            "z": 4
           },
           "components": [
             {
@@ -1333,10 +1343,11 @@
         },
         {
           "name": "ObjectCollide11",
+          "type": "ShootableCube",
           "position": {
-            "x": 10,
-            "y": 2.752,
-            "z": 6.754
+            "x": 7.75,
+            "y": 1.251,
+            "z": 5
           },
           "components": [
             {
@@ -1379,10 +1390,11 @@
         },
         {
           "name": "ObjectCollide12",
+          "type": "ShootableCube",
           "position": {
-            "x": 10,
-            "y": 4.253,
-            "z": 1.5
+            "x": 12.25,
+            "y": 1.251,
+            "z": 6
           },
           "components": [
             {
@@ -1425,10 +1437,11 @@
         },
         {
           "name": "ObjectCollide13",
+          "type": "ShootableCube",
           "position": {
-            "x": 10,
-            "y": 4.253,
-            "z": 3.01
+            "x": 7.75,
+            "y": 1.251,
+            "z": 7
           },
           "components": [
             {
@@ -1471,10 +1484,11 @@
         },
         {
           "name": "ObjectCollide14",
+          "type": "ShootableCube",
           "position": {
-            "x": 10,
-            "y": 4.253,
-            "z": 4.52
+            "x": 12.25,
+            "y": 1.251,
+            "z": 8
           },
           "components": [
             {
@@ -1517,10 +1531,11 @@
         },
         {
           "name": "ObjectCollide15",
+          "type": "ShootableCube",
           "position": {
-            "x": 10,
-            "y": 4.253,
-            "z": 6.03
+            "x": 12.25,
+            "y": 2.752,
+            "z": 2
           },
           "components": [
             {
