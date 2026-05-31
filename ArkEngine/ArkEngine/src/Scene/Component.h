@@ -6,6 +6,7 @@
 #include <string>
 #include <unordered_map>
 #include <memory>
+#include <vector>
 
 namespace Engine
 {
@@ -85,6 +86,7 @@ namespace Engine
 
 		Component* CreateComponent(const std::string& name);
         bool HasParent(size_t objectType, size_t parentType);
+
 		const std::vector<std::string>& GetRegisteredNames() const;
 		std::string GetTypeName(size_t typeId) const;
 

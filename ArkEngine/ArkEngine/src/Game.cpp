@@ -136,7 +136,7 @@ void Game::Update(float deltaTime)
     {
         if (m_mode == Mode::Playing || m_mode == Mode::Editing)
         {
-            EnterMenuMode;
+            EnterMenuMode();
         }
     }
 }

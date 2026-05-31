@@ -4,7 +4,6 @@
 #include "imgui/imgui.h"
 
 #include <algorithm>
-#include <cstring>
 #include <glm/gtc/quaternion.hpp>
 
 namespace Engine
@@ -152,7 +151,11 @@ namespace Engine
 		if (m_nameBufferObject != m_selectedObject)
 		{
 			std::fill(m_nameBuffer.begin(), m_nameBuffer.end(), '\0');
-			std::strncpy(m_nameBuffer.data(), m_selectedObject->GetName().c_str(), m_nameBuffer.size() - 1);
+			const auto& objectName = m_selectedObject->GetName();
+			std::copy_n(
+				objectName.c_str(),
+				std::min(objectName.size(), m_nameBuffer.size() - 1),
+				m_nameBuffer.data());
 			m_nameBufferObject = m_selectedObject;
 		}
 
