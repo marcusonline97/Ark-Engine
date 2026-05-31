@@ -48,6 +48,11 @@ namespace Engine
 
 	}
 
+	std::filesystem::path FileSystem::GetAssetFilePath(const std::string& relativePath) const
+	{
+		return GetAssetsFolder() / std::filesystem::path(relativePath);
+	}
+
 	std::vector<char> FileSystem::LoadFile(const std::filesystem::path& path)
 	{
 		std::ifstream file(path, std::ios::binary | std::ios::ate);
@@ -72,7 +77,7 @@ namespace Engine
 
 	std::vector<char> FileSystem::LoadAssetFile(const std::string& relativePath)
 	{
-		return LoadFile(GetAssetsFolder() / relativePath);
+		return LoadFile(GetAssetFilePath(relativePath));
 	}
 
 	std::string FileSystem::LoadAssetFileText(const std::string& relativePath)
@@ -83,7 +88,7 @@ namespace Engine
 
 	bool FileSystem::SaveAssetFileText(const std::string& relativePath, const std::string& contents)
 	{
-		auto path = GetAssetsFolder() / relativePath;
+		auto path = GetAssetFilePath(relativePath);
 		std::filesystem::create_directories(path.parent_path());
 
 		std::ofstream file(path, std::ios::binary | std::ios::trunc);

@@ -652,7 +652,7 @@ namespace Engine
             return nullptr;
         }
 
-        auto fullPath = ArkEngine::GetInstance().GetFileSystem().GetAssetsFolder() / path;
+        auto fullPath = ArkEngine::GetInstance().GetFileSystem().GetAssetFilePath(path);
         auto fullFolderPath = fullPath.remove_filename();
         auto relativeFolderPath = std::filesystem::path(path).remove_filename();
 
