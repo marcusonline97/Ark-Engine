@@ -68,7 +68,7 @@ void Player::Update(float deltaTime)
 
     if (input.IsKeyPressed(GLFW_KEY_SPACE))
     {
-        if (m_audioComponent && !m_audioComponent->IsPlaying("jump"))
+        if (m_audioComponent)
         {
             m_audioComponent->Play("jump");
         }

@@ -14,6 +14,7 @@ namespace Engine
 		void Init() override;
 		void Update(float deltaTime) override;
 		bool OnGround() const;
+		bool JumpStarted() const;
 
 	private:
 
@@ -21,6 +22,10 @@ namespace Engine
 		float m_moveSpeed = 30.0f;
 		float m_xRot = 0.0f;
 		float m_yRot = 0.0f;
+		bool m_HasNotLanded = false;
+		bool m_JumpStarted = false;
+		bool m_HasLanded = false;
+
 		std::unique_ptr<KinematicCharacterController> m_kinematicController;
 	};
 }

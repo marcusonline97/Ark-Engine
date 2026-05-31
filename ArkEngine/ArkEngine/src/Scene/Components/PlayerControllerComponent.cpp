@@ -17,6 +17,7 @@ namespace Engine
 
     void PlayerControllerComponent::Update(float deltaTime)
     {
+		m_JumpStarted = false;
         auto& inputManager = ArkEngine::GetInstance().GetInputManager();
         auto rotation = m_owner->GetRotation();
 
@@ -45,7 +46,17 @@ namespace Engine
         }
 
         glm::vec3 front = rotation * glm::vec3(0.0f, 0.0f, -1.0f);
+		front.y = 0.0f; // Keep movement horizontal
+        if (glm::dot(front, front) > 0.0f)
+        {
+			front = glm::normalize(front);
+        }
         glm::vec3 right = rotation * glm::vec3(1.0f, 0.0f, 0.0f);
+        right.y = 0.0f;
+        if (glm::dot(right, right) > 0.0f)
+        {
+            right = glm::normalize(right);
+        }
 
 		glm::vec3 move(0.0f);
 
@@ -68,10 +79,19 @@ namespace Engine
 			move -= front;
         }
 
-        if (inputManager.IsKeyPressed(GLFW_KEY_SPACE))
+        const bool onGround = m_kinematicController->OnGround();
+        if (onGround && !m_HasLanded)
         {
-			m_kinematicController->Jump(glm::vec3(0.0f, 5.0f, 0.0f));
+            m_HasNotLanded = false;
         }
+
+        if (inputManager.IsKeyPressed(GLFW_KEY_SPACE) && onGround && !m_HasNotLanded)
+        {
+            m_kinematicController->Jump(glm::vec3(0.0f, 5.0f, 0.0f));
+            m_HasNotLanded = true;
+            m_JumpStarted = true;
+        }
+        m_HasLanded = onGround;
 
         if (glm::dot(move, move) > 0.0f)
         {
@@ -91,5 +111,11 @@ namespace Engine
         }
         return false;
     }
+
+    bool PlayerControllerComponent::JumpStarted() const
+    {
+		return m_JumpStarted;
+    }
+
 
 }
