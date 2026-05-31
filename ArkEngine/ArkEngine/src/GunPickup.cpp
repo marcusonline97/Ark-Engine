@@ -29,6 +29,7 @@ void GunPickup::Init()
     if (rigidBody)
     {
         m_rigidBody = rigidBody.get();
+        m_rigidBody->SetTrigger(true);
         m_rigidBody->AddContactListener(this);
     }
 }

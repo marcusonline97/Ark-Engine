@@ -52,10 +52,13 @@ const std::shared_ptr<Engine::Material>& Player::GetBulletMaterial()
 
 void Player::SetHasGun(bool hasGun)
 {
-    m_hasGun = hasGun;
-    if (m_gunObject)
+    if (!m_gunObject)
     {
-        m_gunObject->SetActive(hasGun);
+        m_gunObject = FindChildByName("Gun");
+        if (m_gunObject)
+        {
+            m_animationComponent = m_gunObject->GetComponent<Engine::AnimationComponent>();
+        }
     }
 }
 

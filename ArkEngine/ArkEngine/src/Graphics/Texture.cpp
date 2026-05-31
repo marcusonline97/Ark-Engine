@@ -4,6 +4,8 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image/stb_image.h>
 
+#include <filesystem>
+
 namespace Engine
 {
     Texture::Texture(int width, int height, int numChannels, unsigned char* data)
@@ -65,7 +67,7 @@ namespace Engine
         int width, height, numChannels;
 
         auto& fs = ArkEngine::GetInstance().GetFileSystem();
-        auto fullPath = fs.GetAssetsFolder() / path;
+        auto fullPath = fs.GetAssetFilePath(path);
 
         if (!std::filesystem::exists(fullPath))
         {
