@@ -203,6 +203,7 @@
     <ClCompile Include="ArkEngine\src\Audio\Audio.cpp" />
     <ClCompile Include="ArkEngine\src\Audio\AudioManager.cpp" />
     <ClCompile Include="ArkEngine\src\Bullet.cpp" />
+    <ClCompile Include="ArkEngine\src\Editor\SceneEditor.cpp" />
     <ClCompile Include="ArkEngine\src\Font\Font.cpp" />
     <ClCompile Include="ArkEngine\src\Font\FontManager.cpp" />
     <ClCompile Include="ArkEngine\src\Graphics\GraphicsAPI.cpp" />
@@ -259,6 +260,7 @@
     <ClInclude Include="ArkEngine\src\Audio\AudioManager.h" />
     <ClInclude Include="ArkEngine\src\Bullet.h" />
     <ClInclude Include="ArkEngine\src\Core\Common.h" />
+    <ClInclude Include="ArkEngine\src\Editor\SceneEditor.h" />
     <ClInclude Include="ArkEngine\src\Font\Font.h" />
     <ClInclude Include="ArkEngine\src\Font\FontManager.h" />
     <ClInclude Include="ArkEngine\src\Graphics\GraphicsAPI.h" />

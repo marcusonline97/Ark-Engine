@@ -6,13 +6,21 @@
 
 #include <GLAD/glad.h>
 #include <GLFW/glfw3.h>
+#include "imgui/imgui.h"
+#include "imgui/backends/imgui_impl_glfw.h"
+#include "imgui/backends/imgui_impl_opengl3.h"
 
 #include <iostream>
 
 namespace Engine
 {
-    void keyCallback(GLFWwindow* window, int key, int, int action, int)
+    void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
     {
+        if (ImGui::GetCurrentContext())
+        {
+			ImGui_ImplGlfw_KeyCallback(window, key, scancode, action, mods);
+        }
+
         auto& inputManager = Engine::ArkEngine::GetInstance().GetInputManager();
         if (action == GLFW_PRESS)
         {
@@ -24,8 +32,13 @@ namespace Engine
         }
     }
 
-    void mouseButtonCallback(GLFWwindow* window, int button, int action, int)
+    void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
     {
+        if (ImGui::GetCurrentContext())
+        {
+            ImGui_ImplGlfw_MouseButtonCallback(window, button, action, mods);
+        }
+
         auto& inputManager = Engine::ArkEngine::GetInstance().GetInputManager();
         if (action == GLFW_PRESS)
         {
@@ -41,6 +54,11 @@ namespace Engine
 
     void cursorPositionCallback(GLFWwindow* window, double xpos, double ypos)
     {
+        if (ImGui::GetCurrentContext())
+        {
+			ImGui_ImplGlfw_CursorPosCallback(window, xpos, ypos);
+        }
+
         auto& inputManager = Engine::ArkEngine::GetInstance().GetInputManager();
 
         inputManager.SetMousePositionOld(inputManager.GetMousePositionCurrent());
@@ -54,6 +72,22 @@ namespace Engine
 	void windowSizeCallback(GLFWwindow* window, int width, int height)
     {
 		Engine::ArkEngine::GetInstance().GetGraphicsAPI().SetViewport(0, 0, width, height);
+    }
+
+    void scrollCallback(GLFWwindow* window, double xOffset, double yOffset)
+    {
+        if (ImGui::GetCurrentContext())
+        {
+			ImGui_ImplGlfw_ScrollCallback(window, xOffset, yOffset);
+        }
+    }
+
+    void charCallback(GLFWwindow* window, unsigned int codepoint)
+    {
+        if (ImGui::GetCurrentContext())
+        {
+			ImGui_ImplGlfw_CharCallback(window, codepoint);
+        }
     }
 
     ArkEngine& ArkEngine::GetInstance()
@@ -98,6 +132,8 @@ namespace Engine
 		glfwSetMouseButtonCallback(m_window, mouseButtonCallback);
         glfwSetCursorPosCallback(m_window, cursorPositionCallback);
 		glfwSetWindowSizeCallback(m_window, windowSizeCallback);
+		glfwSetScrollCallback(m_window, scrollCallback);
+		glfwSetCharCallback(m_window, charCallback);
 
         glfwMakeContextCurrent(m_window);
 
@@ -113,6 +149,24 @@ namespace Engine
 		m_audioManager.Init();
         m_renderQueue.Init();
 		m_fontManager.Init();  
+
+		IMGUI_CHECKVERSION();
+		ImGui::CreateContext();
+        ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+		const bool imguiGlfwReady = ImGui_ImplGlfw_InitForOpenGL(m_window, false);
+		const bool imguiOpenGLReady = imguiGlfwReady && ImGui_ImplOpenGL3_Init("#version 330");
+
+		m_editorUIActive = imguiGlfwReady && imguiOpenGLReady;
+
+        if (!m_editorUIActive)
+        {
+            if (imguiGlfwReady)
+            {
+				ImGui_ImplGlfw_Shutdown();
+            }
+			ImGui::DestroyContext();
+        }
+
         return m_application->Init();
     }
 
@@ -172,6 +226,18 @@ namespace Engine
 
             m_renderQueue.Draw(m_graphicsAPI, cameraData, lights);
 
+            if (m_editorUIActive)
+            {
+                ImGui_ImplOpenGL3_NewFrame();
+                ImGui_ImplGlfw_NewFrame();
+                ImGui::NewFrame();
+
+                m_application->RenderUI();
+
+                ImGui::Render();
+                ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+            }
+
             glfwSwapBuffers(m_window);
 
 			m_inputManager.ClearStates();
@@ -186,9 +252,16 @@ namespace Engine
         {
             m_application->Destroy();
             m_application.reset();
-            glfwTerminate();
-            m_window = nullptr;
+
         }
+
+        if (m_editorUIActive)
+        {
+			ImGui_ImplOpenGL3_Shutdown();
+
+        }
+        glfwTerminate();
+        m_window = nullptr;
     }
 
     void ArkEngine::SetCursorEnabled(bool enabled)
@@ -196,6 +269,10 @@ namespace Engine
         glfwSetInputMode(m_window, GLFW_CURSOR, enabled ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
     }
 
+    bool ArkEngine::IsEditorUIActive() const
+    {
+		return m_editorUIActive;
+    }
 
     void ArkEngine::SetApplication(Application* app)
     {

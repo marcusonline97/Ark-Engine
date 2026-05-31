@@ -18,6 +18,15 @@ namespace Engine
             ));
         }
 
+        if (json.contains("rect"))
+        {
+            auto& rectObj = json["rect"];
+            m_rect = glm::vec2(
+                rectObj.value("x", m_rect.x),
+                rectObj.value("y", m_rect.y)
+            );
+        }
+
         if (json.contains("hovered"))
         {
             auto& colorObj = json["hovered"];
@@ -41,6 +50,32 @@ namespace Engine
         }
     }
 
+    void ButtonComponent::SaveProperties(nlohmann::json& json) const
+    {
+        json["color"] = {
+            {"r", m_color.r},
+            {"g", m_color.g},
+            {"b", m_color.b},
+            {"a", m_color.a}
+        };
+        json["rect"] = {
+            {"x", m_rect.x},
+            {"y", m_rect.y}
+        };
+        json["hovered"] = {
+            {"r", m_hoveredColor.r},
+            {"g", m_hoveredColor.g},
+            {"b", m_hoveredColor.b},
+            {"a", m_hoveredColor.a}
+        };
+        json["pressed"] = {
+            {"r", m_pressedColor.r},
+            {"g", m_pressedColor.g},
+            {"b", m_pressedColor.b},
+            {"a", m_pressedColor.a}
+        };
+	}
+
     void ButtonComponent::Render(CanvasComponent* canvas)
     {
         if (!canvas)
@@ -49,17 +84,18 @@ namespace Engine
         }
 
 		auto rt = GetOwner()->GetComponent<RectTransformComponent>();
-        if (!rt)
+        glm::vec2 ownerPos = GetOwner()->GetPosition2D();
+		glm::vec2 size = m_rect;
+        if (rt)
         {
-            return;
-		}
-
-		auto ownerPos = rt->GetScreenPosition();
-		ownerPos -= rt->GetSize() * rt->GetPivot();
+            ownerPos = rt->GetScreenPosition();
+            size = rt->GetSize();
+            ownerPos -= size * rt->GetPivot();
+        }
 
         canvas->DrawRect(
             ownerPos,
-            ownerPos + rt->GetSize(),
+            ownerPos + size,
             *m_currentColor
         );
     }
@@ -67,15 +103,19 @@ namespace Engine
     bool ButtonComponent::HitTest(const glm::vec2& pos)
     {
 		auto rt = GetOwner()->GetComponent<RectTransformComponent>();
-
-        if (!rt)
+        
+        glm::vec2 ownerPos = GetOwner()->GetPosition2D();
+        glm::vec2 size = m_rect;
+  
+        if (rt)
         {
-			return false;
+            ownerPos = rt->GetScreenPosition();
+			size = rt->GetSize();
+
         }
 
-        auto ownerPos = rt->GetScreenPosition();
-		auto p1 = ownerPos - rt->GetSize() * rt->GetPivot();
-		auto p2 = p1 + rt->GetSize();
+		auto p1 = ownerPos - size * rt->GetPivot();
+        auto p2 = p1 + size;
 
         return (p1.x <= pos.x && p2.x >= pos.x && p1.y <= pos.y && p2.y >= pos.y);
     }

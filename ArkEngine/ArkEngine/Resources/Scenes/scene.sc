@@ -44,7 +44,7 @@
             {
               "name": "Gun",
               "type": "gltf",
-              "path": "models/sten_gunmachine_carbine/scene.gltf",
+              "path": "models/CarbineGun/scene.gltf",
               "position": {
                 "x": 0.75,
                 "y": -0.5,

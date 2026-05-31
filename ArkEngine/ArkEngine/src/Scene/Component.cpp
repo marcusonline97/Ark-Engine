@@ -1,5 +1,7 @@
 #include "Component.h"
 
+#include <algorithm>
+
 namespace Engine
 {
 	size_t Component::nextId = 1;
@@ -10,9 +12,18 @@ namespace Engine
 
 	}
 
+    void Component::SaveProperties(nlohmann::json& json) const
+    {
+
+    }
 
 	void Component::Init()
 	{
+
+	}
+
+    void Component::OnRemoved()
+    {
 
 	}
 
@@ -26,6 +37,15 @@ namespace Engine
 	{
 		return m_owner;
 	}
+    const nlohmann::json& Component::GetSerializedData() const
+    {
+        return m_serializedData;
+    }
+
+    void Component::SetSerializedData(const nlohmann::json& json)
+    {
+        m_serializedData = json;
+    }
 	
 	ComponentFactory& ComponentFactory::GetInstance()
 	{
@@ -67,5 +87,21 @@ namespace Engine
         }
 
         return false;
+    }
+
+    const std::vector<std::string>& ComponentFactory::GetRegisteredNames() const
+    {
+        return m_registeredNames;
+    }
+
+    std::string ComponentFactory::GetTypeName(size_t typeId) const
+    {
+        auto it = m_typeNames.find(typeId);
+        if (it == m_typeNames.end())
+        {
+            return "UnknownComponent";
+        }
+
+        return it->second;
     }
 }

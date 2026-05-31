@@ -32,6 +32,17 @@ namespace Engine
         }
     }
 
+    void TextComponent::SaveProperties(nlohmann::json& json) const
+    {
+        json["text"] = m_text;
+        json["color"] = {
+            {"r", m_color.r},
+            {"g", m_color.g},
+            {"b", m_color.b},
+            {"a", m_color.a}
+        };
+    }
+
     void TextComponent::Render(CanvasComponent* canvas)
     {
         if (m_text.empty() || !m_font || !canvas)

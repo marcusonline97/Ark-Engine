@@ -17,6 +17,15 @@ namespace Engine
         }
     }
 
+    void LightComponent::SaveProperties(nlohmann::json& json) const
+    {
+        json["color"] = {
+            {"r", m_color.r},
+            {"g", m_color.g},
+            {"b", m_color.b}
+        };
+    }
+
     void LightComponent::Update(float deltaTime)
     {
 

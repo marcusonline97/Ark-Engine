@@ -12,6 +12,7 @@ namespace Engine
 
 	public:
 		void LoadProperties(const nlohmann::json& json) override;
+		void SaveProperties(nlohmann::json& json) const override;
 
 		const glm::vec2& GetSize() const;
 		void SetSize(const glm::vec2& size);

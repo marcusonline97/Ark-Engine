@@ -7,6 +7,12 @@ namespace Engine
 
 	}
 
+	void Application::RenderUI()
+	{
+
+	}
+
+
 	void Application::Destroy()
 	{
 		// Cleanup code here

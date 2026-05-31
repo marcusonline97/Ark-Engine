@@ -16,6 +16,8 @@ namespace Engine
         COMPONENT_2(TextComponent, UIElementComponent)
     public:
         void LoadProperties(const nlohmann::json& json) override;
+        void SaveProperties(nlohmann::json& json) const override;
+
         void Render(CanvasComponent* canvas) override;
 
         const std::string& GetText() const;

@@ -37,11 +37,16 @@ namespace Engine
 		Scene* GetScene();
 		bool IsAlive() const;
 		void MarkForDestroy();
+		void SaveProperties(nlohmann::json& json) const;
+		const nlohmann::json& GetSerializedData() const;
+		void SetSerializedData(const nlohmann::json& json);
 
 		void SetActive(bool active);
 		bool IsActive() const;
 
 		void AddComponent(Component* component);
+		bool RemoveComponent(Component* component);
+		const std::vector<std::unique_ptr<Component>>& GetComponents() const;
 		template<typename T, typename = typename std::enable_if_t<std::is_base_of_v<Component, T>>>
 		T* GetComponent()
 		{
@@ -111,6 +116,7 @@ namespace Engine
 		std::vector<std::unique_ptr<GameObject>> m_children;
 		std::vector<std::unique_ptr<Component>> m_components;
 		bool m_isAlive = true;
+		nlohmann::json m_serializedData = nlohmann::json::object();
 		glm::vec3 m_position = glm::vec3(0.0f);
 		glm::quat m_rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
 		glm::vec3 m_scale = glm::vec3(1.0f);
@@ -149,12 +155,15 @@ namespace Engine
 		void RegisterObject(const std::string& name)
 		{
 			m_creators.emplace(name, std::make_unique<ObjectCreator<T>>());
+			m_registeredNames.push_back(name);
 		}
 
 		GameObject* CreateGameObject(const std::string& typeName);
+		const std::vector<std::string>& GetRegisteredNames() const;
 
 	private:
 		std::unordered_map<std::string, std::unique_ptr<ObjectCreatorBase>> m_creators;
+		std::vector<std::string> m_registeredNames;
 	};
 
 #define GAMEOBJECT(ObjectClass) \
