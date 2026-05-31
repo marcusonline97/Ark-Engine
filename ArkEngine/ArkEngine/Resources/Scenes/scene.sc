@@ -85,11 +85,11 @@
             {
               "name": "PickupGunModel",
               "type": "gltf",
-              "path": "models/9mm/scene.gltf",
+              "path": "models/CarbineGun/scene.gltf",
               "scale": {
-                "x": 0.45,
-                "y": 0.45,
-                "z": 0.45
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
               }
             }
           ]
