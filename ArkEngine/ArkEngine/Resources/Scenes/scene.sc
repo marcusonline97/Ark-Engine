@@ -86,6 +86,12 @@
               "name": "PickupGunModel",
               "type": "gltf",
               "path": "models/CarbineGun/scene.gltf",
+              "rotation": {
+              "x":0.0,
+              "y":0.7071068,
+              "z":0.0,
+              "w":0.7071068
+              },
               "scale": {
                 "x": 1.0,
                 "y": 1.0,

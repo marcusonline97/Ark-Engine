@@ -20,7 +20,7 @@ void JumpPlatform::OnContact(Engine::CollisionObject* obj, const glm::vec3& pos,
         auto controller = static_cast<Engine::KinematicCharacterController*>(obj);
         if (controller)
         {
-            controller->Jump(glm::vec3(0.0f, 20.0f, 0.0f));
+            controller->Jump(glm::vec3(0.0f, 7.5f, 0.0f));
         }
     }
 }

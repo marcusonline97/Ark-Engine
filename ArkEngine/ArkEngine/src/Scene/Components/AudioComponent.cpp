@@ -8,6 +8,7 @@ namespace Engine
 	{
 		if (json.contains("audio"))
 		{
+			float defaultVolume = json.value("volume", 1.0f);
 			auto& clipsObject = json["audio"];
 			for (auto& clip : clipsObject)
 			{
