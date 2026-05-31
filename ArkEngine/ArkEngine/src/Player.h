@@ -11,7 +11,12 @@ public:
 	void Update(float deltaTime) override;
 
 private:
+	void PreloadBulletAssets();
+
 	Engine::AnimationComponent* m_animationComponent = nullptr;
 	Engine::AudioComponent* m_audioComponent = nullptr;
 	Engine::PlayerControllerComponent* m_playerControllerComponent = nullptr;
+	std::shared_ptr<Engine::Material> m_bulletMaterial;
+	std::shared_ptr<Engine::Mesh> m_bulletMesh;
+	std::shared_ptr<Engine::Collider> m_bulletCollider;
 };
