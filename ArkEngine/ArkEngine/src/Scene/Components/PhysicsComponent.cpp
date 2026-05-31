@@ -88,6 +88,7 @@ namespace Engine
 
         m_rigidBody->SetPosition(pos);
         m_rigidBody->SetRotation(rot);
+		m_rigidBody->SetOwner(m_owner);
 
         ArkEngine::GetInstance().GetPhysicsManager().AddRigidBody(m_rigidBody.get());
     }
@@ -97,6 +98,7 @@ namespace Engine
         if (m_rigidBody)
         {
 			ArkEngine::GetInstance().GetPhysicsManager().RemoveRigidBody(m_rigidBody.get());
+			m_rigidBody->SetOwner(nullptr);
         }
     }
 
