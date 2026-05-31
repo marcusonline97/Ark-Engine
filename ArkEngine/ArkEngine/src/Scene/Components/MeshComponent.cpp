@@ -1,4 +1,4 @@
-#include "Scene/components/MeshComponent.h"
+#include "Scene/Components/MeshComponent.h"
 #include "Render/Material.h"
 #include "Render/Mesh.h"
 #include "Render/RenderQueue.h"

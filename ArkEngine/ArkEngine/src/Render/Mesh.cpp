@@ -1,11 +1,9 @@
-#include "render/Mesh.h"
-#include "graphics/GraphicsAPI.h"
+#include "Render/Mesh.h"
+#include "Graphics/GraphicsAPI.h"
 #include "Core/ArkEngine.h"
 
 #include <cgltf/cgltf.h>
 #include <algorithm>
-#include <filesystem>
-#include <functional>
 
 namespace
 {
