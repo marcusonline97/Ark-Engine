@@ -24,18 +24,22 @@
             },
             {
               "type": "AudioComponent",
+              "volume": 1.0,
               "audio": [
                 {
                   "name": "shoot",
-                  "path": "audio/shoot.wav"
+                  "path": "audio/WPN_MP7_Fire_04.wav",
+                  "volume": 0.2
                 },
                 {
                   "name": "step",
-                  "path": "audio/step.wav"
+                  "path": "audio/player_step_1.wav",
+                  "volume": 0.6
                 },
                 {
                   "name": "jump",
-                  "path": "audio/jump.wav"
+                  "path": "audio/player_step_4.wav",
+                  "volume": 0.8
                 }
               ]
             }
@@ -88,9 +92,9 @@
               "path": "models/CarbineGun/scene.gltf",
               "rotation": {
               "x":0.0,
-              "y":0.7071068,
+              "y":0.5,
               "z":0.0,
-              "w":0.7071068
+              "w":1.0
               },
               "scale": {
                 "x": 1.0,
@@ -825,7 +829,7 @@
           "type": "JumpPlatform",
           "position": {
             "x": -7,
-            "y": 1.75,
+            "y": 1.0,
             "z": 1
           },
           "components": [
@@ -1561,8 +1565,8 @@
           "name": "JumpPlatform",
           "type": "JumpPlatform",
           "position": {
-            "x": -7,
-            "y": 1.75,
+            "x": 0,
+            "y": 1.0,
             "z": 1
           },
           "components": [
