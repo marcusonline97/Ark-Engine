@@ -60,6 +60,13 @@ void Player::SetHasGun(bool hasGun)
             m_animationComponent = m_gunObject->GetComponent<Engine::AnimationComponent>();
         }
     }
+
+    m_hasGun = hasGun;
+
+    if (m_gunObject)
+    {
+        m_gunObject->SetActive(m_hasGun);
+    }
 }
 
 bool Player::HasGun() const
