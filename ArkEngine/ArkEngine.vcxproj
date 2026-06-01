@@ -366,6 +366,8 @@
     <None Include="ArkEngine\Resources\Shaders\world_background.frag" />
     <None Include="ArkEngine\Resources\Shaders\world_background.vert" />
     <None Include="ArkEngine\Resources\Shaders\wireframe_on_mesh.gs" />
+    <None Include="ArkEngine\Scenes\Development.sc" />
+    <None Include="ArkEngine\Scenes\scene.sc" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ArkEngine\Resources\Models\OBJ\cube\cube.obj">
