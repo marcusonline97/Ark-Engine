@@ -181,7 +181,7 @@
           "position": {
             "x": 15.5,
             "y": 3,
-            "z": 0
+            "z": 5
           },
           "components": [
             {
@@ -190,7 +190,7 @@
                 "type": "box",
                 "x": 1,
                 "y": 5,
-                "z": 30
+                "z": 20
               },
               "material": {
                 "path": "materials/checker.mat"
@@ -202,7 +202,469 @@
                 "type": "box",
                 "x": 1,
                 "y": 5,
-                "z": 30
+                "z": 20
+              },
+              "body": {
+                "mass": 0,
+                "friction": 0.5,
+                "type": "static"
+              }
+            }
+          ]
+        },
+        {
+          "name": "RightWallFrontSegment",
+          "position": {
+            "x": 15.5,
+            "y": 3,
+            "z": -12
+          },
+          "components": [
+            {
+              "type": "MeshComponent",
+              "mesh": {
+                "type": "box",
+                "x": 1,
+                "y": 5,
+                "z": 6
+              },
+              "material": {
+                "path": "materials/checker.mat"
+              }
+            },
+            {
+              "type": "PhysicsComponent",
+              "collider": {
+                "type": "box",
+                "x": 1,
+                "y": 5,
+                "z": 6
+              },
+              "body": {
+                "mass": 0,
+                "friction": 0.5,
+                "type": "static"
+              }
+            }
+          ]
+        },
+        {
+          "name": "CorridorFloor",
+          "position": {
+            "x": 24,
+            "y": 0,
+            "z": -7
+          },
+          "components": [
+            {
+              "type": "MeshComponent",
+              "mesh": {
+                "type": "box",
+                "x": 18,
+                "y": 1,
+                "z": 4
+              },
+              "material": {
+                "path": "materials/checker.mat"
+              }
+            },
+            {
+              "type": "PhysicsComponent",
+              "collider": {
+                "type": "box",
+                "x": 18,
+                "y": 1,
+                "z": 4
+              },
+              "body": {
+                "mass": 0,
+                "friction": 0.5,
+                "type": "static"
+              }
+            }
+          ]
+        },
+        {
+          "name": "CorridorLeftWall",
+          "position": {
+            "x": 24,
+            "y": 3,
+            "z": -9.5
+          },
+          "components": [
+            {
+              "type": "MeshComponent",
+              "mesh": {
+                "type": "box",
+                "x": 18,
+                "y": 5,
+                "z": 1
+              },
+              "material": {
+                "path": "materials/checker.mat"
+              }
+            },
+            {
+              "type": "PhysicsComponent",
+              "collider": {
+                "type": "box",
+                "x": 18,
+                "y": 5,
+                "z": 1
+              },
+              "body": {
+                "mass": 0,
+                "friction": 0.5,
+                "type": "static"
+              }
+            }
+          ]
+        },
+        {
+          "name": "CorridorRightWall",
+          "position": {
+            "x": 24,
+            "y": 3,
+            "z": -4.5
+          },
+          "components": [
+            {
+              "type": "MeshComponent",
+              "mesh": {
+                "type": "box",
+                "x": 18,
+                "y": 5,
+                "z": 1
+              },
+              "material": {
+                "path": "materials/checker.mat"
+              }
+            },
+            {
+              "type": "PhysicsComponent",
+              "collider": {
+                "type": "box",
+                "x": 18,
+                "y": 5,
+                "z": 1
+              },
+              "body": {
+                "mass": 0,
+                "friction": 0.5,
+                "type": "static"
+              }
+            }
+          ]
+        },
+        {
+          "name": "CorridorEndWall",
+          "position": {
+            "x": 33.5,
+            "y": 3,
+            "z": -7
+          },
+          "components": [
+            {
+              "type": "MeshComponent",
+              "mesh": {
+                "type": "box",
+                "x": 1,
+                "y": 5,
+                "z": 4
+              },
+              "material": {
+                "path": "materials/checker.mat"
+              }
+            },
+            {
+              "type": "PhysicsComponent",
+              "collider": {
+                "type": "box",
+                "x": 1,
+                "y": 5,
+                "z": 4
+              },
+              "body": {
+                "mass": 0,
+                "friction": 0.5,
+                "type": "static"
+              }
+            }
+          ]
+        },
+        {
+          "name": "ShootableCorridorCube1",
+          "type": "ShootableCube",
+          "position": {
+            "x": 20.5,
+            "y": 1.25,
+            "z": -8.1
+          },
+          "components": [
+            {
+              "type": "MeshComponent",
+              "mesh": {
+                "type": "box",
+                "x": 1.5,
+                "y": 1.5,
+                "z": 1.5
+              },
+              "material": {
+                "path": "materials/checker.mat",
+                "params": {
+                  "float3": [
+                    {
+                      "name": "color",
+                      "value0": 1.0,
+                      "value1": 0.35,
+                      "value2": 0.05
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "type": "PhysicsComponent",
+              "collider": {
+                "type": "box",
+                "x": 1.5,
+                "y": 1.5,
+                "z": 1.5
+              },
+              "body": {
+                "mass": 0,
+                "friction": 0.5,
+                "type": "static"
+              }
+            }
+          ]
+        },
+        {
+          "name": "ShootableCorridorCube2",
+          "type": "ShootableCube",
+          "position": {
+            "x": 20.5,
+            "y": 1.25,
+            "z": -7.0
+          },
+          "components": [
+            {
+              "type": "MeshComponent",
+              "mesh": {
+                "type": "box",
+                "x": 1.5,
+                "y": 1.5,
+                "z": 1.5
+              },
+              "material": {
+                "path": "materials/checker.mat",
+                "params": {
+                  "float3": [
+                    {
+                      "name": "color",
+                      "value0": 1.0,
+                      "value1": 0.65,
+                      "value2": 0.05
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "type": "PhysicsComponent",
+              "collider": {
+                "type": "box",
+                "x": 1.5,
+                "y": 1.5,
+                "z": 1.5
+              },
+              "body": {
+                "mass": 0,
+                "friction": 0.5,
+                "type": "static"
+              }
+            }
+          ]
+        },
+        {
+          "name": "ShootableCorridorCube3",
+          "type": "ShootableCube",
+          "position": {
+            "x": 20.5,
+            "y": 1.25,
+            "z": -5.9
+          },
+          "components": [
+            {
+              "type": "MeshComponent",
+              "mesh": {
+                "type": "box",
+                "x": 1.5,
+                "y": 1.5,
+                "z": 1.5
+              },
+              "material": {
+                "path": "materials/checker.mat",
+                "params": {
+                  "float3": [
+                    {
+                      "name": "color",
+                      "value0": 1.0,
+                      "value1": 0.35,
+                      "value2": 0.05
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "type": "PhysicsComponent",
+              "collider": {
+                "type": "box",
+                "x": 1.5,
+                "y": 1.5,
+                "z": 1.5
+              },
+              "body": {
+                "mass": 0,
+                "friction": 0.5,
+                "type": "static"
+              }
+            }
+          ]
+        },
+        {
+          "name": "ShootableCorridorCube4",
+          "type": "ShootableCube",
+          "position": {
+            "x": 26.5,
+            "y": 1.25,
+            "z": -8.1
+          },
+          "components": [
+            {
+              "type": "MeshComponent",
+              "mesh": {
+                "type": "box",
+                "x": 1.5,
+                "y": 1.5,
+                "z": 1.5
+              },
+              "material": {
+                "path": "materials/checker.mat",
+                "params": {
+                  "float3": [
+                    {
+                      "name": "color",
+                      "value0": 0.8,
+                      "value1": 0.2,
+                      "value2": 1.0
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "type": "PhysicsComponent",
+              "collider": {
+                "type": "box",
+                "x": 1.5,
+                "y": 1.5,
+                "z": 1.5
+              },
+              "body": {
+                "mass": 0,
+                "friction": 0.5,
+                "type": "static"
+              }
+            }
+          ]
+        },
+        {
+          "name": "ShootableCorridorCube5",
+          "type": "ShootableCube",
+          "position": {
+            "x": 26.5,
+            "y": 1.25,
+            "z": -7.0
+          },
+          "components": [
+            {
+              "type": "MeshComponent",
+              "mesh": {
+                "type": "box",
+                "x": 1.5,
+                "y": 1.5,
+                "z": 1.5
+              },
+              "material": {
+                "path": "materials/checker.mat",
+                "params": {
+                  "float3": [
+                    {
+                      "name": "color",
+                      "value0": 0.55,
+                      "value1": 0.2,
+                      "value2": 1.0
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "type": "PhysicsComponent",
+              "collider": {
+                "type": "box",
+                "x": 1.5,
+                "y": 1.5,
+                "z": 1.5
+              },
+              "body": {
+                "mass": 0,
+                "friction": 0.5,
+                "type": "static"
+              }
+            }
+          ]
+        },
+        {
+          "name": "ShootableCorridorCube6",
+          "type": "ShootableCube",
+          "position": {
+            "x": 26.5,
+            "y": 1.25,
+            "z": -5.9
+          },
+          "components": [
+            {
+              "type": "MeshComponent",
+              "mesh": {
+                "type": "box",
+                "x": 1.5,
+                "y": 1.5,
+                "z": 1.5
+              },
+              "material": {
+                "path": "materials/checker.mat",
+                "params": {
+                  "float3": [
+                    {
+                      "name": "color",
+                      "value0": 0.8,
+                      "value1": 0.2,
+                      "value2": 1.0
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "type": "PhysicsComponent",
+              "collider": {
+                "type": "box",
+                "x": 1.5,
+                "y": 1.5,
+                "z": 1.5
               },
               "body": {
                 "mass": 0,
