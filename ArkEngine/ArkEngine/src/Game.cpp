@@ -207,6 +207,7 @@ void Game::EnterMenuMode()
     engine.GetUIInputSystem().SetActive(true);
     engine.SetCursorEnabled(true);
     m_sceneEditor.SetActive(false);
+    Engine::ArkEngine::GetInstance().SetEditorViewportActive(false);
 
     if (m_mainPlayer)
     {
@@ -234,6 +235,7 @@ void Game::EnterPlayMode()
     engine.GetUIInputSystem().SetActive(false);
     engine.SetCursorEnabled(false);
     m_sceneEditor.SetActive(false);
+    Engine::ArkEngine::GetInstance().SetEditorViewportActive(false);
 
     if (m_mainPlayer)
     {
@@ -286,6 +288,7 @@ void Game::EnterEditMode()
     }
 
     m_sceneEditor.SetActive(true);
+    Engine::ArkEngine::GetInstance().SetEditorViewportActive(true);
     m_mode = Mode::Editing;
 }
 

@@ -1,82 +1,231 @@
-#include "SceneEditor.h"
+﻿#include "SceneEditor.h"
 
 #include "Scene/Components/LightComponent.h"
+#include "Scene/Components/AudioComponent.h"
+#include "Scene/Components/MeshComponent.h"
+#include "Scene/Components/PhysicsComponent.h"
+#include "Scene/Components/CameraComponent.h"
+#include "Scene/Components/AnimationComponent.h"
+#include "Core/ArkEngine.h"
 #include "imgui/imgui.h"
+#include "imgui/imgui_internal.h"
 
+#include <GLAD/glad.h>
 #include <algorithm>
+#include <cctype>
 #include <glm/gtc/quaternion.hpp>
 
 namespace Engine
 {
+	// ═══════════════════════════════════════════════════════════════════
+	//  Public API
+	// ═══════════════════════════════════════════════════════════════════
+
 	void SceneEditor::SetScene(const std::shared_ptr<Scene>& scene, const std::string& scenePath)
 	{
 		m_scene = scene;
 		m_scenePath = scenePath;
+		m_dockspaceBuilt = false;   // rebuild layout for new scene
 		ClearSelection();
+
+		m_contentRoot = ArkEngine::GetInstance().GetFileSystem().GetAssetsFolder();
+		m_contentCurrent = m_contentRoot;
+		RefreshDirectory(m_contentCurrent);
 	}
 
-	void SceneEditor::SetActive(bool active)
-	{
-		m_active = active;
-	}
-
-	bool SceneEditor::IsActive() const
-	{
-		return m_active;
-	}
+	void SceneEditor::SetActive(bool active) { m_active = active; }
+	bool SceneEditor::IsActive()       const { return m_active; }
 
 	void SceneEditor::Render()
 	{
-		if (!m_active || !m_scene)
-		{
-			return;
-		}
+		if (!m_active || !m_scene) return;
 
-		DrawToolbar();
+		DrawEditorDockspace();
+		DrawViewport();
 		DrawHierarchy();
 		DrawInspector();
+		DrawContentBrowser();
 	}
 
 	void SceneEditor::ClearSelection()
 	{
 		m_selectedObject = nullptr;
 		m_nameBufferObject = nullptr;
-		std::fill(m_nameBuffer.begin(), m_nameBuffer.end(), '\0');
+		m_nameBuffer.fill('\0');
 	}
 
-	void SceneEditor::DrawToolbar()
+	// ═══════════════════════════════════════════════════════════════════
+	//  Dockspace
+	// ═══════════════════════════════════════════════════════════════════
+
+	void SceneEditor::DrawEditorDockspace()
 	{
-		ImGui::Begin("Editor");
-		ImGui::Text("Editing: %s", m_scenePath.c_str());
-		ImGui::TextUnformatted("Camera: use WASD to fly, E/Space up, Q/Ctrl down, Shift to speed up, hold RMB to look");
-		if (ImGui::Button("Save Scene"))
+		ImGuiViewport* vp = ImGui::GetMainViewport();
+		ImGui::SetNextWindowPos(vp->WorkPos);
+		ImGui::SetNextWindowSize(vp->WorkSize);
+		ImGui::SetNextWindowViewport(vp->ID);
+
+		ImGuiWindowFlags hostFlags =
+			ImGuiWindowFlags_NoDocking |
+			ImGuiWindowFlags_NoTitleBar |
+			ImGuiWindowFlags_NoCollapse |
+			ImGuiWindowFlags_NoResize |
+			ImGuiWindowFlags_NoMove |
+			ImGuiWindowFlags_NoBringToFrontOnFocus |
+			ImGuiWindowFlags_NoNavFocus |
+			ImGuiWindowFlags_NoBackground;
+
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+		ImGui::Begin("##EditorHost", nullptr, hostFlags);
+		ImGui::PopStyleVar(3);
+
+		ImGuiID dsID = ImGui::GetID("ArkEditorDockspace");
+		ImGui::DockSpace(dsID, ImVec2(0, 0), ImGuiDockNodeFlags_PassthruCentralNode);
+
+		if (!m_dockspaceBuilt)
 		{
-			SaveScene();
+			m_dockspaceBuilt = true;
+
+			ImGui::DockBuilderRemoveNode(dsID);
+			ImGui::DockBuilderAddNode(dsID, ImGuiDockNodeFlags_DockSpace);
+			ImGui::DockBuilderSetNodeSize(dsID, vp->WorkSize);
+
+			// left | rest
+			ImGuiID leftID, restID;
+			ImGui::DockBuilderSplitNode(dsID, ImGuiDir_Left, 0.20f, &leftID, &restID);
+
+			// rest -> right | centre
+			ImGuiID rightID, centreID;
+			ImGui::DockBuilderSplitNode(restID, ImGuiDir_Right, 0.25f, &rightID, &centreID);
+
+			// centre -> bottom (content browser) | viewport
+			ImGuiID bottomID, viewID;
+			ImGui::DockBuilderSplitNode(centreID, ImGuiDir_Down, 0.26f, &bottomID, &viewID);
+
+			ImGui::DockBuilderDockWindow("Hierarchy", leftID);
+			ImGui::DockBuilderDockWindow("Viewport", viewID);
+			ImGui::DockBuilderDockWindow("Inspector", rightID);
+			ImGui::DockBuilderDockWindow("Content Browser", bottomID);
+
+			ImGui::DockBuilderFinish(dsID);
 		}
-		ImGui::SameLine();
-		if (ImGui::Button("Add Root Object"))
-		{
-			CreateObject(nullptr);
-		}
-		ImGui::InputText("New Object Name", m_newObjectName.data(), m_newObjectName.size());
-		if (!m_status.empty())
-		{
-			ImGui::Separator();
-			ImGui::TextWrapped("%s", m_status.c_str());
-		}
+
 		ImGui::End();
 	}
 
+	// ═══════════════════════════════════════════════════════════════════
+	//  Viewport  –  shows the FBO colour texture + toolbar strip
+	// ═══════════════════════════════════════════════════════════════════
+
+	void SceneEditor::DrawViewport()
+	{
+		// Remove all padding so the image fills edge-to-edge
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
+		ImGui::Begin("Viewport");
+		ImGui::PopStyleVar();
+
+		// ── Toolbar strip ────────────────────────────────────────
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(8, 4));
+		ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(0.08f, 0.09f, 0.11f, 1.0f));
+		ImGui::BeginChild("##VPToolbar", ImVec2(0, 30), false,
+			ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
+
+		ImGui::SetCursorPosY((30.0f - ImGui::GetTextLineHeight()) * 0.5f); // vertical centre
+		ImGui::SetCursorPosX(8.0f);
+
+		// Save button
+		if (ImGui::Button("  Save  "))
+		{
+			SaveScene();
+		}
+		ImGui::SameLine(0, 12);
+
+		// New-object name + add button
+		ImGui::SetNextItemWidth(140.0f);
+		ImGui::InputText("##NewName", m_newObjectName.data(), m_newObjectName.size());
+		ImGui::SameLine(0, 4);
+		if (ImGui::Button("Add Object"))
+		{
+			CreateObject(nullptr);
+		}
+		ImGui::SameLine(0, 20);
+
+		// Scene path label
+		ImGui::TextDisabled("%s", m_scenePath.c_str());
+		ImGui::SameLine(0, 20);
+
+		// Camera hint
+		ImGui::TextDisabled("WASD fly | E/Space up | Q/Ctrl dn | Shift fast | RMB look");
+
+		// Status message (right-aligned)
+		if (!m_status.empty())
+		{
+			const float textW = ImGui::CalcTextSize(m_status.c_str()).x;
+			const float avail = ImGui::GetContentRegionAvail().x;
+			if (textW < avail - 8.0f)
+			{
+				ImGui::SameLine(0, avail - textW - 8.0f);
+			}
+			else
+			{
+				ImGui::SameLine(0, 8);
+			}
+			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.49f, 0.51f, 1.0f, 1.0f));
+			ImGui::TextUnformatted(m_status.c_str());
+			ImGui::PopStyleColor();
+		}
+
+		ImGui::EndChild();
+		ImGui::PopStyleColor();
+		ImGui::PopStyleVar();
+
+		// ── FBO image ────────────────────────────────────────────
+		// Fill the rest of the Viewport window with the rendered scene
+		ImVec2 viewSize = ImGui::GetContentRegionAvail();
+		if (viewSize.x > 1 && viewSize.y > 1)
+		{
+			GLuint texID = ArkEngine::GetInstance().GetSceneColorTexture();
+			if (texID)
+			{
+				// ImGui UV: OpenGL textures are stored bottom-up, so flip V
+				ImGui::Image(
+					(ImTextureID)(uintptr_t)texID,
+					viewSize,
+					ImVec2(0, 1),   // UV top-left  = (0,1) = bottom of GL texture
+					ImVec2(1, 0)    // UV bot-right  = (1,0) = top of GL texture
+				);
+			}
+		}
+
+		ImGui::End();
+	}
+
+	// ═══════════════════════════════════════════════════════════════════
+	//  Hierarchy
+	// ═══════════════════════════════════════════════════════════════════
+
 	void SceneEditor::DrawHierarchy()
 	{
-		ImGui::Begin("World Inspector");
+		ImGui::Begin("Hierarchy");
 
-		for (const auto& object : m_scene->GetRootObjects())
+		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.49f, 0.51f, 1.0f, 1.0f));
+		ImGui::TextUnformatted("  World");
+		ImGui::PopStyleColor();
+		ImGui::Separator();
+
+		for (const auto& obj : m_scene->GetRootObjects())
 		{
-			if (object && object->IsAlive())
-			{
-				DrawObjectNode(object.get());
-			}
+			if (obj && obj->IsAlive())
+				DrawObjectNode(obj.get());
+		}
+
+		if (ImGui::BeginPopupContextWindow("##HierCtx",
+			ImGuiPopupFlags_MouseButtonRight | ImGuiPopupFlags_NoOpenOverItems))
+		{
+			if (ImGui::MenuItem("Create Empty Object")) CreateObject(nullptr);
+			ImGui::EndPopup();
 		}
 
 		ImGui::End();
@@ -84,59 +233,63 @@ namespace Engine
 
 	void SceneEditor::DrawObjectNode(GameObject* object)
 	{
-		if (!object || !object->IsAlive())
-		{
-			return;
-		}
+		if (!object || !object->IsAlive()) return;
 
 		ImGuiTreeNodeFlags flags =
 			ImGuiTreeNodeFlags_OpenOnArrow |
-			ImGuiTreeNodeFlags_SpanAvailWidth;
+			ImGuiTreeNodeFlags_SpanAvailWidth |
+			ImGuiTreeNodeFlags_OpenOnDoubleClick;
 
-		if (object == m_selectedObject)
-		{
-			flags |= ImGuiTreeNodeFlags_Selected;
-		}
+		if (object == m_selectedObject)         flags |= ImGuiTreeNodeFlags_Selected;
+		if (object->GetChildren().empty())      flags |= ImGuiTreeNodeFlags_Leaf;
 
-		if (object->GetChildren().empty())
-		{
-			flags |= ImGuiTreeNodeFlags_Leaf;
-		}
+		if (!object->IsActive())
+			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f));
+
+		const char* prefix = object->GetComponents().empty() ? "  " : "# ";
+		const std::string label = std::string(prefix) + object->GetName();
 
 		const bool open = ImGui::TreeNodeEx(
-			reinterpret_cast<void*>(object),
-			flags,
-			"%s",
-			object->GetName().c_str());
+			reinterpret_cast<void*>(object), flags, "%s", label.c_str());
 
-		if (ImGui::IsItemClicked())
-		{
-			SelectObject(object);
-		}
+		if (!object->IsActive()) ImGui::PopStyleColor();
+
+		if (ImGui::IsItemClicked()) SelectObject(object);
 
 		if (ImGui::BeginPopupContextItem())
 		{
-			if (ImGui::MenuItem("Add Child"))
+			if (ImGui::MenuItem("Add Child")) CreateObject(object);
+			ImGui::Separator();
+			if (ImGui::MenuItem("Duplicate"))
 			{
-				CreateObject(object);
+				auto* copy = m_scene->CreateObject(object->GetName() + " (copy)", object->GetParent());
+				if (copy)
+				{
+					copy->SetPosition(object->GetPosition());
+					copy->SetRotation(object->GetRotation());
+					copy->SetScale(object->GetScale());
+					SelectObject(copy);
+					m_status = "Duplicated: " + object->GetName();
+				}
 			}
-			if (ImGui::MenuItem("Delete"))
-			{
-				SelectObject(object);
-				DeleteSelected();
-			}
+			ImGui::Separator();
+			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.4f, 0.4f, 1.0f));
+			if (ImGui::MenuItem("Delete")) { SelectObject(object); DeleteSelected(); }
+			ImGui::PopStyleColor();
 			ImGui::EndPopup();
 		}
 
 		if (open)
 		{
 			for (const auto& child : object->GetChildren())
-			{
 				DrawObjectNode(child.get());
-			}
 			ImGui::TreePop();
 		}
 	}
+
+	// ═══════════════════════════════════════════════════════════════════
+	//  Inspector
+	// ═══════════════════════════════════════════════════════════════════
 
 	void SceneEditor::DrawInspector()
 	{
@@ -144,158 +297,371 @@ namespace Engine
 
 		if (!m_selectedObject || !m_selectedObject->IsAlive())
 		{
-			ImGui::TextUnformatted("Select an object in the World Inspector.");
+			ImGui::Spacing();
+			ImGui::SetCursorPosX((ImGui::GetContentRegionAvail().x - 200.0f) * 0.5f);
+			ImGui::TextDisabled("Select an object in the Hierarchy");
 			ImGui::End();
 			return;
 		}
 
+		// Sync name buffer
 		if (m_nameBufferObject != m_selectedObject)
 		{
-			std::fill(m_nameBuffer.begin(), m_nameBuffer.end(), '\0');
-			const auto& objectName = m_selectedObject->GetName();
-			std::copy_n(
-				objectName.c_str(),
-				std::min(objectName.size(), m_nameBuffer.size() - 1),
-				m_nameBuffer.data());
+			m_nameBuffer.fill('\0');
+			const auto& n = m_selectedObject->GetName();
+			std::copy_n(n.c_str(), std::min(n.size(), m_nameBuffer.size() - 1), m_nameBuffer.data());
 			m_nameBufferObject = m_selectedObject;
 		}
 
-		if (ImGui::InputText("Name", m_nameBuffer.data(), m_nameBuffer.size()))
-		{
-			m_selectedObject->SetName(m_nameBuffer.data());
-		}
+		// Header
+		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.49f, 0.51f, 1.0f, 1.0f));
+		ImGui::TextUnformatted("  Entity");
+		ImGui::PopStyleColor();
+		ImGui::Separator();
+		ImGui::Spacing();
 
+		// Active + name row
 		bool active = m_selectedObject->IsActive();
-		if (ImGui::Checkbox("Active", &active))
+		if (ImGui::Checkbox("##active", &active)) m_selectedObject->SetActive(active);
+		ImGui::SameLine();
+		ImGui::SetNextItemWidth(-1.0f);
+		if (ImGui::InputText("##Name", m_nameBuffer.data(), m_nameBuffer.size()))
+			m_selectedObject->SetName(m_nameBuffer.data());
+
+		ImGui::Spacing();
+
+		// Transform
+		ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+		if (ImGui::CollapsingHeader("  Transform"))
 		{
-			m_selectedObject->SetActive(active);
-		}
+			ImGui::Spacing();
+			constexpr float labelW = 80.0f;
 
-		if (ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen))
-		{
-			glm::vec3 position = m_selectedObject->GetPosition();
-			float pos[3] = { position.x, position.y, position.z };
-			if (ImGui::DragFloat3("Position", pos, 0.1f))
-			{
-				m_selectedObject->SetPosition(glm::vec3(pos[0], pos[1], pos[2]));
-			}
+			glm::vec3 pos = m_selectedObject->GetPosition();
+			float p[3] = { pos.x, pos.y, pos.z };
+			ImGui::Text("Position"); ImGui::SameLine(labelW);
+			ImGui::SetNextItemWidth(-1.0f);
+			if (ImGui::DragFloat3("##Pos", p, 0.1f))
+				m_selectedObject->SetPosition({ p[0], p[1], p[2] });
 
-			glm::quat rotation = m_selectedObject->GetRotation();
-			float rot[4] = { rotation.x, rotation.y, rotation.z, rotation.w };
-			if (ImGui::DragFloat4("Rotation (x y z w)", rot, 0.01f))
-			{
-				m_selectedObject->SetRotation(glm::normalize(glm::quat(rot[3], rot[0], rot[1], rot[2])));
-			}
+			glm::quat rot = m_selectedObject->GetRotation();
+			float r[4] = { rot.x, rot.y, rot.z, rot.w };
+			ImGui::Text("Rotation"); ImGui::SameLine(labelW);
+			ImGui::SetNextItemWidth(-1.0f);
+			if (ImGui::DragFloat4("##Rot", r, 0.01f))
+				m_selectedObject->SetRotation(glm::normalize(glm::quat(r[3], r[0], r[1], r[2])));
 
-			glm::vec3 scale = m_selectedObject->GetScale();
-			float scl[3] = { scale.x, scale.y, scale.z };
-			if (ImGui::DragFloat3("Scale", scl, 0.1f))
-			{
-				m_selectedObject->SetScale(glm::vec3(scl[0], scl[1], scl[2]));
-			}
+			glm::vec3 scl = m_selectedObject->GetScale();
+			float s[3] = { scl.x, scl.y, scl.z };
+			ImGui::Text("Scale"); ImGui::SameLine(labelW);
+			ImGui::SetNextItemWidth(-1.0f);
+			if (ImGui::DragFloat3("##Scl", s, 0.05f))
+				m_selectedObject->SetScale({ s[0], s[1], s[2] });
+
+			ImGui::Spacing();
 		}
 
 		DrawComponents(m_selectedObject);
 
-		if (ImGui::Button("Add Child Object"))
-		{
+		ImGui::Spacing();
+		ImGui::Separator();
+		ImGui::Spacing();
+
+		const float btnW = (ImGui::GetContentRegionAvail().x -
+			ImGui::GetStyle().ItemSpacing.x) * 0.5f;
+		if (ImGui::Button("Add Child Object", ImVec2(btnW, 0)))
 			CreateObject(m_selectedObject);
-		}
 		ImGui::SameLine();
-		if (ImGui::Button("Delete Object"))
-		{
-			DeleteSelected();
-		}
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.55f, 0.1f, 0.1f, 1.0f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.75f, 0.2f, 0.2f, 1.0f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.85f, 0.1f, 0.1f, 1.0f));
+		if (ImGui::Button("Delete Object", ImVec2(btnW, 0))) DeleteSelected();
+		ImGui::PopStyleColor(3);
 
 		ImGui::End();
 	}
 
 	void SceneEditor::DrawComponents(GameObject* object)
 	{
-		if (!ImGui::CollapsingHeader("Components", ImGuiTreeNodeFlags_DefaultOpen))
-		{
-			return;
-		}
+		ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+		if (!ImGui::CollapsingHeader("  Components")) return;
 
-		Component* componentToRemove = nullptr;
-		for (const auto& component : object->GetComponents())
-		{
-			if (!component)
-			{
-				continue;
-			}
+		ImGui::Spacing();
 
-			const std::string typeName = ComponentFactory::GetInstance().GetTypeName(component->GetTypeId());
-			ImGui::PushID(component.get());
-			if (ImGui::TreeNode(typeName.c_str()))
+		Component* toRemove = nullptr;
+
+		for (const auto& comp : object->GetComponents())
+		{
+			if (!comp) continue;
+
+			const std::string typeName =
+				ComponentFactory::GetInstance().GetTypeName(comp->GetTypeId());
+
+			ImGui::PushID(comp.get());
+
+			// Purple accent bar on the left of each node
+			const ImVec2 nodeMin = ImGui::GetCursorScreenPos();
+			const bool nodeOpen = ImGui::TreeNode(typeName.c_str());
+			ImGui::GetWindowDrawList()->AddRectFilled(
+				ImVec2(nodeMin.x - 4.0f, nodeMin.y + 2.0f),
+				ImVec2(nodeMin.x - 1.0f, nodeMin.y + ImGui::GetTextLineHeight() - 2.0f),
+				IM_COL32(126, 130, 255, 200));
+
+			if (nodeOpen)
 			{
-				if (auto light = dynamic_cast<LightComponent*>(component.get()))
+				ImGui::Spacing();
+
+				if (auto* light = dynamic_cast<LightComponent*>(comp.get()))
 				{
-					glm::vec3 color = light->GetColor();
-					float col[3] = { color.r, color.g, color.b };
-					if (ImGui::ColorEdit3("Color", col))
-					{
-						light->SetColor(glm::vec3(col[0], col[1], col[2]));
-					}
+					glm::vec3 col = light->GetColor();
+					float c[3] = { col.r, col.g, col.b };
+					if (ImGui::ColorEdit3("Color", c))
+						light->SetColor({ c[0], c[1], c[2] });
+				}
+				else if (dynamic_cast<CameraComponent*>(comp.get()))
+				{
+					ImGui::TextDisabled("FOV / near / far configured in code.");
+				}
+				else if (dynamic_cast<AudioComponent*>(comp.get()))
+				{
+					ImGui::TextDisabled("Audio clips loaded from JSON.");
+				}
+				else if (auto* anim = dynamic_cast<AnimationComponent*>(comp.get()))
+				{
+					ImGui::TextDisabled("Playing: %s", anim->IsPlaying() ? "yes" : "no");
 				}
 				else
 				{
-					ImGui::TextWrapped("This component is preserved in JSON and can be removed, but does not have custom editor fields yet.");
+					ImGui::TextDisabled("No editable fields — preserved in JSON.");
 				}
 
-				if (ImGui::Button("Remove Component"))
-				{
-					componentToRemove = component.get();
-				}
+				ImGui::Spacing();
+				ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.45f, 0.08f, 0.08f, 1.0f));
+				ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.65f, 0.15f, 0.15f, 1.0f));
+				ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.75f, 0.08f, 0.08f, 1.0f));
+				if (ImGui::Button("Remove Component")) toRemove = comp.get();
+				ImGui::PopStyleColor(3);
+				ImGui::Spacing();
 				ImGui::TreePop();
 			}
 			ImGui::PopID();
 		}
 
-		if (componentToRemove)
-		{
-			object->RemoveComponent(componentToRemove);
-		}
+		if (toRemove) object->RemoveComponent(toRemove);
 
-		const auto& componentNames = ComponentFactory::GetInstance().GetRegisteredNames();
-		if (!componentNames.empty())
-		{
-			m_componentTypeIndex = std::clamp(
-				m_componentTypeIndex,
-				0,
-				static_cast<int>(componentNames.size()) - 1);
+		// Add component
+		ImGui::Spacing();
+		ImGui::Separator();
+		ImGui::Spacing();
 
-			const char* preview = componentNames[m_componentTypeIndex].c_str();
-			if (ImGui::BeginCombo("Component Type", preview))
+		const auto& names = ComponentFactory::GetInstance().GetRegisteredNames();
+		if (!names.empty())
+		{
+			m_componentTypeIndex = std::clamp(m_componentTypeIndex, 0, (int)names.size() - 1);
+			ImGui::SetNextItemWidth(-80.0f);
+			if (ImGui::BeginCombo("##CompType", names[m_componentTypeIndex].c_str()))
 			{
-				for (int i = 0; i < static_cast<int>(componentNames.size()); ++i)
+				for (int i = 0; i < (int)names.size(); ++i)
 				{
-					const bool selected = i == m_componentTypeIndex;
-					if (ImGui::Selectable(componentNames[i].c_str(), selected))
-					{
-						m_componentTypeIndex = i;
-					}
-					if (selected)
-					{
-						ImGui::SetItemDefaultFocus();
-					}
+					const bool sel = (i == m_componentTypeIndex);
+					if (ImGui::Selectable(names[i].c_str(), sel)) m_componentTypeIndex = i;
+					if (sel) ImGui::SetItemDefaultFocus();
 				}
 				ImGui::EndCombo();
 			}
-
-			if (ImGui::Button("Add Component"))
+			ImGui::SameLine();
+			if (ImGui::Button("Add##Comp", ImVec2(-1.0f, 0.0f)))
 			{
-				const std::string& componentName = componentNames[m_componentTypeIndex];
-				Component* component = ComponentFactory::GetInstance().CreateComponent(componentName);
-				if (component)
+				const std::string& cname = names[m_componentTypeIndex];
+				if (Component* c = ComponentFactory::GetInstance().CreateComponent(cname))
 				{
-					component->SetSerializedData({ {"type", componentName} });
-					object->AddComponent(component);
-					m_status = "Added component: " + componentName;
+					c->SetSerializedData({ {"type", cname} });
+					object->AddComponent(c);
+					m_status = "Added component: " + cname;
 				}
 			}
 		}
 	}
+
+	// ═══════════════════════════════════════════════════════════════════
+	//  Content Browser
+	// ═══════════════════════════════════════════════════════════════════
+
+	const char* SceneEditor::FileIcon(const std::filesystem::path& p)
+	{
+		if (std::filesystem::is_directory(p)) return "[DIR]";
+		if (IsImageFile(p))                   return "[IMG]";
+		if (IsMaterialFile(p))                return "[MAT]";
+		if (IsSceneFile(p))                   return "[SCN]";
+		if (IsAudioFile(p))                   return "[SFX]";
+		if (IsMeshFile(p))                    return "[MSH]";
+		return "[FILE]";
+	}
+
+	bool SceneEditor::IsImageFile(const std::filesystem::path& p)
+	{
+		auto e = p.extension().string();
+		for (auto& c : e) c = (char)std::tolower((unsigned char)c);
+		return e == ".png" || e == ".jpg" || e == ".jpeg" || e == ".tga" || e == ".bmp";
+	}
+	bool SceneEditor::IsMaterialFile(const std::filesystem::path& p)
+	{
+		auto e = p.extension().string();
+		return e == ".mat" || e == ".material";
+	}
+	bool SceneEditor::IsSceneFile(const std::filesystem::path& p)
+	{
+		auto e = p.extension().string();
+		return e == ".sc" || e == ".scene" || e == ".json";
+	}
+	bool SceneEditor::IsAudioFile(const std::filesystem::path& p)
+	{
+		auto e = p.extension().string();
+		for (auto& c : e) c = (char)std::tolower((unsigned char)c);
+		return e == ".wav" || e == ".mp3" || e == ".ogg" || e == ".flac";
+	}
+	bool SceneEditor::IsMeshFile(const std::filesystem::path& p)
+	{
+		auto e = p.extension().string();
+		for (auto& c : e) c = (char)std::tolower((unsigned char)c);
+		return e == ".gltf" || e == ".glb" || e == ".obj" || e == ".fbx";
+	}
+
+	void SceneEditor::RefreshDirectory(const std::filesystem::path& dir)
+	{
+		m_contentEntries.clear();
+		if (!std::filesystem::exists(dir) || !std::filesystem::is_directory(dir)) return;
+
+		std::vector<std::filesystem::path> dirs, files;
+		for (auto& entry : std::filesystem::directory_iterator(dir))
+		{
+			if (entry.is_directory()) dirs.push_back(entry.path());
+			else                      files.push_back(entry.path());
+		}
+		std::sort(dirs.begin(), dirs.end());
+		std::sort(files.begin(), files.end());
+		for (auto& d : dirs)  m_contentEntries.push_back(d);
+		for (auto& f : files) m_contentEntries.push_back(f);
+	}
+
+	void SceneEditor::DrawContentBrowser()
+	{
+		ImGui::Begin("Content Browser");
+
+		// Top bar
+		const bool canGoUp = (m_contentCurrent != m_contentRoot);
+		if (!canGoUp) ImGui::BeginDisabled();
+		if (ImGui::Button("< Back"))
+		{
+			m_contentCurrent = m_contentCurrent.parent_path();
+			RefreshDirectory(m_contentCurrent);
+			m_contentFilterBuf.fill('\0');
+			m_contentFilter.clear();
+		}
+		if (!canGoUp) ImGui::EndDisabled();
+
+		ImGui::SameLine();
+		auto rel = std::filesystem::relative(m_contentCurrent, m_contentRoot);
+		std::string breadcrumb = "Assets";
+		if (rel != "." && !rel.empty())
+			for (const auto& part : rel) breadcrumb += " / " + part.string();
+
+		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.49f, 0.51f, 1.0f, 1.0f));
+		ImGui::TextUnformatted(breadcrumb.c_str());
+		ImGui::PopStyleColor();
+
+		ImGui::SameLine(ImGui::GetContentRegionAvail().x - 200.0f);
+		ImGui::SetNextItemWidth(200.0f);
+		if (ImGui::InputTextWithHint("##Filter", "Filter...",
+			m_contentFilterBuf.data(), m_contentFilterBuf.size()))
+		{
+			m_contentFilter = m_contentFilterBuf.data();
+			for (auto& c : m_contentFilter) c = (char)std::tolower((unsigned char)c);
+		}
+
+		ImGui::Separator();
+
+		// Grid
+		constexpr float itemW = 88.0f;
+		constexpr float itemH = 72.0f;
+		const float     panelW = ImGui::GetContentRegionAvail().x;
+		const int       cols = std::max(1, (int)(panelW / (itemW + 8.0f)));
+		ImGui::Columns(cols, nullptr, false);
+
+		for (const auto& entry : m_contentEntries)
+		{
+			const bool isDir = std::filesystem::is_directory(entry);
+			std::string fname = entry.filename().string();
+
+			if (!m_contentFilter.empty())
+			{
+				std::string lower = fname;
+				for (auto& c : lower) c = (char)std::tolower((unsigned char)c);
+				if (lower.find(m_contentFilter) == std::string::npos)
+				{
+					ImGui::NextColumn(); continue;
+				}
+			}
+
+			ImGui::PushID(fname.c_str());
+
+			ImVec4 iconCol = ImVec4(0.75f, 0.75f, 0.75f, 1.0f);
+			if (isDir)                   iconCol = ImVec4(0.98f, 0.82f, 0.37f, 1.0f);
+			else if (IsImageFile(entry)) iconCol = ImVec4(0.45f, 0.85f, 0.65f, 1.0f);
+			else if (IsMaterialFile(entry)) iconCol = ImVec4(0.55f, 0.60f, 1.00f, 1.0f);
+			else if (IsSceneFile(entry)) iconCol = ImVec4(1.00f, 0.65f, 0.25f, 1.0f);
+			else if (IsAudioFile(entry)) iconCol = ImVec4(0.90f, 0.45f, 0.90f, 1.0f);
+			else if (IsMeshFile(entry))  iconCol = ImVec4(0.40f, 0.80f, 1.00f, 1.0f);
+
+			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.12f, 0.13f, 0.15f, 1.0f));
+			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.20f, 0.18f, 0.54f, 1.0f));
+			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.24f, 0.22f, 0.60f, 1.0f));
+			ImGui::PushStyleColor(ImGuiCol_Text, iconCol);
+
+			const std::string btnLabel = std::string(FileIcon(entry)) + "\n" + fname;
+			if (ImGui::Button(btnLabel.c_str(), ImVec2(itemW, itemH)))
+			{
+				if (isDir)
+				{
+					m_contentCurrent = entry;
+					RefreshDirectory(m_contentCurrent);
+					m_contentFilterBuf.fill('\0');
+					m_contentFilter.clear();
+				}
+				else
+				{
+					auto relPath = std::filesystem::relative(entry, m_contentRoot).string();
+					std::replace(relPath.begin(), relPath.end(), '\\', '/');
+					m_status = "Selected: " + relPath;
+				}
+			}
+			ImGui::PopStyleColor(4);
+
+			if (ImGui::IsItemHovered())
+			{
+				auto relPath = std::filesystem::relative(entry, m_contentRoot).string();
+				std::replace(relPath.begin(), relPath.end(), '\\', '/');
+				ImGui::SetTooltip("%s", relPath.c_str());
+			}
+
+			ImGui::NextColumn();
+			ImGui::PopID();
+		}
+
+		ImGui::Columns(1);
+		if (m_contentEntries.empty())
+		{
+			ImGui::Spacing();
+			ImGui::SetCursorPosX((ImGui::GetContentRegionAvail().x - 120.0f) * 0.5f);
+			ImGui::TextDisabled("(folder is empty)");
+		}
+
+		ImGui::End();
+	}
+
+	// ═══════════════════════════════════════════════════════════════════
+	//  Helpers
+	// ═══════════════════════════════════════════════════════════════════
 
 	void SceneEditor::SelectObject(GameObject* object)
 	{
@@ -305,49 +671,32 @@ namespace Engine
 
 	GameObject* SceneEditor::CreateObject(GameObject* parent)
 	{
-		if (!m_scene)
-		{
-			return nullptr;
-		}
-
+		if (!m_scene) return nullptr;
 		std::string name = m_newObjectName.data();
-		if (name.empty())
+		if (name.empty()) name = "New Object";
+		GameObject* obj = m_scene->CreateObject(name, parent);
+		if (obj)
 		{
-			name = "New Object";
+			obj->SetSerializedData({ {"name", name} });
+			SelectObject(obj);
+			m_status = "Created: " + name;
 		}
-
-		GameObject* object = m_scene->CreateObject(name, parent);
-		if (object)
-		{
-			object->SetSerializedData({ {"name", name} });
-			SelectObject(object);
-			m_status = "Created object: " + name;
-		}
-
-		return object;
+		return obj;
 	}
 
 	void SceneEditor::DeleteSelected()
 	{
-		if (!m_selectedObject)
-		{
-			return;
-		}
-
+		if (!m_selectedObject) return;
+		m_status = "Deleted: " + m_selectedObject->GetName();
 		m_selectedObject->MarkForDestroy();
-		m_status = "Deleted object: " + m_selectedObject->GetName();
 		ClearSelection();
 	}
 
 	void SceneEditor::SaveScene()
 	{
-		if (!m_scene)
-		{
-			return;
-		}
-
+		if (!m_scene) return;
 		m_status = m_scene->Save(m_scenePath)
-			? "Saved " + m_scenePath
-			: "Failed to save " + m_scenePath;
+			? "Saved  " + m_scenePath
+			: "FAILED to save  " + m_scenePath;
 	}
 }

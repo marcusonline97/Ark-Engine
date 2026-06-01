@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Input/InputManager.h"
 #include "Graphics/Texture.h"
@@ -10,6 +10,7 @@
 #include "Audio/AudioManager.h"
 #include "Font/FontManager.h"
 #include "Scene/Components/UI/UIInputSystem.h"
+#include "glad/glad.h"
 
 #include <chrono>
 #include <memory>
@@ -57,10 +58,25 @@ namespace Engine
 		void SetScene(const std::shared_ptr<Scene>& scene);
 		const std::shared_ptr<Scene>& GetScene();
 
+		// ── Scene-viewport FBO ──────────────────────────────────
+// Returns the OpenGL texture ID that contains the last rendered frame.
+// SceneEditor samples this to draw the viewport panel.
+		GLuint GetSceneColorTexture() const { return m_fboColorTex; }
+		int    GetSceneViewportWidth()  const { return m_fboWidth; }
+		int    GetSceneViewportHeight() const { return m_fboHeight; }
+
+		void SetEditorViewportActive(bool active) { m_editorViewportActive = active; }
+		bool IsEditorViewportActive() const        { return m_editorViewportActive; }
+
 	private:
 		//-------------------------------------------
 		// Properties & Variables
 		//-------------------------------------------
+				// ── FBO helpers ─────────────────────────────────────────
+		void CreateFBO(int width, int height);
+		void ResizeFBO(int width, int height);
+		void DestroyFBO();
+
 		std::unique_ptr<Application> m_application;
 		std::chrono::steady_clock::time_point m_lastTimePoint;
 
@@ -76,6 +92,14 @@ namespace Engine
 		UIInputSystem m_uiInputSystem;
 		std::shared_ptr<Scene> m_currentScene;
 		bool m_editorUIActive = false;
+		bool m_editorViewportActive = false;
+		
+		// Scene FBO
+		GLuint m_fbo = 0;
+		GLuint m_fboColorTex = 0;
+		GLuint m_fboDepthRBO = 0;
+		int    m_fboWidth = 0;
+		int    m_fboHeight = 0;
 		//-------------------------------------------
 		// Functions
 		//-------------------------------------------
