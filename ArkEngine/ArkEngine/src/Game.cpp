@@ -6,6 +6,7 @@
 #include "GunPickup.h"
 #include "ShootableCube.h"
 
+#include "imgui/imgui.h"
 #include <GLFW/glfw3.h>
 #include <glm/common.hpp>
 #include <glm/geometric.hpp>
@@ -24,6 +25,17 @@ namespace
             SetName("EditorCamera");
         }
     };
+
+    bool IsEditorKeyboardCaptured()
+    {
+        if (!ImGui::GetCurrentContext())
+        {
+            return false;
+        }
+
+        const ImGuiIO& io = ImGui::GetIO();
+        return io.WantCaptureKeyboard || io.WantTextInput;
+    }
 }
 void Game::RegisterTypes()
 {
@@ -250,6 +262,10 @@ void Game::EnterEditMode()
         }
     }
     SyncEditorCameraFrom(m_gameCamera);
+    if (m_scene)
+    {
+        m_scene->SetMainCamera(m_editorCamera.get());
+    }
 
     if (auto canvas = engine.GetUIInputSystem().GetCanvas())
     {
@@ -331,16 +347,11 @@ void Game::UpdateEditorCamera(float deltaTime)
     const bool lookActive = inputManager.IsMouseButtonPressed(GLFW_MOUSE_BUTTON_RIGHT);
     SetEditorCameraLookActive(lookActive);
 
-    if (!m_editorCameraLookActive)
-    {
-        return;
-    }
-
     constexpr float mouseSensitivity = 10.0f;
     constexpr float moveSpeed = 10.0f;
     constexpr float fastMoveMultiplier = 4.0f;
 
-    if (inputManager.IsMousePositionChanged())
+    if (m_editorCameraLookActive && inputManager.IsMousePositionChanged())
     {
         if (m_skipEditorCameraMouseDelta)
         {
@@ -365,6 +376,11 @@ void Game::UpdateEditorCamera(float deltaTime)
     const glm::vec3 forward = rotation * glm::vec3(0.0f, 0.0f, -1.0f);
     const glm::vec3 right = rotation * glm::vec3(1.0f, 0.0f, 0.0f);
     const glm::vec3 worldUp = glm::vec3(0.0f, 1.0f, 0.0f);
+
+    if (IsEditorKeyboardCaptured())
+    {
+        return;
+    }
 
     glm::vec3 move(0.0f);
     if (inputManager.IsKeyPressed(GLFW_KEY_W))
