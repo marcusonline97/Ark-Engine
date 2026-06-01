@@ -79,11 +79,16 @@ namespace Engine
     {
         if (m_controller->onGround())
         {
-            m_controller->jump(btVector3(
-                btScalar(direction.x),
-                btScalar(direction.y),
-                btScalar(direction.z)));
+            Launch(direction);
         }
+    }
+
+    void KinematicCharacterController::Launch(const glm::vec3& direction)
+    {
+        m_controller->jump(btVector3(
+            btScalar(direction.x),
+            btScalar(direction.y),
+            btScalar(direction.z)));
     }
 
     bool KinematicCharacterController::OnGround() const

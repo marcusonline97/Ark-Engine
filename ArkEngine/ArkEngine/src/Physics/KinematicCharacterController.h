@@ -21,6 +21,7 @@ namespace Engine
 
         void Walk(const glm::vec3& direction);
         void Jump(const glm::vec3& direction);
+        void Launch(const glm::vec3& direction);
         bool OnGround() const;
 
     private:
