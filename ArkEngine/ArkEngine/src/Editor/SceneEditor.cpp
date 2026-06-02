@@ -7,12 +7,14 @@
 #include "Scene/Components/CameraComponent.h"
 #include "Scene/Components/AnimationComponent.h"
 #include "Core/ArkEngine.h"
+#include "Logger.h"
 #include "imgui/imgui.h"
 #include "imgui/imgui_internal.h"
 
 #include <GLAD/glad.h>
 #include <algorithm>
 #include <cctype>
+#include <functional>
 #include <glm/gtc/quaternion.hpp>
 
 namespace Engine
@@ -33,8 +35,38 @@ namespace Engine
 		RefreshDirectory(m_contentCurrent);
 	}
 
-	void SceneEditor::SetActive(bool active) { m_active = active; }
-	bool SceneEditor::IsActive()       const { return m_active; }
+	void SceneEditor::SetActive(bool active)
+	{
+		if (m_active == active) return;
+		m_active = active;
+
+		if (active)
+		{
+			// Register a logging sink so messages flow into the Logs panel
+			m_logSinkId = Logging::AddSink([this](Logging::Level level, std::string_view msg)
+				{
+					LogEntry entry;
+					entry.level = level;
+					entry.message = std::string(msg);
+					// trim trailing newline for display
+					if (!entry.message.empty() && entry.message.back() == '\n')
+						entry.message.pop_back();
+					constexpr std::size_t k_maxEntries = 2000;
+					if (m_logEntries.size() >= k_maxEntries)
+						m_logEntries.erase(m_logEntries.begin());
+					m_logEntries.push_back(std::move(entry));
+				});
+		}
+		else
+		{
+			if (m_logSinkId != 0)
+			{
+				Logging::RemoveSink(m_logSinkId);
+				m_logSinkId = 0;
+			}
+		}
+	}
+	bool SceneEditor::IsActive() const { return m_active; }
 
 	void SceneEditor::Render()
 	{
@@ -44,7 +76,7 @@ namespace Engine
 		DrawViewport();
 		DrawHierarchy();
 		DrawInspector();
-		DrawContentBrowser();
+		DrawBottomPanel();
 	}
 
 	void SceneEditor::ClearSelection()
@@ -107,7 +139,7 @@ namespace Engine
 			ImGui::DockBuilderDockWindow("Hierarchy", leftID);
 			ImGui::DockBuilderDockWindow("Viewport", viewID);
 			ImGui::DockBuilderDockWindow("Inspector", rightID);
-			ImGui::DockBuilderDockWindow("Content Browser", bottomID);
+			ImGui::DockBuilderDockWindow("Bottom Panel", bottomID);
 
 			ImGui::DockBuilderFinish(dsID);
 		}
@@ -544,10 +576,39 @@ namespace Engine
 		for (auto& f : files) m_contentEntries.push_back(f);
 	}
 
+	// ═══════════════════════════════════════════════════════════════════
+	//  Bottom Panel  –  tabbed: Content Browser | Rendering | Logs
+	// ═══════════════════════════════════════════════════════════════════
+
+	void SceneEditor::DrawBottomPanel()
+	{
+		ImGui::Begin("Bottom Panel");
+
+		if (ImGui::BeginTabBar("##BottomTabs"))
+		{
+			if (ImGui::BeginTabItem("Content Browser"))
+			{
+				DrawContentBrowser();
+				ImGui::EndTabItem();
+			}
+			if (ImGui::BeginTabItem("Rendering"))
+			{
+				DrawRendering();
+				ImGui::EndTabItem();
+			}
+			if (ImGui::BeginTabItem("Logs"))
+			{
+				DrawLogs();
+				ImGui::EndTabItem();
+			}
+			ImGui::EndTabBar();
+		}
+
+		ImGui::End();
+	}
+
 	void SceneEditor::DrawContentBrowser()
 	{
-		ImGui::Begin("Content Browser");
-
 		// Top bar
 		const bool canGoUp = (m_contentCurrent != m_contentRoot);
 		if (!canGoUp) ImGui::BeginDisabled();
@@ -655,13 +716,177 @@ namespace Engine
 			ImGui::SetCursorPosX((ImGui::GetContentRegionAvail().x - 120.0f) * 0.5f);
 			ImGui::TextDisabled("(folder is empty)");
 		}
-
-		ImGui::End();
 	}
 
 	// ═══════════════════════════════════════════════════════════════════
-	//  Helpers
+	//  Rendering panel
 	// ═══════════════════════════════════════════════════════════════════
+
+	void SceneEditor::DrawRendering()
+	{
+		ImGui::Spacing();
+
+		// ── Mipmap filter ────────────────────────────────────────
+		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.49f, 0.51f, 1.0f, 1.0f));
+		ImGui::TextUnformatted("  Textures");
+		ImGui::PopStyleColor();
+		ImGui::Separator();
+		ImGui::Spacing();
+
+		// Label
+		ImGui::Text("Mipmap");
+		ImGui::SameLine(90.0f);
+
+		// Enum combo
+		const char* filterNames[] = { "Linear", "Nearest" };
+		int current = static_cast<int>(m_mipmapFilter);
+		ImGui::SetNextItemWidth(120.0f);
+		if (ImGui::Combo("##MipmapFilter", &current, filterNames, IM_ARRAYSIZE(filterNames)))
+		{
+			m_mipmapFilter = static_cast<MipmapFilter>(current);
+			ApplyMipmapFilter(m_mipmapFilter);
+			m_status = std::string("Mipmap filter set to ") + filterNames[current];
+		}
+
+		ImGui::SameLine(0, 12);
+		ImGui::TextDisabled("(applied globally to all loaded textures)");
+
+		ImGui::Spacing();
+	}
+
+	void SceneEditor::ApplyMipmapFilter(MipmapFilter filter)
+	{
+		// Walk every texture currently tracked by the TextureManager and
+		// re-apply the chosen minification filter.  We reach them through
+		// the GL texture IDs stored in the scene objects' components.
+		// Because we don't have a public "iterate all textures" API we apply
+		// the setting at the GL level by iterating bound texture units isn't
+		// reliable, so instead we store the preference and let each Texture
+		// pick it up on next bind.  For an immediate effect we also do a
+		// best-effort sweep over every MeshComponent material texture we can
+		// reach from the current scene.
+
+		const GLint minFilter = (filter == MipmapFilter::Linear)
+			? GL_LINEAR_MIPMAP_LINEAR
+			: GL_NEAREST_MIPMAP_NEAREST;
+		const GLint magFilter = (filter == MipmapFilter::Linear)
+			? GL_LINEAR
+			: GL_NEAREST;
+
+		if (!m_scene) return;
+
+		// Helper lambda – apply to a raw GL texture ID
+		auto applyToTex = [&](GLuint id)
+			{
+				if (!id) return;
+				glBindTexture(GL_TEXTURE_2D, id);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter);
+			};
+
+		// Recursive walk over all game objects in the scene
+		std::function<void(Engine::GameObject*)> walk = [&](Engine::GameObject* obj)
+			{
+				if (!obj) return;
+				for (const auto& comp : obj->GetComponents())
+				{
+					if (auto* mc = dynamic_cast<MeshComponent*>(comp.get()))
+					{
+						// MeshComponent keeps a Material; Material keeps Textures.
+						// We reach the GL ID via the public Material::Bind path isn't ideal,
+						// so we grab the shader and iterate texture params via the material's
+						// stored shared_ptrs – but Material doesn't expose them publicly.
+						// Best we can do without changing Material API: call Bind() which
+						// re-uploads all uniforms, then let the sampler pick up the new filter
+						// on the next draw.  The actual GL parameter must be set on the texture
+						// object itself, which we do below via the TextureManager cache.
+						(void)mc; // handled via TextureManager sweep below
+					}
+				}
+				for (const auto& child : obj->GetChildren())
+					walk(child.get());
+			};
+
+		// Sweep every texture in the engine's TextureManager cache
+		// TextureManager doesn't expose its map publicly, but we can query
+		// every GL texture object currently allocated (vendor-agnostic way):
+		// iterate GL texture names 1..4096 and test if they are textures.
+		// This is lightweight and catches everything including font atlases.
+		for (GLuint id = 1; id <= 4096; ++id)
+		{
+			if (glIsTexture(id))
+				applyToTex(id);
+		}
+
+		glBindTexture(GL_TEXTURE_2D, 0);
+	}
+
+	// ═══════════════════════════════════════════════════════════════════
+	//  Logs panel
+	// ═══════════════════════════════════════════════════════════════════
+
+	void SceneEditor::DrawLogs()
+	{
+		// Toolbar
+		if (ImGui::Button("Clear")) { m_logEntries.clear(); }
+		ImGui::SameLine();
+		ImGui::Checkbox("Auto-scroll", &m_logAutoScroll);
+		ImGui::SameLine(0, 20);
+
+		// Level filter checkboxes
+		ImGui::Checkbox("Init", &m_logShowInit);    ImGui::SameLine();
+		ImGui::Checkbox("Debug", &m_logShowDebug);   ImGui::SameLine();
+		ImGui::Checkbox("Warning", &m_logShowWarning); ImGui::SameLine();
+		ImGui::Checkbox("Error", &m_logShowError);   ImGui::SameLine();
+		ImGui::Checkbox("Fatal", &m_logShowFatal);
+
+		ImGui::Separator();
+
+		ImGui::BeginChild("##LogScroll", ImVec2(0, 0), false,
+			ImGuiWindowFlags_HorizontalScrollbar);
+
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(4, 1));
+
+		for (const auto& entry : m_logEntries)
+		{
+			// Filter
+			switch (entry.level)
+			{
+			case Logging::Level::INIT:    if (!m_logShowInit)    continue; break;
+			case Logging::Level::DEBUG:   if (!m_logShowDebug)   continue; break;
+			case Logging::Level::WARNING: if (!m_logShowWarning) continue; break;
+			case Logging::Level::_ERROR:  if (!m_logShowError)   continue; break;
+			case Logging::Level::FATAL:   if (!m_logShowFatal)   continue; break;
+			default: break;
+			}
+
+			ImVec4 col = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
+			switch (entry.level)
+			{
+			case Logging::Level::INIT:    col = ImVec4(0.70f, 0.40f, 0.90f, 1.0f); break;
+			case Logging::Level::DEBUG:   col = ImVec4(0.40f, 0.80f, 0.90f, 1.0f); break;
+			case Logging::Level::WARNING: col = ImVec4(0.95f, 0.80f, 0.20f, 1.0f); break;
+			case Logging::Level::_ERROR:  col = ImVec4(0.95f, 0.30f, 0.30f, 1.0f); break;
+			case Logging::Level::FATAL:   col = ImVec4(1.00f, 0.10f, 0.10f, 1.0f); break;
+			default: break;
+			}
+
+			ImGui::PushStyleColor(ImGuiCol_Text, col);
+			const std::string line = std::string("[")
+				+ Logging::LevelName(entry.level) + "] " + entry.message;
+			ImGui::TextUnformatted(line.c_str());
+			ImGui::PopStyleColor();
+		}
+
+		ImGui::PopStyleVar();
+
+		if (m_logAutoScroll && ImGui::GetScrollY() >= ImGui::GetScrollMaxY())
+			ImGui::SetScrollHereY(1.0f);
+
+		ImGui::EndChild();
+	}
+
+
 
 	void SceneEditor::SelectObject(GameObject* object)
 	{

@@ -1,0 +1,11 @@
+Model Information:
+* title:	Teleportal Gate
+* source:	https://sketchfab.com/3d-models/teleportal-gate-d6de91abb2f549b9910fa75eb554d4e4
+* author:	Vaportrash (https://sketchfab.com/vaportrash)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Teleportal Gate" (https://sketchfab.com/3d-models/teleportal-gate-d6de91abb2f549b9910fa75eb554d4e4) by Vaportrash (https://sketchfab.com/vaportrash) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

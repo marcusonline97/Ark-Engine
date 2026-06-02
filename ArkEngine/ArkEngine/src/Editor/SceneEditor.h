@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "Scene/Scene.h"
+#include "Logger.h"
 
 #include <array>
 #include <filesystem>
@@ -10,6 +11,12 @@
 
 namespace Engine
 {
+	enum class MipmapFilter
+	{
+		Linear,
+		Nearest
+	};
+
 	class SceneEditor
 	{
 	public:
@@ -21,17 +28,23 @@ namespace Engine
 		void Render();
 		void ClearSelection();
 
+		// Global mipmap setting – readable by the rest of the engine if needed
+		MipmapFilter GetMipmapFilter() const { return m_mipmapFilter; }
+
 	private:
 		// ── Layout ──────────────────────────────────────────────
 		void DrawEditorDockspace();
 
 		// ── Panels ──────────────────────────────────────────────
-		void DrawViewport();          // centre – FBO image + toolbar strip
+		void DrawViewport();
 		void DrawHierarchy();
 		void DrawObjectNode(GameObject* object);
 		void DrawInspector();
 		void DrawComponents(GameObject* object);
+		void DrawBottomPanel();       // tabbed: Content Browser | Rendering | Logs
 		void DrawContentBrowser();
+		void DrawRendering();
+		void DrawLogs();
 
 		// ── Content browser helpers ──────────────────────────────
 		void RefreshDirectory(const std::filesystem::path& dir);
@@ -41,6 +54,9 @@ namespace Engine
 		static bool IsSceneFile(const std::filesystem::path& p);
 		static bool IsAudioFile(const std::filesystem::path& p);
 		static bool IsMeshFile(const std::filesystem::path& p);
+
+		// ── Rendering helpers ────────────────────────────────────
+		void ApplyMipmapFilter(MipmapFilter filter);
 
 		// ── Helpers ──────────────────────────────────────────────
 		void SelectObject(GameObject* object);
@@ -70,6 +86,24 @@ namespace Engine
 		std::vector<std::filesystem::path> m_contentEntries;
 		std::string                        m_contentFilter;
 		std::array<char, 128>              m_contentFilterBuf = {};
+
+		// Rendering settings
+		MipmapFilter           m_mipmapFilter = MipmapFilter::Linear;
+
+		// Logs panel
+		struct LogEntry
+		{
+			Logging::Level level = Logging::Level::DEBUG;
+			std::string    message;
+		};
+		std::vector<LogEntry>  m_logEntries;
+		Logging::SinkId        m_logSinkId = 0;
+		bool                   m_logAutoScroll = true;
+		bool                   m_logShowInit = true;
+		bool                   m_logShowDebug = true;
+		bool                   m_logShowWarning = true;
+		bool                   m_logShowError = true;
+		bool                   m_logShowFatal = true;
 
 		// Dockspace – built once per activation
 		bool m_dockspaceBuilt = false;

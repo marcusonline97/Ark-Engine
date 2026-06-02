@@ -67,6 +67,7 @@ namespace Engine
         const Rect& GetViewport() const;
         void SetViewport(int x, int y, int width, int height);
         void SetDepthTestEnabled(bool enabled);
+        void SetWireframeMode(bool enabled);
         void SetBlendMode(BlendMode mode);
 
         void BindShaderProgram(ShaderProgram* shaderProgram);

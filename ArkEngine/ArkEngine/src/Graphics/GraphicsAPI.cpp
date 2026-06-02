@@ -387,4 +387,9 @@ namespace Engine
             mesh->Draw();
         }
     }
+
+    void GraphicsAPI::SetWireframeMode(bool enabled)
+    {
+        glPolygonMode(GL_FRONT_AND_BACK, enabled ? GL_LINE : GL_FILL);
+    }
 }
