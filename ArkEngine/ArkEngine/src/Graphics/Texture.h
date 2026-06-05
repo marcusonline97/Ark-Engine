@@ -24,6 +24,7 @@ namespace Engine
 
 		static std::shared_ptr<Texture> Load(const std::string& path);
 
+		void SetFilter(GLint minFilter, GLint magFilter);
 
 	private:
 		int m_width = 0;
@@ -36,6 +37,7 @@ namespace Engine
 	{
 	public:
 		std::shared_ptr<Texture> GetOrLoadTexture(const std::string& path);
+		void SetFilterOnAllTextures(GLint minFilter, GLint magFilter);
 
 	private:
 		std::unordered_map<std::string, std::shared_ptr<Texture>> m_textures;

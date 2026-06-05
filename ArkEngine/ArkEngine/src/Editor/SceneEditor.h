@@ -6,6 +6,7 @@
 #include <array>
 #include <filesystem>
 #include <memory>
+#include <mutex>
 #include <string>
 #include <vector>
 
@@ -28,8 +29,15 @@ namespace Engine
 		void Render();
 		void ClearSelection();
 
-		// Global mipmap setting – readable by the rest of the engine if needed
 		MipmapFilter GetMipmapFilter() const { return m_mipmapFilter; }
+
+		// Public so the static log-sink bridge in SceneEditor.cpp can push entries
+		struct LogEntry
+		{
+			Logging::Level level = Logging::Level::DEBUG;
+			std::string    message;
+		};
+		std::vector<LogEntry> m_logEntries;
 
 	private:
 		// ── Layout ──────────────────────────────────────────────
@@ -41,7 +49,7 @@ namespace Engine
 		void DrawObjectNode(GameObject* object);
 		void DrawInspector();
 		void DrawComponents(GameObject* object);
-		void DrawBottomPanel();       // tabbed: Content Browser | Rendering | Logs
+		void DrawBottomPanel();
 		void DrawContentBrowser();
 		void DrawRendering();
 		void DrawLogs();
@@ -91,13 +99,6 @@ namespace Engine
 		MipmapFilter           m_mipmapFilter = MipmapFilter::Linear;
 
 		// Logs panel
-		struct LogEntry
-		{
-			Logging::Level level = Logging::Level::DEBUG;
-			std::string    message;
-		};
-		std::vector<LogEntry>  m_logEntries;
-		Logging::SinkId        m_logSinkId = 0;
 		bool                   m_logAutoScroll = true;
 		bool                   m_logShowInit = true;
 		bool                   m_logShowDebug = true;

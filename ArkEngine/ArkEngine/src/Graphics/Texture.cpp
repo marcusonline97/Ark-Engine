@@ -62,6 +62,15 @@ namespace Engine
         return m_height;
     }
 
+    void Texture::SetFilter(GLint minFilter, GLint magFilter)
+    {
+        if (!m_textureID) return;
+        glBindTexture(GL_TEXTURE_2D, m_textureID);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter);
+        glBindTexture(GL_TEXTURE_2D, 0);
+    }
+
     std::shared_ptr<Texture> Texture::Load(const std::string& path)
     {
         int width, height, numChannels;
@@ -100,4 +109,14 @@ namespace Engine
 		return texture;
     }
 
+
+    void TextureManager::SetFilterOnAllTextures(GLint minFilter, GLint magFilter)
+    {
+        for (auto& pair : m_textures)
+        {
+            if (pair.second)
+                pair.second->SetFilter(minFilter, magFilter);
+        }
+    }
 }
+
