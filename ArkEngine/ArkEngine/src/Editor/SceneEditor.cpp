@@ -514,6 +514,7 @@ namespace Engine
 
 					ImGui::Button("Mesh", ImVec2(-1.0f, 0.0f));
 
+					std::string droppedMeshPath;
 					if (ImGui::BeginDragDropTarget())
 					{
 						if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(kAssetPathPayloadType))
@@ -527,21 +528,25 @@ namespace Engine
 									++length;
 								}
 
-								std::string path(data, length);
-								auto newMesh = ArkEngine::GetInstance().GetMeshManager().GetOrLoadMesh(path);
-								if (newMesh)
-								{
-									meshComp->SetMesh(newMesh);
-									meshComp->SetMeshPath(path);
-									m_status = "Assigned mesh: " + path;
-								}
-								else
-								{
-									m_status = "Failed to load mesh: " + path;
-								}
+								droppedMeshPath.assign(data, length);
 							}
 						}
 						ImGui::EndDragDropTarget();
+					}
+
+					if (!droppedMeshPath.empty())
+					{
+						auto newMesh = ArkEngine::GetInstance().GetMeshManager().GetOrLoadMesh(droppedMeshPath);
+						if (newMesh)
+						{
+							meshComp->SetMesh(newMesh);
+							meshComp->SetMeshPath(droppedMeshPath);
+							m_status = "Assigned mesh: " + droppedMeshPath;
+						}
+						else
+						{
+							m_status = "Failed to load mesh: " + droppedMeshPath;
+						}
 					}
 				}
 				else if (auto* anim = dynamic_cast<AnimationComponent*>(comp.get()))
