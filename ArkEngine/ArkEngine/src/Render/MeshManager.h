@@ -1,13 +1,13 @@
 #pragma once
 
-#include "Render/Mesh.h"
-
 #include <memory>
 #include <string>
 #include <unordered_map>
 
 namespace Engine
 {
+	class Mesh;
+
 	class MeshManager
 	{
 	public:

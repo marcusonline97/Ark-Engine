@@ -2,6 +2,7 @@
 
 #include "Core/ArkEngine.h"
 #include "Graphics/VertexLayout.h"
+#include "Render/Mesh.h"
 #include "Scene/GameObject.h"
 #include "Scene/Scene.h"
 #include "Scene/Components/MeshComponent.h"
