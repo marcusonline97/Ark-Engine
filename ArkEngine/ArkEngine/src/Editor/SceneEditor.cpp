@@ -19,6 +19,18 @@
 
 namespace Engine
 {
+	namespace
+	{
+		constexpr const char* kAssetPathPayloadType = "ASSET_PATH";
+
+		bool IsMeshAssetPayloadFile(const std::filesystem::path& p)
+		{
+			auto e = p.extension().string();
+			for (auto& c : e) c = (char)std::tolower((unsigned char)c);
+			return e == ".gltf" || e == ".glb" || e == ".obj";
+		}
+	}
+
 	// ═══════════════════════════════════════════════════════════════════
 	//  Public API
 	// ═══════════════════════════════════════════════════════════════════
@@ -490,6 +502,48 @@ namespace Engine
 				{
 					ImGui::TextDisabled("Audio clips loaded from JSON.");
 				}
+				else if (auto* meshComp = dynamic_cast<MeshComponent*>(comp.get()))
+				{
+					const std::string& meshPath = meshComp->GetMeshPath();
+					std::vector<char> meshPathBuffer(meshPath.begin(), meshPath.end());
+					meshPathBuffer.push_back('\0');
+
+					ImGui::TextUnformatted("Current Mesh Path");
+					ImGui::SetNextItemWidth(-1.0f);
+					ImGui::InputText("##MeshPath", meshPathBuffer.data(), meshPathBuffer.size(), ImGuiInputTextFlags_ReadOnly);
+
+					ImGui::Button("Mesh", ImVec2(-1.0f, 0.0f));
+
+					if (ImGui::BeginDragDropTarget())
+					{
+						if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(kAssetPathPayloadType))
+						{
+							const char* data = static_cast<const char*>(payload->Data);
+							if (data && payload->DataSize > 0)
+							{
+								size_t length = 0;
+								while (length < static_cast<size_t>(payload->DataSize) && data[length] != '\0')
+								{
+									++length;
+								}
+
+								std::string path(data, length);
+								auto newMesh = ArkEngine::GetInstance().GetMeshManager().GetOrLoadMesh(path);
+								if (newMesh)
+								{
+									meshComp->SetMesh(newMesh);
+									meshComp->SetMeshPath(path);
+									m_status = "Assigned mesh: " + path;
+								}
+								else
+								{
+									m_status = "Failed to load mesh: " + path;
+								}
+							}
+						}
+						ImGui::EndDragDropTarget();
+					}
+				}
 				else if (auto* anim = dynamic_cast<AnimationComponent*>(comp.get()))
 				{
 					ImGui::TextDisabled("Playing: %s", anim->IsPlaying() ? "yes" : "no");
@@ -712,6 +766,9 @@ namespace Engine
 			ImGui::PushStyleColor(ImGuiCol_Text, iconCol);
 
 			const std::string btnLabel = std::string(FileIcon(entry)) + "\n" + fname;
+			std::string relPath = std::filesystem::relative(entry, m_contentRoot).string();
+			std::replace(relPath.begin(), relPath.end(), '\\', '/');
+
 			if (ImGui::Button(btnLabel.c_str(), ImVec2(itemW, itemH)))
 			{
 				if (isDir)
@@ -723,17 +780,20 @@ namespace Engine
 				}
 				else
 				{
-					auto relPath = std::filesystem::relative(entry, m_contentRoot).string();
-					std::replace(relPath.begin(), relPath.end(), '\\', '/');
 					m_status = "Selected: " + relPath;
 				}
 			}
 			ImGui::PopStyleColor(4);
 
+			if (!isDir && IsMeshAssetPayloadFile(entry) && ImGui::BeginDragDropSource())
+			{
+				ImGui::SetDragDropPayload(kAssetPathPayloadType, relPath.c_str(), relPath.size() + 1);
+				ImGui::TextUnformatted(relPath.c_str());
+				ImGui::EndDragDropSource();
+			}
+
 			if (ImGui::IsItemHovered())
 			{
-				auto relPath = std::filesystem::relative(entry, m_contentRoot).string();
-				std::replace(relPath.begin(), relPath.end(), '\\', '/');
 				ImGui::SetTooltip("%s", relPath.c_str());
 			}
 

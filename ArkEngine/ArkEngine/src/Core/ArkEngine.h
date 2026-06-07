@@ -3,6 +3,7 @@
 #include "Input/InputManager.h"
 #include "Graphics/Texture.h"
 #include "Graphics/GraphicsAPI.h"
+#include "Render/MeshManager.h"
 #include "Render/RenderQueue.h"
 #include "Scene/Scene.h"
 #include "AssetManager/FileSystem.h"
@@ -50,6 +51,7 @@ namespace Engine
 		RenderQueue& GetRenderQueue();
 		FileSystem& GetFileSystem();
 		TextureManager& GetTextureManager();
+		MeshManager& GetMeshManager();
 		PhysicsManager& GetPhysicsManager();
 		AudioManager& GetAudioManager();
 		FontManager& GetFontManager();
@@ -86,6 +88,7 @@ namespace Engine
 		RenderQueue m_renderQueue;
 		FileSystem m_fileSystem;
 		TextureManager m_textureManager;
+		MeshManager m_meshManager;
 		PhysicsManager m_physicsManager;
 		AudioManager m_audioManager;
 		FontManager m_fontManager;

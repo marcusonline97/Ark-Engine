@@ -328,6 +328,7 @@ namespace Engine
     RenderQueue& ArkEngine::GetRenderQueue() { return m_renderQueue; }
     FileSystem& ArkEngine::GetFileSystem() { return m_fileSystem; }
     TextureManager& ArkEngine::GetTextureManager() { return m_textureManager; }
+    MeshManager& ArkEngine::GetMeshManager() { return m_meshManager; }
     PhysicsManager& ArkEngine::GetPhysicsManager() { return m_physicsManager; }
     AudioManager& ArkEngine::GetAudioManager() { return m_audioManager; }
     FontManager& ArkEngine::GetFontManager() { return m_fontManager; }

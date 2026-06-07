@@ -1250,6 +1250,7 @@
     <ClCompile Include="ArkEngine\src\Graphics\GraphicsAPI.cpp" />
     <ClCompile Include="ArkEngine\src\Render\Material.cpp" />
     <ClCompile Include="ArkEngine\src\Render\Mesh.cpp" />
+    <ClCompile Include="ArkEngine\src\Render\MeshManager.cpp" />
     <ClCompile Include="ArkEngine\Vendor\Jolt\Core\*.cpp" />
     <ClCompile Include="ArkEngine\Vendor\Jolt\Core\*.cpp" />
     <ClCompile Include="ArkEngine\Vendor\Jolt\Core\*.cpp" />
@@ -4259,6 +4260,7 @@
     <ClInclude Include="ArkEngine\src\Graphics\GraphicsAPI.h" />
     <ClInclude Include="ArkEngine\src\Render\Material.h" />
     <ClInclude Include="ArkEngine\src\Render\Mesh.h" />
+    <ClInclude Include="ArkEngine\src\Render\MeshManager.h" />
     <ClInclude Include="ArkEngine\src\Graphics\VertexLayout.h" />
     <ClInclude Include="ArkEngine\src\Render\RenderQueue.h" />
     <ClInclude Include="ArkEngine\src\Scene\GameObject.h" />

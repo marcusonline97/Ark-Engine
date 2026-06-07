@@ -127,4 +127,19 @@ namespace Engine
         m_mesh = mesh;
     }
 
+    const std::shared_ptr<Mesh>& MeshComponent::GetMesh() const
+    {
+        return m_mesh;
+    }
+
+    void MeshComponent::SetMeshPath(const std::string& path)
+    {
+        m_meshPath = path;
+    }
+
+    const std::string& MeshComponent::GetMeshPath() const
+    {
+        return m_meshPath;
+    }
+
 }
