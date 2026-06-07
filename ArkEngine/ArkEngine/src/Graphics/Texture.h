@@ -7,6 +7,8 @@
 
 namespace Engine
 {
+	enum class MipmapFilter;
+
 	class Texture
 	{
 	public:
@@ -37,9 +39,12 @@ namespace Engine
 	{
 	public:
 		std::shared_ptr<Texture> GetOrLoadTexture(const std::string& path);
+		void SetCurrentFilter(MipmapFilter filter);
+		void SetFilterOnAllTextures(MipmapFilter filter);
 		void SetFilterOnAllTextures(GLint minFilter, GLint magFilter);
 
 	private:
 		std::unordered_map<std::string, std::shared_ptr<Texture>> m_textures;
+		MipmapFilter m_currentFilter = static_cast<MipmapFilter>(0);
 	};
 }

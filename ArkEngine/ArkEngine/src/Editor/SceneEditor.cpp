@@ -836,6 +836,7 @@ namespace Engine
 		{
 			m_mipmapFilter = static_cast<MipmapFilter>(current);
 			ApplyMipmapFilter(m_mipmapFilter);
+			ArkEngine::GetInstance().GetTextureManager().SetFilterOnAllTextures(m_mipmapFilter);
 			m_status = std::string("Mipmap: ") + filterNames[current];
 		}
 

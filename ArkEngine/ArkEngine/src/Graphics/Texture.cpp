@@ -8,6 +8,30 @@
 
 namespace Engine
 {
+    namespace
+    {
+        bool IsLinearMipmapFilter(MipmapFilter filter)
+        {
+            return static_cast<int>(filter) == 0;
+        }
+
+        bool ShouldSkipGlobalFilterUpdate(GLuint textureID)
+        {
+            if (!textureID || !glIsTexture(textureID))
+            {
+                return true;
+            }
+
+            const GLuint sceneColorTexture = ArkEngine::GetInstance().GetSceneColorTexture();
+            if (sceneColorTexture && textureID == sceneColorTexture)
+            {
+                return true;
+            }
+
+            return glIsRenderbuffer(textureID) == GL_TRUE;
+        }
+    }
+
     Texture::Texture(int width, int height, int numChannels, unsigned char* data)
         : m_width(width), m_height(height), m_numChannels(numChannels)
     {
@@ -106,16 +130,63 @@ namespace Engine
 
 		auto texture = Texture::Load(path);
 		m_textures[path] = texture;
+        SetFilterOnAllTextures(m_currentFilter);
 		return texture;
     }
 
+    void TextureManager::SetCurrentFilter(MipmapFilter filter)
+    {
+        m_currentFilter = filter;
+    }
+
+    void TextureManager::SetFilterOnAllTextures(MipmapFilter filter)
+    {
+        SetCurrentFilter(filter);
+
+        const GLint minFilter = IsLinearMipmapFilter(filter)
+            ? GL_LINEAR_MIPMAP_LINEAR
+            : GL_NEAREST_MIPMAP_NEAREST;
+        const GLint magFilter = IsLinearMipmapFilter(filter)
+            ? GL_LINEAR
+            : GL_NEAREST;
+
+        for (auto& pair : m_textures)
+        {
+            if (!pair.second)
+            {
+                continue;
+            }
+
+            const GLuint textureID = pair.second->GetID();
+            if (ShouldSkipGlobalFilterUpdate(textureID))
+            {
+                continue;
+            }
+
+            glBindTexture(GL_TEXTURE_2D, textureID);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter);
+        }
+
+        glBindTexture(GL_TEXTURE_2D, 0);
+    }
 
     void TextureManager::SetFilterOnAllTextures(GLint minFilter, GLint magFilter)
     {
         for (auto& pair : m_textures)
         {
-            if (pair.second)
-                pair.second->SetFilter(minFilter, magFilter);
+            if (!pair.second)
+            {
+                continue;
+            }
+
+            const GLuint textureID = pair.second->GetID();
+            if (ShouldSkipGlobalFilterUpdate(textureID))
+            {
+                continue;
+            }
+
+            pair.second->SetFilter(minFilter, magFilter);
         }
     }
 }
