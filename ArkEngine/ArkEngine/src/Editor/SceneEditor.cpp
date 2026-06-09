@@ -7,6 +7,7 @@
 #include "Scene/Components/CameraComponent.h"
 #include "Scene/Components/AnimationComponent.h"
 #include "Core/ArkEngine.h"
+#include "Render/Material.h"
 #include "Logger.h"
 #include "imgui/imgui.h"
 #include "imgui/imgui_internal.h"
@@ -14,6 +15,7 @@
 #include <GLAD/glad.h>
 #include <algorithm>
 #include <cctype>
+#include <functional>
 #include <mutex>
 #include <glm/gtc/quaternion.hpp>
 
@@ -835,8 +837,8 @@ namespace Engine
 		if (ImGui::Combo("##MipmapFilter", &current, filterNames, IM_ARRAYSIZE(filterNames)))
 		{
 			m_mipmapFilter = static_cast<MipmapFilter>(current);
-			ApplyMipmapFilter(m_mipmapFilter);
-			m_status = std::string("Mipmap: ") + filterNames[current];
+			const std::size_t materialTextureCount = ApplyMipmapFilter(m_mipmapFilter);
+			m_status = std::string("MinMap: ") + filterNames[current] + " (" + std::to_string(materialTextureCount) + " material texture refs)";
 		}
 
 		ImGui::SameLine(0, 12);
@@ -844,7 +846,7 @@ namespace Engine
 		ImGui::Spacing();
 	}
 
-	void SceneEditor::ApplyMipmapFilter(MipmapFilter filter)
+	std::size_t SceneEditor::ApplyMipmapFilter(MipmapFilter filter)
 	{
 		const GLint minFilter = (filter == MipmapFilter::Linear)
 			? GL_LINEAR_MIPMAP_LINEAR
@@ -856,6 +858,48 @@ namespace Engine
 		// Route through TextureManager so we only touch asset textures —
 		// never the FBO colour attachment, depth buffer, or font atlas.
 		ArkEngine::GetInstance().GetTextureManager().SetFilterOnAllTextures(minFilter, magFilter);
+		
+		const auto& scene = ArkEngine::GetInstance().GetScene();
+		if (!scene)
+		{
+			return 0;
+		}
+
+		std::size_t materialTextureCount = 0;
+		std::function<void(GameObject*)> applyToObject = [&](GameObject* object)
+			{
+				if (!object)
+				{
+					return;
+				}
+
+				for (const auto& component : object->GetComponents())
+				{
+					if (auto* meshComponent = dynamic_cast<MeshComponent*>(component.get()))
+					{
+						if (auto* material = meshComponent->GetMaterial())
+						{
+							material->ForEachTexture([&](Texture* texture)
+								{
+									++materialTextureCount;
+									texture->SetFilter(minFilter, magFilter);
+								});
+						}
+					}
+				}
+
+				for (const auto& child : object->GetChildren())
+				{
+					applyToObject(child.get());
+				}
+			};
+
+		for (const auto& rootObject : scene->GetRootObjects())
+		{
+			applyToObject(rootObject.get());
+		}
+
+		return materialTextureCount;
 	}
 
 	// ═══════════════════════════════════════════════════════════════════

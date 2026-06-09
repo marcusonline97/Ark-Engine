@@ -20,6 +20,7 @@ namespace Engine
         void Update(float deltaTime) override;
 
         void SetMaterial(const std::shared_ptr<Material>& material);
+        Material* GetMaterial() const;
         void SetMesh(const std::shared_ptr<Mesh>& mesh);
         const std::shared_ptr<Mesh>& GetMesh() const;
 		void SetMeshPath(const std::string& path);

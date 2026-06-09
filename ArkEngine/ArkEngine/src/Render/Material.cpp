@@ -37,6 +37,17 @@ namespace Engine
         m_textures[name] = texture;
     }
 
+    void Material::ForEachTexture(const std::function<void(Texture*)>& fn)
+    {
+        for (auto& param : m_textures)
+        {
+            if(param.second)
+            {
+                fn(param.second.get());
+			}
+        }
+    }
+
     void Material::Bind()
     {
         if (!m_shaderProgram)
