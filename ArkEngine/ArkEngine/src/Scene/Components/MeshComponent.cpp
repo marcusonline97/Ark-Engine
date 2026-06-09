@@ -122,6 +122,11 @@ namespace Engine
         m_material = material;
     }
 
+    Material* MeshComponent::GetMaterial() const
+    {
+        return m_material.get();
+    }
+
     void MeshComponent::SetMesh(const std::shared_ptr<Mesh>& mesh)
     {
         m_mesh = mesh;

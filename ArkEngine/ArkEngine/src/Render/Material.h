@@ -1,5 +1,6 @@
 #pragma once
 
+#include <functional>
 #include <memory>
 #include <unordered_map>
 #include <string>
@@ -20,6 +21,7 @@ namespace Engine
         void SetParam(const std::string& name, float v0, float v1);
         void SetParam(const std::string& name, const glm::vec3& value);
         void SetParam(const std::string& name, const std::shared_ptr<Texture>& texture);
+        void ForEachTexture(const std::function<void(Texture*)>& fn);
         void Bind();
 
         static std::shared_ptr<Material> Load(const std::string& path);
