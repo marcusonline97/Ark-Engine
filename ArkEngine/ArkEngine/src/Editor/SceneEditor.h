@@ -4,6 +4,7 @@
 #include "Logger.h"
 
 #include <array>
+#include <cstddef>
 #include <filesystem>
 #include <memory>
 #include <mutex>
@@ -64,7 +65,7 @@ namespace Engine
 		static bool IsMeshFile(const std::filesystem::path& p);
 
 		// ── Rendering helpers ────────────────────────────────────
-		void ApplyMipmapFilter(MipmapFilter filter);
+		std::size_t ApplyMipmapFilter(MipmapFilter filter);
 
 		// ── Helpers ──────────────────────────────────────────────
 		void SelectObject(GameObject* object);

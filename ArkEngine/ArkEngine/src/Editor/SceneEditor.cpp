@@ -837,16 +837,17 @@ namespace Engine
 		if (ImGui::Combo("##MipmapFilter", &current, filterNames, IM_ARRAYSIZE(filterNames)))
 		{
 			m_mipmapFilter = static_cast<MipmapFilter>(current);
-			ApplyMipmapFilter(m_mipmapFilter);
-			m_status = std::string("Mipmap: ") + filterNames[current];
+			const std::size_t materialTextureCount = ApplyMipmapFilter(m_mipmapFilter);
+			m_status = std::string("Mipmap: ") + filterNames[current]
+				+ " (" + std::to_string(materialTextureCount) + " material texture refs)";
 		}
 
 		ImGui::SameLine(0, 12);
-		ImGui::TextDisabled("applied to all loaded asset textures");
+		ImGui::TextDisabled("applied to loaded asset and scene material textures");
 		ImGui::Spacing();
 	}
 
-	void SceneEditor::ApplyMipmapFilter(MipmapFilter filter)
+	std::size_t SceneEditor::ApplyMipmapFilter(MipmapFilter filter)
 	{
 		const GLint minFilter = (filter == MipmapFilter::Linear)
 			? GL_LINEAR_MIPMAP_LINEAR
@@ -862,9 +863,10 @@ namespace Engine
 		const auto& scene = ArkEngine::GetInstance().GetScene();
 		if (!scene)
 		{
-			return;
+			return 0;
 		}
 
+		std::size_t materialTextureCount = 0;
 		std::function<void(GameObject*)> applyToObject = [&](GameObject* object)
 			{
 				if (!object)
@@ -880,6 +882,7 @@ namespace Engine
 						{
 							material->ForEachTexture([&](Texture* texture)
 								{
+									++materialTextureCount;
 									texture->SetFilter(minFilter, magFilter);
 								});
 						}
@@ -896,6 +899,8 @@ namespace Engine
 		{
 			applyToObject(rootObject.get());
 		}
+
+		return materialTextureCount;
 	}
 
 	// ═══════════════════════════════════════════════════════════════════
