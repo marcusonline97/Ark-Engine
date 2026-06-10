@@ -10,6 +10,7 @@
 #include "imgui/backends/imgui_impl_glfw.h"
 #include "imgui/backends/imgui_impl_opengl3.h"
 
+#include <algorithm>
 #include <iostream>
 
 namespace Engine
@@ -128,6 +129,7 @@ namespace Engine
         m_physicsManager.Init();
         m_audioManager.Init();
         m_renderQueue.Init();
+        m_deferredRenderer.Init(width, height);
         m_fontManager.Init();
 
         // Create the scene FBO at the initial window size
@@ -181,10 +183,6 @@ namespace Engine
             if (winW != m_fboWidth || winH != m_fboHeight)
                 ResizeFBO(winW, winH);
 
-            glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
-            m_graphicsAPI.SetViewport(0, 0, m_fboWidth, m_fboHeight);
-            m_graphicsAPI.ClearBuffers();
-
             CameraData cameraData;
             std::vector<LightData> lights;
             float aspect = (m_fboHeight > 0)
@@ -206,7 +204,26 @@ namespace Engine
                 lights = m_currentScene->CollectLights();
             }
 
-            m_renderQueue.Draw(m_graphicsAPI, cameraData, lights);
+            const bool useDeferred = m_deferredRenderingEnabled && m_deferredRenderer.GetOutputTexture() != 0;
+            if (useDeferred)
+            {
+                m_deferredRenderer.Render(
+                    m_renderQueue.FlushCommands(),
+                    cameraData,
+                    lights,
+                    m_shadowStrength);
+
+                glBindFramebuffer(GL_FRAMEBUFFER, m_deferredRenderer.GetOutputFramebuffer());
+                m_graphicsAPI.SetViewport(0, 0, m_fboWidth, m_fboHeight);
+                m_renderQueue.Draw(m_graphicsAPI, cameraData, lights);
+            }
+            else
+            {
+                glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
+                m_graphicsAPI.SetViewport(0, 0, m_fboWidth, m_fboHeight);
+                m_graphicsAPI.ClearBuffers();
+                m_renderQueue.Draw(m_graphicsAPI, cameraData, lights);
+            }
 
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -217,7 +234,7 @@ namespace Engine
             // ── 2b. Blit FBO to screen when editor viewport is not showing it ──
             if (!m_editorViewportActive)
             {
-                glBindFramebuffer(GL_READ_FRAMEBUFFER, m_fbo);
+                glBindFramebuffer(GL_READ_FRAMEBUFFER, useDeferred ? m_deferredRenderer.GetOutputFramebuffer() : m_fbo);
                 glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
                 glBlitFramebuffer(
                     0, 0, m_fboWidth, m_fboHeight,
@@ -301,10 +318,12 @@ namespace Engine
         if (width <= 0 || height <= 0) return;
         DestroyFBO();
         CreateFBO(width, height);
+        m_deferredRenderer.Resize(width, height);
     }
 
     void ArkEngine::DestroyFBO()
     {
+        m_deferredRenderer.Shutdown();
         if (m_fbo) { glDeleteFramebuffers(1, &m_fbo);         m_fbo = 0; }
         if (m_fboColorTex) { glDeleteTextures(1, &m_fboColorTex); m_fboColorTex = 0; }
         if (m_fboDepthRBO) { glDeleteRenderbuffers(1, &m_fboDepthRBO); m_fboDepthRBO = 0; }
@@ -336,4 +355,31 @@ namespace Engine
 
     void ArkEngine::SetScene(const std::shared_ptr<Scene>& scene) { m_currentScene = scene; }
     const std::shared_ptr<Scene>& ArkEngine::GetScene() { return m_currentScene; }
+
+    GLuint ArkEngine::GetSceneColorTexture() const
+    {
+        return m_deferredRenderingEnabled && m_deferredRenderer.GetOutputTexture() != 0
+            ? m_deferredRenderer.GetOutputTexture()
+            : m_fboColorTex;
+    }
+
+    void ArkEngine::SetDeferredRenderingEnabled(bool enabled)
+    {
+        m_deferredRenderingEnabled = enabled;
+    }
+
+    bool ArkEngine::IsDeferredRenderingEnabled() const
+    {
+        return m_deferredRenderingEnabled;
+    }
+
+    void ArkEngine::SetShadowStrength(float strength)
+    {
+        m_shadowStrength = std::clamp(strength, 0.0f, 1.0f);
+    }
+
+    float ArkEngine::GetShadowStrength() const
+    {
+        return m_shadowStrength;
+    }
 }

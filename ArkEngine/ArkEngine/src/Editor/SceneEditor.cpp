@@ -494,6 +494,23 @@ namespace Engine
 					float c[3] = { col.r, col.g, col.b };
 					if (ImGui::ColorEdit3("Color", c))
 						light->SetColor({ c[0], c[1], c[2] });
+
+					const char* typeNames[] = { "Directional", "Point" };
+					int typeIdx = static_cast<int>(light->GetLightType());
+					ImGui::SetNextItemWidth(120.0f);
+					if (ImGui::Combo("Type", &typeIdx, typeNames, 2))
+						light->SetLightType(static_cast<LightType>(typeIdx));
+
+					float intensity = light->GetIntensity();
+					if (ImGui::DragFloat("Intensity", &intensity, 0.05f, 0.0f, 20.0f))
+						light->SetIntensity(intensity);
+
+					if (light->GetLightType() == LightType::Point)
+					{
+						float range = light->GetRange();
+						if (ImGui::DragFloat("Range", &range, 0.1f, 0.1f, 200.0f))
+							light->SetRange(range);
+					}
 				}
 				else if (dynamic_cast<CameraComponent*>(comp.get()))
 				{
@@ -843,6 +860,29 @@ namespace Engine
 
 		ImGui::SameLine(0, 12);
 		ImGui::TextDisabled("applied to all loaded asset textures");
+		ImGui::Spacing();
+
+		ImGui::Spacing();
+		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.49f, 0.51f, 1.0f, 1.0f));
+		ImGui::TextUnformatted("  Lighting");
+		ImGui::PopStyleColor();
+		ImGui::Separator();
+		ImGui::Spacing();
+
+		bool deferred = ArkEngine::GetInstance().IsDeferredRenderingEnabled();
+		if (ImGui::Checkbox("Deferred Rendering", &deferred))
+			ArkEngine::GetInstance().SetDeferredRenderingEnabled(deferred);
+		ImGui::SameLine(0, 12);
+		ImGui::TextDisabled("(requires restart if toggled mid-session)");
+
+		ImGui::BeginDisabled(!deferred);
+		float shadowStr = ArkEngine::GetInstance().GetShadowStrength();
+		ImGui::Text("Shadow Strength");
+		ImGui::SameLine(160.0f);
+		ImGui::SetNextItemWidth(200.0f);
+		if (ImGui::SliderFloat("##ShadowStr", &shadowStr, 0.0f, 1.0f))
+			ArkEngine::GetInstance().SetShadowStrength(shadowStr);
+		ImGui::EndDisabled();
 		ImGui::Spacing();
 	}
 

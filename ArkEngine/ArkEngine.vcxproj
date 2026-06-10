@@ -233,6 +233,7 @@
     <ClCompile Include="ArkEngine\src\Render\Material.cpp" />
     <ClCompile Include="ArkEngine\src\Render\Mesh.cpp" />
     <ClCompile Include="ArkEngine\src\Render\MeshManager.cpp" />
+    <ClCompile Include="ArkEngine\src\Render\DeferredRenderer.cpp" />
     <ClCompile Include="ArkEngine\src\Render\RenderQueue.cpp" />
     <ClCompile Include="ArkEngine\src\Scene\Component.cpp" />
     <ClCompile Include="ArkEngine\src\Scene\Components\AnimationComponent.cpp" />
@@ -296,6 +297,7 @@
     <ClInclude Include="ArkEngine\src\Render\MeshManager.h" />
     <ClInclude Include="ArkEngine\src\Render\Material.h" />
     <ClInclude Include="ArkEngine\src\Render\Mesh.h" />
+    <ClInclude Include="ArkEngine\src\Render\DeferredRenderer.h" />
     <ClInclude Include="ArkEngine\src\Render\RenderQueue.h" />
     <ClInclude Include="ArkEngine\src\Scene\Component.h" />
     <ClInclude Include="ArkEngine\src\Scene\Components\AnimationComponent.h" />

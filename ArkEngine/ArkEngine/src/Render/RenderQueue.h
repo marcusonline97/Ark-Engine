@@ -50,6 +50,7 @@ namespace Engine
         void Submit(const RenderCommand2D& command);
         void Submit(const RenderCommandUI& command);
         void Draw(GraphicsAPI& graphicsAPI, const CameraData& cameraData, const std::vector<LightData>& lights);
+        std::vector<RenderCommand> FlushCommands();
 
     private:
         std::vector<RenderCommand> m_commands;

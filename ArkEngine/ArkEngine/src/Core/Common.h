@@ -19,7 +19,10 @@ namespace Engine
 	{
 		glm::vec3 color;
 		glm::vec3 position;
-
+		glm::vec3 direction;
+		float intensity = 1.0f;
+		float range = 10.0f;
+		int type = 0;
 	};
 
 	struct UIBatch

@@ -16,6 +16,7 @@
 #include "Core/ArkEngine.h"
 
 #include <algorithm>
+#include <glm/geometric.hpp>
 
 namespace Engine
 {
@@ -376,6 +377,10 @@ namespace Engine
             LightData data;
             data.color = light->GetColor();
             data.position = obj->GetWorldPosition();
+            data.direction = glm::normalize(obj->GetWorldRotation() * glm::vec3(0.0f, -1.0f, 0.0f));
+            data.intensity = light->GetIntensity();
+            data.range = light->GetRange();
+            data.type = light->GetLightType() == LightType::Point ? 1 : 0;
             out.push_back(data);
         }
 
@@ -464,7 +469,11 @@ namespace Engine
             const auto& components = jsonObject["components"];
             for (const auto& comp : components)
             {
-                const std::string type = comp.value("type", "");
+                std::string type = comp.value("componentType", comp.value("type", ""));
+                if (type == "directional" || type == "point")
+                {
+                    type = "LightComponent";
+                }
                 Component* component = ComponentFactory::GetInstance().CreateComponent(type);
                 if (component)
                 {
@@ -560,6 +569,11 @@ namespace Engine
         }
 
 		component->SaveProperties(result);
+        const std::string savedType = result.value("type", "");
+        if (savedType != ComponentFactory::GetInstance().GetTypeName(component->GetTypeId()))
+        {
+            result["componentType"] = ComponentFactory::GetInstance().GetTypeName(component->GetTypeId());
+        }
 		return result;
     }
 }

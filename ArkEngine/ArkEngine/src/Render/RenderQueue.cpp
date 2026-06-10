@@ -6,6 +6,8 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
+#include <utility>
+
 namespace Engine
 {
     void RenderQueue::Init()
@@ -113,5 +115,12 @@ namespace Engine
         graphicsAPI.SetBlendMode(BlendMode::Disabled);
         graphicsAPI.SetDepthTestEnabled(true);
         m_commandsUI.clear();
+    }
+
+    std::vector<RenderCommand> RenderQueue::FlushCommands()
+    {
+        std::vector<RenderCommand> out = std::move(m_commands);
+        m_commands.clear();
+        return out;
     }
 }
