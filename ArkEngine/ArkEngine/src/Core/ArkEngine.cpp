@@ -130,6 +130,7 @@ namespace Engine
         m_audioManager.Init();
         m_renderQueue.Init();
         m_deferredRenderer.Init(width, height);
+        m_skySphereRenderer.Init();
         m_fontManager.Init();
 
         // Create the scene FBO at the initial window size
@@ -227,6 +228,7 @@ namespace Engine
                 glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
                 m_graphicsAPI.SetViewport(0, 0, m_fboWidth, m_fboHeight);
                 m_graphicsAPI.ClearBuffers();
+                m_skySphereRenderer.Render(cameraData);
                 m_renderQueue.Draw(m_graphicsAPI, cameraData, lights);
             }
 
@@ -278,6 +280,7 @@ namespace Engine
             m_application.reset();
         }
 
+        m_skySphereRenderer.Shutdown();
         DestroyFBO();
 
         if (m_editorUIActive)

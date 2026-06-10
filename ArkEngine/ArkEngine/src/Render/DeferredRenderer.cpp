@@ -184,8 +184,7 @@ namespace Engine
                 vec3 normalSample = texture(uGNormal, vUV).rgb;
                 if (length(normalSample) < 0.0001)
                 {
-                    FragColor = vec4(0.0, 0.0, 0.0, 1.0);
-                    return;
+                    discard;
                 }
 
                 vec3 normal = normalize(normalSample);
@@ -265,6 +264,7 @@ namespace Engine
         CreateShadowMap();
         CreateOutputBuffer(width, height);
         CreateWhiteTexture();
+        m_skySphereRenderer.Init();
 
         return m_gFBO != 0 && m_shadowFBO != 0 && m_outputFBO != 0;
     }
@@ -296,6 +296,7 @@ namespace Engine
         DestroyOutputBuffer();
         DestroyShadowMap();
         DestroyWhiteTexture();
+        m_skySphereRenderer.Shutdown();
 
         m_quad.reset();
         m_geoPassShader.reset();
@@ -399,6 +400,7 @@ namespace Engine
 
         glBindFramebuffer(GL_FRAMEBUFFER, m_outputFBO);
         glClear(GL_COLOR_BUFFER_BIT);
+        m_skySphereRenderer.Render(cameraData);
         glDisable(GL_DEPTH_TEST);
         glDisable(GL_BLEND);
 

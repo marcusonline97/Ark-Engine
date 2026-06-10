@@ -6,6 +6,7 @@
 #include "Render/MeshManager.h"
 #include "Render/DeferredRenderer.h"
 #include "Render/RenderQueue.h"
+#include "Render/SkySphereRenderer.h"
 #include "Scene/Scene.h"
 #include "AssetManager/FileSystem.h"
 #include "Physics/PhysicsManager.h"
@@ -93,6 +94,7 @@ namespace Engine
 		GraphicsAPI m_graphicsAPI;
 		RenderQueue m_renderQueue;
 		DeferredRenderer m_deferredRenderer;
+		SkySphereRenderer m_skySphereRenderer;
 		FileSystem m_fileSystem;
 		TextureManager m_textureManager;
 		MeshManager m_meshManager;

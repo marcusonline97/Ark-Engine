@@ -2,6 +2,7 @@
 
 #include "Core/Common.h"
 #include "Render/RenderQueue.h"
+#include "Render/SkySphereRenderer.h"
 
 #include <GLAD/glad.h>
 #include <glm/mat4x4.hpp>
@@ -53,6 +54,7 @@ namespace Engine
         std::shared_ptr<ShaderProgram> m_geoPassShader;
         std::shared_ptr<ShaderProgram> m_lightPassShader;
         std::shared_ptr<ShaderProgram> m_shadowPassShader;
+        SkySphereRenderer m_skySphereRenderer;
 
         void CreateGBuffer(int w, int h);
         void CreateShadowMap();

@@ -1375,6 +1375,7 @@
     <ClCompile Include="ArkEngine\Vendor\Jolt\TriangleSplitter\*.cpp" />
     <ClCompile Include="ArkEngine\src\Render\DeferredRenderer.cpp" />
     <ClCompile Include="ArkEngine\src\Render\RenderQueue.cpp" />
+    <ClCompile Include="ArkEngine\src\Render\SkySphereRenderer.cpp" />
     <ClCompile Include="ArkEngine\Vendor\Jolt\Core\*.cpp" />
     <ClCompile Include="ArkEngine\Vendor\Jolt\Core\*.cpp" />
     <ClCompile Include="ArkEngine\Vendor\Jolt\Core\*.cpp" />
@@ -4387,6 +4388,7 @@
     <ClInclude Include="ArkEngine\src\Graphics\VertexLayout.h" />
     <ClInclude Include="ArkEngine\src\Render\DeferredRenderer.h" />
     <ClInclude Include="ArkEngine\src\Render\RenderQueue.h" />
+    <ClInclude Include="ArkEngine\src\Render\SkySphereRenderer.h" />
     <ClInclude Include="ArkEngine\src\Scene\GameObject.h" />
     <ClInclude Include="ArkEngine\src\Scene\Scene.h" />
     <ClInclude Include="ArkEngine\src\TestObject.h" />
