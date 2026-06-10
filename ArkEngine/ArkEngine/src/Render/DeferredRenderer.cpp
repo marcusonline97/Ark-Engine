@@ -194,7 +194,7 @@ namespace Engine
                 float specularStrength = albedoSpec.a;
 
                 vec3 viewDir = normalize(uCameraPos - fragPos);
-                vec3 lighting = albedo * 0.05;
+                vec3 lighting = albedo * 0.15;
 
                 for (int i = 0; i < uLightCount; ++i)
                 {
@@ -209,13 +209,18 @@ namespace Engine
                         if (distanceToLight > uLights[i].range)
                             continue;
 
-                        lightDir = normalize(toLight);
+                        lightDir = toLight;
                         attenuation = 1.0 / (1.0 + 0.09 * distanceToLight + 0.032 * distanceToLight * distanceToLight);
                     }
                     else
                     {
-                        lightDir = normalize(-uLights[i].direction);
+                        lightDir = -uLights[i].direction;
                     }
+
+                    float lightDirLength = length(lightDir);
+                    if (lightDirLength < 0.0001)
+                        continue;
+                    lightDir /= lightDirLength;
 
                     float diff = max(dot(normal, lightDir), 0.0);
                     vec3 halfwayDir = normalize(lightDir + viewDir);

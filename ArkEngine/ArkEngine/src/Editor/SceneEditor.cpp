@@ -823,6 +823,20 @@ namespace Engine
 		ImGui::Spacing();
 
 		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.49f, 0.51f, 1.0f, 1.0f));
+		ImGui::TextUnformatted("  Lighting");
+		ImGui::PopStyleColor();
+		ImGui::Separator();
+		ImGui::Spacing();
+
+		bool deferredRenderingEnabled = ArkEngine::GetInstance().IsDeferredRenderingEnabled();
+		if (ImGui::Checkbox("Deferred Rendering", &deferredRenderingEnabled))
+		{
+			ArkEngine::GetInstance().SetDeferredRenderingEnabled(deferredRenderingEnabled);
+			m_status = deferredRenderingEnabled ? "Deferred rendering enabled" : "Deferred rendering disabled";
+		}
+
+		ImGui::Spacing();
+		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.49f, 0.51f, 1.0f, 1.0f));
 		ImGui::TextUnformatted("  Textures");
 		ImGui::PopStyleColor();
 		ImGui::Separator();

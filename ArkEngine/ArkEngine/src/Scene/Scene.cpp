@@ -16,6 +16,8 @@
 #include "Core/ArkEngine.h"
 
 #include <algorithm>
+#include <cmath>
+#include <glm/geometric.hpp>
 
 namespace Engine
 {
@@ -376,6 +378,27 @@ namespace Engine
             LightData data;
             data.color = light->GetColor();
             data.position = obj->GetWorldPosition();
+            data.direction = glm::vec3(0.0f);
+            data.type = static_cast<int>(light->GetLightType());
+            data.intensity = light->GetIntensity();
+            data.range = light->GetRange();
+
+            if (data.type == 0)
+            {
+                const glm::quat worldRotation = obj->GetWorldRotation();
+                const bool hasMeaningfulRotation =
+                    std::abs(worldRotation.x) > 0.0001f ||
+                    std::abs(worldRotation.y) > 0.0001f ||
+                    std::abs(worldRotation.z) > 0.0001f ||
+                    std::abs(std::abs(worldRotation.w) - 1.0f) > 0.0001f;
+
+                glm::vec3 direction = worldRotation * glm::vec3(0.0f, 0.0f, -1.0f);
+                if (!hasMeaningfulRotation || glm::length(direction) < 0.0001f)
+                {
+                    direction = glm::vec3(0.3f, -1.0f, 0.2f);
+                }
+                data.direction = glm::normalize(direction);
+            }
             out.push_back(data);
         }
 
