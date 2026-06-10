@@ -184,6 +184,11 @@ namespace Engine
                 ResizeFBO(winW, winH);
 
             CameraData cameraData;
+            cameraData.viewMatrix = glm::mat4(1.0f);
+            cameraData.projectionMatrix = glm::mat4(1.0f);
+            cameraData.orthoMatrix = glm::ortho(
+                0.0f, (float)m_fboWidth, 0.0f, (float)m_fboHeight);
+            cameraData.position = glm::vec3(0.0f);
             std::vector<LightData> lights;
             float aspect = (m_fboHeight > 0)
                 ? (float)m_fboWidth / (float)m_fboHeight : 1.0f;

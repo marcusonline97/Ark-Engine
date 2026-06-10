@@ -181,7 +181,14 @@ namespace Engine
             void main()
             {
                 vec3 fragPos = texture(uGPosition, vUV).rgb;
-                vec3 normal = normalize(texture(uGNormal, vUV).rgb);
+                vec3 normalSample = texture(uGNormal, vUV).rgb;
+                if (length(normalSample) < 0.0001)
+                {
+                    FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+                    return;
+                }
+
+                vec3 normal = normalize(normalSample);
                 vec4 albedoSpec = texture(uGAlbedoSpec, vUV);
                 vec3 albedo = albedoSpec.rgb;
                 float specularStrength = albedoSpec.a;
