@@ -4,6 +4,7 @@
 #include "Graphics/Texture.h"
 #include "Graphics/GraphicsAPI.h"
 #include "Render/MeshManager.h"
+#include "Render/DeferredRenderer.h"
 #include "Render/RenderQueue.h"
 #include "Scene/Scene.h"
 #include "AssetManager/FileSystem.h"
@@ -63,12 +64,17 @@ namespace Engine
 		// ── Scene-viewport FBO ──────────────────────────────────
 // Returns the OpenGL texture ID that contains the last rendered frame.
 // SceneEditor samples this to draw the viewport panel.
-		GLuint GetSceneColorTexture() const { return m_fboColorTex; }
+		GLuint GetSceneColorTexture() const;
 		int    GetSceneViewportWidth()  const { return m_fboWidth; }
 		int    GetSceneViewportHeight() const { return m_fboHeight; }
 
 		void SetEditorViewportActive(bool active) { m_editorViewportActive = active; }
 		bool IsEditorViewportActive() const        { return m_editorViewportActive; }
+
+		void SetDeferredRenderingEnabled(bool enabled);
+		bool IsDeferredRenderingEnabled() const;
+		void SetShadowStrength(float strength);
+		float GetShadowStrength() const;
 
 	private:
 		//-------------------------------------------
@@ -86,6 +92,7 @@ namespace Engine
 		InputManager m_inputManager;
 		GraphicsAPI m_graphicsAPI;
 		RenderQueue m_renderQueue;
+		DeferredRenderer m_deferredRenderer;
 		FileSystem m_fileSystem;
 		TextureManager m_textureManager;
 		MeshManager m_meshManager;
@@ -103,6 +110,8 @@ namespace Engine
 		GLuint m_fboDepthRBO = 0;
 		int    m_fboWidth = 0;
 		int    m_fboHeight = 0;
+		bool   m_deferredRenderingEnabled = true;
+		float  m_shadowStrength = 0.5f;
 		//-------------------------------------------
 		// Functions
 		//-------------------------------------------

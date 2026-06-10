@@ -230,6 +230,7 @@
     <ClCompile Include="ArkEngine\src\Physics\PhysicsManager.cpp" />
     <ClCompile Include="ArkEngine\src\Physics\RigidBody.cpp" />
     <ClCompile Include="ArkEngine\src\Player.cpp" />
+    <ClCompile Include="ArkEngine\src\Render\DeferredRenderer.cpp" />
     <ClCompile Include="ArkEngine\src\Render\Material.cpp" />
     <ClCompile Include="ArkEngine\src\Render\Mesh.cpp" />
     <ClCompile Include="ArkEngine\src\Render\MeshManager.cpp" />
@@ -270,6 +271,7 @@
     <ClInclude Include="ArkEngine\src\Audio\AudioManager.h" />
     <ClInclude Include="ArkEngine\src\Bullet.h" />
     <ClInclude Include="ArkEngine\src\Core\Common.h" />
+    <ClInclude Include="ArkEngine\src\Editor\ImGuiLayer.h" />
     <ClInclude Include="ArkEngine\src\Editor\SceneEditor.h" />
     <ClInclude Include="ArkEngine\src\Font\Font.h" />
     <ClInclude Include="ArkEngine\src\Font\FontManager.h" />
@@ -293,6 +295,7 @@
     <ClInclude Include="ArkEngine\src\Physics\PhysicsManager.h" />
     <ClInclude Include="ArkEngine\src\Physics\RigidBody.h" />
     <ClInclude Include="ArkEngine\src\Player.h" />
+    <ClInclude Include="ArkEngine\src\Render\DeferredRenderer.h" />
     <ClInclude Include="ArkEngine\src\Render\MeshManager.h" />
     <ClInclude Include="ArkEngine\src\Render\Material.h" />
     <ClInclude Include="ArkEngine\src\Render\Mesh.h" />

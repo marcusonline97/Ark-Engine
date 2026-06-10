@@ -464,7 +464,11 @@ namespace Engine
             const auto& components = jsonObject["components"];
             for (const auto& comp : components)
             {
-                const std::string type = comp.value("type", "");
+                std::string type = comp.value("componentType", comp.value("type", ""));
+                if (type == "directional" || type == "point")
+                {
+					type == "LightComponent";
+                }
                 Component* component = ComponentFactory::GetInstance().CreateComponent(type);
                 if (component)
                 {
@@ -560,6 +564,11 @@ namespace Engine
         }
 
 		component->SaveProperties(result);
+        const std::string savedType = result.value("type", "");
+        if (savedType != ComponentFactory::GetInstance().GetTypeName(component->GetTypeId()))
+        {
+            result["componentType"] = ComponentFactory::GetInstance().GetTypeName(component->GetTypeId());
+        }
 		return result;
     }
 }
