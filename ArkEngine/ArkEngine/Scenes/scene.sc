@@ -3196,6 +3196,53 @@
     {
       "children": [
         {
+          "components": [
+            {
+              "color": {
+                "a": 1.0,
+                "b": 1.0,
+                "g": 1.0,
+                "r": 1.0
+              },
+              "fillParent": true,
+              "texture": "Textures/entry_menu_background.png",
+              "type": "UIImageComponent"
+            },
+            {
+              "anchor": {
+                "x": 0.5,
+                "y": 0.5
+              },
+              "pivot": {
+                "x": 0.5,
+                "y": 0.5
+              },
+              "size": {
+                "x": 1280.0,
+                "y": 720.0
+              },
+              "type": "RectTransformComponent"
+            }
+          ],
+          "name": "EntryMenuBackground",
+          "position": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "rotation": {
+            "w": 1.0,
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "scale": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        },
+        {
           "children": [
             {
               "components": [

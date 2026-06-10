@@ -248,6 +248,7 @@
     <ClCompile Include="ArkEngine\src\Scene\Components\UI\CanvasComponent.cpp" />
     <ClCompile Include="ArkEngine\src\Scene\Components\UI\RectTransformComponent.cpp" />
     <ClCompile Include="ArkEngine\src\Scene\Components\UI\TextComponent.cpp" />
+    <ClCompile Include="ArkEngine\src\Scene\Components\UI\UIImageComponent.cpp" />
     <ClCompile Include="ArkEngine\src\Scene\Components\UI\UIElementComponent.cpp" />
     <ClCompile Include="ArkEngine\src\Scene\Components\UI\UIInputSystem.cpp" />
     <ClCompile Include="ArkEngine\src\Scene\GameObject.cpp" />
@@ -313,6 +314,7 @@
     <ClInclude Include="ArkEngine\src\Scene\Components\UI\CanvasComponent.h" />
     <ClInclude Include="ArkEngine\src\Scene\Components\UI\RectTransformComponent.h" />
     <ClInclude Include="ArkEngine\src\Scene\Components\UI\TextComponent.h" />
+    <ClInclude Include="ArkEngine\src\Scene\Components\UI\UIImageComponent.h" />
     <ClInclude Include="ArkEngine\src\Scene\Components\UI\UIElementComponent.h" />
     <ClInclude Include="ArkEngine\src\Scene\Components\UI\UIInputSystem.h" />
     <ClInclude Include="ArkEngine\src\Scene\GameObject.h" />

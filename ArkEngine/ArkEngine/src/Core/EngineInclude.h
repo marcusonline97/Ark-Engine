@@ -27,6 +27,7 @@
 #include "Scene/Components/UI/UIElementComponent.h"
 #include "Scene/Components/UI/UIInputSystem.h"
 #include "Scene/Components/UI/ButtonComponent.h"
+#include "Scene/Components/UI/UIImageComponent.h"
 #include "Physics/Collider.h"
 #include "Physics/RigidBody.h"
 #include "Physics/PhysicsManager.h"

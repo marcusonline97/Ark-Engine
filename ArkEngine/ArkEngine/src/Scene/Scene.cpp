@@ -12,6 +12,7 @@
 #include "Scene/Components/UI/CanvasComponent.h"
 #include "Scene/Components/UI/TextComponent.h"
 #include "Scene/Components/UI/ButtonComponent.h"
+#include "Scene/Components/UI/UIImageComponent.h"
 #include "Scene/Components/UI/RectTransformComponent.h"
 #include "Core/ArkEngine.h"
 
@@ -38,6 +39,7 @@ namespace Engine
         CanvasComponent::Register();
 		TextComponent::Register();
 		ButtonComponent::Register();
+        UIImageComponent::Register();
 		RectTransformComponent::Register();
     }
 
