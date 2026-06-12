@@ -178,6 +178,23 @@ Editor camera controls:
 - Q or Ctrl: move down.
 - Shift: fast movement.
 
-## License
+Features and Structure weaknesses and things i would have loved to add but did't. 
+- Window creation: I would have loved to make the engine more modular and adaptable where i can switch between SDL / GLFW for window creation by maybe doing something like Window::SDL with it's own implementation and possibility to disconnect and reconnect things in a more adaptable fashion to make the engine.
 
-<!-- TODO: add license -->
+- Threading: I did't touch threading at all in the project and it was one of my greater downfall very early in the project before so all runs on the main thread which is a poor decision on my end. 
+
+- Performance and optimisations: I should have made more use of ints & enums for my handling and loading of things instead of strings due to the amount of bytes used, this should have improved things a fair bit. 
+
+- Rendering: I was looking into making all of the rendering using Vulkan but it is too great of an ask to implement especially for a student like myself in this engine. Maybe adding DX11 support would have worked fine and just like in the point of window creation. I would have liked to make it possible to select which renderer to use like GraphicsAPI::Vulkan. 
+
+- Scripting would have been really neat and nice, i could definitly see the use of making more utility macros for functions and creation of objects. I could have added Lua scripting but i just did't have the time.
+
+- Object structure: I think i would have gone with a structure that i am more familiar with like Unreals way with UObjects and properties that can set how that thing and it's components will behave and work. I needed far better core structure to make this possible.
+
+- Editor layer vs Gameplay. Currently it's just a silly switch but i should have written it differently to set it based on an integer in my main.cpp instead. 
+
+- Final notes: it's fine for what it is, i will probably return to this in the future and iterate on some things likely if my team wants to repurpose the engine.
+
+
+## License:
+I dont give a damm, do what you want you filthy animal! :D 
