@@ -62,13 +62,20 @@ namespace Engine
             in vec2 vUV;
 
             uniform sampler2D baseColorTexture;
+            uniform sampler2D specularMap;
+            uniform int       uHasSpecularMap;
+            uniform float     uSpecularStrength;
 
             void main()
             {
                 vec3 albedo = texture(baseColorTexture, vUV).rgb;
                 gPosition = vec4(vFragPos, 1.0);
                 gNormal = vec4(normalize(vNormal), 1.0);
-                gAlbedoSpec = vec4(albedo, 0.5);
+                float specStrength = uSpecularStrength;
+                if (uHasSpecularMap != 0) {
+                    specStrength *= texture(specularMap, vUV).r;
+                }
+                gAlbedoSpec = vec4(albedo, specStrength);
             }
             )";
         }
@@ -383,18 +390,45 @@ namespace Engine
             bool foundTexture = false;
             if (command.material)
             {
-                command.material->ForEachTexture([&](Texture* texture)
-                    {
-                        if (!foundTexture && texture)
+                if (Texture* texture = command.material->GetTextureParam("baseColorTexture"))
+                {
+                    baseColorTexture = texture->GetID();
+                    foundTexture = true;
+                }
+                else
+                {
+                    command.material->ForEachTexture([&](Texture* texture)
                         {
-                            baseColorTexture = texture->GetID();
-                            foundTexture = true;
-                        }
-                    });
+                            if (!foundTexture && texture)
+                            {
+                                baseColorTexture = texture->GetID();
+                                foundTexture = true;
+                            }
+                        });
+                }
             }
 
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, baseColorTexture);
+
+            m_geoPassShader->SetUniform("uSpecularStrength",
+                ArkEngine::GetInstance().GetSpecularStrength());
+
+            Texture* specTex = command.material
+                ? command.material->GetTextureParam("specularMap")
+                : nullptr;
+
+            if (specTex)
+            {
+                glActiveTexture(GL_TEXTURE1);
+                glBindTexture(GL_TEXTURE_2D, specTex->GetID());
+                m_geoPassShader->SetUniform("specularMap", 1);
+                m_geoPassShader->SetUniform("uHasSpecularMap", 1);
+            }
+            else
+            {
+                m_geoPassShader->SetUniform("uHasSpecularMap", 0);
+            }
 
             m_geoPassShader->SetUniform("uModel", command.modelMatrix);
             command.mesh->Bind();

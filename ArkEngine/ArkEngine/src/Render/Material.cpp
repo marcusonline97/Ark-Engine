@@ -37,6 +37,20 @@ namespace Engine
         m_textures[name] = texture;
     }
 
+    bool Material::HasTextureParam(const std::string& name) const
+    {
+        auto it = m_textures.find(name);
+        return it != m_textures.end() && it->second != nullptr;
+    }
+
+    Texture* Material::GetTextureParam(const std::string& name) const
+    {
+        auto it = m_textures.find(name);
+        if (it != m_textures.end() && it->second)
+            return it->second.get();
+        return nullptr;
+    }
+
     void Material::ForEachTexture(const std::function<void(Texture*)>& fn)
     {
         for (auto& param : m_textures)

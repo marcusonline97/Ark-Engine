@@ -388,4 +388,14 @@ namespace Engine
     {
         return m_shadowStrength;
     }
+
+    void ArkEngine::SetSpecularStrength(float strength)
+    {
+        m_specularStrength = std::clamp(strength, 0.0f, 2.0f);
+    }
+
+    float ArkEngine::GetSpecularStrength() const
+    {
+        return m_specularStrength;
+    }
 }

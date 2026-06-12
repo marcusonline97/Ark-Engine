@@ -1,4 +1,5 @@
 #include "RenderQueue.h"
+#include "Core/ArkEngine.h"
 #include "Mesh.h"
 #include "Render/Material.h"
 #include "Graphics/GraphicsAPI.h"
@@ -36,6 +37,13 @@ namespace Engine
         for (auto& command : m_commands)
         {
             graphicsAPI.BindMaterial(command.material);
+            if (auto* sp = command.material->GetShaderProgram())
+            {
+                sp->SetUniform("uSpecularStrength",
+                    ArkEngine::GetInstance().GetSpecularStrength());
+                sp->SetUniform("uHasSpecularMap",
+                    command.material->HasTextureParam("specularMap") ? 1 : 0);
+            }
             auto shaderProgram = command.material->GetShaderProgram();
             shaderProgram->SetUniform("uModel", command.modelMatrix);
             shaderProgram->SetUniform("uView", cameraData.viewMatrix);
