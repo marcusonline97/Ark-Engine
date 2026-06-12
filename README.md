@@ -196,7 +196,8 @@ Features and Structure weaknesses and things i would have loved to add but did't
 
 - Editor layer vs Gameplay. Currently it's just a silly switch but i should have written it differently to set it based on an integer in my main.cpp instead. 
 
-- Final notes: it's fine for what it is, i will probably return to this in the future and iterate on some things likely if my team wants to repurpose the engine.
+- Final notes: it's fine for what it is, i will probably return to this in the future and iterate on some things likely if my team wants to repurpose the engine. ( What every dev says and never does) 
+We'll see, if my dev team actually wants to reuse the engine and invest some time into making it a bit more stable for an in-house solution then we might revamp this project in the future.
 
 
 ## License:
