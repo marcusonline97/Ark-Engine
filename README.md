@@ -96,13 +96,16 @@ Rendering is submitted through `RenderQueue` commands for 3D meshes, 2D sprites,
 ### Prerequisites
 
 <!-- TODO: fill in prerequisites -->
+You need Visual Studio 2020 or above , i would choose above.
 
 ### Building
 
+You need to compile the project once to expose the [Export] folder.
+In that you will get the exe and lib folders. However you need to copy the resource folder and paste in there aswell.
 <!-- TODO: fill in build instructions. CMake is assumed. -->
 
 ### Running
-
+Press the green button and have fun i guess
 <!-- TODO: fill in run instructions -->
 
 ## Scene File Format
