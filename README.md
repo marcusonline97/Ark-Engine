@@ -2,8 +2,8 @@
 
 ArkEngine — a custom 3D game engine written in C++
 
-![Editor Screenshot](docs/screenshot.png)
-
+![Editor Screenshot](<img width="1264" height="748" alt="image" src="https://github.com/user-attachments/assets/41291c11-5877-4ab3-a85a-2ddc00cede12" />
+)
 ## Features
 
 **Rendering**
