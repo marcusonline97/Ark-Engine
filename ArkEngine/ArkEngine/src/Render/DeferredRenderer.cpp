@@ -408,6 +408,7 @@ namespace Engine
                                 foundTexture = true;
                             }
 						});
+                }
             }
 
             glActiveTexture(GL_TEXTURE0);
