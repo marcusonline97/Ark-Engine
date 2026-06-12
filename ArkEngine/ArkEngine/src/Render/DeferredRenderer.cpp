@@ -71,11 +71,14 @@ namespace Engine
                 vec3 albedo = texture(baseColorTexture, vUV).rgb;
                 gPosition = vec4(vFragPos, 1.0);
                 gNormal = vec4(normalize(vNormal), 1.0);
-float specStrength = uSpecularStrength;
-                if (uHasSpecularMap != 0) {
+
+                float specStrength = uSpecularStrength;
+                if (uHasSpecularMap != 0)
+                {
                     specStrength *= texture(specularMap, vUV).r;
                 }
-                gAlbedoSpec = vec4(albedo, specStrength);
+
+                gAlbedoSpec = vec4(albedo, max(specStrength, 0.0));
             }
             )";
         }
@@ -405,22 +408,25 @@ float specStrength = uSpecularStrength;
                                 foundTexture = true;
                             }
 						});
+                }
             }
 
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, baseColorTexture);
 
             m_geoPassShader->SetUniform("uSpecularStrength", ArkEngine::GetInstance().GetSpecularStrength());
+            m_geoPassShader->SetUniform("specularMap", 1);
             Texture* specTex = command.material ? command.material->GetTextureParam("specularMap") : nullptr;
             if (specTex)
             {
                 glActiveTexture(GL_TEXTURE1);
                 glBindTexture(GL_TEXTURE_2D, specTex->GetID());
-                m_geoPassShader->SetUniform("specularMap", 1);
                 m_geoPassShader->SetUniform("uHasSpecularMap", 1);
             }
             else
             {
+                glActiveTexture(GL_TEXTURE1);
+                glBindTexture(GL_TEXTURE_2D, m_whiteTexture);
                 m_geoPassShader->SetUniform("uHasSpecularMap", 0);
             }
 
@@ -476,7 +482,7 @@ float specStrength = uSpecularStrength;
         m_quad->Draw();
         m_quad->Unbind();
 
-        glBindFramebuffer(GL_FRAMEBUFFER, m_outputFBO);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
         glViewport(0, 0, m_width, m_height);
         glEnable(GL_DEPTH_TEST);
         glDisable(GL_BLEND);
@@ -518,7 +524,7 @@ float specStrength = uSpecularStrength;
 
         glGenTextures(1, &m_gAlbedoSpec);
         glBindTexture(GL_TEXTURE_2D, m_gAlbedoSpec);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, w, h, 0, GL_RGBA, GL_FLOAT, nullptr);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, m_gAlbedoSpec, 0);

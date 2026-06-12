@@ -540,33 +540,36 @@ namespace Engine
                 if (primitive.material)
                 {
                     auto gltfMat = primitive.material;
+                    auto assignTexture = [&](const char* paramName, cgltf_texture* texture)
+                        {
+                            if (!texture || !texture->image || !texture->image->uri)
+                            {
+                                return;
+                            }
+
+                            const auto path = folder / std::string(texture->image->uri);
+                            auto tex = ArkEngine::GetInstance().GetTextureManager().GetOrLoadTexture(path.string());
+                            mat->SetParam(paramName, tex);
+                        };
+
                     if (gltfMat->has_pbr_metallic_roughness)
                     {
                         auto pbr = gltfMat->pbr_metallic_roughness;
-                        auto texture = pbr.base_color_texture.texture;
-                        if (texture && texture->image)
-                        {
-                            if (texture->image->uri)
-                            {
-                                auto path = folder / std::string(texture->image->uri);
-                                auto tex = ArkEngine::GetInstance().GetTextureManager().GetOrLoadTexture(path.string());
-                                mat->SetParam("baseColorTexture", tex);
-                            }
-                        }
+                        assignTexture("baseColorTexture", pbr.base_color_texture.texture);
                     }
                     else if (gltfMat->has_pbr_specular_glossiness)
                     {
                         auto pbr = gltfMat->pbr_specular_glossiness;
-                        auto texture = pbr.diffuse_texture.texture;
-                        if (texture && texture->image)
-                        {
-                            if (texture->image->uri)
-                            {
-                                auto path = folder / std::string(texture->image->uri);
-                                auto tex = ArkEngine::GetInstance().GetTextureManager().GetOrLoadTexture(path.string());
-                                mat->SetParam("baseColorTexture", tex);
-                            }
-                        }
+                        assignTexture("baseColorTexture", pbr.diffuse_texture.texture);
+                        assignTexture("specularMap", pbr.specular_glossiness_texture.texture);
+                    }
+
+                    if (gltfMat->has_specular)
+                    {
+                        const auto& specular = gltfMat->specular;
+                        assignTexture("specularMap", specular.specular_texture.texture
+                            ? specular.specular_texture.texture
+                            : specular.specular_color_texture.texture);
                     }
 
                     object->AddComponent(new MeshComponent(mat, mesh));

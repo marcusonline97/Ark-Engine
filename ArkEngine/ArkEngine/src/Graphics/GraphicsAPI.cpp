@@ -123,6 +123,7 @@ namespace Engine
             in vec3 vFragPos;
 
             uniform sampler2D baseColorTexture;
+            uniform sampler2D specularMap;
             uniform int       uHasSpecularMap;
             uniform float     uSpecularStrength;
 
@@ -137,12 +138,12 @@ namespace Engine
 
                 // specular
                 vec3 viewDir = normalize(uCameraPos - vFragPos);
-                vec3 redlectDir = reflect(-lightDir, norm);
-                float spec = pow(max(dot(viewDir, redlectDir), 0.0), 32.0);
+                vec3 reflectDir = reflect(-lightDir, norm);
+                float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32.0);
                 float specularStrength = uSpecularStrength;
                 if (uHasSpecularMap != 0)
                 {
-                 specularStrenth *= texture(specularMap, vUV).r;   
+                    specularStrength *= texture(specularMap, vUV).r;
                 }
                 vec3 specular = specularStrength * spec * uLight.color;
                 
