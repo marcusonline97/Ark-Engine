@@ -75,6 +75,8 @@ namespace Engine
 		bool IsDeferredRenderingEnabled() const;
 		void SetShadowStrength(float strength);
 		float GetShadowStrength() const;
+		void SetSpecularStrength(float strength);
+		float GetSpecularStrength() const;
 
 	private:
 		//-------------------------------------------
@@ -112,6 +114,7 @@ namespace Engine
 		int    m_fboHeight = 0;
 		bool   m_deferredRenderingEnabled = true;
 		float  m_shadowStrength = 0.5f;
+		float m_specularStrength = 0.5f;
 		//-------------------------------------------
 		// Functions
 		//-------------------------------------------

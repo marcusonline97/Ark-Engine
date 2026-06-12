@@ -21,6 +21,10 @@ namespace Engine
         void SetParam(const std::string& name, float v0, float v1);
         void SetParam(const std::string& name, const glm::vec3& value);
         void SetParam(const std::string& name, const std::shared_ptr<Texture>& texture);
+		bool HasTextureParam(const std::string& name) const;
+
+		Texture* GetTextureParam(const std::string& name) const;
+
 		void ForEachTexture(const std::function<void(Texture*)>& fn);
         void Bind();
 

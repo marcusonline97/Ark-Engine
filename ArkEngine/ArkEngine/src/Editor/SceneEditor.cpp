@@ -858,6 +858,23 @@ namespace Engine
 		ImGui::SameLine(0, 12);
 		ImGui::TextDisabled("applied to all loaded asset textures");
 		ImGui::Spacing();
+
+		ImGui::Spacing();
+		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.49f, 0.51f, 1.0f, 1.0f));
+		ImGui::TextUnformatted("  Specular");
+		ImGui::PopStyleColor();
+		ImGui::Separator();
+		ImGui::Spacing();
+
+		float specStrength = ArkEngine::GetInstance().GetSpecularStrength();
+		ImGui::Text("Strength");
+		ImGui::SameLine(90.0f);
+		ImGui::SetNextItemWidth(200.0f);
+		if (ImGui::SliderFloat("##SpecStrength", &specStrength, 0.0f, 2.0f, "%.2f"))
+			ArkEngine::GetInstance().SetSpecularStrength(specStrength);
+		ImGui::SameLine(0, 12);
+		ImGui::TextDisabled("scales specular on all materials");
+		ImGui::Spacing();
 	}
 
 	std::size_t SceneEditor::ApplyMipmapFilter(MipmapFilter filter)
