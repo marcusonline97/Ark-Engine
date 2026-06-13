@@ -962,7 +962,9 @@ namespace Engine
 		ImGui::Checkbox("Debug", &m_logShowDebug);   ImGui::SameLine();
 		ImGui::Checkbox("Warning", &m_logShowWarning); ImGui::SameLine();
 		ImGui::Checkbox("Error", &m_logShowError);   ImGui::SameLine();
-		ImGui::Checkbox("Fatal", &m_logShowFatal);
+		ImGui::Checkbox("Fatal", &m_logShowFatal);   ImGui::SameLine();
+		ImGui::Checkbox("Todo", &m_logShowTodo);     ImGui::SameLine();
+		ImGui::Checkbox("Function", &m_logShowFunction);
 		ImGui::Separator();
 
 		ImGui::BeginChild("##LogScroll", ImVec2(0, 0), false,
@@ -978,6 +980,8 @@ namespace Engine
 			case Logging::Level::WARNING: if (!m_logShowWarning) continue; break;
 			case Logging::Level::_ERROR:  if (!m_logShowError)   continue; break;
 			case Logging::Level::FATAL:   if (!m_logShowFatal)   continue; break;
+			case Logging::Level::TODO:    if (!m_logShowTodo)    continue; break;
+			case Logging::Level::FUNCTION: if (!m_logShowFunction) continue; break;
 			default: break;
 			}
 
@@ -989,6 +993,8 @@ namespace Engine
 			case Logging::Level::WARNING: col = { 0.95f, 0.80f, 0.20f, 1 }; break;
 			case Logging::Level::_ERROR:  col = { 0.95f, 0.30f, 0.30f, 1 }; break;
 			case Logging::Level::FATAL:   col = { 1.00f, 0.10f, 0.10f, 1 }; break;
+			case Logging::Level::TODO:    col = { 0.30f, 0.95f, 0.35f, 1 }; break;
+			case Logging::Level::FUNCTION: col = { 0.35f, 0.65f, 1.00f, 1 }; break;
 			default: break;
 			}
 
