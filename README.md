@@ -101,6 +101,7 @@ You need Visual Studio 2020 or above , i would choose above.
 ### Building
 
 You need to compile the project once to expose the [Export] folder.
+Please note: only Debug works. I did not get the dlls for the release to function properely.
 In that you will get the exe and lib folders. However you need to copy the resource folder and paste in there aswell.
 <!-- TODO: fill in build instructions. CMake is assumed. -->
 
@@ -195,6 +196,9 @@ Features and Structure weaknesses and things i would have loved to add but did't
 - Object structure: I think i would have gone with a structure that i am more familiar with like Unreals way with UObjects and properties that can set how that thing and it's components will behave and work. I needed far better core structure to make this possible.
 
 - Editor layer vs Gameplay. Currently it's just a silly switch but i should have written it differently to set it based on an integer in my main.cpp instead. 
+
+- Plan for scale and not just throwing things at a wall solutions. It's a thing i learned mainly here as the project grew. It is incredibly difficult to scale a project when you have a crap foundation. 
+AI can help solutions and wrap things neatly but won't be the best when it comes to implementation.
 
 - Final notes: it's fine for what it is, i will probably return to this in the future and iterate on some things likely if my team wants to repurpose the engine. ( What every dev says and never does) 
 We'll see, if my dev team actually wants to reuse the engine and invest some time into making it a bit more stable for an in-house solution then we might revamp this project in the future.
