@@ -2,13 +2,14 @@
 #include "ShaderProgram.h"
 #include "Render/Material.h"
 #include "Render/Mesh.h"
-#include <iostream>
+#include "Logger.h"
 
 namespace Engine
 {
     bool GraphicsAPI::Init()
     {
         glEnable(GL_DEPTH_TEST);
+        Logging::Init() << "Depth Testing Enabled";
         return true;
     }
 
@@ -34,7 +35,8 @@ namespace Engine
         {
             char infoLog[512];
             glGetShaderInfoLog(vertexShader, 512, nullptr, infoLog);
-            std::cerr << "ERROR:VERTEX_SHADER_COMPILATION_FAILED: " << infoLog << std::endl;
+            Logging::Warning() << "Vertex shader failed to compile" << infoLog;
+            glDeleteShader(vertexShader);
             return nullptr;
         }
 
@@ -62,12 +64,15 @@ namespace Engine
         {
             char infoLog[512];
             glGetProgramInfoLog(shaderProgramID, 512, nullptr, infoLog);
-            std::cerr << "ERROR:SHADER_PROGRAM_LINKING_FAILED: " << infoLog << std::endl;
+            Logging::Warning() << "Fragment shader failed to compile: " << infoLog;
+            glDeleteShader(vertexShader);
+            glDeleteShader(fragmentShader);
             return nullptr;
         }
 
         glDeleteShader(vertexShader);
         glDeleteShader(fragmentShader);
+        Logging::Init() << "Shader program compiled and linked successfully.";
 
 
 		auto shaderProgram = std::make_shared<ShaderProgram>(shaderProgramID);
