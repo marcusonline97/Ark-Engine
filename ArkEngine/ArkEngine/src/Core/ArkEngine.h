@@ -12,7 +12,7 @@
 #include "Audio/AudioManager.h"
 #include "Font/FontManager.h"
 #include "Scene/Components/UI/UIInputSystem.h"
-#include "glad/glad.h"
+#include <GLAD/glad.h>
 
 #include <chrono>
 #include <memory>
