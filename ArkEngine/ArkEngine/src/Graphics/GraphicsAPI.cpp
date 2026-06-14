@@ -50,7 +50,9 @@ namespace Engine
         {
             char infoLog[512];
             glGetShaderInfoLog(fragmentShader, 512, nullptr, infoLog);
-            std::cerr << "ERROR:FRAGMENT_SHADER_COMPILATION_FAILED: " << infoLog << std::endl;
+            Logging::Warning() << "Fragment shader failed to compile: " << infoLog;
+            glDeleteShader(vertexShader);
+            glDeleteShader(fragmentShader);
             return nullptr;
         }
 
