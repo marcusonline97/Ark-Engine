@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Glad/glad.h"
+#include "GLAD/glad.h"
 #include "Graphics/VertexLayout.h"
 
 #include <glm/vec3.hpp>

@@ -6,9 +6,10 @@
 int main()
 {
 	Logging::EnableAllLevels();
-	Logging::Init() << "Initialized Logger";
 	//create instance of the game and engine
 	Game* game = new Game();
+	Logging::Init() << "Initialized Logger";
+
 	Engine::ArkEngine& engine = Engine::ArkEngine::GetInstance();
 	engine.SetApplication(game);
 

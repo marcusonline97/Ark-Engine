@@ -22,6 +22,8 @@ namespace Engine
 	class SceneEditor
 	{
 	public:
+		SceneEditor();
+
 		void SetScene(const std::shared_ptr<Scene>& scene, const std::string& scenePath);
 
 		void SetActive(bool active);
@@ -54,6 +56,7 @@ namespace Engine
 		void DrawContentBrowser();
 		void DrawRendering();
 		void DrawLogs();
+		void DrainPendingLogs();
 
 		// ── Content browser helpers ──────────────────────────────
 		void RefreshDirectory(const std::filesystem::path& dir);
