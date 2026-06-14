@@ -7,6 +7,7 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
+#include <algorithm>
 #include <utility>
 
 namespace Engine
@@ -47,11 +48,17 @@ namespace Engine
             shaderProgram->SetUniform("uView", cameraData.viewMatrix);
             shaderProgram->SetUniform("uProjection", cameraData.projectionMatrix);
             shaderProgram->SetUniform("uCameraPos", cameraData.position);
-            if (!lights.empty())
+            const int lightCount = std::min(static_cast<int>(lights.size()), 8);
+            shaderProgram->SetUniform("uLightCount", lightCount);
+            for (int li = 0; li < lightCount; ++li)
             {
-                auto& light = lights[0];
-                shaderProgram->SetUniform("uLight.color", light.color);
-                shaderProgram->SetUniform("uLight.direction", light.direction);
+                const std::string p = "uLights[" + std::to_string(li) + "].";
+                shaderProgram->SetUniform(p + "color", lights[li].color);
+                shaderProgram->SetUniform(p + "position", lights[li].position);
+                shaderProgram->SetUniform(p + "direction", lights[li].direction);
+                shaderProgram->SetUniform(p + "intensity", lights[li].intensity);
+                shaderProgram->SetUniform(p + "range", lights[li].range);
+                shaderProgram->SetUniform(p + "type", lights[li].type);
             }
 
             graphicsAPI.BindMesh(command.mesh);
