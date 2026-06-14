@@ -51,7 +51,7 @@ namespace Engine
             {
                 auto& light = lights[0];
                 shaderProgram->SetUniform("uLight.color", light.color);
-                shaderProgram->SetUniform("uLight.direction", glm::normalize(-light.position));
+                shaderProgram->SetUniform("uLight.direction", light.direction);
             }
 
             graphicsAPI.BindMesh(command.mesh);

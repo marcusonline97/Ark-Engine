@@ -490,7 +490,7 @@ namespace Engine
                 std::string type = comp.value("componentType", comp.value("type", ""));
                 if (type == "directional" || type == "point")
                 {
-					type == "LightComponent";
+                    type = "LightComponent";
                 }
                 Component* component = ComponentFactory::GetInstance().CreateComponent(type);
                 if (component)
