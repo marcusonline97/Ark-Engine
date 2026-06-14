@@ -106,6 +106,8 @@ namespace Engine
 		bool                   m_logShowWarning = true;
 		bool                   m_logShowError = true;
 		bool                   m_logShowFatal = true;
+		bool                   m_logShowTodo = true;
+		bool                   m_logShowFunction = true;
 
 		// Dockspace – built once per activation
 		bool m_dockspaceBuilt = false;

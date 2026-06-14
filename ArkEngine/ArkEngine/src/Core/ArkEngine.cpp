@@ -3,6 +3,7 @@
 #include "Scene/GameObject.h"
 #include "Scene/Component.h"
 #include "Scene/Components/CameraComponent.h"
+#include "Logger.h"
 
 #include <GLAD/glad.h>
 #include <GLFW/glfw3.h>
@@ -11,7 +12,6 @@
 #include "imgui/backends/imgui_impl_opengl3.h"
 
 #include <algorithm>
-#include <iostream>
 
 namespace Engine
 {
@@ -86,16 +86,28 @@ namespace Engine
 
     bool ArkEngine::Init(int width, int height)
     {
-        if (!m_application) return false;
+		Logging::Function() << "ArkEngine::Init(" << width << ", " << height << ")";
+
+        if (!m_application)
+        {
+            Logging::Error() << "ArkEngine::Init failed because no application was set.";
+            return false;
+        }
 
         Scene::RegisterTypes();
         m_application->RegisterTypes();
+        Logging::Init() << "Scene and Application Types have successfully registered";
 
 #if defined(__linux__)
         glfwInitHint(GLFW_PLATFORM, GLFW_PLATFORM_X11);
 #endif
 
-        if (!glfwInit()) return false;
+        if (!glfwInit())
+        {
+			Logging::Error() << "GLFW initialization failed";
+            return false;
+        }
+		Logging::Init() << "GLFW initialized successfully";
 
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -104,10 +116,11 @@ namespace Engine
         m_window = glfwCreateWindow(width, height, "Ark Engine", nullptr, nullptr);
         if (!m_window)
         {
-            std::cout << "Error creating window\n";
+            Logging::Error() << "Failed to create GLFW window.";
             glfwTerminate();
             return false;
         }
+        Logging::Init() << "Window created at" << width << "x" << height << ".";
 
         glfwSetKeyCallback(m_window, keyCallback);
         glfwSetMouseButtonCallback(m_window, mouseButtonCallback);
@@ -120,17 +133,24 @@ namespace Engine
 
         if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
         {
-            std::cout << "Failed to initialize GLAD\n";
+			Logging::Error() << "Failed to initialize GLAD.";
             return false;
         }
+        Logging::Init() << "OpenGL Function loader Initialized";
 
         m_graphicsAPI.Init();
+        Logging::Init() << "Graphics API initialized.";
         m_graphicsAPI.SetViewport(0, 0, width, height);
         m_physicsManager.Init();
+        Logging::Init() << "Physics manager initialized.";
         m_audioManager.Init();
+        Logging::Init() << "Audio manager initialized.";
         m_renderQueue.Init();
+        Logging::Init() << "Render queue initialized.";
         m_deferredRenderer.Init(width, height);
+        Logging::Init() << "Deferred renderer initialized.";
         m_fontManager.Init();
+        Logging::Init() << "Font manager initialized.";
 
         // Create the scene FBO at the initial window size
         CreateFBO(width, height);
@@ -314,8 +334,7 @@ namespace Engine
             GL_RENDERBUFFER, m_fboDepthRBO);
 
         if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-            std::cerr << "ArkEngine: FBO incomplete\n";
-
+			Logging::Warning() << "ArkEngine scene framebuffer is incomplete!";
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 
