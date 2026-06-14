@@ -112,7 +112,7 @@ namespace Engine
 		GLuint m_fboDepthRBO = 0;
 		int    m_fboWidth = 0;
 		int    m_fboHeight = 0;
-		bool   m_deferredRenderingEnabled = true;
+		bool   m_deferredRenderingEnabled = false;
 		float  m_shadowStrength = 0.5f;
 		float m_specularStrength = 0.5f;
 		//-------------------------------------------
