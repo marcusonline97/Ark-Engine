@@ -17,7 +17,9 @@ namespace Engine
             );
             SetColor(color);
         }
-        const std::string type = json.value("type", "directional");
+        const std::string type = json.contains("lightType")
+            ? json.value("lightType", "directional")
+            : json.value("type", "directional");
         SetLightType(type == "point" ? LightType::Point : LightType::Directional);
         SetIntensity(json.value("intensity", 1.0f));
 		SetRange(json.value("range", 10.0f));
@@ -30,7 +32,7 @@ namespace Engine
             {"g", m_color.g},
             {"b", m_color.b}
         };
-        json["type"] = m_type == LightType::Point ? "point" : "directional";
+        json["lightType"] = m_type == LightType::Point ? "point" : "directional";
         json["intensity"] = m_intensity;
         json["range"] = m_range;
     }
