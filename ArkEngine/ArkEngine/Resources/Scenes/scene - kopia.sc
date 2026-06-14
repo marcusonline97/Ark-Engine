@@ -3153,7 +3153,8 @@
                 "g": 1.0,
                 "r": 1.0
               },
-              "type": "LightComponent"
+              "type": "LightComponent",
+              "lightType": "directional"
             }
           ],
           "name": "Light",
