@@ -4,12 +4,12 @@
 #include "Graphics/GraphicsAPI.h"
 #include "Graphics/ShaderProgram.h"
 #include "Graphics/Texture.h"
+#include "Logger.h"
 #include "Render/Material.h"
 #include "Render/Mesh.h"
 
 #include <algorithm>
 #include <cmath>
-#include <iostream>
 #include <string>
 #include <glm/geometric.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -543,7 +543,7 @@ namespace Engine
 
         if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
         {
-            std::cerr << "DeferredRenderer: G-buffer incomplete\n";
+            Logging::Error() << "DeferredRenderer: G-buffer incomplete";
         }
 
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -569,7 +569,7 @@ namespace Engine
 
         if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
         {
-            std::cerr << "DeferredRenderer: shadow framebuffer incomplete\n";
+            Logging::Error() << "DeferredRenderer: shadow framebuffer incomplete";
         }
 
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -589,7 +589,7 @@ namespace Engine
 
         if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
         {
-            std::cerr << "DeferredRenderer: output framebuffer incomplete\n";
+            Logging::Error() << "DeferredRenderer: output framebuffer incomplete";
         }
 
         glBindFramebuffer(GL_FRAMEBUFFER, 0);

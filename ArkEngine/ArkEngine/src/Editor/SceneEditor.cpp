@@ -68,48 +68,47 @@ namespace Engine
 	// Lives entirely in this TU — zero Logger.cpp symbols required.
 	// Logger::MessageStream::~MessageStream calls DispatchToSinks which
 	// calls our sink lambda, which pushes into this queue.
-	// DrawLogs() drains it on the main thread each frame.
+	// SceneEditor::Render() drains it on the main thread each frame.
 	struct PendingLogEntry { Logging::Level level; std::string message; };
 	struct LogQueue
 	{
 		std::mutex                   mtx;
 		std::vector<PendingLogEntry> pending;
-		SceneEditor* activeEditor = nullptr;
 	};
+
+	constexpr std::size_t kMaxLogEntries = 2000;
+
 	static LogQueue& GetLogQueue() { static LogQueue q; return q; }
+
+	static void RegisterEditorLogSink()
+	{
+		static std::once_flag s_registerSinkOnce;
+		std::call_once(s_registerSinkOnce, []
+			{
+				Logging::AddSink([](Logging::Level level, std::string_view msg)
+					{
+						std::string text(msg);
+						if (!text.empty() && text.back() == '\n') text.pop_back();
+
+						auto& q = GetLogQueue();
+						std::lock_guard<std::mutex> lock(q.mtx);
+						if (q.pending.size() >= kMaxLogEntries)
+							q.pending.erase(q.pending.begin());
+						q.pending.push_back({ level, std::move(text) });
+					});
+			});
+	}
+
+	SceneEditor::SceneEditor()
+	{
+		RegisterEditorLogSink();
+	}
 
 	void SceneEditor::SetActive(bool active)
 	{
 		if (m_active == active) return;
 		m_active = active;
-
-		auto& q = GetLogQueue();
-
-		if (active)
-		{
-			// Register a process-lifetime sink once; after that just set the owner.
-			static bool s_sinkRegistered = false;
-			if (!s_sinkRegistered)
-			{
-				s_sinkRegistered = true;
-				Logging::AddSink([](Logging::Level level, std::string_view msg)
-					{
-						auto& q2 = GetLogQueue();
-						std::lock_guard<std::mutex> lock(q2.mtx);
-						if (!q2.activeEditor) return;
-						std::string text(msg);
-						if (!text.empty() && text.back() == '\n') text.pop_back();
-						q2.pending.push_back({ level, std::move(text) });
-					});
-			}
-			std::lock_guard<std::mutex> lock(q.mtx);
-			q.activeEditor = this;
-		}
-		else
-		{
-			std::lock_guard<std::mutex> lock(q.mtx);
-			if (q.activeEditor == this) q.activeEditor = nullptr;
-		}
+		RegisterEditorLogSink();
 	}
 	bool SceneEditor::IsActive() const { return m_active; }
 
@@ -117,6 +116,7 @@ namespace Engine
 	{
 		if (!m_active || !m_scene) return;
 
+		DrainPendingLogs();
 		DrawEditorDockspace();
 		DrawViewport();
 		DrawHierarchy();
@@ -937,22 +937,21 @@ namespace Engine
 	//  Logs panel
 	// ═══════════════════════════════════════════════════════════════════
 
+	void SceneEditor::DrainPendingLogs()
+	{
+		auto& q = GetLogQueue();
+		std::lock_guard<std::mutex> lock(q.mtx);
+		for (auto& p : q.pending)
+		{
+			if (m_logEntries.size() >= kMaxLogEntries)
+				m_logEntries.erase(m_logEntries.begin());
+			m_logEntries.push_back({ p.level, std::move(p.message) });
+		}
+		q.pending.clear();
+	}
+
 	void SceneEditor::DrawLogs()
 	{
-		// Drain pending messages captured by the sink lambda
-		{
-			auto& q = GetLogQueue();
-			std::lock_guard<std::mutex> lock(q.mtx);
-			constexpr std::size_t k_max = 2000;
-			for (auto& p : q.pending)
-			{
-				if (m_logEntries.size() >= k_max)
-					m_logEntries.erase(m_logEntries.begin());
-				m_logEntries.push_back({ p.level, std::move(p.message) });
-			}
-			q.pending.clear();
-		}
-
 		// Toolbar
 		if (ImGui::Button("Clear")) m_logEntries.clear();
 		ImGui::SameLine();
