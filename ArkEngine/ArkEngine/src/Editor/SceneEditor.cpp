@@ -491,8 +491,30 @@ namespace Engine
 				{
 					glm::vec3 col = light->GetColor();
 					float c[3] = { col.r, col.g, col.b };
-					if (ImGui::ColorEdit3("Color", c))
+					if (ImGui::ColorEdit3("Color##light", c))
 						light->SetColor({ c[0], c[1], c[2] });
+
+					const char* typeNames[] = { "Directional", "Point" };
+					int typeIndex = static_cast<int>(light->GetLightType());
+					ImGui::Text("Type");
+					ImGui::SameLine(90.0f);
+					ImGui::SetNextItemWidth(120.0f);
+					if (ImGui::Combo("##LightType", &typeIndex, typeNames, 2))
+						light->SetLightType(static_cast<LightType>(typeIndex));
+
+					float intensity = light->GetIntensity();
+					ImGui::Text("Intensity");
+					ImGui::SameLine(90.0f);
+					ImGui::SetNextItemWidth(120.0f);
+					if (ImGui::DragFloat("##LightIntensity", &intensity, 0.05f, 0.0f, 10.0f, "%.2f"))
+						light->SetIntensity(intensity);
+
+					float range = light->GetRange();
+					ImGui::Text("Range");
+					ImGui::SameLine(90.0f);
+					ImGui::SetNextItemWidth(120.0f);
+					if (ImGui::DragFloat("##LightRange", &range, 0.5f, 0.1f, 200.0f, "%.1f"))
+						light->SetRange(range);
 				}
 				else if (dynamic_cast<CameraComponent*>(comp.get()))
 				{
