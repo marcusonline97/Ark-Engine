@@ -533,11 +533,13 @@ namespace Engine
 								{
 									meshComp->SetMesh(newMesh);
 									meshComp->SetMeshPath(path);
+									Logging::Init() << "Mesh assigned: " << path;
 									m_status = "Assigned mesh: " + path;
 								}
 								else
 								{
 									m_status = "Failed to load mesh: " + path;
+									Logging::Warning() << "Failed to load mesh: " << path;
 								}
 							}
 						}
