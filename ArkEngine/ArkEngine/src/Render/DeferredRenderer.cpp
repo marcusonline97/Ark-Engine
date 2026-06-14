@@ -642,7 +642,7 @@ namespace Engine
         }
         lightDir = glm::normalize(lightDir);
 
-        const glm::vec3 center = cam.position;
+        const glm::vec3 center = light.position;
         const glm::vec3 lightPosition = center - lightDir * 35.0f;
         glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
         if (std::abs(glm::dot(up, lightDir)) > 0.95f)
