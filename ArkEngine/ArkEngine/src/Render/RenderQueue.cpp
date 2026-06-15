@@ -35,30 +35,29 @@ namespace Engine
     void RenderQueue::Draw(GraphicsAPI& graphicsAPI, const CameraData& cameraData, const std::vector<LightData>& lights)
     {
         // 3D
+        auto defaultShader = graphicsAPI.GetDefaultShaderProgram();
         for (auto& command : m_commands)
         {
             graphicsAPI.BindMaterial(command.material);
-            if (auto* sp = command.material->GetShaderProgram())
-            {
-                sp->SetUniform("uSpecularStrength", ArkEngine::GetInstance().GetSpecularStrength());
-				sp->SetUniform("uHasSpecularMap", command.material->HasTextureParam("specularMap") ? 1 : 0);
-            }
-            auto shaderProgram = command.material->GetShaderProgram();
-            shaderProgram->SetUniform("uModel", command.modelMatrix);
-            shaderProgram->SetUniform("uView", cameraData.viewMatrix);
-            shaderProgram->SetUniform("uProjection", cameraData.projectionMatrix);
-            shaderProgram->SetUniform("uCameraPos", cameraData.position);
-            const int lightCount = std::min(static_cast<int>(lights.size()), 8);
-            shaderProgram->SetUniform("uLightCount", lightCount);
+			defaultShader->Bind();
+			defaultShader->SetUniform("uModel", command.modelMatrix);
+			defaultShader->SetUniform("uView", cameraData.viewMatrix);
+			defaultShader->SetUniform("uProjection", cameraData.projectionMatrix);
+			defaultShader->SetUniform("uCameraPos", cameraData.position);
+			defaultShader->SetUniform("uSpecularStrength", ArkEngine::GetInstance().GetSpecularStrength());
+			defaultShader->SetUniform("uHasSpecularMap", command.material->HasTextureParam("uSpecularMap") ? 1 : 0);
+            
+			const int lightCount = std::min(static_cast<int>(lights.size()), 8);
+			defaultShader->SetUniform("uLightCount", lightCount);
             for (int li = 0; li < lightCount; ++li)
             {
                 const std::string p = "uLights[" + std::to_string(li) + "].";
-                shaderProgram->SetUniform(p + "color", lights[li].color);
-                shaderProgram->SetUniform(p + "position", lights[li].position);
-                shaderProgram->SetUniform(p + "direction", lights[li].direction);
-                shaderProgram->SetUniform(p + "intensity", lights[li].intensity);
-                shaderProgram->SetUniform(p + "range", lights[li].range);
-                shaderProgram->SetUniform(p + "type", lights[li].type);
+                defaultShader->SetUniform(p + "color", lights[li].color);
+                defaultShader->SetUniform(p + "position", lights[li].position);
+                defaultShader->SetUniform(p + "direction", lights[li].direction);
+                defaultShader->SetUniform(p + "intensity", lights[li].intensity);
+                defaultShader->SetUniform(p + "range", lights[li].range);
+                defaultShader->SetUniform(p + "type", lights[li].type);
             }
 
             graphicsAPI.BindMesh(command.mesh);
