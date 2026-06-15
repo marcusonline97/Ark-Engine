@@ -49,8 +49,16 @@ namespace Engine
         if (it != m_textures.end() && it->second)
             return it->second.get();
         return nullptr;
-
     }
+
+    void Material::ForEachFloat3(const std::function<void(const std::string&, const glm::vec3&)>& fn) const
+    {
+        for (const auto& param : m_float3Params)
+        {
+            fn(param.first, param.second);
+		}
+    }
+
 
     void Material::ForEachTexture(const std::function<void(Texture*)>& fn)
     {
