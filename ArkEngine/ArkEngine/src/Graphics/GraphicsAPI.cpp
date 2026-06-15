@@ -138,6 +138,7 @@ namespace Engine
 
             uniform sampler2D baseColorTexture;
             uniform sampler2D specularMap;
+            uniform vec3      color = vec3(1.0);
             uniform int       uHasSpecularMap;
             uniform float     uSpecularStrength;
 
@@ -192,7 +193,7 @@ namespace Engine
                 vec3 ambientColor = (uLightCount > 0) ? uLights[0].color : vec3(1.0);
                 result += ambientStrength * ambientColor;
 
-                FragColor = texColor * vec4(result, 1.0);
+                FragColor = vec4(texColor.rgb * color, texColor.a) * vec4(result, 1.0);
             }
             )";
 

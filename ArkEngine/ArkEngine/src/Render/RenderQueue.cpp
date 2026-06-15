@@ -38,14 +38,38 @@ namespace Engine
         auto defaultShader = graphicsAPI.GetDefaultShaderProgram();
         for (auto& command : m_commands)
         {
-            graphicsAPI.BindMaterial(command.material);
 			defaultShader->Bind();
 			defaultShader->SetUniform("uModel", command.modelMatrix);
 			defaultShader->SetUniform("uView", cameraData.viewMatrix);
 			defaultShader->SetUniform("uProjection", cameraData.projectionMatrix);
 			defaultShader->SetUniform("uCameraPos", cameraData.position);
 			defaultShader->SetUniform("uSpecularStrength", ArkEngine::GetInstance().GetSpecularStrength());
-			defaultShader->SetUniform("uHasSpecularMap", command.material->HasTextureParam("uSpecularMap") ? 1 : 0);
+
+            if (command.material)
+            {
+                command.material->ForEachFloat3([&](const std::string& name, const glm::vec3& value)
+                {
+                    defaultShader->SetUniform(name, value);
+                });
+
+                if (Texture* tex = command.material->GetTextureParam("baseColorTexture"))
+                    defaultShader->SetTexture("baseColorTexture", tex);
+
+                Texture* specTex = command.material->GetTextureParam("specularMap");
+                if (specTex)
+                {
+                    defaultShader->SetTexture("specularMap", specTex);
+                    defaultShader->SetUniform("uHasSpecularMap", 1);
+                }
+                else
+                {
+                    defaultShader->SetUniform("uHasSpecularMap", 0);
+                }
+            }
+            else
+            {
+                defaultShader->SetUniform("uHasSpecularMap", 0);
+            }
             
 			const int lightCount = std::min(static_cast<int>(lights.size()), 8);
 			defaultShader->SetUniform("uLightCount", lightCount);

@@ -25,6 +25,7 @@ namespace Engine
 
 		Texture* GetTextureParam(const std::string& name) const;
 
+        void ForEachFloat3(const std::function<void(const std::string&, const glm::vec3&)>& fn) const;
 		void ForEachTexture(const std::function<void(Texture*)>& fn);
         void Bind();
 
