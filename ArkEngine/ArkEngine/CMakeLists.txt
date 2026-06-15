@@ -76,6 +76,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE assimp::assimp)
 # Platform-specific settings
 if(WIN32)
     target_compile_definitions(${PROJECT_NAME} PRIVATE _WIN32)
+    target_link_libraries(${PROJECT_NAME} PRIVATE dwmapi)
 endif()
 
 if(UNIX AND NOT APPLE)

@@ -13,6 +13,13 @@
 
 #include <algorithm>
 
+#if defined(_WIN32)
+#include <windows.h>
+#include <dwmapi.h>
+#define GLFW_EXPOSE_NATIVE_WIN32
+#include <GLFW/glfw3native.h>
+#endif
+
 namespace Engine
 {
     // ── GLFW callbacks ───────────────────────────────────────────────────
@@ -130,6 +137,15 @@ namespace Engine
         glfwSetCharCallback(m_window, charCallback);
 
         glfwMakeContextCurrent(m_window);
+
+#if defined(_WIN32)
+        {
+            HWND hwnd = glfwGetWin32Window(m_window);
+            BOOL useDark = TRUE;
+            // DWMWA_USE_IMMERSIVE_DARK_MODE = 20 (Windows 11 / 10 build 19041+)
+            DwmSetWindowAttribute(hwnd, 20, &useDark, sizeof(useDark));
+        }
+#endif
 
         if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
         {
