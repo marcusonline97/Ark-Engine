@@ -2,6 +2,7 @@
 
 #include "Core/ArkEngine.h"
 #include "Graphics/VertexLayout.h"
+#include "Logger.h"
 #include "Render/Mesh.h"
 #include "Scene/GameObject.h"
 #include "Scene/Scene.h"
@@ -15,6 +16,7 @@
 #include <cctype>
 #include <cstdint>
 #include <filesystem>
+#include <functional>
 #include <vector>
 
 namespace Engine
@@ -69,6 +71,23 @@ namespace Engine
 		{
 			Scene loadScene;
 			GameObject* loadedObject = GameObject::LoadGLTF(path, &loadScene);
+			if (!loadedObject) return nullptr;
+
+			// Count total mesh components to warn about multi-mesh GLTFs
+			int meshCount = 0;
+			std::function<void(GameObject*)> count = [&](GameObject* obj) {
+				if (obj->GetComponent<MeshComponent>()) ++meshCount;
+				for (auto& c : obj->GetChildren()) count(c.get());
+			};
+			count(loadedObject);
+
+			if (meshCount > 1)
+			{
+				Logging::Warning() << "MeshManager: '" << path << "' contains " << meshCount
+					<< " meshes. Only the first will be used. "
+					"Place this asset as a scene object (type:gltf) instead.";
+			}
+
 			return FindFirstMesh(loadedObject);
 		}
 
