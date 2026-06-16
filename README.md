@@ -201,15 +201,15 @@ Features and Structure weaknesses and things i would have loved to add but did't
 AI can help solutions and wrap things neatly but won't be the best when it comes to implementation.
 
 ## To-Do: Define a lot more stuff already before hand to make functionality and code cleaner. It's a mess and can become difficult to dig into eventually. Especially if i was to wanna try and extend it. 
-##Global Rewrite - I would wanna follow some engine structure and pre-define a lot more stuff so that a lot more functions and objects already have functionality built in much like other engines so that they're all solid and robust and ready to extend but i struggled with scalability in this project a lot.
-##Management and Performance gain - Would likely also create subsystems instead of managers and handlers. And let every manager get a separate thread delegated to them to ease handling of logic. 
-##Texture & Mesh - Add a texture field for my mesh components where i can plug in a material/texture.
-##Component System Enhancement - Improve the component system by also including more json properties that users can set in the inspector. Currently it's minimal and barebones.
-##Graphics Support Upgrade - Attach support for vulkan and DX11
-##GLFW -> SDL - Migrate the window functionality and input towards SDL instead as SDL has more support for external platforms making it more suitable for steamdecks, switch and other controllers.
-##Static Lib Tools - Evolve more external tools as static libraries so i can separate stuff a lot better without carrying everything in one big project.
-##Physics - Probably implement the physics in a better way, it is currently one thing that slows loading of the engine down. Before it was 2 seconds. Performance is stable even though it is only using 1 thread and debug only. 
-##FileSystem - I would most likely wanna migrate from JSON loading to a more YML loading text for the sake of simpler syntax, less chaos and more structure.
+Global Rewrite -> I would wanna follow some engine structure and pre-define a lot more stuff so that a lot more functions and objects already have functionality built in much like other engines so that they're all solid and robust and ready to extend but i struggled with scalability in this project a lot.
+Management and Performance -> Would likely also create subsystems instead of managers and handlers. And let every manager get a separate thread delegated to them to ease handling of logic. 
+Texture & Mesh -> Add a texture field for my mesh components where i can plug in a material/texture.
+Component System Enhancement -> Improve the component system by also including more json properties that users can set in the inspector. Currently it's minimal and barebones.
+Graphics Support Upgrade -> Attach support for vulkan and DX11
+GLFW --> SDL -> Migrate the window functionality and input towards SDL instead as SDL has more support for external platforms making it more suitable for steamdecks, switch and other controllers.
+Static Lib Tools -> Evolve more external tools as static libraries so i can separate stuff a lot better without carrying everything in one big project.
+Physics -> Probably implement the physics in a better way, it is currently one thing that slows loading of the engine down. Before it was 2 seconds. Performance is stable even though it is only using 1 thread and debug only. 
+FileSystem -> I would most likely wanna migrate from JSON loading to a more YML loading text for the sake of simpler syntax, less chaos and more structure.
 
 ## Final Notes: it's fine for what it is, i will probably return to this in the future and iterate on some things likely if my team wants to repurpose the engine. ( What every dev says and never does) 
 We'll see, if my dev team actually wants to reuse the engine and invest some time into making it a bit more stable for an in-house solution then we might revamp this project in the future.
