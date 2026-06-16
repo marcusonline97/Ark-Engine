@@ -211,6 +211,70 @@ Static Lib Tools -> Evolve more external tools as static libraries so i can sepa
 Physics -> Probably implement the physics in a better way, it is currently one thing that slows loading of the engine down. Before it was 2 seconds. Performance is stable even though it is only using 1 thread and debug only. 
 FileSystem -> I would most likely wanna migrate from JSON loading to a more YML loading text for the sake of simpler syntax, less chaos and more structure.
 
+Global Rewrite
+Follow a more established engine architecture.
+
+Pre‑define more systems, objects, and functionality so the engine is robust, extendable, and easier to maintain.
+
+Improve scalability — the current structure becomes difficult to expand as the project grows.
+
+Move toward a cleaner, more modular foundation inspired by mature engines.
+Explore: engine architecture patterns
+
+Management & Performance
+Replace “managers” and “handlers” with a subsystem‑based architecture.
+
+Assign each subsystem its own dedicated thread to reduce logic bottlenecks.
+
+Improve task distribution and overall runtime performance.
+Explore: subsystem threading models
+
+Texture & Mesh System
+Add a texture/material field to mesh components.
+
+Allow users to assign materials directly through the component system.
+Explore: mesh component design
+
+Component System Enhancements
+Expand the component system with more configurable properties.
+
+Expose additional fields in the inspector for better customization.
+
+Move beyond the current minimal and bare‑bones setup.
+Explore: component metadata design
+
+Graphics Support Upgrade
+Add support for Vulkan and DirectX 11.
+
+Improve rendering backend flexibility and platform coverage.
+Explore: graphics backend integration
+
+Windowing & Input Migration (GLFW → SDL)
+Migrate window and input handling from GLFW to SDL.
+
+SDL provides better cross‑platform support, including Steam Deck, Switch, and various controllers.
+Explore: SDL migration guide
+
+Static Library Tools
+Convert external tools into standalone static libraries.
+
+Improve modularity and reduce the size/complexity of the main project.
+Explore: static library modularization
+
+Physics System
+Re‑implement the physics system for faster engine startup.
+
+Current implementation significantly slows loading (previously ~2 seconds).
+
+Runtime performance is stable but limited by single‑threaded debug mode.
+Explore: physics engine optimization
+
+File System & Data Format
+Migrate from JSON to YAML for cleaner syntax and better structure.
+
+Reduce file clutter and improve readability for configuration files.
+Explore: YAML vs JSON for engines
+
 ## Final Notes: it's fine for what it is, i will probably return to this in the future and iterate on some things likely if my team wants to repurpose the engine. ( What every dev says and never does) 
 We'll see, if my dev team actually wants to reuse the engine and invest some time into making it a bit more stable for an in-house solution then we might revamp this project in the future.
 
