@@ -13,13 +13,16 @@
 #include <Assimp/scene.h>
 #include <glm/geometric.hpp>
 #include <glm/mat3x3.hpp>
+#include <glm/mat4x4.hpp>
+#include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
 
 #include <algorithm>
 #include <cctype>
 #include <cstdint>
 #include <filesystem>
-#include <functional>
+#include <limits>
+#include <utility>
 #include <vector>
 
 namespace Engine
@@ -68,11 +71,42 @@ namespace Engine
 			return stride > 0 && element.size > 0;
 		}
 
-		std::shared_ptr<Mesh> ApplyWorldTransformToMesh(const std::shared_ptr<Mesh>& source, const glm::mat4& transform)
+		constexpr GLuint MeshAttributeIndices[] =
+		{
+			VertexElement::PositionIndex,
+			VertexElement::ColorIndex,
+			VertexElement::UVIndex,
+			VertexElement::NormalIndex
+		};
+
+		struct MeshData
+		{
+			VertexLayout layout;
+			std::vector<float> vertices;
+			std::vector<uint32_t> indices;
+			size_t vertexCount = 0;
+		};
+
+		float GetDefaultAttributeValue(GLuint attributeIndex, GLuint componentIndex)
+		{
+			if (attributeIndex == VertexElement::ColorIndex)
+			{
+				return 1.0f;
+			}
+
+			if (attributeIndex == VertexElement::NormalIndex && componentIndex == 2)
+			{
+				return 1.0f;
+			}
+
+			return 0.0f;
+		}
+
+		bool ExtractMeshData(const std::shared_ptr<Mesh>& source, const glm::mat4& transform, MeshData& outData)
 		{
 			if (!source)
 			{
-				return nullptr;
+				return false;
 			}
 
 			GLint previousVertexArray = 0;
@@ -87,14 +121,7 @@ namespace Engine
 			GLint vertexBuffer = 0;
 			glGetVertexAttribiv(VertexElement::PositionIndex, GL_VERTEX_ATTRIB_ARRAY_BUFFER_BINDING, &vertexBuffer);
 
-			const GLuint attributeIndices[] =
-			{
-				VertexElement::PositionIndex,
-				VertexElement::ColorIndex,
-				VertexElement::UVIndex,
-				VertexElement::NormalIndex
-			};
-			for (GLuint index : attributeIndices)
+			for (GLuint index : MeshAttributeIndices)
 			{
 				VertexElement element;
 				GLint stride = 0;
@@ -111,7 +138,7 @@ namespace Engine
 			{
 				glBindVertexArray(static_cast<GLuint>(previousVertexArray));
 				glBindBuffer(GL_ARRAY_BUFFER, static_cast<GLuint>(previousArrayBuffer));
-				return source;
+				return false;
 			}
 
 			glBindBuffer(GL_ARRAY_BUFFER, static_cast<GLuint>(vertexBuffer));
@@ -121,7 +148,7 @@ namespace Engine
 			{
 				glBindVertexArray(static_cast<GLuint>(previousVertexArray));
 				glBindBuffer(GL_ARRAY_BUFFER, static_cast<GLuint>(previousArrayBuffer));
-				return source;
+				return false;
 			}
 
 			std::vector<float> vertices(static_cast<size_t>(vertexBufferSize) / sizeof(float));
@@ -183,12 +210,133 @@ namespace Engine
 			glBindVertexArray(static_cast<GLuint>(previousVertexArray));
 			glBindBuffer(GL_ARRAY_BUFFER, static_cast<GLuint>(previousArrayBuffer));
 
-			if (!indices.empty())
+			outData.layout = vertexLayout;
+			outData.vertices = std::move(vertices);
+			outData.indices = std::move(indices);
+			outData.vertexCount = vertexCount;
+			return true;
+		}
+
+		VertexLayout BuildMergedLayout(const std::vector<MeshData>& meshes)
+		{
+			VertexLayout mergedLayout;
+
+			for (GLuint attributeIndex : MeshAttributeIndices)
 			{
-				return std::make_shared<Mesh>(vertexLayout, vertices, indices);
+				GLuint componentCount = 0;
+				for (const auto& mesh : meshes)
+				{
+					if (const VertexElement* element = FindElement(mesh.layout, attributeIndex))
+					{
+						componentCount = std::max(componentCount, element->size);
+					}
+				}
+
+				if (componentCount == 0)
+				{
+					continue;
+				}
+
+				VertexElement element;
+				element.index = attributeIndex;
+				element.size = componentCount;
+				element.type = GL_FLOAT;
+				element.offset = mergedLayout.stride;
+				mergedLayout.stride += element.size * sizeof(float);
+				mergedLayout.elements.push_back(element);
 			}
 
-			return std::make_shared<Mesh>(vertexLayout, vertices);
+			return mergedLayout;
+		}
+
+		std::shared_ptr<Mesh> BuildMergedMesh(const std::vector<MeshData>& meshes)
+		{
+			if (meshes.empty())
+			{
+				return nullptr;
+			}
+
+			const VertexLayout mergedLayout = BuildMergedLayout(meshes);
+			const size_t mergedStrideFloats = mergedLayout.stride / sizeof(float);
+			if (!FindElement(mergedLayout, VertexElement::PositionIndex) || mergedStrideFloats == 0)
+			{
+				return nullptr;
+			}
+
+			size_t totalVertexCount = 0;
+			size_t totalIndexCount = 0;
+			for (const auto& mesh : meshes)
+			{
+				totalVertexCount += mesh.vertexCount;
+				totalIndexCount += mesh.indices.empty() ? mesh.vertexCount : mesh.indices.size();
+			}
+
+			if (totalVertexCount > static_cast<size_t>(std::numeric_limits<uint32_t>::max()))
+			{
+				Logging::Error() << "MeshManager: merged mesh exceeds the 32-bit index limit.";
+				return nullptr;
+			}
+
+			std::vector<float> mergedVertices;
+			std::vector<uint32_t> mergedIndices;
+			mergedVertices.reserve(totalVertexCount * mergedStrideFloats);
+			mergedIndices.reserve(totalIndexCount);
+
+			uint32_t vertexOffset = 0;
+			for (const auto& mesh : meshes)
+			{
+				const size_t sourceStrideFloats = mesh.layout.stride / sizeof(float);
+				if (sourceStrideFloats == 0)
+				{
+					continue;
+				}
+
+				for (size_t vertexIndex = 0; vertexIndex < mesh.vertexCount; ++vertexIndex)
+				{
+					for (const auto& destinationElement : mergedLayout.elements)
+					{
+						const VertexElement* sourceElement = FindElement(mesh.layout, destinationElement.index);
+						for (GLuint componentIndex = 0; componentIndex < destinationElement.size; ++componentIndex)
+						{
+							float value = GetDefaultAttributeValue(destinationElement.index, componentIndex);
+							if (sourceElement && componentIndex < sourceElement->size)
+							{
+								const size_t sourceIndex =
+									vertexIndex * sourceStrideFloats +
+									(sourceElement->offset / sizeof(float)) +
+									componentIndex;
+								value = mesh.vertices[sourceIndex];
+							}
+
+							mergedVertices.push_back(value);
+						}
+					}
+				}
+
+				if (!mesh.indices.empty())
+				{
+					for (uint32_t index : mesh.indices)
+					{
+						mergedIndices.push_back(vertexOffset + index);
+					}
+				}
+				else
+				{
+					for (uint32_t index = 0; index < mesh.vertexCount; ++index)
+					{
+						mergedIndices.push_back(vertexOffset + index);
+					}
+				}
+
+				vertexOffset += static_cast<uint32_t>(mesh.vertexCount);
+			}
+
+			if (!mergedIndices.empty())
+			{
+				return std::make_shared<Mesh>(mergedLayout, mergedVertices, mergedIndices);
+			}
+
+			return std::make_shared<Mesh>(mergedLayout, mergedVertices);
 		}
 
 		void AddVertexElement(VertexLayout& layout, GLuint index, GLuint size)
@@ -203,74 +351,20 @@ namespace Engine
 			layout.elements.push_back(element);
 		}
 
-		std::shared_ptr<Mesh> FindFirstMesh(GameObject* object)
+		glm::mat4 ToGlm(const aiMatrix4x4& matrix)
 		{
-			if (!object)
-			{
-				return nullptr;
-			}
-
-			if (auto* meshComponent = object->GetComponent<MeshComponent>())
-			{
-				return ApplyWorldTransformToMesh(meshComponent->GetMesh(), object->GetWorldTransform());
-			}
-
-			for (const auto& child : object->GetChildren())
-			{
-				if (auto mesh = FindFirstMesh(child.get()))
-				{
-					return mesh;
-				}
-			}
-
-			return nullptr;
+			return glm::mat4(
+				matrix.a1, matrix.b1, matrix.c1, matrix.d1,
+				matrix.a2, matrix.b2, matrix.c2, matrix.d2,
+				matrix.a3, matrix.b3, matrix.c3, matrix.d3,
+				matrix.a4, matrix.b4, matrix.c4, matrix.d4);
 		}
 
-		std::shared_ptr<Mesh> LoadMeshFromGLTF(const std::string& path)
+		bool CreateMeshDataFromAssimp(const aiMesh* sourceMesh, const glm::mat4& transform, MeshData& outData)
 		{
-			Scene loadScene;
-			GameObject* loadedObject = GameObject::LoadGLTF(path, &loadScene);
-			if (!loadedObject) return nullptr;
-
-			// Count total mesh components to warn about multi-mesh GLTFs
-			int meshCount = 0;
-			std::function<void(GameObject*)> count = [&](GameObject* obj) {
-				if (obj->GetComponent<MeshComponent>()) ++meshCount;
-				for (auto& c : obj->GetChildren()) count(c.get());
-			};
-			count(loadedObject);
-
-			if (meshCount > 1)
-			{
-				Logging::Warning() << "MeshManager: '" << path << "' contains " << meshCount
-					<< " meshes. Only the first will be used. "
-					"Place this asset as a scene object (type:gltf) instead.";
-			}
-
-			return FindFirstMesh(loadedObject);
-		}
-
-		std::shared_ptr<Mesh> LoadMeshWithAssimp(const std::string& path)
-		{
-			const auto fullPath = ArkEngine::GetInstance().GetFileSystem().GetAssetFilePath(path);
-
-			Assimp::Importer importer;
-			const aiScene* scene = importer.ReadFile(
-				fullPath.string(),
-				aiProcess_Triangulate |
-				aiProcess_JoinIdenticalVertices |
-				aiProcess_GenSmoothNormals |
-				aiProcess_FlipUVs);
-
-			if (!scene || !scene->HasMeshes())
-			{
-				return nullptr;
-			}
-
-			const aiMesh* sourceMesh = scene->mMeshes[0];
 			if (!sourceMesh || !sourceMesh->HasPositions())
 			{
-				return nullptr;
+				return false;
 			}
 
 			VertexLayout vertexLayout;
@@ -290,19 +384,26 @@ namespace Engine
 			std::vector<float> vertices;
 			vertices.reserve(sourceMesh->mNumVertices * (vertexLayout.stride / sizeof(float)));
 
+			const glm::mat3 normalTransform = glm::transpose(glm::inverse(glm::mat3(transform)));
 			for (unsigned int i = 0; i < sourceMesh->mNumVertices; ++i)
 			{
 				const auto& position = sourceMesh->mVertices[i];
-				vertices.push_back(position.x);
-				vertices.push_back(position.y);
-				vertices.push_back(position.z);
+				const glm::vec4 transformedPosition = transform * glm::vec4(position.x, position.y, position.z, 1.0f);
+				vertices.push_back(transformedPosition.x);
+				vertices.push_back(transformedPosition.y);
+				vertices.push_back(transformedPosition.z);
 
 				if (hasNormals)
 				{
 					const auto& normal = sourceMesh->mNormals[i];
-					vertices.push_back(normal.x);
-					vertices.push_back(normal.y);
-					vertices.push_back(normal.z);
+					const glm::vec3 transformedNormal = normalTransform * glm::vec3(normal.x, normal.y, normal.z);
+					const float length = glm::length(transformedNormal);
+					const glm::vec3 normalizedNormal = length > 0.0f
+						? transformedNormal / length
+						: glm::vec3(0.0f, 0.0f, 1.0f);
+					vertices.push_back(normalizedNormal.x);
+					vertices.push_back(normalizedNormal.y);
+					vertices.push_back(normalizedNormal.z);
 				}
 
 				if (hasUVs)
@@ -329,12 +430,129 @@ namespace Engine
 				indices.push_back(face.mIndices[2]);
 			}
 
-			if (!indices.empty())
+			outData.layout = vertexLayout;
+			outData.vertices = std::move(vertices);
+			outData.indices = std::move(indices);
+			outData.vertexCount = sourceMesh->mNumVertices;
+			return true;
+		}
+
+		void CollectAssimpMeshes(const aiScene* scene, const aiNode* node, const glm::mat4& parentTransform, std::vector<MeshData>& meshes)
+		{
+			if (!scene || !node)
 			{
-				return std::make_shared<Mesh>(vertexLayout, vertices, indices);
+				return;
 			}
 
-			return std::make_shared<Mesh>(vertexLayout, vertices);
+			const glm::mat4 transform = parentTransform * ToGlm(node->mTransformation);
+			for (unsigned int i = 0; i < node->mNumMeshes; ++i)
+			{
+				const unsigned int meshIndex = node->mMeshes[i];
+				if (meshIndex >= scene->mNumMeshes)
+				{
+					continue;
+				}
+
+				MeshData meshData;
+				if (CreateMeshDataFromAssimp(scene->mMeshes[meshIndex], transform, meshData))
+				{
+					meshes.push_back(std::move(meshData));
+				}
+			}
+
+			for (unsigned int i = 0; i < node->mNumChildren; ++i)
+			{
+				CollectAssimpMeshes(scene, node->mChildren[i], transform, meshes);
+			}
+		}
+
+		void CollectMeshes(GameObject* object, std::vector<MeshData>& meshes)
+		{
+			if (!object)
+			{
+				return;
+			}
+
+			for (const auto& component : object->GetComponents())
+			{
+				auto* meshComponent = dynamic_cast<MeshComponent*>(component.get());
+				if (!meshComponent)
+				{
+					continue;
+				}
+
+				MeshData meshData;
+				if (ExtractMeshData(meshComponent->GetMesh(), object->GetWorldTransform(), meshData))
+				{
+					meshes.push_back(std::move(meshData));
+				}
+			}
+
+			for (const auto& child : object->GetChildren())
+			{
+				CollectMeshes(child.get(), meshes);
+			}
+		}
+
+		std::shared_ptr<Mesh> LoadMeshFromGLTF(const std::string& path)
+		{
+			Scene loadScene;
+			GameObject* loadedObject = GameObject::LoadGLTF(path, &loadScene);
+			if (!loadedObject) return nullptr;
+
+			std::vector<MeshData> meshes;
+			CollectMeshes(loadedObject, meshes);
+
+			if (meshes.size() > 1)
+			{
+				Logging::Debug() << "MeshManager: '" << path << "' contains " << meshes.size()
+					<< " meshes. Merging them into a single mesh.";
+			}
+
+			return BuildMergedMesh(meshes);
+		}
+
+		std::shared_ptr<Mesh> LoadMeshWithAssimp(const std::string& path)
+		{
+			const auto fullPath = ArkEngine::GetInstance().GetFileSystem().GetAssetFilePath(path);
+
+			Assimp::Importer importer;
+			const aiScene* scene = importer.ReadFile(
+				fullPath.string(),
+				aiProcess_Triangulate |
+				aiProcess_JoinIdenticalVertices |
+				aiProcess_GenSmoothNormals |
+				aiProcess_FlipUVs);
+
+			if (!scene || !scene->HasMeshes())
+			{
+				return nullptr;
+			}
+
+			std::vector<MeshData> meshes;
+			if (scene->mRootNode)
+			{
+				CollectAssimpMeshes(scene, scene->mRootNode, glm::mat4(1.0f), meshes);
+			}
+			else
+			{
+				for (unsigned int i = 0; i < scene->mNumMeshes; ++i)
+				{
+					MeshData meshData;
+					if (CreateMeshDataFromAssimp(scene->mMeshes[i], glm::mat4(1.0f), meshData))
+					{
+						meshes.push_back(std::move(meshData));
+					}
+				}
+			}
+
+			if (meshes.size() > 1)
+			{
+				Logging::Debug() << "MeshManager: '" << path << "' contains " << meshes.size()
+					<< " meshes. Merging them into a single mesh.";
+			}
+
+			return BuildMergedMesh(meshes);
 		}
 
 		std::shared_ptr<Mesh> LoadMesh(const std::string& path)
