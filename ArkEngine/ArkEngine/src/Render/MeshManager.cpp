@@ -4,14 +4,15 @@
 #include "Graphics/VertexLayout.h"
 #include "Logger.h"
 #include "Render/Mesh.h"
-#include "Scene/GameObject.h"
-#include "Scene/Scene.h"
-#include "Scene/Components/MeshComponent.h"
 
 #include <Assimp/Importer.hpp>
 #include <Assimp/postprocess.h>
 #include <Assimp/scene.h>
+#include <cgltf/cgltf.h>
 #include <glm/geometric.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/quaternion.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <glm/mat3x3.hpp>
 #include <glm/mat4x4.hpp>
 #include <glm/vec3.hpp>
@@ -38,39 +39,6 @@ namespace Engine
 			return value;
 		}
 
-		const VertexElement* FindElement(const VertexLayout& layout, GLuint index)
-		{
-			const auto it = std::find_if(layout.elements.begin(), layout.elements.end(), [index](const VertexElement& element)
-				{
-					return element.index == index;
-				});
-			return it != layout.elements.end() ? &(*it) : nullptr;
-		}
-
-		bool GetVertexElement(GLuint index, VertexElement& element, GLint& stride)
-		{
-			GLint enabled = 0;
-			glGetVertexAttribiv(index, GL_VERTEX_ATTRIB_ARRAY_ENABLED, &enabled);
-			if (!enabled)
-			{
-				return false;
-			}
-
-			GLint size = 0;
-			GLint type = GL_FLOAT;
-			void* offset = nullptr;
-			glGetVertexAttribiv(index, GL_VERTEX_ATTRIB_ARRAY_SIZE, &size);
-			glGetVertexAttribiv(index, GL_VERTEX_ATTRIB_ARRAY_TYPE, &type);
-			glGetVertexAttribiv(index, GL_VERTEX_ATTRIB_ARRAY_STRIDE, &stride);
-			glGetVertexAttribPointerv(index, GL_VERTEX_ATTRIB_ARRAY_POINTER, &offset);
-
-			element.index = index;
-			element.size = static_cast<GLuint>(size);
-			element.type = static_cast<GLuint>(type);
-			element.offset = static_cast<uint32_t>(reinterpret_cast<uintptr_t>(offset));
-			return stride > 0 && element.size > 0;
-		}
-
 		constexpr GLuint MeshAttributeIndices[] =
 		{
 			VertexElement::PositionIndex,
@@ -87,6 +55,15 @@ namespace Engine
 			size_t vertexCount = 0;
 		};
 
+		const VertexElement* FindElement(const VertexLayout& layout, GLuint index)
+		{
+			const auto it = std::find_if(layout.elements.begin(), layout.elements.end(), [index](const VertexElement& element)
+				{
+					return element.index == index;
+				});
+			return it != layout.elements.end() ? &(*it) : nullptr;
+		}
+
 		float GetDefaultAttributeValue(GLuint attributeIndex, GLuint componentIndex)
 		{
 			if (attributeIndex == VertexElement::ColorIndex)
@@ -100,121 +77,6 @@ namespace Engine
 			}
 
 			return 0.0f;
-		}
-
-		bool ExtractMeshData(const std::shared_ptr<Mesh>& source, const glm::mat4& transform, MeshData& outData)
-		{
-			if (!source)
-			{
-				return false;
-			}
-
-			GLint previousVertexArray = 0;
-			GLint previousArrayBuffer = 0;
-			glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &previousVertexArray);
-			glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &previousArrayBuffer);
-
-			source->Bind();
-
-			VertexLayout vertexLayout;
-			GLint vertexStride = 0;
-			GLint vertexBuffer = 0;
-			glGetVertexAttribiv(VertexElement::PositionIndex, GL_VERTEX_ATTRIB_ARRAY_BUFFER_BINDING, &vertexBuffer);
-
-			for (GLuint index : MeshAttributeIndices)
-			{
-				VertexElement element;
-				GLint stride = 0;
-				if (GetVertexElement(index, element, stride))
-				{
-					vertexLayout.elements.push_back(element);
-					vertexStride = vertexStride == 0 ? stride : vertexStride;
-				}
-			}
-			vertexLayout.stride = static_cast<uint32_t>(vertexStride);
-
-			const VertexElement* positionElement = FindElement(vertexLayout, VertexElement::PositionIndex);
-			if (!positionElement || vertexBuffer == 0 || vertexLayout.stride == 0)
-			{
-				glBindVertexArray(static_cast<GLuint>(previousVertexArray));
-				glBindBuffer(GL_ARRAY_BUFFER, static_cast<GLuint>(previousArrayBuffer));
-				return false;
-			}
-
-			glBindBuffer(GL_ARRAY_BUFFER, static_cast<GLuint>(vertexBuffer));
-			GLint vertexBufferSize = 0;
-			glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &vertexBufferSize);
-			if (vertexBufferSize <= 0 || vertexBufferSize % sizeof(float) != 0)
-			{
-				glBindVertexArray(static_cast<GLuint>(previousVertexArray));
-				glBindBuffer(GL_ARRAY_BUFFER, static_cast<GLuint>(previousArrayBuffer));
-				return false;
-			}
-
-			std::vector<float> vertices(static_cast<size_t>(vertexBufferSize) / sizeof(float));
-			glGetBufferSubData(GL_ARRAY_BUFFER, 0, vertexBufferSize, vertices.data());
-
-			const size_t strideFloats = vertexLayout.stride / sizeof(float);
-			const size_t positionOffset = positionElement->offset / sizeof(float);
-			const size_t vertexCount = strideFloats > 0 ? vertices.size() / strideFloats : 0;
-			for (size_t vi = 0; vi < vertexCount; ++vi)
-			{
-				const size_t index = vi * strideFloats + positionOffset;
-				glm::vec4 position(0.0f, 0.0f, 0.0f, 1.0f);
-				for (GLuint ci = 0; ci < positionElement->size && ci < 3; ++ci)
-				{
-					position[ci] = vertices[index + ci];
-				}
-
-				const glm::vec4 transformed = transform * position;
-				vertices[index] = transformed.x;
-				vertices[index + 1] = transformed.y;
-				vertices[index + 2] = transformed.z;
-			}
-
-			if (const VertexElement* normalElement = FindElement(vertexLayout, VertexElement::NormalIndex))
-			{
-				const glm::mat3 normalTransform = glm::transpose(glm::inverse(glm::mat3(transform)));
-				const size_t normalOffset = normalElement->offset / sizeof(float);
-				for (size_t vi = 0; vi < vertexCount; ++vi)
-				{
-					const size_t index = vi * strideFloats + normalOffset;
-					const glm::vec3 normal(vertices[index], vertices[index + 1], vertices[index + 2]);
-					const glm::vec3 transformedNormal = normalTransform * normal;
-					const float length = glm::length(transformedNormal);
-					if (length > 0.0f)
-					{
-						const glm::vec3 normalized = transformedNormal / length;
-						vertices[index] = normalized.x;
-						vertices[index + 1] = normalized.y;
-						vertices[index + 2] = normalized.z;
-					}
-				}
-			}
-
-			GLint indexBuffer = 0;
-			glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING, &indexBuffer);
-			std::vector<uint32_t> indices;
-			if (indexBuffer != 0)
-			{
-				GLint indexBufferSize = 0;
-				glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, static_cast<GLuint>(indexBuffer));
-				glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &indexBufferSize);
-				if (indexBufferSize > 0 && indexBufferSize % sizeof(uint32_t) == 0)
-				{
-					indices.resize(static_cast<size_t>(indexBufferSize) / sizeof(uint32_t));
-					glGetBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, indexBufferSize, indices.data());
-				}
-			}
-
-			glBindVertexArray(static_cast<GLuint>(previousVertexArray));
-			glBindBuffer(GL_ARRAY_BUFFER, static_cast<GLuint>(previousArrayBuffer));
-
-			outData.layout = vertexLayout;
-			outData.vertices = std::move(vertices);
-			outData.indices = std::move(indices);
-			outData.vertexCount = vertexCount;
-			return true;
 		}
 
 		VertexLayout BuildMergedLayout(const std::vector<MeshData>& meshes)
@@ -360,6 +222,48 @@ namespace Engine
 				matrix.a4, matrix.b4, matrix.c4, matrix.d4);
 		}
 
+		glm::mat4 GetGLTFNodeLocalTransform(const cgltf_node* node)
+		{
+			if (!node)
+			{
+				return glm::mat4(1.0f);
+			}
+
+			if (node->has_matrix)
+			{
+				return glm::make_mat4(node->matrix);
+			}
+
+			glm::mat4 transform(1.0f);
+			if (node->has_translation)
+			{
+				transform = glm::translate(transform, glm::vec3(
+					node->translation[0],
+					node->translation[1],
+					node->translation[2]));
+			}
+
+			if (node->has_rotation)
+			{
+				const glm::quat rotation(
+					node->rotation[3],
+					node->rotation[0],
+					node->rotation[1],
+					node->rotation[2]);
+				transform *= glm::mat4_cast(rotation);
+			}
+
+			if (node->has_scale)
+			{
+				transform = glm::scale(transform, glm::vec3(
+					node->scale[0],
+					node->scale[1],
+					node->scale[2]));
+			}
+
+			return transform;
+		}
+
 		bool CreateMeshDataFromAssimp(const aiMesh* sourceMesh, const glm::mat4& transform, MeshData& outData)
 		{
 			if (!sourceMesh || !sourceMesh->HasPositions())
@@ -437,6 +341,153 @@ namespace Engine
 			return true;
 		}
 
+		bool ReadAccessorFloats(const cgltf_accessor* accessor, cgltf_size index, float* values, cgltf_size valueCount)
+		{
+			std::fill(values, values + valueCount, 0.0f);
+			if (!accessor)
+			{
+				return false;
+			}
+
+			return cgltf_accessor_read_float(accessor, index, values, valueCount) == 1;
+		}
+
+		bool CreateMeshDataFromGLTFPrimitive(const cgltf_primitive& primitive, const glm::mat4& transform, MeshData& outData)
+		{
+			if (primitive.type != cgltf_primitive_type_triangles)
+			{
+				return false;
+			}
+
+			const cgltf_accessor* positionAccessor = nullptr;
+			const cgltf_accessor* colorAccessor = nullptr;
+			const cgltf_accessor* uvAccessor = nullptr;
+			const cgltf_accessor* normalAccessor = nullptr;
+
+			for (cgltf_size i = 0; i < primitive.attributes_count; ++i)
+			{
+				const cgltf_attribute& attribute = primitive.attributes[i];
+				if (!attribute.data)
+				{
+					continue;
+				}
+
+				switch (attribute.type)
+				{
+				case cgltf_attribute_type_position:
+					positionAccessor = attribute.data;
+					break;
+				case cgltf_attribute_type_color:
+					if (attribute.index == 0)
+					{
+						colorAccessor = attribute.data;
+					}
+					break;
+				case cgltf_attribute_type_texcoord:
+					if (attribute.index == 0)
+					{
+						uvAccessor = attribute.data;
+					}
+					break;
+				case cgltf_attribute_type_normal:
+					normalAccessor = attribute.data;
+					break;
+				default:
+					break;
+				}
+			}
+
+			if (!positionAccessor || positionAccessor->count == 0)
+			{
+				return false;
+			}
+
+			VertexLayout vertexLayout;
+			AddVertexElement(vertexLayout, VertexElement::PositionIndex, 3);
+			if (colorAccessor)
+			{
+				AddVertexElement(vertexLayout, VertexElement::ColorIndex, 3);
+			}
+			if (uvAccessor)
+			{
+				AddVertexElement(vertexLayout, VertexElement::UVIndex, 2);
+			}
+			if (normalAccessor)
+			{
+				AddVertexElement(vertexLayout, VertexElement::NormalIndex, 3);
+			}
+
+			const size_t strideFloats = vertexLayout.stride / sizeof(float);
+			std::vector<float> vertices;
+			vertices.reserve(positionAccessor->count * strideFloats);
+
+			const glm::mat3 normalTransform = glm::transpose(glm::inverse(glm::mat3(transform)));
+			for (cgltf_size vertexIndex = 0; vertexIndex < positionAccessor->count; ++vertexIndex)
+			{
+				float values[4] = {};
+				if (!ReadAccessorFloats(positionAccessor, vertexIndex, values, 4))
+				{
+					return false;
+				}
+
+				const glm::vec4 transformedPosition = transform * glm::vec4(values[0], values[1], values[2], 1.0f);
+				vertices.push_back(transformedPosition.x);
+				vertices.push_back(transformedPosition.y);
+				vertices.push_back(transformedPosition.z);
+
+				if (colorAccessor)
+				{
+					ReadAccessorFloats(colorAccessor, vertexIndex, values, 4);
+					vertices.push_back(values[0]);
+					vertices.push_back(values[1]);
+					vertices.push_back(values[2]);
+				}
+
+				if (uvAccessor)
+				{
+					ReadAccessorFloats(uvAccessor, vertexIndex, values, 4);
+					vertices.push_back(values[0]);
+					vertices.push_back(values[1]);
+				}
+
+				if (normalAccessor)
+				{
+					ReadAccessorFloats(normalAccessor, vertexIndex, values, 4);
+					const glm::vec3 transformedNormal = normalTransform * glm::vec3(values[0], values[1], values[2]);
+					const float length = glm::length(transformedNormal);
+					const glm::vec3 normalizedNormal = length > 0.0f
+						? transformedNormal / length
+						: glm::vec3(0.0f, 0.0f, 1.0f);
+					vertices.push_back(normalizedNormal.x);
+					vertices.push_back(normalizedNormal.y);
+					vertices.push_back(normalizedNormal.z);
+				}
+			}
+
+			std::vector<uint32_t> indices;
+			if (primitive.indices)
+			{
+				indices.reserve(primitive.indices->count);
+				for (cgltf_size i = 0; i < primitive.indices->count; ++i)
+				{
+					const cgltf_size index = cgltf_accessor_read_index(primitive.indices, i);
+					if (index > static_cast<cgltf_size>(std::numeric_limits<uint32_t>::max()))
+					{
+						Logging::Error() << "MeshManager: GLTF mesh index exceeds the 32-bit index limit.";
+						return false;
+					}
+
+					indices.push_back(static_cast<uint32_t>(index));
+				}
+			}
+
+			outData.layout = vertexLayout;
+			outData.vertices = std::move(vertices);
+			outData.indices = std::move(indices);
+			outData.vertexCount = positionAccessor->count;
+			return true;
+		}
+
 		void CollectAssimpMeshes(const aiScene* scene, const aiNode* node, const glm::mat4& parentTransform, std::vector<MeshData>& meshes)
 		{
 			if (!scene || !node)
@@ -466,42 +517,78 @@ namespace Engine
 			}
 		}
 
-		void CollectMeshes(GameObject* object, std::vector<MeshData>& meshes)
+		void CollectGLTFMeshes(const cgltf_node* node, const glm::mat4& parentTransform, std::vector<MeshData>& meshes)
 		{
-			if (!object)
+			if (!node)
 			{
 				return;
 			}
 
-			for (const auto& component : object->GetComponents())
+			const glm::mat4 transform = parentTransform * GetGLTFNodeLocalTransform(node);
+			if (node->mesh)
 			{
-				auto* meshComponent = dynamic_cast<MeshComponent*>(component.get());
-				if (!meshComponent)
+				for (cgltf_size i = 0; i < node->mesh->primitives_count; ++i)
 				{
-					continue;
-				}
-
-				MeshData meshData;
-				if (ExtractMeshData(meshComponent->GetMesh(), object->GetWorldTransform(), meshData))
-				{
-					meshes.push_back(std::move(meshData));
+					MeshData meshData;
+					if (CreateMeshDataFromGLTFPrimitive(node->mesh->primitives[i], transform, meshData))
+					{
+						meshes.push_back(std::move(meshData));
+					}
 				}
 			}
 
-			for (const auto& child : object->GetChildren())
+			for (cgltf_size i = 0; i < node->children_count; ++i)
 			{
-				CollectMeshes(child.get(), meshes);
+				CollectGLTFMeshes(node->children[i], transform, meshes);
 			}
 		}
 
 		std::shared_ptr<Mesh> LoadMeshFromGLTF(const std::string& path)
 		{
-			Scene loadScene;
-			GameObject* loadedObject = GameObject::LoadGLTF(path, &loadScene);
-			if (!loadedObject) return nullptr;
+			auto& fileSystem = ArkEngine::GetInstance().GetFileSystem();
+			const auto contents = fileSystem.LoadAssetFile(path);
+			if (contents.empty())
+			{
+				return nullptr;
+			}
+
+			cgltf_options options = {};
+			cgltf_data* data = nullptr;
+			cgltf_result result = cgltf_parse(&options, contents.data(), contents.size(), &data);
+			if (result != cgltf_result_success || !data)
+			{
+				return nullptr;
+			}
+
+			const auto fullPath = fileSystem.GetAssetFilePath(path);
+			result = cgltf_load_buffers(&options, data, fullPath.string().c_str());
+			if (result != cgltf_result_success)
+			{
+				cgltf_free(data);
+				return nullptr;
+			}
 
 			std::vector<MeshData> meshes;
-			CollectMeshes(loadedObject, meshes);
+			const cgltf_scene* scene = data->scene
+				? data->scene
+				: (data->scenes_count > 0 ? &data->scenes[0] : nullptr);
+			if (scene)
+			{
+				for (cgltf_size i = 0; i < scene->nodes_count; ++i)
+				{
+					CollectGLTFMeshes(scene->nodes[i], glm::mat4(1.0f), meshes);
+				}
+			}
+			else
+			{
+				for (cgltf_size i = 0; i < data->nodes_count; ++i)
+				{
+					if (!data->nodes[i].parent)
+					{
+						CollectGLTFMeshes(&data->nodes[i], glm::mat4(1.0f), meshes);
+					}
+				}
+			}
 
 			if (meshes.size() > 1)
 			{
@@ -509,7 +596,9 @@ namespace Engine
 					<< " meshes. Merging them into a single mesh.";
 			}
 
-			return BuildMergedMesh(meshes);
+			auto mesh = BuildMergedMesh(meshes);
+			cgltf_free(data);
+			return mesh;
 		}
 
 		std::shared_ptr<Mesh> LoadMeshWithAssimp(const std::string& path)
