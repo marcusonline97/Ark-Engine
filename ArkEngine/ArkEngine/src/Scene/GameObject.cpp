@@ -571,9 +571,9 @@ namespace Engine
                             ? specular.specular_texture.texture
                             : specular.specular_color_texture.texture);
                     }
-
-                    object->AddComponent(new MeshComponent(mat, mesh));
                 }
+
+                object->AddComponent(new MeshComponent(mat, mesh));
             }
         }
 

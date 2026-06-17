@@ -1,4 +1,5 @@
 #include "Scene/components/MeshComponent.h"
+#include "Graphics/Texture.h"
 #include "Render/Material.h"
 #include "Render/Mesh.h"
 #include "Render/RenderQueue.h"
@@ -7,6 +8,85 @@
 
 namespace Engine
 {
+    namespace
+    {
+        std::shared_ptr<Material> LoadMaterialFromJson(const nlohmann::json& materialJson)
+        {
+            std::string path;
+            const nlohmann::json* paramsObj = nullptr;
+
+            if (materialJson.is_string())
+            {
+                path = materialJson.get<std::string>();
+            }
+            else if (materialJson.is_object())
+            {
+                path = materialJson.value("path", "");
+                if (materialJson.contains("params"))
+                {
+                    paramsObj = &materialJson["params"];
+                }
+            }
+
+            auto mat = Material::Load(path);
+            if (!mat || !paramsObj)
+            {
+                return mat;
+            }
+
+            // Floats
+            if (paramsObj->contains("float"))
+            {
+                for (auto& p : (*paramsObj)["float"])
+                {
+                    std::string name = p.value("name", "");
+                    float value = p.value("value", 0.0f);
+                    mat->SetParam(name, value);
+                }
+            }
+
+            // Float2
+            if (paramsObj->contains("float2"))
+            {
+                for (auto& p : (*paramsObj)["float2"])
+                {
+                    std::string name = p.value("name", "");
+                    float v0 = p.value("value0", 0.0f);
+                    float v1 = p.value("value1", 0.0f);
+                    mat->SetParam(name, v0, v1);
+                }
+            }
+
+            // Float3
+            if (paramsObj->contains("float3"))
+            {
+                for (auto& p : (*paramsObj)["float3"])
+                {
+                    std::string name = p.value("name", "");
+                    float v0 = p.value("value0", 0.0f);
+                    float v1 = p.value("value1", 0.0f);
+                    float v2 = p.value("value2", 0.0f);
+                    mat->SetParam(name, glm::vec3(v0, v1, v2));
+                }
+            }
+
+            // Textures
+            if (paramsObj->contains("textures"))
+            {
+                for (auto& p : (*paramsObj)["textures"])
+                {
+                    std::string name = p.value("name", "");
+                    std::string texPath = p.value("path", "");
+                    auto texture = Texture::Load(texPath);
+
+                    mat->SetParam(name, texture);
+                }
+            }
+
+            return mat;
+        }
+    }
+
     MeshComponent::MeshComponent(const std::shared_ptr<Material>& material, const std::shared_ptr<Mesh>& mesh)
         : m_material(material), m_mesh(mesh)
     {
@@ -17,68 +97,41 @@ namespace Engine
     {
         if (json.contains("material"))
         {
-            auto& matObj = json["material"];
-            const std::string path = matObj.value("path", "");
-            auto mat = Material::Load(path);
-            if (mat && matObj.contains("params"))
-            {
-                auto& paramsObj = matObj["params"];
-
-                // Floats
-                if (paramsObj.contains("float"))
-                {
-                    for (auto& p : paramsObj["float"])
-                    {
-                        std::string name = p.value("name", "");
-                        float value = p.value("value", 0.0f);
-                        mat->SetParam(name, value);
-                    }
-                }
-
-                // Float2
-                if (paramsObj.contains("float2"))
-                {
-                    for (auto& p : paramsObj["float2"])
-                    {
-                        std::string name = p.value("name", "");
-                        float v0 = p.value("value0", 0.0f);
-                        float v1 = p.value("value1", 0.0f);
-                        mat->SetParam(name, v0, v1);
-                    }
-                }
-
-                // Float3
-                if (paramsObj.contains("float3"))
-                {
-                    for (auto& p : paramsObj["float3"])
-                    {
-                        std::string name = p.value("name", "");
-                        float v0 = p.value("value0", 0.0f);
-                        float v1 = p.value("value1", 0.0f);
-                        float v2 = p.value("value2", 0.0f);
-                        mat->SetParam(name, glm::vec3(v0, v1, v2));
-                    }
-                }
-
-                // Textures
-                if (paramsObj.contains("textures"))
-                {
-                    for (auto& p : paramsObj["textures"])
-                    {
-                        std::string name = p.value("name", "");
-                        std::string texPath = p.value("path", "");
-                        auto texture = Texture::Load(texPath);
-
-                        mat->SetParam(name, texture);
-                    }
-                }
-            }
-            SetMaterial(mat);
+            SetMaterial(LoadMaterialFromJson(json["material"]));
         }
 
         if (json.contains("mesh"))
         {
             auto& meshObj = json["mesh"];
+            if (meshObj.is_string())
+            {
+                const std::string path = meshObj.get<std::string>();
+                auto mesh = ArkEngine::GetInstance().GetMeshManager().GetOrLoadMesh(path);
+                if (mesh)
+                {
+                    SetMesh(mesh);
+                    SetMeshPath(path);
+                }
+                return;
+            }
+
+            if (!meshObj.is_object())
+            {
+                return;
+            }
+
+            const std::string path = meshObj.value("path", "");
+            if (!path.empty())
+            {
+                auto mesh = ArkEngine::GetInstance().GetMeshManager().GetOrLoadMesh(path);
+                if (mesh)
+                {
+                    SetMesh(mesh);
+                    SetMeshPath(path);
+                }
+                return;
+            }
+
             const std::string type = meshObj.value("type", "box");
             if (type == "box")
             {
@@ -95,6 +148,17 @@ namespace Engine
                 auto mesh = Mesh::CreateSphere(r, 16, 16);
                 SetMesh(mesh);
             }
+        }
+    }
+
+    void MeshComponent::SaveProperties(nlohmann::json& json) const
+    {
+        if (!m_meshPath.empty())
+        {
+            json["mesh"] = {
+                {"type", "file"},
+                {"path", m_meshPath}
+            };
         }
     }
 

@@ -560,7 +560,14 @@ namespace Engine
 			const auto extension = ToLower(std::filesystem::path(path).extension().string());
 			if (extension == ".gltf" || extension == ".glb")
 			{
-				return LoadMeshFromGLTF(path);
+				auto mesh = LoadMeshFromGLTF(path);
+				if (mesh)
+				{
+					return mesh;
+				}
+
+				Logging::Debug() << "MeshManager: custom glTF loader failed for '" << path
+					<< "'. Falling back to Assimp.";
 			}
 
 			return LoadMeshWithAssimp(path);
