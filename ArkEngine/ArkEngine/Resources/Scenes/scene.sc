@@ -3148,6 +3148,36 @@
         {
           "components": [
             {
+              "material": {
+                "path": "Materials/Crate.mat"
+              },
+              "mesh": {
+                "path": "Models/Crate/scene.gltf"
+              },
+              "type": "MeshComponent"
+            }
+          ],
+          "name": "Crate",
+          "position": {
+            "x": 3.0,
+            "y": 0.8,
+            "z": 0.0
+          },
+          "rotation": {
+            "w": 1.0,
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "scale": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        },
+        {
+          "components": [
+            {
               "color": {
                 "b": 1.0,
                 "g": 1.0,

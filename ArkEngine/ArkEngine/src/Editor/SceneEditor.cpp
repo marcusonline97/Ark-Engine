@@ -631,6 +631,8 @@ namespace Engine
 
 					DrawTextureSlot("baseColorTexture", "Albedo");
 					ImGui::Spacing();
+					DrawTextureSlot("normalMap", "Normal Map");
+					ImGui::Spacing();
 					DrawTextureSlot("specularMap", "Specular");
 
 				}

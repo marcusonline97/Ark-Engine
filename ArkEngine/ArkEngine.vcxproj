@@ -347,6 +347,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="ArkEngine\Resources\Materials\brick.mat" />
+    <None Include="ArkEngine\Resources\Materials\Crate.mat" />
     <None Include="ArkEngine\Resources\Materials\suzanne.mat" />
     <None Include="ArkEngine\Resources\Models\CarbineGun\scene.bin" />
     <None Include="ArkEngine\Resources\Models\CarbineGun\scene.gltf" />

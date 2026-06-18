@@ -571,6 +571,7 @@ namespace Engine
                             ? specular.specular_texture.texture
                             : specular.specular_color_texture.texture);
                     }
+					assignTexture("normalMap", gltfMat->normal_texture.texture);
 
                     object->AddComponent(new MeshComponent(mat, mesh));
                 }
