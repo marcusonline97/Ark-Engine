@@ -19,8 +19,10 @@ namespace Logging {
     };
 
     using SinkId = uint32_t;
-	SinkId AddSink(std::function<void(Level, std::string_view)> sink);
+	SinkId AddSink(std::function<void(Level, std::string_view, float)> sink);
 	void RemoveSink(SinkId id);
+	void SetStartTime();
+	float GetElapsedSeconds();
 
     struct MessageStream {
         explicit MessageStream(Level level);

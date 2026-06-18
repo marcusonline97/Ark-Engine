@@ -1,6 +1,8 @@
 #include "Logger.h"
 #include <iostream>
 #include <atomic>
+#include <chrono>
+#include <iomanip>
 #include <mutex>
 #include <vector>
 
@@ -13,13 +15,14 @@ namespace Logging {
     std::atomic<uint32_t> g_levelMask{ 0 };
     std::atomic<bool>     g_vtInitialized{ false };
     std::atomic<bool>     g_alive{ true };
+    std::chrono::steady_clock::time_point g_startTime = std::chrono::steady_clock::now();
 
     std::mutex g_outputMutex;
 
     struct SinkEntry
     {
         SinkId id = 0;
-        std::function<void(Level, std::string_view)> fn;
+        std::function<void(Level, std::string_view, float)> fn;
 
     };
 
@@ -32,7 +35,7 @@ namespace Logging {
         return 1u << static_cast<uint32_t>(level);
     }
 
-    static void DispatchToSinks(Level level, std::string_view msg)
+    static void DispatchToSinks(Level level, std::string_view msg, float timestamp)
     {
         std::vector<SinkEntry> sinksCopy;
         {
@@ -42,11 +45,11 @@ namespace Logging {
 
         for (const auto& sink : sinksCopy)
         {
-			if (sink.fn) sink.fn(level, msg);
+			if (sink.fn) sink.fn(level, msg, timestamp);
 		}
     }
 
-    SinkId AddSink(std::function<void(Level, std::string_view)> sink) {
+    SinkId AddSink(std::function<void(Level, std::string_view, float)> sink) {
         if (!sink) return 0;
         const SinkId id = g_nextSinkId.fetch_add(1, std::memory_order_relaxed);
         {
@@ -65,6 +68,16 @@ namespace Logging {
                 return;
             }
         }
+    }
+
+    void SetStartTime()
+    {
+        g_startTime = std::chrono::steady_clock::now();
+    }
+
+    float GetElapsedSeconds()
+    {
+        return std::chrono::duration<float>(std::chrono::steady_clock::now() - g_startTime).count();
     }
 
 
@@ -164,10 +177,12 @@ namespace Logging {
 
         const std::string msg = m_ss.str();
         if (msg.empty()) return;
+        const float ts = GetElapsedSeconds();
         {
             std::lock_guard<std::mutex> lock(g_outputMutex);
 
-            std::cout << Color(m_level) << "[" << Name(m_level) << "] "
+            std::cout << Color(m_level) << "[" << std::fixed << std::setprecision(3) << ts << "s]"
+                << "[" << Name(m_level) << "] "
                 << msg
 				<< "\x1b[0m";
 
@@ -175,7 +190,7 @@ namespace Logging {
 				std::cout << '\n';
         }
 
-		DispatchToSinks(m_level, msg); // races with other threads in the consolue output, but that's generally fine for logging
+		DispatchToSinks(m_level, msg, ts); // races with other threads in the console output, but that's generally fine for logging
     }
 
     MessageStream::MessageStream(MessageStream&& rhs) noexcept
