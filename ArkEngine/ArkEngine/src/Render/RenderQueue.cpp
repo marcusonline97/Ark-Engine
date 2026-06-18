@@ -6,6 +6,7 @@
 #include "Graphics/ShaderProgram.h"
 
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/vec3.hpp>
 
 #include <algorithm>
 #include <utility>
@@ -36,6 +37,7 @@ namespace Engine
     {
         // 3D
         auto defaultShader = graphicsAPI.GetDefaultShaderProgram();
+        Texture* defaultWhiteTexture = graphicsAPI.GetDefaultWhiteTexture().get();
         for (auto& command : m_commands)
         {
             graphicsAPI.BindMaterial(command.material);
@@ -45,7 +47,10 @@ namespace Engine
 			defaultShader->SetUniform("uProjection", cameraData.projectionMatrix);
 			defaultShader->SetUniform("uCameraPos", cameraData.position);
 			defaultShader->SetUniform("uSpecularStrength", ArkEngine::GetInstance().GetSpecularStrength());
-			defaultShader->SetUniform("uHasSpecularMap", command.material->HasTextureParam("specularMap") ? 1 : 0);
+            defaultShader->SetUniform("color", glm::vec3(1.0f));
+
+            Texture* baseColorTexture = defaultWhiteTexture;
+            Texture* specularTexture = nullptr;
             
             if (command.material)
             {
@@ -54,25 +59,14 @@ namespace Engine
                         defaultShader->SetUniform(name, value);
                     });
                 if (Texture* tex = command.material->GetTextureParam("baseColorTexture"))
-                    defaultShader->SetTexture("baseColorTexture", tex);
+                    baseColorTexture = tex;
 
-                Texture* specTex = command.material->GetTextureParam("specularMap");
-                if (specTex)
-                {
-					defaultShader->SetTexture("specularMap", specTex);
-					defaultShader->SetUniform("uHasSpecularMap", 1);
-                }
-                else
-                {
-					defaultShader->SetUniform("uHasSpecularMap", 0);
-                }
-
+                specularTexture = command.material->GetTextureParam("specularMap");
             }
 
-            else
-            {
-				defaultShader->SetUniform("uHasSpecularMap", 0);
-            }
+            defaultShader->SetTexture("baseColorTexture", baseColorTexture);
+            defaultShader->SetTexture("specularMap", specularTexture ? specularTexture : defaultWhiteTexture);
+			defaultShader->SetUniform("uHasSpecularMap", specularTexture ? 1 : 0);
 			const int lightCount = std::min(static_cast<int>(lights.size()), 8);
 			defaultShader->SetUniform("uLightCount", lightCount);
             for (int li = 0; li < lightCount; ++li)

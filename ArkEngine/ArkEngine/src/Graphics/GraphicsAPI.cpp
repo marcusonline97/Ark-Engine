@@ -1,5 +1,6 @@
 #include "GraphicsAPI.h"
 #include "ShaderProgram.h"
+#include "Texture.h"
 #include "Render/Material.h"
 #include "Render/Mesh.h"
 #include "Logger.h"
@@ -300,6 +301,17 @@ namespace Engine
             m_defaultUIShaderProgram = CreateShaderProgram(vertexShaderSource, fragmentShaderSource);
         }
         return m_defaultUIShaderProgram;
+    }
+
+    const std::shared_ptr<Texture>& GraphicsAPI::GetDefaultWhiteTexture()
+    {
+        if (!m_defaultWhiteTexture)
+        {
+            unsigned char white[] = { 255, 255, 255, 255 };
+            m_defaultWhiteTexture = std::make_shared<Texture>(1, 1, 4, white);
+        }
+
+        return m_defaultWhiteTexture;
     }
 
     GLuint GraphicsAPI::CreateVertexBuffer(const std::vector<float>& vertices)

@@ -44,7 +44,6 @@ namespace Engine
 
         GLuint m_outputFBO = 0;
         GLuint m_outputTex = 0;
-        GLuint m_whiteTexture = 0;
 
         int m_width = 0;
         int m_height = 0;
@@ -57,11 +56,9 @@ namespace Engine
         void CreateGBuffer(int w, int h);
         void CreateShadowMap();
         void CreateOutputBuffer(int w, int h);
-        void CreateWhiteTexture();
         void DestroyGBuffer();
         void DestroyOutputBuffer();
         void DestroyShadowMap();
-        void DestroyWhiteTexture();
         glm::mat4 ComputeLightSpaceMatrix(const LightData& light, const CameraData& cam) const;
     };
 }

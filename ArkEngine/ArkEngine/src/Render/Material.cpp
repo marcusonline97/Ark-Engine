@@ -97,7 +97,10 @@ namespace Engine
 
         for (auto& param : m_textures)
         {
-            m_shaderProgram->SetTexture(param.first, param.second.get());
+            if (param.second)
+            {
+                m_shaderProgram->SetTexture(param.first, param.second.get());
+            }
         }
 
 
