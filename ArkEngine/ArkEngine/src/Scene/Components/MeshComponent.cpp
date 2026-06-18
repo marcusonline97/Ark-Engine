@@ -79,6 +79,18 @@ namespace Engine
         if (json.contains("mesh"))
         {
             auto& meshObj = json["mesh"];
+            const std::string path = meshObj.value("path", "");
+            if (!path.empty())
+            {
+                auto mesh = ArkEngine::GetInstance().GetMeshManager().GetOrLoadMesh(path);
+                if (mesh)
+                {
+                    SetMesh(mesh);
+                    SetMeshPath(path);
+                    return;
+                }
+            }
+
             const std::string type = meshObj.value("type", "box");
             if (type == "box")
             {

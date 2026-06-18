@@ -1512,7 +1512,7 @@
               "type": "PhysicsComponent"
             }
           ],
-          "name": "PlatformС",
+          "name": "Platform\u0421",
           "position": {
             "x": -14.0,
             "y": 1.0499999523162842,
@@ -3132,6 +3132,36 @@
             "x": 0.0,
             "y": 0.6499999761581421,
             "z": 13.0
+          },
+          "rotation": {
+            "w": 1.0,
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "scale": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        },
+        {
+          "components": [
+            {
+              "material": {
+                "path": "Materials/Crate.mat"
+              },
+              "mesh": {
+                "path": "Models/Crate/scene.gltf"
+              },
+              "type": "MeshComponent"
+            }
+          ],
+          "name": "Crate",
+          "position": {
+            "x": 3.0,
+            "y": 0.8,
+            "z": 0.0
           },
           "rotation": {
             "w": 1.0,
