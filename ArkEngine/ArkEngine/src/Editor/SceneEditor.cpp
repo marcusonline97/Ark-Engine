@@ -7,6 +7,7 @@
 #include "Scene/Components/CameraComponent.h"
 #include "Scene/Components/AnimationComponent.h"
 #include "Core/ArkEngine.h"
+#include "Graphics/Texture.h"
 #include "Render/Material.h"
 #include "Logger.h"
 #include "imgui/imgui.h"
@@ -527,16 +528,16 @@ namespace Engine
 
 				else if (auto* meshComp = dynamic_cast<MeshComponent*>(comp.get()))
 				{
-					const std::string & meshPath = meshComp->GetMeshPath();
+					// ── Mesh slot ────────────────────────────────────────────
+					const std::string& meshPath = meshComp->GetMeshPath();
 					std::vector<char> meshPathBuffer(meshPath.begin(), meshPath.end());
 					meshPathBuffer.push_back('\0');
 
-					ImGui::TextUnformatted("Current Mesh Path");
+					ImGui::TextUnformatted("Mesh Path");
 					ImGui::SetNextItemWidth(-1.0f);
 					ImGui::InputText("##MeshPath", meshPathBuffer.data(), meshPathBuffer.size(), ImGuiInputTextFlags_ReadOnly);
 
-					ImGui::Button("Mesh", ImVec2(-1.0f, 0.0f));
-
+					ImGui::Button("Drop Mesh Here", ImVec2(-1.0f, 0.0f));
 					if (ImGui::BeginDragDropTarget())
 					{
 						if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(kAssetPathPayloadType))
@@ -546,9 +547,7 @@ namespace Engine
 							{
 								size_t length = 0;
 								while (length < static_cast<size_t>(payload->DataSize) && data[length] != '\0')
-								{
 									++length;
-								}
 								std::string path(data, length);
 								auto newMesh = ArkEngine::GetInstance().GetMeshManager().GetOrLoadMesh(path);
 								if (newMesh)
@@ -566,9 +565,70 @@ namespace Engine
 							}
 						}
 						ImGui::EndDragDropTarget();
-
-						//Might need to move the EndDragDropTarget here -> Todo:
 					}
+
+					// ── Texture slots ─────────────────────────────────────────
+					ImGui::Spacing();
+					ImGui::Separator();
+					ImGui::Spacing();
+
+					// Helper lambda: draws one texture slot (label + read-only path + drop target).
+					// slotKey   = the key used in Material::m_textures and the GLSL uniform name
+					// slotLabel = human-readable label shown in the Inspector
+					auto DrawTextureSlot = [&](const char* slotKey, const char* slotLabel)
+					{
+						Material* mat = meshComp->GetMaterial();
+
+						// Show current assigned path (display only)
+						const bool hasTexture = mat && mat->HasTextureParam(slotKey);
+						const std::string currentPath = hasTexture ? "(assigned)" : "(none)";
+						ImGui::Text("%s", slotLabel);
+						ImGui::SameLine(90.0f);
+						ImGui::SetNextItemWidth(-1.0f);
+						ImGui::PushStyleColor(ImGuiCol_Text,
+							hasTexture ? ImVec4(0.45f, 0.85f, 0.65f, 1.0f)
+									   : ImVec4(0.5f, 0.5f, 0.5f, 1.0f));
+						ImGui::TextUnformatted(currentPath.c_str());
+						ImGui::PopStyleColor();
+
+						// Drop target button
+						const std::string btnId = std::string("Drop ") + slotLabel + "##" + slotKey;
+						ImGui::Button(btnId.c_str(), ImVec2(-1.0f, 0.0f));
+						if (ImGui::BeginDragDropTarget())
+						{
+							if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(kAssetPathPayloadType))
+							{
+								const char* data = static_cast<const char*>(payload->Data);
+								if (data && payload->DataSize > 0)
+								{
+									size_t length = 0;
+									while (length < static_cast<size_t>(payload->DataSize) && data[length] != '\0')
+										++length;
+									std::string path(data, length);
+									auto tex = Texture::Load(path);
+									if (tex)
+									{
+										if (mat)
+										{
+											mat->SetParam(slotKey, tex);
+											m_status = std::string(slotLabel) + " assigned: " + path;
+											Logging::Init() << slotLabel << " assigned: " << path;
+										}
+									}
+									else
+									{
+										m_status = std::string("Failed to load texture: ") + path;
+										Logging::Warning() << "Failed to load texture: " << path;
+									}
+								}
+							}
+							ImGui::EndDragDropTarget();
+						}
+					};
+
+					DrawTextureSlot("baseColorTexture", "Albedo");
+					ImGui::Spacing();
+					DrawTextureSlot("specularMap", "Specular");
 
 				}
 

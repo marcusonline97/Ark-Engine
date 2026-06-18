@@ -45,7 +45,7 @@ namespace Engine
 			defaultShader->SetUniform("uProjection", cameraData.projectionMatrix);
 			defaultShader->SetUniform("uCameraPos", cameraData.position);
 			defaultShader->SetUniform("uSpecularStrength", ArkEngine::GetInstance().GetSpecularStrength());
-			defaultShader->SetUniform("uHasSpecularMap", command.material->HasTextureParam("uSpecularMap") ? 1 : 0);
+			defaultShader->SetUniform("uHasSpecularMap", command.material->HasTextureParam("specularMap") ? 1 : 0);
             
             if (command.material)
             {
