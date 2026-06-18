@@ -1,0 +1,17 @@
+{
+	"shader":
+	{
+		"vertex": "Shaders/Vertex.glsl",
+		"fragment": "Shaders/Fragment.glsl"
+	},
+	"params":
+	{
+		"textures":
+		[
+			{
+				"name": "baseColorTexture",
+				"path": "Models/Door/textures/WoodenDoor-animated_Baked.004_baseColor.jpeg"
+			}
+		]
+	}
+}

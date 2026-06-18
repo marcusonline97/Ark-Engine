@@ -1,0 +1,17 @@
+{
+	"shader":
+	{
+		"vertex": "Shaders/Vertex.glsl",
+		"fragment": "Shaders/Fragment.glsl"
+	},
+	"params":
+	{
+		"textures":
+		[
+			{
+				"name": "baseColorTexture",
+				"path": "Models/SurvivalBackpack/textures/Scene_-_Root_baseColor.jpeg"
+			}
+		]
+	}
+}

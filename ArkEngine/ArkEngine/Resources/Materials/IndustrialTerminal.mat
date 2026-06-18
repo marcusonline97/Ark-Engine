@@ -1,0 +1,17 @@
+{
+	"shader":
+	{
+		"vertex": "Shaders/Vertex.glsl",
+		"fragment": "Shaders/Fragment.glsl"
+	},
+	"params":
+	{
+		"textures":
+		[
+			{
+				"name": "baseColorTexture",
+				"path": "Models/IndustrinTerminal/tex/blender_chad_console_fromPaint_diffuse.png"
+			}
+		]
+	}
+}

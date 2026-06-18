@@ -1,0 +1,21 @@
+{
+	"shader":
+	{
+		"vertex": "Shaders/Vertex.glsl",
+		"fragment": "Shaders/Fragment.glsl"
+	},
+	"params":
+	{
+		"textures":
+		[
+			{
+				"name": "baseColorTexture",
+				"path": "Models/TeleportationGate/textures/MAT_chad_gate_base_baseColor.png"
+			},
+			{
+				"name": "specularMap",
+				"path": "Models/TeleportationGate/textures/MAT_chad_gate_base_specularf0.png"
+			}
+		]
+	}
+}
