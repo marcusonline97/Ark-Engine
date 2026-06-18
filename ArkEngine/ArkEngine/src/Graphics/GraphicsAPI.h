@@ -10,6 +10,7 @@
 namespace Engine
 {
     class ShaderProgram;
+    class Texture;
     class Material;
     class Mesh;
 
@@ -59,6 +60,7 @@ namespace Engine
         const std::shared_ptr<ShaderProgram>& GetDefaultShaderProgram();
         const std::shared_ptr<ShaderProgram>& GetDefault2DShaderProgram();
         const std::shared_ptr<ShaderProgram>& GetDefaultUIShaderProgram();
+        const std::shared_ptr<Texture>& GetDefaultWhiteTexture();
         GLuint CreateVertexBuffer(const std::vector<float>& vertices);
         GLuint CreateIndexBuffer(const std::vector<uint32_t>& indices);
 
@@ -81,6 +83,7 @@ namespace Engine
         std::shared_ptr<ShaderProgram> m_defaultShaderProgram;
         std::shared_ptr<ShaderProgram> m_default2DShaderProgram;
         std::shared_ptr<ShaderProgram> m_defaultUIShaderProgram;
+        std::shared_ptr<Texture> m_defaultWhiteTexture;
 		std::unordered_map<ShaderKey, std::shared_ptr<ShaderProgram>, ShaderKeyHash> m_shaderCache;
     };
 }

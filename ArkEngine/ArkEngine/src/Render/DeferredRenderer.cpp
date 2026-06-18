@@ -64,12 +64,13 @@ namespace Engine
 
             uniform sampler2D baseColorTexture;
             uniform sampler2D specularMap;
+            uniform vec3      color;
             uniform int       uHasSpecularMap;
             uniform float     uSpecularStrength;
 
             void main()
             {
-                vec3 albedo = texture(baseColorTexture, vUV).rgb;
+                vec3 albedo = texture(baseColorTexture, vUV).rgb * color;
                 gPosition = vec4(vFragPos, 1.0);
                 gNormal = vec4(normalize(vNormal), 1.0);
 
@@ -280,7 +281,6 @@ namespace Engine
         CreateGBuffer(width, height);
         CreateShadowMap();
         CreateOutputBuffer(width, height);
-        CreateWhiteTexture();
 
         return m_gFBO != 0 && m_shadowFBO != 0 && m_outputFBO != 0;
     }
@@ -311,7 +311,6 @@ namespace Engine
         DestroyGBuffer();
         DestroyOutputBuffer();
         DestroyShadowMap();
-        DestroyWhiteTexture();
 
         m_quad.reset();
         m_geoPassShader.reset();
@@ -382,6 +381,7 @@ namespace Engine
         m_geoPassShader->SetUniform("uView", cameraData.viewMatrix);
         m_geoPassShader->SetUniform("uProjection", cameraData.projectionMatrix);
         m_geoPassShader->SetUniform("baseColorTexture", 0);
+        const GLuint defaultWhiteTexture = ArkEngine::GetInstance().GetGraphicsAPI().GetDefaultWhiteTexture()->GetID();
 
         for (const RenderCommand& command : commands)
         {
@@ -390,7 +390,7 @@ namespace Engine
                 continue;
             }
 
-            GLuint baseColorTexture = m_whiteTexture;
+            GLuint baseColorTexture = defaultWhiteTexture;
             bool foundTexture = false;
             if (command.material)
             {
@@ -415,6 +415,15 @@ namespace Engine
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, baseColorTexture);
 
+            m_geoPassShader->SetUniform("color", glm::vec3(1.0f));
+            if (command.material)
+            {
+                command.material->ForEachFloat3([&](const std::string& name, const glm::vec3& value)
+                    {
+                        m_geoPassShader->SetUniform(name, value);
+                    });
+            }
+
             m_geoPassShader->SetUniform("uSpecularStrength", ArkEngine::GetInstance().GetSpecularStrength());
             m_geoPassShader->SetUniform("specularMap", 1);
             Texture* specTex = command.material ? command.material->GetTextureParam("specularMap") : nullptr;
@@ -427,7 +436,7 @@ namespace Engine
             else
             {
                 glActiveTexture(GL_TEXTURE1);
-                glBindTexture(GL_TEXTURE_2D, m_whiteTexture);
+                glBindTexture(GL_TEXTURE_2D, defaultWhiteTexture);
                 m_geoPassShader->SetUniform("uHasSpecularMap", 0);
             }
 
@@ -596,17 +605,6 @@ namespace Engine
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 
-    void DeferredRenderer::CreateWhiteTexture()
-    {
-        const unsigned char white[] = { 255, 255, 255, 255 };
-        glGenTextures(1, &m_whiteTexture);
-        glBindTexture(GL_TEXTURE_2D, m_whiteTexture);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, white);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glBindTexture(GL_TEXTURE_2D, 0);
-    }
-
     void DeferredRenderer::DestroyGBuffer()
     {
         if (m_gFBO) { glDeleteFramebuffers(1, &m_gFBO); m_gFBO = 0; }
@@ -626,11 +624,6 @@ namespace Engine
     {
         if (m_shadowFBO) { glDeleteFramebuffers(1, &m_shadowFBO); m_shadowFBO = 0; }
         if (m_shadowMap) { glDeleteTextures(1, &m_shadowMap); m_shadowMap = 0; }
-    }
-
-    void DeferredRenderer::DestroyWhiteTexture()
-    {
-        if (m_whiteTexture) { glDeleteTextures(1, &m_whiteTexture); m_whiteTexture = 0; }
     }
 
     glm::mat4 DeferredRenderer::ComputeLightSpaceMatrix(const LightData& light, const CameraData& cam) const
