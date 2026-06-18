@@ -1,0 +1,480 @@
+{
+  "accessors": [
+    {
+      "bufferView": 2,
+      "componentType": 5126,
+      "count": 812,
+      "max": [
+        502.4957275390625,
+        497.8464660644531,
+        935.2841796875
+      ],
+      "min": [
+        -502.49591064453125,
+        -497.838134765625,
+        0.9189453125
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 9744,
+      "componentType": 5126,
+      "count": 812,
+      "max": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "min": [
+        -1.0,
+        -1.0,
+        -1.0
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 3,
+      "componentType": 5126,
+      "count": 812,
+      "max": [
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "min": [
+        -1.0,
+        -1.0,
+        -1.0,
+        -1.0
+      ],
+      "type": "VEC4"
+    },
+    {
+      "bufferView": 1,
+      "componentType": 5126,
+      "count": 812,
+      "max": [
+        0.9961104393005371,
+        0.993960976600647
+      ],
+      "min": [
+        0.006105974316596985,
+        0.009672209620475769
+      ],
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 0,
+      "componentType": 5125,
+      "count": 2256,
+      "type": "SCALAR"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 19488,
+      "componentType": 5126,
+      "count": 314,
+      "max": [
+        1005.006103515625,
+        128.71334838867188,
+        498.32513427734375
+      ],
+      "min": [
+        -0.44378662109375,
+        -1.7330322265625,
+        -498.0534973144531
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 23256,
+      "componentType": 5126,
+      "count": 314,
+      "max": [
+        0.9999861717224121,
+        0.9999949336051941,
+        1.0
+      ],
+      "min": [
+        -0.9999817609786987,
+        -0.9999979734420776,
+        -1.0
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 3,
+      "byteOffset": 12992,
+      "componentType": 5126,
+      "count": 314,
+      "max": [
+        0.9999817609786987,
+        0.9999892115592957,
+        0.9522460699081421,
+        1.0
+      ],
+      "min": [
+        -0.9999982714653015,
+        -0.9999817609786987,
+        -0.952242374420166,
+        1.0
+      ],
+      "type": "VEC4"
+    },
+    {
+      "bufferView": 1,
+      "byteOffset": 6496,
+      "componentType": 5126,
+      "count": 314,
+      "max": [
+        0.9970029592514038,
+        0.8979541659355164
+      ],
+      "min": [
+        0.003112558275461197,
+        0.18331299722194672
+      ],
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 0,
+      "byteOffset": 9024,
+      "componentType": 5125,
+      "count": 924,
+      "type": "SCALAR"
+    },
+    {
+      "bufferView": 4,
+      "componentType": 5126,
+      "count": 31,
+      "max": [
+        1.0
+      ],
+      "min": [
+        0.0
+      ],
+      "type": "SCALAR"
+    },
+    {
+      "bufferView": 5,
+      "componentType": 5126,
+      "count": 31,
+      "max": [
+        0.7071068286895752,
+        -1.1801118944276823e-06,
+        0.06162724643945694,
+        0.7071067094802856
+      ],
+      "min": [
+        0.7044159770011902,
+        -0.06162958964705467,
+        -1.1801116670540068e-06,
+        0.7044160962104797
+      ],
+      "type": "VEC4"
+    }
+  ],
+  "animations": [
+    {
+      "channels": [
+        {
+          "sampler": 0,
+          "target": {
+            "node": 6,
+            "path": "rotation"
+          }
+        }
+      ],
+      "name": "open/close",
+      "samplers": [
+        {
+          "input": 10,
+          "interpolation": "LINEAR",
+          "output": 11
+        }
+      ]
+    }
+  ],
+  "asset": {
+    "extras": {
+      "author": "blackcloudstudios (https://sketchfab.com/blackcloudstudios)",
+      "license": "SKETCHFAB Standard (https://sketchfab.com/licenses)",
+      "source": "https://sketchfab.com/3d-models/small-crate-aaa-engineering-f7f731ac37e2488e8e30041ae36adfac",
+      "title": "Small Crate AAA (engineering)"
+    },
+    "generator": "Sketchfab-16.67.0",
+    "version": "2.0"
+  },
+  "bufferViews": [
+    {
+      "buffer": 0,
+      "byteLength": 12720,
+      "name": "floatBufferViews",
+      "target": 34963
+    },
+    {
+      "buffer": 0,
+      "byteLength": 9008,
+      "byteOffset": 12720,
+      "byteStride": 8,
+      "name": "floatBufferViews",
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteLength": 27024,
+      "byteOffset": 21728,
+      "byteStride": 12,
+      "name": "floatBufferViews",
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteLength": 18016,
+      "byteOffset": 48752,
+      "byteStride": 16,
+      "name": "floatBufferViews",
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteLength": 124,
+      "byteOffset": 66768,
+      "name": "floatBufferViews"
+    },
+    {
+      "buffer": 0,
+      "byteLength": 496,
+      "byteOffset": 66892,
+      "byteStride": 16,
+      "name": "floatBufferViews"
+    }
+  ],
+  "buffers": [
+    {
+      "byteLength": 67388,
+      "uri": "scene.bin"
+    }
+  ],
+  "extensionsRequired": [
+    "KHR_materials_pbrSpecularGlossiness"
+  ],
+  "extensionsUsed": [
+    "KHR_materials_pbrSpecularGlossiness"
+  ],
+  "images": [
+    {
+      "uri": "textures/Crate_s_diffuse.png"
+    },
+    {
+      "uri": "textures/Crate_s_specularGlossiness.png"
+    },
+    {
+      "uri": "textures/Crate_s_normal.png"
+    }
+  ],
+  "materials": [
+    {
+      "doubleSided": true,
+      "extensions": {
+        "KHR_materials_pbrSpecularGlossiness": {
+          "diffuseFactor": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "diffuseTexture": {
+            "index": 0
+          },
+          "glossinessFactor": 0.0,
+          "specularFactor": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "specularGlossinessTexture": {
+            "index": 1
+          }
+        }
+      },
+      "name": "Crate_s",
+      "normalTexture": {
+        "index": 2
+      }
+    }
+  ],
+  "meshes": [
+    {
+      "name": "crate_s_Crate_s_0",
+      "primitives": [
+        {
+          "attributes": {
+            "NORMAL": 1,
+            "POSITION": 0,
+            "TANGENT": 2,
+            "TEXCOORD_0": 3
+          },
+          "indices": 4,
+          "material": 0,
+          "mode": 4
+        }
+      ]
+    },
+    {
+      "name": "Crate_s_Cover_Crate_s_0",
+      "primitives": [
+        {
+          "attributes": {
+            "NORMAL": 6,
+            "POSITION": 5,
+            "TANGENT": 7,
+            "TEXCOORD_0": 8
+          },
+          "indices": 9,
+          "material": 0,
+          "mode": 4
+        }
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "children": [
+        1
+      ],
+      "matrix": [
+        -0.0058823463945264776,
+        -1.97030852465014e-21,
+        8.873480737419282e-06,
+        0.0,
+        8.873480737419282e-06,
+        -1.306143281204814e-18,
+        0.0058823463945264776,
+        0.0,
+        0.0,
+        0.0058823530562222,
+        1.306144760398409e-18,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "name": "Sketchfab_model"
+    },
+    {
+      "children": [
+        2
+      ],
+      "matrix": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+        0.0,
+        -1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "name": "15e3f13f370342058091e2df6b4f6503.fbx"
+    },
+    {
+      "children": [
+        3
+      ],
+      "name": "Object_2"
+    },
+    {
+      "children": [
+        4
+      ],
+      "name": "RootNode"
+    },
+    {
+      "children": [
+        5,
+        6
+      ],
+      "name": "crate_s",
+      "rotation": [
+        -0.7071068286895752,
+        -0.0,
+        0.0,
+        0.7071068286895752
+      ],
+      "scale": [
+        0.10000000149011612,
+        0.10000000149011612,
+        0.10000000149011612
+      ]
+    },
+    {
+      "mesh": 0,
+      "name": "crate_s_Crate_s_0"
+    },
+    {
+      "children": [
+        7
+      ],
+      "name": "Crate_s_Cover",
+      "rotation": [
+        0.7071068286895752,
+        -1.1801118944276823e-06,
+        -1.1801116670540068e-06,
+        0.7071067094802856
+      ],
+      "translation": [
+        -502.495361328125,
+        1.55133056640625,
+        874.019775390625
+      ]
+    },
+    {
+      "mesh": 1,
+      "name": "Crate_s_Cover_Crate_s_0"
+    }
+  ],
+  "samplers": [
+    {
+      "magFilter": 9729,
+      "minFilter": 9987,
+      "wrapS": 10497,
+      "wrapT": 10497
+    }
+  ],
+  "scene": 0,
+  "scenes": [
+    {
+      "name": "Sketchfab_Scene",
+      "nodes": [
+        0
+      ]
+    }
+  ],
+  "textures": [
+    {
+      "sampler": 0,
+      "source": 0
+    },
+    {
+      "sampler": 0,
+      "source": 1
+    },
+    {
+      "sampler": 0,
+      "source": 2
+    }
+  ]
+}

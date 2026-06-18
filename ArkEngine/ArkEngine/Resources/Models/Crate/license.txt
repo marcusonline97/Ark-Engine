@@ -1,0 +1,8 @@
+Model Information:
+* title:	Small Crate AAA (engineering)
+* source:	https://sketchfab.com/3d-models/small-crate-aaa-engineering-f7f731ac37e2488e8e30041ae36adfac
+* author:	blackcloudstudios (https://sketchfab.com/blackcloudstudios)
+
+Model License:
+* license type:	SKETCHFAB Standard (https://sketchfab.com/licenses)
+* requirements:	Under basic restrictions, use worldwide, on all types of media, commercially or not, and in all types of derivative works
