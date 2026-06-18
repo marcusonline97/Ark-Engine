@@ -56,7 +56,7 @@ namespace Engine
                 if (Texture* tex = command.material->GetTextureParam("baseColorTexture"))
                     defaultShader->SetTexture("baseColorTexture", tex);
 
-                Texture* specTex = command.material->GetTextureParam("specularmap");
+                Texture* specTex = command.material->GetTextureParam("specularMap");
                 if (specTex)
                 {
 					defaultShader->SetTexture("specularMap", specTex);
