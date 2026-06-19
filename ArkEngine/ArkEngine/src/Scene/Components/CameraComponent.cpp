@@ -1,5 +1,6 @@
 #include "CameraComponent.h"
 #include "Scene/GameObject.h"
+#include <algorithm>
 #include <glm/gtc/matrix_transform.hpp>
 
 namespace Engine
@@ -27,6 +28,36 @@ namespace Engine
 	glm::mat4 CameraComponent::GetProjectionMatrix(float aspect) const
 	{
 		return glm::perspective(glm::radians(m_fov), aspect, m_nearPlane, m_farPlane);
+	}
+
+	void CameraComponent::SetFOV(float fov)
+	{
+		m_fov = std::clamp(fov, 1.0f, 179.0f);
+	}
+
+	float CameraComponent::GetFOV() const
+	{
+		return m_fov;
+	}
+
+	void CameraComponent::SetNearPlane(float nearPlane)
+	{
+		m_nearPlane = nearPlane;
+	}
+
+	float CameraComponent::GetNearPlane() const
+	{
+		return m_nearPlane;
+	}
+
+	void CameraComponent::SetFarPlane(float farPlane)
+	{
+		m_farPlane = farPlane;
+	}
+
+	float CameraComponent::GetFarPlane() const
+	{
+		return m_farPlane;
 	}
 
 }

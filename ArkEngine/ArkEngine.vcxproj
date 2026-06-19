@@ -224,6 +224,7 @@
     <ClCompile Include="ArkEngine\src\Input\InputManager.cpp" />
     <ClCompile Include="ArkEngine\src\JumpPlatform.cpp" />
     <ClCompile Include="ArkEngine\src\Logger.cpp" />
+    <ClCompile Include="ArkEngine\src\MemoryStats.cpp" />
     <ClCompile Include="ArkEngine\src\Physics\Collider.cpp" />
     <ClCompile Include="ArkEngine\src\Physics\CollisionObject.cpp" />
     <ClCompile Include="ArkEngine\src\Physics\KinematicCharacterControlller.cpp" />
@@ -289,6 +290,7 @@
     <ClInclude Include="ArkEngine\src\JumpPlatform.h" />
     <ClInclude Include="ArkEngine\src\Logger.h" />
     <ClInclude Include="ArkEngine\src\Migration\ArkEngine_app.h" />
+    <ClInclude Include="ArkEngine\src\MemoryStats.h" />
     <ClInclude Include="ArkEngine\src\Physics\Collider.h" />
     <ClInclude Include="ArkEngine\src\Physics\CollisionObject.h" />
     <ClInclude Include="ArkEngine\src\Physics\KinematicCharacterController.h" />

@@ -17,6 +17,12 @@ namespace Engine
 
 		glm::mat4 GetProjectionMatrix(float aspect) const;
 
+		void  SetFOV(float fov);
+		float GetFOV() const;
+		void  SetNearPlane(float nearPlane);
+		float GetNearPlane() const;
+		void  SetFarPlane(float farPlane);
+		float GetFarPlane() const;
 
 	private:
 		float m_fov = 60.0f;

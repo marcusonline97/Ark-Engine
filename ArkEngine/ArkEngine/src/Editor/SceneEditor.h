@@ -2,6 +2,7 @@
 
 #include "Scene/Scene.h"
 #include "Logger.h"
+#include "MemoryStats.h"
 
 #include <array>
 #include <cstddef>
@@ -39,6 +40,7 @@ namespace Engine
 		{
 			Logging::Level level = Logging::Level::DEBUG;
 			std::string    message;
+			float          timestamp = 0.0f;
 		};
 		std::vector<LogEntry> m_logEntries;
 
@@ -101,6 +103,8 @@ namespace Engine
 
 		// Rendering settings
 		MipmapFilter           m_mipmapFilter = MipmapFilter::Linear;
+		float                  m_memStatsPollTimer = 0.0f;
+		Engine::MemoryStats    m_lastMemStats;
 
 		// Logs panel
 		bool                   m_logAutoScroll = true;

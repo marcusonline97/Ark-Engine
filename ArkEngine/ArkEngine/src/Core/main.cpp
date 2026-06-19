@@ -5,6 +5,7 @@
 
 int main()
 {
+	Logging::SetStartTime();
 	Logging::EnableAllLevels();
 	//create instance of the game and engine
 	Game* game = new Game();

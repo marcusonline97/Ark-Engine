@@ -8,6 +8,7 @@
 #include "Scene/Components/AnimationComponent.h"
 #include "Core/ArkEngine.h"
 #include "Graphics/Texture.h"
+#include "MemoryStats.h"
 #include "Render/Material.h"
 #include "Logger.h"
 #include "imgui/imgui.h"
@@ -16,6 +17,7 @@
 #include <GLAD/glad.h>
 #include <algorithm>
 #include <cctype>
+#include <cstdio>
 #include <functional>
 #include <mutex>
 #include <glm/gtc/quaternion.hpp>
@@ -25,6 +27,13 @@ namespace Engine
 	namespace
 	{
 		constexpr const char* kAssetPathPayloadType = "ASSET_PATH";
+
+		static std::string FormatTimestamp(float ts)
+		{
+			char buf[16];
+			std::snprintf(buf, sizeof(buf), "%.3f", ts);
+			return buf;
+		}
 
 		bool IsMeshAssetPayloadFile(const std::filesystem::path& p)
 		{
@@ -70,7 +79,7 @@ namespace Engine
 	// Logger::MessageStream::~MessageStream calls DispatchToSinks which
 	// calls our sink lambda, which pushes into this queue.
 	// SceneEditor::Render() drains it on the main thread each frame.
-	struct PendingLogEntry { Logging::Level level; std::string message; };
+	struct PendingLogEntry { Logging::Level level; std::string message; float timestamp = 0.0f; };
 	struct LogQueue
 	{
 		std::mutex                   mtx;
@@ -86,7 +95,7 @@ namespace Engine
 		static std::once_flag s_registerSinkOnce;
 		std::call_once(s_registerSinkOnce, []
 			{
-				Logging::AddSink([](Logging::Level level, std::string_view msg)
+				Logging::AddSink([](Logging::Level level, std::string_view msg, float ts)
 					{
 						std::string text(msg);
 						if (!text.empty() && text.back() == '\n') text.pop_back();
@@ -95,7 +104,7 @@ namespace Engine
 						std::lock_guard<std::mutex> lock(q.mtx);
 						if (q.pending.size() >= kMaxLogEntries)
 							q.pending.erase(q.pending.begin());
-						q.pending.push_back({ level, std::move(text) });
+						q.pending.push_back({ level, std::move(text), ts });
 					});
 			});
 	}
@@ -517,9 +526,28 @@ namespace Engine
 					if (ImGui::DragFloat("##LightRange", &range, 0.5f, 0.1f, 200.0f, "%.1f"))
 						light->SetRange(range);
 				}
-				else if (dynamic_cast<CameraComponent*>(comp.get()))
+				else if (auto* cam = dynamic_cast<CameraComponent*>(comp.get()))
 				{
-					ImGui::TextDisabled("FOV / near / far configured in code.");
+					float fov = cam->GetFOV();
+					ImGui::Text("FOV");
+					ImGui::SameLine(90.0f);
+					ImGui::SetNextItemWidth(160.0f);
+					if (ImGui::SliderFloat("##CamFOV", &fov, 10.0f, 170.0f, "%.1f deg"))
+						cam->SetFOV(fov);
+
+					ImGui::Text("Near");
+					ImGui::SameLine(90.0f);
+					float nearPlane = cam->GetNearPlane();
+					ImGui::SetNextItemWidth(100.0f);
+					if (ImGui::DragFloat("##CamNear", &nearPlane, 0.01f, 0.001f, 10.0f, "%.3f"))
+						cam->SetNearPlane(nearPlane);
+
+					ImGui::Text("Far");
+					ImGui::SameLine(90.0f);
+					float farPlane = cam->GetFarPlane();
+					ImGui::SetNextItemWidth(100.0f);
+					if (ImGui::DragFloat("##CamFar", &farPlane, 1.0f, 1.0f, 10000.0f, "%.1f"))
+						cam->SetFarPlane(farPlane);
 				}
 				else if (dynamic_cast<AudioComponent*>(comp.get()))
 				{
@@ -963,6 +991,30 @@ namespace Engine
 		ImGui::SameLine(0, 12);
 		ImGui::TextDisabled("scales specular on all materials");
 		ImGui::Spacing();
+
+		ImGui::Spacing();
+		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.49f, 0.51f, 1.0f, 1.0f));
+		ImGui::TextUnformatted("  Memory");
+		ImGui::PopStyleColor();
+		ImGui::Separator();
+		ImGui::Spacing();
+
+		// Refresh stats at most once per second
+		m_memStatsPollTimer += ImGui::GetIO().DeltaTime;
+		if (m_memStatsPollTimer >= 1.0f)
+		{
+			m_lastMemStats = Engine::QueryMemoryStats();
+			m_memStatsPollTimer = 0.0f;
+		}
+
+		const float wsMiB = static_cast<float>(m_lastMemStats.workingSetBytes) / (1024.0f * 1024.0f);
+		const float peakMiB = static_cast<float>(m_lastMemStats.peakWorkingSetBytes) / (1024.0f * 1024.0f);
+		const float privMiB = static_cast<float>(m_lastMemStats.privateBytes) / (1024.0f * 1024.0f);
+
+		ImGui::Text("Working Set");  ImGui::SameLine(120.0f); ImGui::Text("%.1f MiB", wsMiB);
+		ImGui::Text("Peak WS");      ImGui::SameLine(120.0f); ImGui::Text("%.1f MiB", peakMiB);
+		ImGui::Text("Private");      ImGui::SameLine(120.0f); ImGui::Text("%.1f MiB", privMiB);
+		ImGui::Spacing();
 	}
 
 	std::size_t SceneEditor::ApplyMipmapFilter(MipmapFilter filter)
@@ -1034,7 +1086,7 @@ namespace Engine
 		{
 			if (m_logEntries.size() >= kMaxLogEntries)
 				m_logEntries.erase(m_logEntries.begin());
-			m_logEntries.push_back({ p.level, std::move(p.message) });
+			m_logEntries.push_back({ p.level, std::move(p.message), p.timestamp });
 		}
 		q.pending.clear();
 	}
@@ -1086,7 +1138,7 @@ namespace Engine
 			}
 
 			ImGui::PushStyleColor(ImGuiCol_Text, col);
-			const std::string line = std::string("[") + LevelNameLocal(entry.level) + "] " + entry.message;
+			const std::string line = "[" + FormatTimestamp(entry.timestamp) + "s][" + LevelNameLocal(entry.level) + "] " + entry.message;
 			ImGui::TextUnformatted(line.c_str());
 			ImGui::PopStyleColor();
 		}
